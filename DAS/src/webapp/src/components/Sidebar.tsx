@@ -154,7 +154,7 @@ export default function Sidebar() {
                 PRO
               </span>
             </div>
-            <span className="text-[10px] text-zinc-500 font-medium truncate">Vercel Architecture</span>
+            <span className="text-[10px] text-zinc-500 font-medium truncate">Quản lý Công văn</span>
           </div>
         )}
       </div>

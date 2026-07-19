@@ -9,7 +9,7 @@ export default function Header({ title }: HeaderProps) {
   return (
     <header className="h-14 border-b border-zinc-800 bg-black/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between px-6 transition-colors duration-200">
       
-      {/* Vercel Breadcrumb Path */}
+      {/* Breadcrumb Path */}
       <div className="flex items-center gap-2 text-sm">
         <span className="font-extrabold text-white">CV</span>
         <span className="text-zinc-600 font-light">/</span>
@@ -21,37 +21,11 @@ export default function Header({ title }: HeaderProps) {
         <h1 className="font-bold text-white truncate max-w-[200px] sm:max-w-none">{title}</h1>
       </div>
 
-      {/* Right controls - Exact Vercel Buttons from Screenshot 1 */}
+      {/* Right controls */}
       <div className="flex items-center gap-2.5">
-        
-        {/* Exact Vercel "Deployments" Filter Pill Button from Screenshot 1 */}
-        <button 
-          className="px-3 py-1.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
-          title="Lọc danh sách công văn phát hành"
-        >
-          {/* Exact Filter Icon lines */}
-          <svg className="w-3.5 h-3.5 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="7" y1="12" x2="17" y2="12" />
-            <line x1="10" y1="18" x2="14" y2="18" />
-          </svg>
-          <span>Deployments</span>
-        </button>
-
-        {/* Exact Vercel Square Book / Documentation Button from Screenshot 1 */}
-        <button 
-          className="w-8 h-8 rounded-lg bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer"
-          title="Xem tài liệu hướng dẫn & công văn mẫu"
-        >
-          {/* Exact Book Icon from Screenshot 1 */}
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-          </svg>
-        </button>
 
         {/* Search input with Ctrl+K badge */}
-        <div className="relative hidden lg:flex items-center ml-1">
+        <div className="relative hidden lg:flex items-center">
           <input
             type="text"
             placeholder="Tìm kiếm tài liệu..."
