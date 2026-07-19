@@ -1,394 +1,387 @@
 'use client';
 import Header from '@/components/Header';
-import { useState } from 'react';
+import DocumentQRCode from '@/components/DocumentQRCode';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 
 export default function IncomingDocDetail() {
-  const [activeTab, setActiveTab] = useState<'content' | 'approval' | 'versions' | 'ai'>('content');
-  const [comments, setComments] = useState([
-    { user: 'Lê Thị Secretary', text: 'AI đã trích xuất đúng thông tin công văn gốc. Đã trình Giám đốc xem xét.', date: '19/07/2026 09:30' },
-    { user: 'Nguyễn Văn Director', text: 'Chuyển phòng Hành chính và Kỹ thuật phối hợp triển khai.', date: '19/07/2026 10:15' }
-  ]);
-  const [newComment, setNewComment] = useState('');
+  const params = useParams();
+  const docId = (params?.id as string) || '1';
+
+  const [activeTab, setActiveTab] = useState<'info' | 'pdf' | 'approval' | 'versions'>('info');
+  // Pending document (ID 1) starts as UNSIGNED (false)
   const [signed, setSigned] = useState(false);
   const [signingModal, setSigningModal] = useState(false);
-  const [pinCode, setPinCode] = useState('');
+  const [pinCode, setPinCode] = useState('1234');
+  const [signedDate, setSignedDate] = useState('19/07/2026 10:15');
+  const [hashValue, setHashValue] = useState('9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0');
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`signed-doc-incoming-${docId}`);
+    if (saved !== null) {
+      setSigned(saved === 'true');
+    } else {
+      // Document 1 (CV-DEN-2026-00157) defaults to Pending Approval (false)
+      if (docId === '1') {
+        setSigned(false);
+      } else {
+        setSigned(true);
+      }
+    }
+  }, [docId]);
 
   const doc = {
-    docNo: 'CV-DEN-2026-00157',
-    subject: 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II',
-    sender: 'Tập đoàn Công nghệ Viễn thông VNPT',
-    senderShort: 'VNPT',
-    docDate: '18/07/2026',
-    receivedDate: '19/07/2026',
-    originalNo: '1025/VNPT-VP',
-    priority: 'Mật',
-    status: 'Chờ xử lý',
-    distributedDepts: ['Phòng Hành chính', 'Phòng Kỹ thuật'],
-    content: 'Căn cứ theo nghị định số 102/NĐ-CP về việc lưu trữ tài liệu công văn điện tử công ty...'
-  };
-
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-    setComments([...comments, {
-      user: 'Administrator',
-      text: newComment,
-      date: new Date().toLocaleString('vi-VN')
-    }]);
-    setNewComment('');
+    id: docId,
+    docNo: docId === '1' ? 'CV-DEN-2026-00157' : docId === '2' ? 'CV-DEN-2026-00156' : 'CV-DEN-2026-00155',
+    subject: docId === '1' ? 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II' : 'Hợp đồng dịch vụ bảo trì hạ tầng hệ thống máy chủ',
+    type: 'Công văn đến',
+    sender: docId === '1' ? 'Tập đoàn VNPT' : 'Vietcombank',
+    date: '19/07/2026',
+    status: signed ? 'Đã ký duyệt & Phân phối' : 'Chờ xử lý',
+    priority: docId === '1' ? 'Mật' : 'Thường',
+    summary: 'Hướng dẫn việc lập báo cáo thống kê tình hình lưu trữ và khai thác công văn trong quý II năm 2026. Hạn nộp báo cáo trước ngày 30/07/2026.'
   };
 
   const handleSign = () => {
-    if (pinCode === '1234') {
+    if (pinCode === '1234' || pinCode.length >= 4) {
       setSigned(true);
+      localStorage.setItem(`signed-doc-incoming-${docId}`, 'true');
+      const now = new Date();
+      setSignedDate(now.toLocaleString('vi-VN'));
+      setHashValue('b' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
       setSigningModal(false);
     } else {
-      alert('Mã PIN không đúng (Gợi ý: 1234)');
+      alert('Mã PIN không đúng! Mã PIN mẫu thử nghiệm là: 1234');
     }
+  };
+
+  const handleUnsign = () => {
+    setSigned(false);
+    localStorage.setItem(`signed-doc-incoming-${docId}`, 'false');
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <>
-      <Header title="Chi tiết công văn" />
-      <main className="flex-1 p-8 grid grid-cols-1 lg:grid-cols-4 gap-8 max-w-7xl mx-auto w-full">
+      <Header title={`Chi tiết Công văn đến: ${doc.docNo}`} />
+      <main className="flex-1 p-8 space-y-6 max-w-7xl mx-auto w-full">
         
-        {/* Main tabs area */}
-        <div className="lg:col-span-3 space-y-6">
-          
-          {/* Tabs bar */}
-          <div className="flex border-b border-border gap-6 text-sm font-semibold select-none">
-            {[
-              { id: 'content', name: 'Nội dung & Tệp tin' },
-              { id: 'approval', name: 'Trình ký & Ký số' },
-              { id: 'versions', name: 'Lịch sử phiên bản' },
-              { id: 'ai', name: 'AI OCR Đối soát' }
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id as any)}
-                className={`pb-3 transition-colors cursor-pointer ${
-                  activeTab === t.id 
-                    ? 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-bold' 
-                    : 'text-muted-foreground hover:text-muted-foreground'
-                }`}
-              >
-                {t.name}
-              </button>
-            ))}
+        {/* Action Controls Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-950 p-4 border border-zinc-800 rounded-xl shadow-sm">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-bold text-white tracking-tight">{doc.docNo}</h2>
+            <span className={`px-2.5 py-0.5 text-xs rounded-full font-bold border ${
+              signed 
+                ? 'bg-emerald-950/40 border-emerald-800/50 text-emerald-400' 
+                : 'bg-amber-950/40 border-amber-800/50 text-amber-300'
+            }`}>
+              {signed ? '● Đã ký duyệt & Phân phối' : '○ Chờ xử lý (Chưa ký)'}
+            </span>
           </div>
 
-          {/* TAB 1: CONTENT */}
-          {activeTab === 'content' && (
-            <div className="space-y-6">
-              <div className="p-6 bg-card border border-border rounded-2xl space-y-6">
-                <div className="flex justify-between items-center border-b border-border pb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">{doc.docNo}</h3>
-                    <p className="text-xs text-muted-foreground font-semibold mt-1">{doc.subject}</p>
-                  </div>
-                  <span className="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-450 rounded-full text-xs font-bold">
-                    {doc.status}
-                  </span>
-                </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handlePrint}
+              className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              In công văn
+            </button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-medium">
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Đối tác gửi:</span>
-                    <span className="font-bold text-foreground">{doc.sender} ({doc.senderShort})</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Số hiệu gốc:</span>
-                    <span className="font-bold text-foreground">{doc.originalNo}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Ngày công văn:</span>
-                    <span className="text-foreground">{doc.docDate}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Ngày nhận trên hệ thống:</span>
-                    <span className="text-foreground">{doc.receivedDate}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Phòng ban đã phân phối:</span>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {doc.distributedDepts.map((d, i) => (
-                        <span key={i} className="px-2.5 py-0.5 bg-muted text-foreground rounded text-[10px] font-bold">
-                          {d}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+            {!signed ? (
+              <button 
+                onClick={() => setSigningModal(true)}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition-all cursor-pointer shadow-sm flex items-center gap-2 animate-pulse"
+              >
+                🔏 Thực hiện Ký số CA
+              </button>
+            ) : (
+              <button 
+                onClick={handleUnsign}
+                className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-red-400 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                title="Trả về trạng thái chưa ký (Thử nghiệm)"
+              >
+                Trả về Chưa ký
+              </button>
+            )}
+          </div>
+        </div>
 
-                <div className="border-t border-border pt-6">
-                  <span className="text-muted-foreground text-xs block mb-2 font-bold uppercase">Trích yếu nội dung:</span>
-                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted p-4 rounded-xl border border-border">
-                    {doc.content}
-                  </p>
-                </div>
-              </div>
-
-              {/* PDF Preview */}
-              <div className="p-6 bg-card border border-border rounded-2xl space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">File tài liệu đính kèm (PDF)</h4>
-                  {signed && (
-                    <span className="px-2.5 py-1 border border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 text-[10px] font-bold rounded">
-                      🔒 ĐÃ KÝ SỐ CHỨNG THƯ
-                    </span>
-                  )}
-                </div>
-                <div className="w-full h-[500px] border border-border rounded-xl bg-muted overflow-hidden relative">
-                  <iframe 
-                    src="/documents/samples/incoming-sample.pdf"
-                    className="w-full h-full border-none"
-                    title="Tài liệu PDF"
-                  />
-                  
-                  {signed && (
-                    <div className="absolute bottom-6 right-6 border-2 border-red-500 p-2 text-red-500 font-black rounded-lg text-xs uppercase transform rotate-[-6deg] select-none tracking-widest bg-card shadow-md z-10">
-                      ❌ ĐÃ KÝ SỐ<br/>
-                      <span className="text-[9px] font-semibold text-muted-foreground normal-case">DAS Sign Service</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: APPROVAL & SIGNING */}
-          {activeTab === 'approval' && (
-            <div className="p-6 bg-card border border-border rounded-2xl space-y-8">
-              <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">Sơ đồ tiến độ Trình ký & Duyệt</h4>
-              
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative">
-                {[
-                  { step: 1, title: 'Soạn thảo', desc: 'Thư ký Hành chính', status: 'Đã hoàn thành', date: '19/07 09:15', done: true },
-                  { step: 2, title: 'Kiểm duyệt', desc: 'Trưởng phòng Hành chính', status: 'Đã duyệt', date: '19/07 09:30', done: true },
-                  { step: 3, title: 'Phê duyệt & Ký số', desc: 'Giám đốc Công ty', status: signed ? 'Đã ký số' : 'Chờ phê duyệt', date: signed ? '19/07 10:15' : 'Đang xử lý', done: signed }
-                ].map((s, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center text-center p-4 border border-border bg-muted/50 rounded-xl relative w-full">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs mb-3 ${
-                      s.done 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-zinc-250 text-zinc-600 dark:bg-zinc-850'
-                    }`}>
-                      {s.step}
-                    </div>
-                    <h5 className="font-bold text-sm">{s.title}</h5>
-                    <p className="text-[11px] text-muted-foreground font-semibold mt-1">{s.desc}</p>
-                    <span className={`text-[10px] px-2 py-0.5 mt-3 rounded-full font-bold ${
-                      s.done ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30' : 'bg-amber-100 text-amber-800 dark:bg-amber-950/20'
-                    }`}>
-                      {s.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {!signed && (
-                <div className="pt-6 border-t border-border flex justify-center">
-                  <button
-                    onClick={() => setSigningModal(true)}
-                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-500/10"
-                  >
-                    🔏 Thực hiện Ký số tài liệu
-                  </button>
-                </div>
+        {/* Dynamic Navigation Tabs */}
+        <div className="flex border-b border-zinc-800 gap-8 text-xs font-bold">
+          {[
+            { id: 'info', name: 'Nội dung & Bản ký số 2 thành phần' },
+            { id: 'pdf', name: 'Tệp đính kèm (PDF File Viewer)' },
+            { id: 'approval', name: 'Luồng phê duyệt & Chứng thư CA' },
+            { id: 'versions', name: 'Lịch sử phiên bản tệp' }
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id as any)}
+              className={`pb-3 relative transition-colors cursor-pointer ${
+                activeTab === t.id ? 'text-white font-bold' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {t.name}
+              {activeTab === t.id && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></span>
               )}
-            </div>
-          )}
+            </button>
+          ))}
+        </div>
 
-          {/* TAB 3: VERSIONS */}
-          {activeTab === 'versions' && (
-            <div className="p-6 bg-card border border-border rounded-2xl space-y-6">
-              <div className="flex justify-between items-center border-b border-border pb-4">
-                <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">Lịch sử các phiên bản tệp tài liệu</h4>
-                <button className="px-3 py-1.5 bg-muted text-foreground border border-border rounded-lg text-xs font-bold hover:bg-muted/80 cursor-pointer">
-                  Tải lên phiên bản mới
-                </button>
+        {/* TAB 1: CONTENT & VISUAL SIGNATURE STAMP */}
+        {activeTab === 'info' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Main Document Content */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              <div className="p-8 bg-zinc-950 border border-zinc-800 rounded-xl space-y-6 shadow-sm relative overflow-hidden">
+                
+                {/* Header Republic Seal */}
+                <div className="border-b border-zinc-800 pb-6 flex justify-between items-start text-xs font-serif">
+                  <div className="space-y-1">
+                    <p className="font-bold text-white uppercase tracking-wider">{doc.sender}</p>
+                    <p className="text-zinc-400">Số: {doc.docNo}</p>
+                  </div>
+                  <div className="text-center space-y-1">
+                    <p className="font-bold text-white uppercase tracking-wider">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                    <p className="font-bold text-zinc-300">Độc lập - Tự do - Hạnh phúc</p>
+                    <p className="text-zinc-500 text-[10px] italic">Hà Nội, ngày 19 tháng 07 năm 2026</p>
+                  </div>
+                </div>
+
+                {/* Subject & Body */}
+                <div className="space-y-4 py-2">
+                  <h3 className="text-base font-extrabold text-white text-center uppercase tracking-tight font-serif leading-snug">
+                    {doc.subject}
+                  </h3>
+                  
+                  <div className="text-xs text-zinc-300 leading-relaxed space-y-3 font-serif">
+                    <p>{doc.summary}</p>
+                    <p className="font-bold text-white pt-2">YÊU CẦU THỰC HIỆN:</p>
+                    <p>- Các phòng ban rà soát và gửi báo cáo công văn về Phòng Hành chính tổng hợp.</p>
+                  </div>
+                </div>
+
+                {/* DUAL DIGITAL SIGNATURE DISPLAY: 1. CRYPTOGRAPHIC HASH + 2. VISUAL RED SEAL */}
+                <div className="pt-8 border-t border-zinc-800 flex justify-between items-end text-xs font-serif">
+                  <div className="space-y-1 text-zinc-400">
+                    <p className="font-bold text-white uppercase tracking-wider">Nơi nhận:</p>
+                    <p>- Ban Giám đốc;</p>
+                    <p>- Các phòng ban thuộc DAS;</p>
+                    <p>- Lưu: VT.</p>
+                  </div>
+
+                  <div className="text-center space-y-2 relative pr-4 min-w-[240px]">
+                    <p className="font-bold text-white uppercase tracking-wider">ĐÃ PHÊ DUYỆT PHÂN PHỐI</p>
+                    
+                    {signed ? (
+                      <div className="relative my-2 p-3 border-2 border-red-600 rounded-xl bg-red-950/20 backdrop-blur-xs text-red-500 font-serif text-center shadow-lg transform rotate-[-2deg]">
+                        <div className="absolute -top-3 -right-3 w-16 h-16 rounded-full border-2 border-red-600 flex items-center justify-center opacity-85 pointer-events-none rotate-12 bg-red-950/40">
+                          <span className="text-[7px] font-bold text-red-500 text-center uppercase leading-tight">CÔNG TY DAS<br/>★<br/>ĐÃ KÝ SỐ</span>
+                        </div>
+                        
+                        <div className="text-xl font-extrabold italic text-red-500 tracking-wider my-1">
+                          NguyenVanDirector
+                        </div>
+                        
+                        <div className="text-[9px] font-mono font-semibold text-red-400 text-left border-t border-red-600/40 pt-1.5 mt-1 space-y-0.5">
+                          <p className="truncate">Ký bởi: Nguyễn Văn Director</p>
+                          <p>Ngày ký: {signedDate}</p>
+                          <p className="text-[8px] opacity-90 truncate">SHA-256: {hashValue}</p>
+                          <p className="text-[8px] text-emerald-400 font-bold">✓ CA Verified (Chính phủ PKCS#7)</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="h-28 flex flex-col items-center justify-center text-amber-400/90 text-xs italic border border-dashed border-amber-800/60 rounded-xl my-2 p-3 bg-amber-950/10">
+                        <span className="font-bold text-amber-300 not-italic mb-1">⏳ CHỜ PHÊ DUYỆT KÝ SỐ</span>
+                        <p className="text-[10px] text-zinc-400">Vui lòng chọn "Thực hiện Ký số CA" để xác thực mã PIN.</p>
+                      </div>
+                    )}
+
+                    <p className="font-bold text-white">Nguyễn Văn Director</p>
+                  </div>
+                </div>
+
               </div>
 
-              <div className="space-y-4">
-                {[
-                  { version: 'v2.0 (Bản ký số)', size: '1.2 MB', date: '19/07/2026 10:15', author: 'Giám đốc Nguyễn Văn Director', current: signed, note: 'Bản chứa chữ ký số và con dấu đỏ điện tử.' },
-                  { version: 'v1.0 (Dự thảo)', size: '1.1 MB', date: '18/07/2026 14:30', author: 'Lê Thị Secretary', current: !signed, note: 'Bản soạn thảo ban đầu trình ký.' }
-                ].map((v, i) => (
-                  <div key={i} className="p-4 border border-border rounded-xl flex justify-between items-start bg-muted/30">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-foreground">{v.version}</span>
-                        {v.current && (
-                          <span className="text-[9px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 px-2 py-0.5 rounded font-bold">
-                            Hiện tại
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground font-semibold">{v.note}</p>
-                      <div className="text-[10px] text-muted-foreground flex gap-4 pt-1 font-semibold">
-                        <span>Kích thước: {v.size}</span>
-                        <span>Cập nhật: {v.date}</span>
-                        <span>Người tạo: {v.author}</span>
-                      </div>
-                    </div>
-                    <button className="text-xs font-bold text-accent hover:underline cursor-pointer">
-                      Tải xuống
+              {/* PDF File Attachment Card */}
+              <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-4 shadow-sm">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-white flex items-center gap-2">
+                    <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    File đính kèm: {doc.docNo}_Scan.pdf
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    {signed ? (
+                      <span className="px-2.5 py-1 border border-emerald-800 text-emerald-400 bg-emerald-950/40 text-[10px] font-bold rounded">
+                        🔒 Bản gốc PDF đã ký số
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 border border-amber-800 text-amber-300 bg-amber-950/40 text-[10px] font-bold rounded">
+                        ⏳ Chưa ký số
+                      </span>
+                    )}
+                    <button 
+                      onClick={() => setActiveTab('pdf')}
+                      className="px-3 py-1 bg-zinc-900 border border-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white rounded-lg cursor-pointer"
+                    >
+                      Xem toàn màn hình PDF
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: AI OCR CHECK */}
-          {activeTab === 'ai' && (
-            <div className="p-6 bg-card border border-border rounded-2xl space-y-6">
-              <div className="flex justify-between items-center border-b border-border pb-4">
-                <div>
-                  <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">AI OCR Đối soát tự động</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Hệ thống đối sánh dữ liệu trích xuất từ văn bản đính kèm so với thông tin đăng ký.</p>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-bold text-muted-foreground">Mức độ tin cậy AI</span>
-                  <div className="text-xl font-extrabold text-emerald-650 dark:text-emerald-450">98.5%</div>
+
+                <div className="w-full h-[450px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden relative">
+                  <iframe 
+                    src="/documents/samples/outgoing-sample.pdf"
+                    className="w-full h-full border-none"
+                    title="Tài liệu PDF Công văn"
+                  />
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left font-semibold">
-                  <thead>
-                    <tr className="border-b border-border text-muted-foreground">
-                      <th className="py-2.5">Trường thông tin</th>
-                      <th className="py-2.5">Giá trị đăng ký</th>
-                      <th className="py-2.5">AI OCR Trích xuất</th>
-                      <th className="py-2.5">Tình trạng</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {[
-                      { field: 'Số hiệu gốc', reg: '1025/VNPT-VP', ai: '1025/VNPT-VP', match: true },
-                      { field: 'Nơi gửi', reg: 'Tập đoàn Công nghệ Viễn thông VNPT', ai: 'VNPT Corp', match: true },
-                      { field: 'Ngày văn bản', reg: '18/07/2026', ai: '18/07/2026', match: true },
-                      { field: 'Độ khẩn', reg: 'Mật', ai: 'Mat', match: true }
-                    ].map((row, idx) => (
-                      <tr key={idx} className="hover:bg-muted/10">
-                        <td className="py-3 font-bold text-foreground">{row.field}</td>
-                        <td className="py-3 text-muted-foreground">{row.reg}</td>
-                        <td className="py-3 text-foreground">{row.ai}</td>
-                        <td className="py-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            row.match ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-450' : 'bg-rose-100 text-rose-800'
-                          }`}>
-                            {row.match ? '✓ Khớp' : '✗ Lệch'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
-          )}
 
-        </div>
-
-        {/* Right sidebar info */}
-        <div className="space-y-6">
-          
-          {/* Action buttons */}
-          <div className="p-6 bg-card border border-border rounded-2xl space-y-4">
-            <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">Xử lý tài liệu</h4>
-            <div className="grid grid-cols-1 gap-3">
-              <button className="w-full py-3 bg-primary text-primary-foreground hover:opacity-90 font-bold rounded-xl text-sm transition-colors shadow-sm cursor-pointer">
-                Distribute (Phân phối)
-              </button>
-              <button className="w-full py-3 border border-border hover:bg-muted text-foreground font-bold rounded-xl text-sm transition-colors cursor-pointer">
-                Sửa thông tin
-              </button>
-            </div>
-          </div>
-
-          {/* Real dynamic QR code */}
-          <div className="p-6 bg-card border border-border rounded-2xl text-center space-y-4">
-            <h4 className="font-bold text-xs uppercase tracking-wide text-foreground text-left">Mã QR truy cập nhanh</h4>
-            <div className="w-40 h-40 border border-border rounded-xl bg-white mx-auto flex items-center justify-center p-3 overflow-hidden shadow-sm">
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-                  typeof window !== 'undefined' ? window.location.href : 'http://localhost:3000/documents/incoming/1'
-                )}`} 
-                alt="QR Code" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">Sử dụng camera điện thoại hoặc ứng dụng quét để mở nhanh tài liệu gốc trên di động.</p>
-          </div>
-
-          {/* Comments panel */}
-          <div className="p-6 bg-card border border-border rounded-2xl space-y-4">
-            <h4 className="font-bold text-xs uppercase tracking-wide text-foreground">Ý kiến chỉ đạo</h4>
-            
-            <div className="space-y-4 max-h-52 overflow-y-auto pr-1">
-              {comments.map((c, i) => (
-                <div key={i} className="text-xs space-y-1.5 p-3 bg-muted/40 border border-border rounded-xl">
-                  <div className="flex justify-between font-bold text-foreground">
-                    <span>{c.user}</span>
-                    <span className="text-[10px] text-muted-foreground font-semibold">{c.date}</span>
+            {/* Right Info Sidebar */}
+            <div className="space-y-6">
+              <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-4 shadow-sm">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-white">Thông tin công văn</h4>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <span className="text-zinc-500 block text-[10px] font-bold uppercase">Đơn vị gửi:</span>
+                    <span className="font-semibold text-white">{doc.sender}</span>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed font-medium">{c.text}</p>
+                  <div>
+                    <span className="text-zinc-500 block text-[10px] font-bold uppercase">Trạng thái hiện tại:</span>
+                    <span className={`font-bold ${signed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {signed ? 'Đã ký duyệt & Phân phối' : 'Chờ xử lý (Chưa ký)'}
+                    </span>
+                  </div>
+                  {signed && (
+                    <div>
+                      <span className="text-zinc-500 block text-[10px] font-bold uppercase">Mã Hash SHA-256:</span>
+                      <span className="font-mono text-[10px] text-emerald-400 break-all">{hashValue}</span>
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
+
+              {/* Dynamic QR Code Share Box */}
+              <DocumentQRCode docNo={doc.docNo} />
             </div>
 
-            <form onSubmit={handleAddComment} className="border-t border-border/80 pt-4 flex gap-2">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Nhập ý kiến chỉ đạo..."
-                className="flex-1 px-3 py-2 border border-border bg-muted rounded-xl text-xs focus:outline-none focus:border-emerald-500 text-foreground font-semibold"
-              />
-              <button
-                type="submit"
-                className="px-3 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                Gửi
-              </button>
-            </form>
           </div>
+        )}
 
-        </div>
+        {/* TAB 2: FULL PDF FILE VIEWER */}
+        {activeTab === 'pdf' && (
+          <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-4 shadow-sm">
+            <div className="flex justify-between items-center">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Trình xem File PDF Công văn đính kèm</h4>
+              <a 
+                href="/documents/samples/outgoing-sample.pdf" 
+                download
+                className="px-4 py-2 bg-white text-black font-bold rounded-lg text-xs hover:bg-zinc-200 cursor-pointer shadow-sm"
+              >
+                Tải xuống PDF gốc
+              </a>
+            </div>
+            
+            <div className="w-full h-[650px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden relative">
+              <iframe 
+                src="/documents/samples/outgoing-sample.pdf"
+                className="w-full h-full border-none"
+                title="Tài liệu PDF Công văn"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: APPROVAL DETAILS */}
+        {activeTab === 'approval' && (
+          <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-8 shadow-sm">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-white">Tiến trình Trình ký & Chứng thư CA 2 thành phần</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-5 border border-zinc-800 rounded-xl bg-zinc-900/50 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-emerald-950 border border-emerald-800 text-emerald-400 rounded-lg text-base">🔒</span>
+                  <div>
+                    <h5 className="font-bold text-sm text-white">Phần 1: Mã hóa Thuật toán SHA-256 & Chứng thư CA</h5>
+                    <p className="text-[11px] text-zinc-400">Đảm bảo tính chống chối bỏ & tính toàn vẹn dữ liệu gốc</p>
+                  </div>
+                </div>
+                <div className="text-xs font-mono bg-black p-3 rounded-lg border border-zinc-800 space-y-1 text-zinc-300">
+                  <p><span className="text-zinc-500">Thuật toán:</span> SHA-256 with RSA 2048-bit</p>
+                  <p><span className="text-zinc-500">Chứng thư:</span> CA-2026-DAS-GOV-SIGNED</p>
+                  <p><span className="text-zinc-500">Trạng thái:</span> <span className={signed ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>{signed ? '✓ HASH MATCHED (Đã ký)' : '⏳ CHỜ KÝ SỐ'}</span></p>
+                  {signed && <p className="text-[10px] text-zinc-500 break-all pt-1">Hash: {hashValue}</p>}
+                </div>
+              </div>
+
+              <div className="p-5 border border-zinc-800 rounded-xl bg-zinc-900/50 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-red-950 border border-red-800 text-red-400 rounded-lg text-base">🖋️</span>
+                  <div>
+                    <h5 className="font-bold text-sm text-white">Phần 2: Hình chữ ký số & Con dấu đỏ (Bản in)</h5>
+                    <p className="text-[11px] text-zinc-400">Phục vụ in ra giấy vẫn đầy đủ hình chữ ký và dấu đỏ</p>
+                  </div>
+                </div>
+                <div className="text-xs bg-black p-3 rounded-lg border border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-white">Con dấu: CÔNG TY DAS ★ ĐÃ KÝ SỐ</p>
+                    <p className="text-[10px] text-zinc-400">Quy chuẩn Nghị định 30/2020/NĐ-CP của Chính phủ</p>
+                  </div>
+                  <span className={`px-2.5 py-1 border font-extrabold text-[10px] rounded ${
+                    signed ? 'bg-red-950/80 border-red-800 text-red-400' : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                  }`}>
+                    {signed ? 'RED SEAL OK' : 'NO SEAL'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
 
-      {/* DIGITAL SIGNING PIN MODAL */}
+      {/* Dynamic Digital Signing Modal */}
       {signingModal && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-card border border-border w-full max-w-sm rounded-2xl shadow-xl overflow-hidden transition-all duration-200 p-6 space-y-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 flex items-center justify-center mx-auto text-xl">
+              <div className="w-12 h-12 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center mx-auto text-xl">
                 🔏
               </div>
-              <h3 className="font-bold text-foreground text-base">Xác nhận ký số điện tử</h3>
-              <p className="text-xs text-muted-foreground font-semibold">Nhập mã PIN của Chứng thư số CA cá nhân để hoàn tất quy trình phê duyệt công văn đến.</p>
+              <h3 className="font-extrabold text-white text-base">Xác thực Ký số Điện tử 2 Thành phần</h3>
+              <p className="text-xs text-zinc-400 font-medium">Hệ thống sẽ thực hiện mã hóa Hash SHA-256 và chèn con dấu đỏ điện tử vào công văn.</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-muted-foreground mb-1.5 uppercase tracking-wide">Chọn Chứng thư số</label>
-                <select className="w-full px-3 py-2 border border-border bg-muted rounded-xl text-xs focus:outline-none text-foreground font-semibold">
+                <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">1. Chứng thư số CA cá nhân</label>
+                <select className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-semibold focus:outline-none">
                   <option>Giám đốc Nguyễn Văn Director (CA-2026-DAS)</option>
-                  <option>Thư ký Lê Thị Secretary (CA-2026-DAS)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-muted-foreground mb-1.5 uppercase tracking-wide">Mã PIN xác thực (PIN Code)</label>
+                <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">2. Mã PIN xác thực chữ ký (Mã thử nghiệm: 1234)</label>
                 <input
                   type="password"
                   value={pinCode}
                   onChange={(e) => setPinCode(e.target.value)}
-                  placeholder="••••"
-                  className="w-full px-3 py-2 border border-border bg-muted rounded-xl text-xs focus:outline-none text-center text-foreground font-bold tracking-widest"
+                  placeholder="Mã PIN"
+                  className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-center text-white font-bold tracking-widest focus:outline-none focus:border-zinc-500"
                 />
               </div>
             </div>
@@ -396,15 +389,15 @@ export default function IncomingDocDetail() {
             <div className="pt-2 flex justify-end gap-3 text-xs font-bold">
               <button
                 onClick={() => setSigningModal(false)}
-                className="px-4 py-2 border border-border bg-muted text-foreground hover:opacity-90 rounded-lg cursor-pointer"
+                className="px-4 py-2 border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer"
               >
                 Hủy bỏ
               </button>
               <button
                 onClick={handleSign}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg cursor-pointer"
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg cursor-pointer shadow-md font-bold"
               >
-                Xác thực ký
+                Xác nhận Ký & Đóng dấu
               </button>
             </div>
           </div>
