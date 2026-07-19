@@ -15,53 +15,73 @@
   --color-accent-foreground: var(--accent-foreground);
 }
 
+/* Light Mode (Sun Mode) - Ultra-clean, crisp Vercel Light Theme */
 :root {
   --background: #ffffff;
-  --foreground: #09090b;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #09090b;
-  --border: #d0d7de; /* GitHub light border */
-  --primary: #24292f; /* GitHub light primary */
+  --card-foreground: #0a0a0a;
+  --border: #e5e5e5;
+  --primary: #0a0a0a;
   --primary-foreground: #ffffff;
-  --muted: #f6f8fa; /* GitHub light muted bg */
-  --muted-foreground: #57606a; /* GitHub light muted text */
-  --accent: #1f883d; /* GitHub light green */
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #10b981;
   --accent-foreground: #ffffff;
 }
 
+/* Dark Mode - Pitch Black Vercel Theme */
 .dark {
-  --background: #0d1117; /* GitHub dark bg */
-  --foreground: #c9d1d9; /* GitHub dark text */
-  --card: #161b22; /* GitHub dark card bg */
-  --card-foreground: #c9d1d9;
-  --border: #30363d; /* GitHub dark border */
-  --primary: #f0f6fc;
-  --primary-foreground: #0d1117;
-  --muted: #21262d; /* GitHub dark muted bg */
-  --muted-foreground: #8b949e; /* GitHub dark muted text */
-  --accent: #238636; /* GitHub dark green */
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --border: #222222;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --muted: #111111;
+  --muted-foreground: #888888;
+  --accent: #10b981;
   --accent-foreground: #ffffff;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
-  transition: background-color 0.25s, color 0.25s;
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  letter-spacing: -0.01em;
+}
+
+/* Crisp grid pattern */
+.vercel-bg-pattern {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .vercel-bg-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
+  background: #e5e5e5;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #222222;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
+  background: #d4d4d8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #444444;
 }

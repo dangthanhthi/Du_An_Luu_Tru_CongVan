@@ -122,9 +122,6 @@ export default function LoginPage() {
   };
 
   const triggerSSOLogin = (provider: string) => {
-    setLoading(true);
-    setLoadingMsg(`Đang kết nối cổng xác thực ${provider}...`);
-
     let loginUrl = '';
     if (provider === 'Google') {
       loginUrl = 'https://accounts.google.com/InteractiveLogin';
@@ -136,42 +133,48 @@ export default function LoginPage() {
       loginUrl = 'https://accounts.google.com';
     }
 
+    // Open as a small popup window (which browsers allow popup.close() to close)
     const width = 500;
     const height = 600;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
+    const left = typeof window !== 'undefined' ? window.screen.width / 2 - width / 2 : 100;
+    const top = typeof window !== 'undefined' ? window.screen.height / 2 - height / 2 : 100;
     
-    const popup = window.open(
-      loginUrl,
-      `SSO_${provider}`,
-      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-    );
+    let popup: Window | null = null;
+    try {
+      popup = window.open(
+        loginUrl,
+        `SSO_POPUP_${provider}`,
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+    } catch (e) {}
 
-    // Watch popup closure
-    const checkClosed = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkClosed);
-        
-        // Popup closed! Check if this provider was already linked before
-        const linkedUserStr = localStorage.getItem(`das-sso-${provider.toLowerCase()}`);
-        if (linkedUserStr) {
-          // User already exists! Log in directly
-          setLoadingMsg(`Đã nhận diện tài khoản liên kết! Đang đăng nhập...`);
-          setTimeout(() => {
-            localStorage.setItem('das-token', `mock-${provider.toLowerCase()}-token`);
-            localStorage.setItem('current-user', linkedUserStr);
-            router.push('/dashboard');
-          }, 800);
-        } else {
-          // User does not have an account! We force registration/linking.
-          setLoading(false);
-          setOauthProvider(provider);
-          setFullName(provider === 'Google' ? 'Nguyễn Văn Google' : 'Trần Văn GitHub');
-          setOauthEmail(provider === 'Google' ? 'google.user@gmail.com' : 'github.user@github.com');
-          setMode('oauth_linking');
+    // Automatically close the popup window after 1.5 seconds so no tab remains open!
+    setTimeout(() => {
+      try {
+        if (popup && !popup.closed) {
+          popup.close();
         }
-      }
-    }, 500);
+      } catch (e) {}
+    }, 1500);
+
+    // Check if user has already linked an account for this provider
+    const linkedUserStr = localStorage.getItem(`das-sso-${provider.toLowerCase()}`);
+    if (linkedUserStr) {
+      setLoading(true);
+      setLoadingMsg(`Đăng nhập thành công với tài khoản ${provider}!`);
+      setTimeout(() => {
+        localStorage.setItem('das-token', `mock-${provider.toLowerCase()}-token`);
+        localStorage.setItem('current-user', linkedUserStr);
+        router.push('/dashboard');
+      }, 800);
+    } else {
+      // Instantly switch mode to oauth_linking with real user details prefilled
+      setLoading(false);
+      setOauthProvider(provider);
+      setFullName(provider === 'Google' ? 'Thành Thị Đặng' : 'Đặng Thành Thị');
+      setOauthEmail(provider === 'Google' ? 'dangthanhthi213@gmail.com' : 'dangthanhthi@github.com');
+      setMode('oauth_linking');
+    }
   };
 
   const handleOAuthLinkingSubmit = (e: React.FormEvent) => {

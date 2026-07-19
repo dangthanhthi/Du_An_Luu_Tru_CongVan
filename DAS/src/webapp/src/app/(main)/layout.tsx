@@ -19,9 +19,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   if (!mounted) return null;
 
   return (
-    <div className="flex bg-background min-h-screen text-foreground transition-colors duration-200">
+    <div className="flex bg-black min-h-screen text-zinc-100 vercel-bg-pattern font-sans antialiased selection:bg-white selection:text-black">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 pl-20 transition-all duration-300">
         {children}
       </div>
     </div>
