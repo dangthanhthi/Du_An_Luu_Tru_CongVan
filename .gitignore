@@ -1,0 +1,23 @@
+# Root gitignore to prevent pushing build artifacts and packages
+
+# Node / Next.js
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+.env*.local
+
+# .NET / C#
+**/bin/
+**/obj/
+**/publish/
+*.user
+*.suo
+
+# SQLite db
+# Keep database if needed, or exclude:
+# TaskManager.Backend/taskmanager.db
+
+# OS files
+.DS_Store
+Thumbs.db

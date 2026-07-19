@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # C# Backend API (ASP.NET Core + GraphQL)
+  # ==========================================
+  api:
+    build:
+      context: ./src/Services/DAS.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - api-data:/app/data
+    networks:
+      - das-network
+
+  # ==========================================
+  # Next.js Frontend
+  # ==========================================
+  webapp:
+    build:
+      context: ./src/webapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:5000/graphql
+    depends_on:
+      - api
+    networks:
+      - das-network
+
+volumes:
+  api-data:
+
+networks:
+  das-network:
+    driver: bridge

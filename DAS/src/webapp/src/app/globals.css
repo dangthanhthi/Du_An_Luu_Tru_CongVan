@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --dark-mode: selector(.dark);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --border: #d0d7de; /* GitHub light border */
+  --primary: #24292f; /* GitHub light primary */
+  --primary-foreground: #ffffff;
+  --muted: #f6f8fa; /* GitHub light muted bg */
+  --muted-foreground: #57606a; /* GitHub light muted text */
+  --accent: #1f883d; /* GitHub light green */
+  --accent-foreground: #ffffff;
+}
+
+.dark {
+  --background: #0d1117; /* GitHub dark bg */
+  --foreground: #c9d1d9; /* GitHub dark text */
+  --card: #161b22; /* GitHub dark card bg */
+  --card-foreground: #c9d1d9;
+  --border: #30363d; /* GitHub dark border */
+  --primary: #f0f6fc;
+  --primary-foreground: #0d1117;
+  --muted: #21262d; /* GitHub dark muted bg */
+  --muted-foreground: #8b949e; /* GitHub dark muted text */
+  --accent: #238636; /* GitHub dark green */
+  --accent-foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
