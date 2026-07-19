@@ -1,8 +1,37 @@
 'use client';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function Dashboard() {
+  // Email Watcher config state
+  const [watchEmail, setWatchEmail] = useState('congvan.den@das-enterprise.vn');
+  const [editEmailModal, setEditEmailModal] = useState(false);
+  const [editPassword, setEditPassword] = useState('');
+  const [editNewEmail, setEditNewEmail] = useState('');
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState(false);
+
+  const handleSaveEmail = () => {
+    setEditError('');
+    if (editPassword !== '123456') {
+      setEditError('Mật khẩu quản trị không đúng! (Mật khẩu thử nghiệm: 123456)');
+      return;
+    }
+    if (!editNewEmail || !editNewEmail.includes('@')) {
+      setEditError('Vui lòng nhập địa chỉ email hợp lệ.');
+      return;
+    }
+    setWatchEmail(editNewEmail);
+    setEditSuccess(true);
+    setTimeout(() => {
+      setEditEmailModal(false);
+      setEditSuccess(false);
+      setEditPassword('');
+      setEditNewEmail('');
+    }, 1200);
+  };
+
   const stats = [
     { 
       name: 'Công văn đến', 
@@ -57,7 +86,7 @@ export default function Dashboard() {
       <Header title="Dashboard thống kê" />
       <main className="flex-1 p-8 space-y-8 max-w-7xl mx-auto w-full">
         
-        {/* Vercel Action Bar */}
+        {/* Action Bar */}
         <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-xl shadow-sm">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-white tracking-tight">Tổng quan hệ thống</h2>
@@ -73,12 +102,6 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
               Lọc thời gian
-            </button>
-
-            <button className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer" title="Xuất báo cáo PDF">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
             </button>
           </div>
         </div>
@@ -136,7 +159,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* System Health Check & Resource Monitor */}
+          {/* System Health Check & Email Watcher */}
           <div className="p-6 bg-zinc-950/80 border border-zinc-800 hover:border-zinc-700 rounded-xl space-y-6 transition-all duration-200 shadow-sm">
             <h4 className="font-bold text-xs text-white uppercase tracking-wider">Giám sát tài nguyên hệ thống</h4>
             
@@ -171,6 +194,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Email Watcher Section - shows which email is being scanned */}
               <div className="pt-4 border-t border-zinc-900 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400 font-medium">Tình trạng Email Watcher:</span>
@@ -179,10 +203,32 @@ export default function Dashboard() {
                     Hoạt động
                   </span>
                 </div>
+
                 <div className="flex justify-between items-center">
-                  <span className="text-zinc-400 font-medium">Lần quét email cuối:</span>
+                  <span className="text-zinc-400 font-medium">Quét email từ:</span>
+                  <span className="font-mono text-emerald-400 text-[10px] truncate max-w-[140px]" title={watchEmail}>{watchEmail}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-400 font-medium">Lần quét cuối:</span>
                   <span className="font-mono text-zinc-300 text-[11px]">11:00 (15 phút trước)</span>
                 </div>
+
+                <button
+                  onClick={() => {
+                    setEditNewEmail(watchEmail);
+                    setEditPassword('');
+                    setEditError('');
+                    setEditSuccess(false);
+                    setEditEmailModal(true);
+                  }}
+                  className="w-full mt-1 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-lg text-zinc-400 hover:text-white text-[11px] font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Chỉnh sửa Email Watcher
+                </button>
               </div>
             </div>
           </div>
@@ -233,6 +279,88 @@ export default function Dashboard() {
         </div>
 
       </main>
+
+      {/* Edit Email Watcher Modal - Password Protected */}
+      {editEmailModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center mx-auto">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="font-extrabold text-white text-base">Chỉnh sửa Email Watcher</h3>
+              <p className="text-xs text-zinc-400">Thay đổi địa chỉ email mà hệ thống tự động quét để tiếp nhận công văn đến.</p>
+            </div>
+
+            {editSuccess ? (
+              <div className="p-4 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center space-y-2">
+                <span className="text-2xl">✓</span>
+                <p className="text-emerald-400 font-bold text-sm">Đã cập nhật thành công!</p>
+                <p className="text-[11px] text-zinc-400">Email Watcher sẽ quét từ địa chỉ mới trong lần quét tiếp theo.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Email hiện tại đang quét</label>
+                  <div className="px-3 py-2 border border-zinc-800 bg-zinc-900/50 rounded-lg text-xs text-emerald-400 font-mono">
+                    {watchEmail}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Email mới</label>
+                  <input
+                    type="email"
+                    value={editNewEmail}
+                    onChange={(e) => setEditNewEmail(e.target.value)}
+                    placeholder="example@company.vn"
+                    className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">
+                    Mật khẩu quản trị viên (bắt buộc)
+                  </label>
+                  <input
+                    type="password"
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                    placeholder="Nhập mật khẩu để xác nhận thay đổi"
+                    className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
+                  />
+                  <p className="text-[10px] text-zinc-600 mt-1">Mật khẩu thử nghiệm: 123456</p>
+                </div>
+
+                {editError && (
+                  <div className="p-2.5 bg-red-950/40 border border-red-800/50 rounded-lg text-xs text-red-400 font-semibold">
+                    {editError}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!editSuccess && (
+              <div className="pt-2 flex justify-end gap-3 text-xs font-bold">
+                <button
+                  onClick={() => setEditEmailModal(false)}
+                  className="px-4 py-2 border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  onClick={handleSaveEmail}
+                  className="px-5 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg cursor-pointer shadow-md font-bold"
+                >
+                  Xác nhận thay đổi
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

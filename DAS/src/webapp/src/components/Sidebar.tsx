@@ -148,12 +148,7 @@ export default function Sidebar() {
         </div>
         {showExpanded && (
           <div className="flex flex-col min-w-0 flex-1 animate-fade-in">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-extrabold text-white tracking-tight truncate">CV OS</span>
-              <span className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-1.5 py-0.2 rounded font-mono font-bold">
-                PRO
-              </span>
-            </div>
+            <span className="text-sm font-extrabold text-white tracking-tight truncate">CV</span>
             <span className="text-[10px] text-zinc-500 font-medium truncate">Quản lý Công văn</span>
           </div>
         )}
