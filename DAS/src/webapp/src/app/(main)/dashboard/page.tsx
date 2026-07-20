@@ -13,6 +13,12 @@ export default function Dashboard() {
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState(false);
 
+  // Expanded IMAP settings for modal edit
+  const [editImapServer, setEditImapServer] = useState('imap.gmail.com');
+  const [editImapPort, setEditImapPort] = useState('993');
+  const [editUseSsl, setEditUseSsl] = useState(true);
+  const [editAppPassword, setEditAppPassword] = useState('');
+
   // Manual Email Scan State
   const [manualScanning, setManualScanning] = useState(false);
   const [scanToast, setScanToast] = useState<any>(null);
@@ -51,6 +57,18 @@ export default function Dashboard() {
             setWatchEmail(decodeURIComponent(match[1]).trim());
           }
         }
+
+        const serverLocal = localStorage.getItem('email-watcher-imap-server');
+        if (serverLocal) setEditImapServer(serverLocal);
+
+        const portLocal = localStorage.getItem('email-watcher-imap-port');
+        if (portLocal) setEditImapPort(portLocal);
+
+        const sslLocal = localStorage.getItem('email-watcher-use-ssl');
+        if (sslLocal) setEditUseSsl(sslLocal === 'true');
+
+        const passLocal = localStorage.getItem('email-watcher-app-password');
+        if (passLocal) setEditAppPassword(passLocal);
       } catch (e) {
         console.error(e);
       }
@@ -83,6 +101,11 @@ export default function Dashboard() {
     setWatchEmail(cleanEmail);
     try {
       localStorage.setItem('email-watcher-address', cleanEmail);
+      localStorage.setItem('email-watcher-imap-server', editImapServer.trim());
+      localStorage.setItem('email-watcher-imap-port', editImapPort.trim());
+      localStorage.setItem('email-watcher-use-ssl', editUseSsl ? 'true' : 'false');
+      localStorage.setItem('email-watcher-app-password', editAppPassword.trim());
+
       document.cookie = `cv_email_watcher=${encodeURIComponent(cleanEmail)}; path=/; max-age=31536000`;
       window.dispatchEvent(new Event('storage'));
     } catch (e) {
@@ -93,7 +116,6 @@ export default function Dashboard() {
       setEditEmailModal(false);
       setEditSuccess(false);
       setEditPassword('');
-      setEditNewEmail('');
     }, 1000);
   };
 
@@ -500,6 +522,17 @@ export default function Dashboard() {
                   onClick={() => {
                     const latest = (typeof window !== 'undefined' && (localStorage.getItem('email-watcher-address') || document.cookie.match(/cv_email_watcher=([^;]+)/)?.[1])) || watchEmail;
                     setEditNewEmail(decodeURIComponent(latest));
+
+                    const serverLocal = localStorage.getItem('email-watcher-imap-server') || 'imap.gmail.com';
+                    const portLocal = localStorage.getItem('email-watcher-imap-port') || '993';
+                    const sslLocal = localStorage.getItem('email-watcher-use-ssl') || 'true';
+                    const passLocal = localStorage.getItem('email-watcher-app-password') || '';
+
+                    setEditImapServer(serverLocal);
+                    setEditImapPort(portLocal);
+                    setEditUseSsl(sslLocal === 'true');
+                    setEditAppPassword(passLocal);
+
                     setEditPassword('');
                     setEditError('');
                     setEditSuccess(false);
@@ -568,45 +601,97 @@ export default function Dashboard() {
       {/* Edit Email Watcher Modal - Password Protected */}
       {editEmailModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <form onSubmit={handleSaveEmail} className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
+          <form onSubmit={handleSaveEmail} className="bg-zinc-950 border border-zinc-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center mx-auto">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="font-extrabold text-white text-base">Chỉnh sửa Email Watcher</h3>
-              <p className="text-xs text-zinc-400">Thay đổi địa chỉ email mà hệ thống tự động quét để tiếp nhận công văn đến.</p>
+              <h3 className="font-extrabold text-white text-base">Chỉnh sửa cấu hình Email Watcher</h3>
+              <p className="text-xs text-zinc-400">Thay đổi tài khoản hòm thư và cấu hình IMAP để tự động quét tiếp nhận công văn.</p>
             </div>
 
             {editSuccess ? (
               <div className="p-4 bg-emerald-950/40 border border-emerald-800/50 rounded-xl text-center space-y-2">
                 <span className="text-2xl">✓</span>
                 <p className="text-emerald-400 font-bold text-sm">Đã cập nhật thành công!</p>
-                <p className="text-[11px] text-zinc-400">Email Watcher sẽ quét từ địa chỉ mới trong lần quét tiếp theo.</p>
+                <p className="text-[11px] text-zinc-400">Email Watcher sẽ sử dụng cấu hình mới trong lần quét tiếp theo.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Email hiện tại đang quét</label>
-                  <div className="px-3 py-2 border border-zinc-800 bg-zinc-900/50 rounded-lg text-xs text-emerald-400 font-mono">
-                    {watchEmail}
+                <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] space-y-1">
+                  <p className="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <span>💡 Hướng dẫn cấu hình Google Gmail:</span>
+                  </p>
+                  <ol className="list-decimal list-inside text-zinc-400 space-y-0.5 leading-relaxed">
+                    <li>Đảm bảo tài khoản Google đã được **Bật Xác minh 2 bước**.</li>
+                    <li>Tạo **Mật khẩu ứng dụng (App Password)** và điền 16 ký tự vào ô bên dưới.</li>
+                  </ol>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Tài khoản Email mới</label>
+                    <input
+                      type="email"
+                      value={editNewEmail}
+                      onChange={(e) => setEditNewEmail(e.target.value)}
+                      required
+                      placeholder="example@gmail.com"
+                      className="w-full px-3 py-2.5 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Mật khẩu ứng dụng (App Password)</label>
+                    <input
+                      type="password"
+                      value={editAppPassword}
+                      onChange={(e) => setEditAppPassword(e.target.value)}
+                      required
+                      placeholder="Nhập 16 ký tự mật khẩu Google"
+                      className="w-full px-3 py-2.5 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Máy chủ IMAP Server</label>
+                    <input
+                      type="text"
+                      value={editImapServer}
+                      onChange={(e) => setEditImapServer(e.target.value)}
+                      required
+                      placeholder="imap.gmail.com"
+                      className="w-full px-3 py-2.5 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-zinc-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Cổng (Port) & Bảo mật</label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="text"
+                        value={editImapPort}
+                        onChange={(e) => setEditImapPort(e.target.value)}
+                        required
+                        placeholder="993"
+                        className="w-20 px-3 py-2.5 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-zinc-500"
+                      />
+                      <label className="flex items-center gap-1.5 text-xs text-zinc-300 font-semibold cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={editUseSsl}
+                          onChange={(e) => setEditUseSsl(e.target.checked)}
+                          className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
+                        />
+                        <span>Sử dụng mã hóa SSL/TLS</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">Email mới</label>
-                  <input
-                    type="email"
-                    value={editNewEmail}
-                    onChange={(e) => setEditNewEmail(e.target.value)}
-                    required
-                    placeholder="example@company.vn"
-                    className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
-                  />
-                </div>
-
-                <div>
+                <div className="pt-2 border-t border-zinc-900">
                   <label className="block text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wide">
                     Mật khẩu quản trị viên (bắt buộc)
                   </label>
@@ -616,7 +701,7 @@ export default function Dashboard() {
                     onChange={(e) => setEditPassword(e.target.value)}
                     required
                     placeholder="Nhập mật khẩu để xác nhận thay đổi"
-                    className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
+                    className="w-full px-3 py-2.5 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
                   />
                   <p className="text-[10px] text-zinc-600 mt-1">Mật khẩu thử nghiệm: 123456</p>
                 </div>
