@@ -34,7 +34,13 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    const connection = await imaps.connect(config);
+    // Enforce a strict 10-second connection timeout to prevent infinite socket/DNS hangs
+    const connectPromise = imaps.connect(config);
+    const timeoutPromise = new Promise<any>((_, reject) => 
+      setTimeout(() => reject(new Error('Kết nối tới Gmail IMAP bị treo (DNS hoặc Firewall chặn).')), 10000)
+    );
+
+    const connection = await Promise.race([connectPromise, timeoutPromise]);
     await connection.openBox('INBOX');
 
     // Search specifically for the message with this UID

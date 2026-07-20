@@ -25,7 +25,13 @@ export async function POST(request: Request) {
       }
     };
 
-    const connection = await imaps.connect(config);
+    // Enforce a strict 10-second connection timeout to prevent infinite socket/DNS hangs
+    const connectPromise = imaps.connect(config);
+    const timeoutPromise = new Promise<any>((_, reject) => 
+      setTimeout(() => reject(new Error('Kết nối tới Gmail IMAP bị treo (DNS hoặc Firewall chặn).')), 10000)
+    );
+
+    const connection = await Promise.race([connectPromise, timeoutPromise]);
     const box: any = await connection.openBox('INBOX');
 
     const total = (box.messages && box.messages.total) || 0;
@@ -44,14 +50,14 @@ export async function POST(request: Request) {
     const messages = await connection.search(searchCriteria, fetchOptions);
     
     // Sort messages by sequence number descending
-    messages.sort((a, b) => b.attributes.uid - a.attributes.uid);
+    messages.sort((a: any, b: any) => b.attributes.uid - a.attributes.uid);
     const lastMessages = messages;
 
     const scannedDocs: any[] = [];
 
     for (const msg of lastMessages) {
-      const headerPart = msg.parts.find(p => p.which === 'HEADER');
-      const textPart = msg.parts.find(p => p.which === 'TEXT');
+      const headerPart = msg.parts.find((p: any) => p.which === 'HEADER');
+      const textPart = msg.parts.find((p: any) => p.which === 'TEXT');
       
       const headersObj = headerPart ? headerPart.body : {};
       const rawText = textPart ? textPart.body : '';
