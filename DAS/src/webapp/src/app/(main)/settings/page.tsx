@@ -73,6 +73,9 @@ export default function Settings() {
     setTestingScan(true);
     setScanResult(null);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const res = await fetch('/api/scan-email', {
         method: 'POST',
@@ -85,9 +88,11 @@ export default function Settings() {
           useSsl: useSsl,
           emailAccount: emailAccount.trim(),
           appPassword: appPassword.trim()
-        })
+        }),
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
       const data = await res.json();
       
       if (data.success && data.documents && data.documents.length > 0) {

@@ -18,8 +18,8 @@ export async function POST(request: Request) {
         host: imapServer || 'imap.gmail.com',
         port: imapPort || 993,
         tls: useSsl !== false,
-        authTimeout: 10000,
-        connTimeout: 15000,
+        authTimeout: 5000,
+        connTimeout: 5000,
         tlsOptions: { rejectUnauthorized: false }
       }
     };

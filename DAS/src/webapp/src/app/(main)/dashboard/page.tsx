@@ -129,6 +129,9 @@ export default function Dashboard() {
     const ssl = (localStorage.getItem('email-watcher-use-ssl') || 'true') === 'true';
     const password = localStorage.getItem('email-watcher-app-password') || '';
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const res = await fetch('/api/scan-email', {
         method: 'POST',
@@ -141,9 +144,11 @@ export default function Dashboard() {
           useSsl: ssl,
           emailAccount: watchEmail.trim(),
           appPassword: password.trim()
-        })
+        }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       const data = await res.json();
 
       if (data.success && data.documents && data.documents.length > 0) {
