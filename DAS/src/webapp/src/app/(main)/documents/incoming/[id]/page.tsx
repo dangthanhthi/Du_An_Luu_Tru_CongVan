@@ -59,7 +59,9 @@ export default function IncomingDocDetail() {
     date: customDoc.date,
     status: signed ? 'Đã ký duyệt & Phân phối' : (customDoc.status || 'Chờ xử lý'),
     priority: customDoc.priority || 'Thường',
-    summary: customDoc.content || customDoc.subject
+    summary: customDoc.content || customDoc.subject,
+    fileName: customDoc.fileName || '',
+    originalNo: customDoc.originalNo || ''
   } : {
     id: docId,
     docNo: docId === '1' ? 'CV-DEN-2026-00157' : docId === '2' ? 'CV-DEN-2026-00156' : 'CV-DEN-2026-00155',
@@ -69,8 +71,12 @@ export default function IncomingDocDetail() {
     date: '19/07/2026',
     status: signed ? 'Đã ký duyệt & Phân phối' : 'Chờ xử lý',
     priority: docId === '1' ? 'Mật' : 'Thường',
-    summary: 'Hướng dẫn việc lập báo cáo thống kê tình hình lưu trữ và khai thác công văn trong quý II năm 2026. Hạn nộp báo cáo trước ngày 30/07/2026.'
+    summary: 'Hướng dẫn việc lập báo cáo thống kê tình hình lưu trữ và khai thác công văn trong quý II năm 2026. Hạn nộp báo cáo trước ngày 30/07/2026.',
+    fileName: '/documents/samples/outgoing-sample.pdf',
+    originalNo: docId === '1' ? '1025/VNPT-VP' : '345/HĐ-VCB'
   };
+
+  const isSamplePdf = !!(doc.fileName && doc.fileName.includes('sample'));
 
   const handleSign = () => {
     if (pinCode === '1234' || pinCode.length >= 4) {
@@ -284,12 +290,64 @@ export default function IncomingDocDetail() {
                   </div>
                 </div>
 
-                <div className="w-full h-[450px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden relative">
-                  <iframe 
-                    src="/documents/samples/outgoing-sample.pdf"
-                    className="w-full h-full border-none"
-                    title="Tài liệu PDF Công văn"
-                  />
+                <div className="w-full h-[550px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-y-auto relative p-4">
+                  {isSamplePdf ? (
+                    <iframe 
+                      src={doc.fileName || "/documents/samples/outgoing-sample.pdf"}
+                      className="w-full h-full border-none rounded-lg"
+                      title="Tài liệu PDF Công văn"
+                    />
+                  ) : (
+                    <div className="w-full min-h-[700px] border border-zinc-200 rounded-lg bg-white text-zinc-900 p-8 md:p-12 font-serif relative shadow-md select-text">
+                      {/* National Motto / Header */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] font-sans mb-8 text-center md:text-left">
+                        <div className="space-y-1">
+                          <p className="font-extrabold uppercase tracking-tight text-zinc-950 text-xs">{doc.sender || 'ĐƠN VỊ GỬI'}</p>
+                          <p className="font-bold text-zinc-600">Số: {doc.originalNo || doc.docNo}</p>
+                        </div>
+                        <div className="text-center space-y-1">
+                          <p className="font-extrabold uppercase tracking-tight text-zinc-950">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                          <p className="font-bold border-b-2 border-zinc-950 pb-1 inline-block text-zinc-900">Độc lập - Tự do - Hạnh phúc</p>
+                          <p className="text-[9px] italic text-zinc-550 mt-1 block">Ngày {doc.date}</p>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <div className="text-center my-8">
+                        <h3 className="text-sm font-extrabold uppercase tracking-wider text-zinc-950">CÔNG VĂN</h3>
+                        <p className="italic text-xs font-sans text-zinc-650 mt-1">V/v: {doc.subject}</p>
+                      </div>
+
+                      {/* Content */}
+                      <div className="text-xs leading-relaxed whitespace-pre-wrap font-serif min-h-[250px] my-6 px-2 text-zinc-850">
+                        {doc.summary}
+                      </div>
+
+                      {/* Footer Signatures */}
+                      <div className="grid grid-cols-2 gap-4 text-xs font-sans mt-12 pt-6 border-t border-zinc-200">
+                        <div>
+                          <p className="font-bold italic uppercase text-zinc-550 mb-1">Nơi nhận:</p>
+                          <p className="text-[10px] text-zinc-600 leading-relaxed">- Như trên;<br />- Lưu VP, VT.</p>
+                        </div>
+                        <div className="text-center relative">
+                          <p className="font-bold uppercase text-zinc-950">ĐẠI DIỆN ĐƠN VỊ</p>
+                          
+                          {signed ? (
+                            <div className="absolute right-0 md:right-4 top-2 pointer-events-none transform -rotate-6 scale-95 border-2 border-red-650 text-red-650 p-2.5 rounded bg-red-50/90 shadow-sm font-bold text-center inline-block">
+                              <p className="text-[8px] uppercase tracking-wider text-red-600">ĐÃ KÝ SỐ CA</p>
+                              <p className="text-[9px] font-extrabold uppercase text-red-700">{doc.sender || 'ĐẠI DIỆN'}</p>
+                              <p className="text-[7px] font-mono text-zinc-600 mt-0.5">Ngày: {signedDate || doc.date}</p>
+                              <p className="text-[6px] font-mono text-zinc-500 break-all">{hashValue.substring(0, 16)}...</p>
+                            </div>
+                          ) : (
+                            <div className="h-16"></div>
+                          )}
+                          
+                          <p className="font-bold text-zinc-800 mt-14">{doc.sender || 'Đại diện'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -332,20 +390,84 @@ export default function IncomingDocDetail() {
             <div className="flex justify-between items-center">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white">Trình xem File PDF Công văn đính kèm</h4>
               <a 
-                href="/documents/samples/outgoing-sample.pdf" 
+                href={isSamplePdf ? "/documents/samples/outgoing-sample.pdf" : "#"} 
+                onClick={(e) => {
+                  if (!isSamplePdf) {
+                    e.preventDefault();
+                    const element = document.createElement("a");
+                    const file = new Blob([doc.summary], {type: 'text/plain;charset=utf-8'});
+                    element.href = URL.createObjectURL(file);
+                    element.download = `${doc.docNo}_Noidung.txt`;
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                  }
+                }}
                 download
                 className="px-4 py-2 bg-white text-black font-bold rounded-lg text-xs hover:bg-zinc-200 cursor-pointer shadow-sm"
               >
-                Tải xuống PDF gốc
+                Tải xuống {isSamplePdf ? 'PDF gốc' : 'Nội dung thư'}
               </a>
             </div>
             
-            <div className="w-full h-[650px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden relative">
-              <iframe 
-                src="/documents/samples/outgoing-sample.pdf"
-                className="w-full h-full border-none"
-                title="Tài liệu PDF Công văn"
-              />
+            <div className="w-full h-[650px] border border-zinc-800 rounded-xl bg-zinc-900 overflow-y-auto relative p-4">
+              {isSamplePdf ? (
+                <iframe 
+                  src={doc.fileName || "/documents/samples/outgoing-sample.pdf"}
+                  className="w-full h-full border-none rounded-lg"
+                  title="Tài liệu PDF Công văn"
+                />
+              ) : (
+                <div className="w-full min-h-[850px] border border-zinc-200 rounded-lg bg-white text-zinc-900 p-12 font-serif relative shadow-md select-text">
+                  {/* National Motto / Header */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] font-sans mb-8 text-center md:text-left">
+                    <div className="space-y-1">
+                      <p className="font-extrabold uppercase tracking-tight text-zinc-950 text-xs">{doc.sender || 'ĐƠN VỊ GỬI'}</p>
+                      <p className="font-bold text-zinc-600">Số: {doc.originalNo || doc.docNo}</p>
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="font-extrabold uppercase tracking-tight text-zinc-950">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                      <p className="font-bold border-b-2 border-zinc-950 pb-1 inline-block text-zinc-900">Độc lập - Tự do - Hạnh phúc</p>
+                      <p className="text-[9px] italic text-zinc-550 mt-1 block">Ngày {doc.date}</p>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <div className="text-center my-8">
+                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-zinc-950">CÔNG VĂN</h3>
+                    <p className="italic text-xs font-sans text-zinc-655 mt-1">V/v: {doc.subject}</p>
+                  </div>
+
+                  {/* Content */}
+                  <div className="text-xs leading-relaxed whitespace-pre-wrap font-serif min-h-[350px] my-6 px-2 text-zinc-850">
+                    {doc.summary}
+                  </div>
+
+                  {/* Footer Signatures */}
+                  <div className="grid grid-cols-2 gap-4 text-xs font-sans mt-12 pt-6 border-t border-zinc-200">
+                    <div>
+                      <p className="font-bold italic uppercase text-zinc-555 mb-1">Nơi nhận:</p>
+                      <p className="text-[10px] text-zinc-600 leading-relaxed">- Như trên;<br />- Lưu VP, VT.</p>
+                    </div>
+                    <div className="text-center relative">
+                      <p className="font-bold uppercase text-zinc-950">ĐẠI DIỆN ĐƠN VỊ</p>
+                      
+                      {signed ? (
+                        <div className="absolute right-0 md:right-4 top-2 pointer-events-none transform -rotate-6 scale-95 border-2 border-red-650 text-red-650 p-2.5 rounded bg-red-50/90 shadow-sm font-bold text-center inline-block">
+                          <p className="text-[8px] uppercase tracking-wider text-red-600">ĐÃ KÝ SỐ CA</p>
+                          <p className="text-[9px] font-extrabold uppercase text-red-700">{doc.sender || 'ĐẠI DIỆN'}</p>
+                          <p className="text-[7px] font-mono text-zinc-600 mt-0.5">Ngày: {signedDate || doc.date}</p>
+                          <p className="text-[6px] font-mono text-zinc-500 break-all">{hashValue.substring(0, 16)}...</p>
+                        </div>
+                      ) : (
+                        <div className="h-16"></div>
+                      )}
+                      
+                      <p className="font-bold text-zinc-800 mt-14">{doc.sender || 'Đại diện'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

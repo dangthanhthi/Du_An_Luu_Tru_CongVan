@@ -142,7 +142,7 @@ export async function POST(request: Request) {
         const newDocId = `doc-scan-real-${Date.now()}-${msg.attributes.uid}`;
         const docNo = `CV-DEN-2026-${Math.floor(10000 + Math.random() * 90000)}`;
 
-        const docContent = `Quét thực tế từ email (${emailAccount}).\nNgười gửi: ${sender} <${senderEmail}>\nTiêu đề: ${subject}\nNgày nhận: ${dateStr}\n\nNội dung email:\n${bodyText}`;
+        const docContent = bodyText.trim();
 
         scannedDocs.push({
           id: newDocId,
