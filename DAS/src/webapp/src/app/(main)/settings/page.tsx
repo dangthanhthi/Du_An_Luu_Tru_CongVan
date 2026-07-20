@@ -74,7 +74,7 @@ export default function Settings() {
     setScanResult(null);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
 
     try {
       const res = await fetch('/api/scan-email', {
@@ -144,7 +144,7 @@ export default function Settings() {
       console.error("Lỗi quét email thật:", err);
       const isAbort = err.name === 'AbortError';
       const errMsg = isAbort 
-        ? 'Thời gian kết nối tới máy chủ Gmail quá hạn (quá 12 giây). Vui lòng kiểm tra lại cấu hình mạng hoặc mật khẩu ứng dụng.' 
+        ? 'Thời gian kết nối tới máy chủ Gmail quá hạn (quá 45 giây). Vui lòng kiểm tra lại cấu hình mạng hoặc mật khẩu ứng dụng.' 
         : (err.message || 'Không thể kết nối đến máy chủ IMAP.');
       
       setScanResult({
