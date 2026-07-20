@@ -1,16 +1,27 @@
 'use client';
 import Header from '@/components/Header';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
   // Email Watcher config state
-  const [watchEmail, setWatchEmail] = useState('congvan.den@das-enterprise.vn');
+  const [watchEmail, setWatchEmail] = useState('congvan.den@gmail.com');
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   const [editNewEmail, setEditNewEmail] = useState('');
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('email-watcher-address');
+      if (saved) {
+        setWatchEmail(saved);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const handleSaveEmail = () => {
     setEditError('');
@@ -23,6 +34,11 @@ export default function Dashboard() {
       return;
     }
     setWatchEmail(editNewEmail);
+    try {
+      localStorage.setItem('email-watcher-address', editNewEmail);
+    } catch (e) {
+      console.error(e);
+    }
     setEditSuccess(true);
     setTimeout(() => {
       setEditEmailModal(false);

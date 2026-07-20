@@ -1,6 +1,6 @@
 'use client';
 import Header from '@/components/Header';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Settings() {
   const [incFormat, setIncFormat] = useState('CV-DEN-{YYYY}-{NUMBER}');
@@ -16,6 +16,26 @@ export default function Settings() {
   
   const [testingScan, setTestingScan] = useState(false);
   const [scanResult, setScanResult] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('email-watcher-address');
+      if (saved) {
+        setEmailAccount(saved);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const handleSaveEmailConfig = () => {
+    try {
+      localStorage.setItem('email-watcher-address', emailAccount);
+    } catch (e) {
+      console.error(e);
+    }
+    alert('Đã lưu cấu hình Email Watcher thành công!');
+  };
 
   const handleTestScan = () => {
     setTestingScan(true);
@@ -182,7 +202,7 @@ export default function Settings() {
                 </button>
 
                 <button 
-                  onClick={() => alert('Đã lưu cấu hình Email Watcher thành công!')}
+                  onClick={handleSaveEmailConfig}
                   className="px-5 py-2 bg-white text-black hover:bg-zinc-200 font-bold rounded-xl text-xs transition-colors cursor-pointer"
                 >
                   Lưu cấu hình Email
