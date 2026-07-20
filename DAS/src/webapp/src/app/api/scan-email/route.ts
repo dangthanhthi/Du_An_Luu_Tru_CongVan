@@ -99,7 +99,7 @@ export async function POST(request: Request) {
         let originalNo = '';
         
         // Try searching in subject
-        const matchSubject = subject.match(/\d+/[A-Za-z0-9\-]+/);
+        const matchSubject = subject.match(/\d+\/[A-Za-z0-9\-]+/);
         if (matchSubject) {
           originalNo = matchSubject[0];
         } else {
