@@ -25,10 +25,16 @@ export async function POST(request: Request) {
     };
 
     const connection = await imaps.connect(config);
-    await connection.openBox('INBOX');
+    const box = await connection.openBox('INBOX');
 
-    // Search for last 15 emails
-    const searchCriteria = ['ALL'];
+    const total = (box.messages && box.messages.total) || 0;
+    if (total === 0) {
+      connection.end();
+      return NextResponse.json({ success: true, documents: [] });
+    }
+
+    const startSeq = Math.max(1, total - 14);
+    const searchCriteria = [`${startSeq}:${total}`];
     const fetchOptions = {
       bodies: ['HEADER', 'TEXT', ''],
       struct: true
@@ -38,7 +44,7 @@ export async function POST(request: Request) {
     
     // Sort messages by sequence number descending
     messages.sort((a, b) => b.attributes.uid - a.attributes.uid);
-    const lastMessages = messages.slice(0, 15);
+    const lastMessages = messages;
 
     const scannedDocs: any[] = [];
 
