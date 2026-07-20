@@ -101,7 +101,9 @@ export default function Settings() {
         
         let newCount = 0;
         data.documents.forEach((doc: any) => {
-          if (!list.some((d: any) => d.subject === doc.subject)) {
+          const docUid = doc.id.split('-').pop();
+          const isDup = list.some((d: any) => d.id.split('-').pop() === docUid);
+          if (!isDup) {
             list.unshift(doc);
             newCount++;
           }
