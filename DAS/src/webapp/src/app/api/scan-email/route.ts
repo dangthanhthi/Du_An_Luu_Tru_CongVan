@@ -2,6 +2,53 @@ import { NextResponse } from 'next/server';
 import imaps from 'imap-simple';
 import { simpleParser } from 'mailparser';
 
+function cleanEmailBody(bodyText: string): string {
+  let cleaned = bodyText.trim();
+  
+  // Strip Google/Gmail forwarding header blocks
+  cleaned = cleaned.replace(/^-+\s*Forwarded message\s*-+[\s\S]*?(Subject:.*\r?\n|To:.*\r?\n|Cc:.*\r?\n)/gi, '');
+  cleaned = cleaned.replace(/^-+\s*Original message\s*-+[\s\S]*?(Subject:.*\r?\n|To:.*\r?\n|Cc:.*\r?\n)/gi, '');
+  
+  // Strip individual header lines that might remain
+  cleaned = cleaned.replace(/^(Từ|From|Date|Ngày|Subject|Chủ đề|To|Tới|Cc|Bcc):\s*.*?\r?\n/gim, '');
+  cleaned = cleaned.replace(/^đến tôi\r?\n/gim, '');
+  cleaned = cleaned.replace(/^\[image:.*?\]/gm, '');
+  cleaned = cleaned.replace(/^---------- Forwarded message ---------/gi, '');
+  
+  // Clean multiple empty lines
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  
+  return cleaned.trim();
+}
+
+function extractRealSubject(emailSubject: string, cleanedBody: string): string {
+  let subject = emailSubject.trim();
+  
+  // Strip Fwd: / Fwd: / FW: prefixes
+  subject = subject.replace(/^(fwd|fw|re|fwd\s*:|fw\s*:|re\s*:)\s*/gi, '');
+  
+  // If the subject is empty, "Fwd:", "Không có chủ đề" or equivalent, try extracting from the body
+  const isGeneric = !subject || 
+                    subject.toLowerCase() === 'không có chủ đề' || 
+                    subject.toLowerCase() === 'no subject' ||
+                    subject.toLowerCase() === 'fwd' ||
+                    subject.toLowerCase() === 'fw';
+                    
+  if (isGeneric) {
+    // Try to find a line starting with "V/v" or "Về việc" inside the body
+    const lines = cleanedBody.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (/^(v\/v|về việc|ve viec)\s*:/i.test(trimmedLine) || /^(v\/v|về việc|ve viec)\s+/i.test(trimmedLine)) {
+        // Found it! Clean prefix and return
+        return trimmedLine.replace(/^(v\/v|về việc|ve viec)\s*:\s*/i, '').trim();
+      }
+    }
+  }
+  
+  return subject || 'Công văn không có chủ đề';
+}
+
 export async function POST(request: Request) {
   let requestBody: any = null;
   try {
@@ -19,16 +66,16 @@ export async function POST(request: Request) {
         host: imapServer || 'imap.gmail.com',
         port: imapPort || 993,
         tls: useSsl !== false,
-        authTimeout: 5000,
-        connTimeout: 5000,
+        authTimeout: 15000,
+        connTimeout: 15000,
         tlsOptions: { rejectUnauthorized: false }
       }
     };
 
-    // Enforce a strict 10-second connection timeout to prevent infinite socket/DNS hangs
+    // Enforce a strict 35-second connection timeout to prevent infinite socket/DNS hangs on slow connections
     const connectPromise = imaps.connect(config);
     const timeoutPromise = new Promise<any>((_, reject) => 
-      setTimeout(() => reject(new Error('Kết nối tới Gmail IMAP bị treo (DNS hoặc Firewall chặn).')), 10000)
+      setTimeout(() => reject(new Error('Kết nối tới Gmail IMAP bị treo (DNS hoặc Firewall chặn).')), 35000)
     );
 
     const connection = await Promise.race([connectPromise, timeoutPromise]);
@@ -98,7 +145,11 @@ export async function POST(request: Request) {
       }
 
       const dateStr = msgDate.toLocaleDateString('vi-VN');
-      const bodyText = parsed.text || parsed.html || '';
+      const rawBodyText = parsed.text || parsed.html || '';
+      
+      // Clean email body of ugly forwarding headers and resolve correct document subject
+      const bodyText = cleanEmailBody(rawBodyText);
+      subject = extractRealSubject(subject, bodyText);
       
       // Check if there are PDF attachments in metadata struct
       const parts = imaps.getParts(msg.attributes.struct || []);
