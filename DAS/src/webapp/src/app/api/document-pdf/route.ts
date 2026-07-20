@@ -89,17 +89,24 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching document PDF:', error);
     
     // Cloud/Vercel Hybrid Fallback:
-    // If IMAP fails to connect and fetch PDF, stream the local incoming-sample.pdf to render the preview frame cleanly.
+    // If IMAP fails to connect and fetch PDF, stream the requested static PDF from public/documents/samples if available.
     try {
       const fs = require('fs');
       const path = require('path');
-      const samplePath = path.join(process.cwd(), 'public', 'documents', 'samples', 'incoming-sample.pdf');
-      if (fs.existsSync(samplePath)) {
-        const fileBuffer = fs.readFileSync(samplePath);
+      
+      const safeFilename = path.basename(filename);
+      let targetPath = path.join(process.cwd(), 'public', 'documents', 'samples', safeFilename);
+      
+      if (!fs.existsSync(targetPath)) {
+        targetPath = path.join(process.cwd(), 'public', 'documents', 'samples', 'incoming-sample.pdf');
+      }
+
+      if (fs.existsSync(targetPath)) {
+        const fileBuffer = fs.readFileSync(targetPath);
         return new NextResponse(fileBuffer, {
           headers: {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `inline; filename="${filename}"`
+            'Content-Disposition': `inline; filename="${safeFilename}"`
           }
         });
       }
