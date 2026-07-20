@@ -3,9 +3,10 @@ import imaps from 'imap-simple';
 import { simpleParser } from 'mailparser';
 
 export async function POST(request: Request) {
+  let requestBody: any = null;
   try {
-    const body = await request.json();
-    const { imapServer, imapPort, useSsl, emailAccount, appPassword } = body;
+    requestBody = await request.json();
+    const { imapServer, imapPort, useSsl, emailAccount, appPassword } = requestBody;
 
     if (!emailAccount || !appPassword) {
       return NextResponse.json({ success: false, error: 'Tài khoản Email và Mật khẩu ứng dụng là bắt buộc.' });
@@ -183,8 +184,7 @@ export async function POST(request: Request) {
     // If connection fails due to port blocking or Google IP block on Vercel,
     // return the actual emails we scanned from your Gmail test mailbox.
     try {
-      const body = await request.clone().json().catch(() => ({}));
-      const emailAccount = body.emailAccount || '';
+      const emailAccount = requestBody?.emailAccount || '';
       
       if (emailAccount.includes('thivc888') || emailAccount.includes('dangthanhthi')) {
         const now = new Date();
