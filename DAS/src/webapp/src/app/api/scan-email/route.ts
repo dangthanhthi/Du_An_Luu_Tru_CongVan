@@ -115,11 +115,8 @@ export async function POST(request: Request) {
                                subject.toLowerCase().includes('cv-') ||
                                /cv\s*\d+/i.test(subject);
 
-      // A document is suitable if:
-      // (1) It contains a PDF attachment
-      // (2) OR it contains the Vietnamese National Motto (copy-pasted document)
-      // (3) OR it has a formal subject and a document number pattern in the body
-      const isSuitableDoc = hasPdf || hasNationalMotto || (hasFormalSubject && hasDocNumberPattern);
+      // Strictly filter: E-fax must contain a PDF attachment!
+      const isSuitableDoc = hasPdf;
 
       if (isSuitableDoc) {
         // Extract original reference number (Số công văn gốc)

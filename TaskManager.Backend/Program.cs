@@ -99,7 +99,7 @@ app.MapPost("/api/scan-email", async (ScanEmailRequest request) =>
                     message.Date.LocalDateTime.ToString("dd/MM/yyyy"),
                     subject.Contains("Mật", StringComparison.OrdinalIgnoreCase) ? "Mật" : "Thường",
                     "Chờ xử lý",
-                    $"Quét thực tế từ email ({request.EmailAccount}).\nNgười gửi: {senderDisplay}\nTiêu đề: {subject}\nNgày nhận: {message.Date.LocalDateTime}\nNội dung thư: {message.TextBody ?? ""}",
+                    message.TextBody ?? "",
                     pdfAttachment.FileName ?? "document.pdf"
                 ));
             }
