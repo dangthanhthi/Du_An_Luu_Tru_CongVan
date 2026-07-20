@@ -13,11 +13,13 @@ export default function Settings() {
   const [useSsl, setUseSsl] = useState(true);
   const [emailAccount, setEmailAccount] = useState('congvan.den@gmail.com');
   const [appPassword, setAppPassword] = useState('•••• •••• •••• ••••');
+  const [mounted, setMounted] = useState(false);
   
   const [testingScan, setTestingScan] = useState(false);
   const [scanResult, setScanResult] = useState<any>(null);
 
   useEffect(() => {
+    setMounted(true);
     const loadEmail = () => {
       try {
         const saved = localStorage.getItem('email-watcher-address');
@@ -163,9 +165,10 @@ export default function Settings() {
                     <label className="block text-xs font-bold text-zinc-400 mb-2 uppercase tracking-wide">Tài khoản Email tiếp nhận</label>
                     <input
                       type="email"
-                      value={emailAccount}
+                      value={mounted ? emailAccount : ''}
                       onChange={(e) => setEmailAccount(e.target.value)}
                       placeholder="congvan.den@gmail.com"
+                      suppressHydrationWarning
                       className="w-full px-4 py-2.5 border border-zinc-800 bg-zinc-900 rounded-xl text-xs focus:outline-none focus:border-zinc-500 text-white font-mono"
                     />
                   </div>

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 export default function Dashboard() {
   // Email Watcher config state
   const [watchEmail, setWatchEmail] = useState('congvan.den@gmail.com');
+  const [mounted, setMounted] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [editPassword, setEditPassword] = useState('');
   const [editNewEmail, setEditNewEmail] = useState('');
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [editSuccess, setEditSuccess] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const loadEmail = () => {
       try {
         const saved = localStorage.getItem('email-watcher-address');
@@ -230,7 +232,9 @@ export default function Dashboard() {
 
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400 font-medium">Quét email từ:</span>
-                  <span className="font-mono text-emerald-400 text-[10px] truncate max-w-[140px]" title={watchEmail}>{watchEmail}</span>
+                  <span suppressHydrationWarning className="font-mono text-emerald-400 text-[10px] truncate max-w-[140px]" title={watchEmail}>
+                    {mounted ? watchEmail : 'congvan.den@gmail.com'}
+                  </span>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -240,7 +244,8 @@ export default function Dashboard() {
 
                 <button
                   onClick={() => {
-                    setEditNewEmail(watchEmail);
+                    const latest = (typeof window !== 'undefined' && localStorage.getItem('email-watcher-address')) || watchEmail;
+                    setEditNewEmail(latest);
                     setEditPassword('');
                     setEditError('');
                     setEditSuccess(false);
