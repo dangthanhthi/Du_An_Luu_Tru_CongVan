@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     };
 
     const connection = await imaps.connect(config);
-    const box = await connection.openBox('INBOX');
+    const box: any = await connection.openBox('INBOX');
 
     const total = (box.messages && box.messages.total) || 0;
     if (total === 0) {
