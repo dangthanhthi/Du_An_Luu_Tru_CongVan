@@ -33,8 +33,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, documents: [] });
     }
 
-    const startSeq = Math.max(1, total - 14);
-    const searchCriteria = [`${startSeq}:${total}`];
+    // Only scan emails received within the last 1 day (24 hours) to optimize scan times
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Format to standard IMAP date format: "DD-MMM-YYYY" (e.g. "20-Jul-2026")
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const formattedDate = `${yesterday.getDate()}-${months[yesterday.getMonth()]}-${yesterday.getFullYear()}`;
+    
+    const searchCriteria = [['SINCE', formattedDate]];
     const fetchOptions = {
       bodies: ['HEADER', 'TEXT'],
       struct: true
@@ -42,9 +49,9 @@ export async function POST(request: Request) {
 
     const messages = await connection.search(searchCriteria, fetchOptions);
     
-    // Sort messages by sequence number descending
+    // Sort messages by UID descending (newest first) and limit to top 15 to prevent overload
     messages.sort((a, b) => b.attributes.uid - a.attributes.uid);
-    const lastMessages = messages;
+    const lastMessages = messages.slice(0, 15);
 
     const scannedDocs: any[] = [];
 
