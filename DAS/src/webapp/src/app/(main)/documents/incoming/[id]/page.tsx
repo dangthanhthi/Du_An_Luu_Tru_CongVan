@@ -16,6 +16,8 @@ export default function IncomingDocDetail() {
   const [signedDate, setSignedDate] = useState('19/07/2026 10:15');
   const [hashValue, setHashValue] = useState('9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0');
 
+  const [customDoc, setCustomDoc] = useState<any>(null);
+
   useEffect(() => {
     const saved = localStorage.getItem(`signed-doc-incoming-${docId}`);
     if (saved !== null) {
@@ -28,9 +30,30 @@ export default function IncomingDocDetail() {
         setSigned(true);
       }
     }
+
+    try {
+      const customSaved = localStorage.getItem('custom_incoming_docs');
+      if (customSaved) {
+        const list = JSON.parse(customSaved);
+        const found = list.find((d: any) => d.id === docId);
+        if (found) setCustomDoc(found);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, [docId]);
 
-  const doc = {
+  const doc = customDoc ? {
+    id: docId,
+    docNo: customDoc.docNo,
+    subject: customDoc.subject,
+    type: 'Công văn đến',
+    sender: customDoc.sender || 'Tập đoàn VNPT',
+    date: customDoc.date,
+    status: signed ? 'Đã ký duyệt & Phân phối' : (customDoc.status || 'Chờ xử lý'),
+    priority: customDoc.priority || 'Thường',
+    summary: customDoc.content || customDoc.subject
+  } : {
     id: docId,
     docNo: docId === '1' ? 'CV-DEN-2026-00157' : docId === '2' ? 'CV-DEN-2026-00156' : 'CV-DEN-2026-00155',
     subject: docId === '1' ? 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II' : 'Hợp đồng dịch vụ bảo trì hạ tầng hệ thống máy chủ',

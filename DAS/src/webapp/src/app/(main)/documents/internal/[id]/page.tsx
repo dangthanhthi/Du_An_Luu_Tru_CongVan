@@ -16,6 +16,8 @@ export default function InternalDocDetail() {
   const [signedDate, setSignedDate] = useState('17/07/2026 11:15');
   const [hashValue, setHashValue] = useState('7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8');
 
+  const [customDoc, setCustomDoc] = useState<any>(null);
+
   useEffect(() => {
     const saved = localStorage.getItem(`signed-doc-internal-${docId}`);
     if (saved !== null) {
@@ -27,9 +29,30 @@ export default function InternalDocDetail() {
         setSigned(true);
       }
     }
+
+    try {
+      const customSaved = localStorage.getItem('custom_internal_docs');
+      if (customSaved) {
+        const list = JSON.parse(customSaved);
+        const found = list.find((d: any) => d.id === docId);
+        if (found) setCustomDoc(found);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, [docId]);
 
-  const doc = {
+  const doc = customDoc ? {
+    id: docId,
+    docNo: customDoc.docNo,
+    subject: customDoc.subject,
+    type: 'Công văn nội bộ',
+    sender: customDoc.department || 'Ban Giám đốc',
+    date: customDoc.date,
+    status: signed ? 'Đã ký số ban hành' : (customDoc.status || 'Chờ xử lý'),
+    priority: customDoc.priority || 'Thường',
+    summary: customDoc.content || customDoc.subject
+  } : {
     id: docId,
     docNo: docId === '1' ? 'CV-NB-2026-00034' : 'CV-NB-2026-00033',
     subject: 'Thông báo lịch nghỉ phép tập thể và làm việc luân phiên năm 2026',

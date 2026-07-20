@@ -37,9 +37,48 @@ export default function NewIncomingDoc() {
     }, 1200);
   };
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/documents/incoming');
+    setSubmitting(true);
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('vi-VN');
+    
+    // Generate unique ID & Code
+    const docId = `doc-${Date.now()}`;
+    const senderName = sender === 'vnpt' ? 'Tập đoàn VNPT' : sender === 'kstthc' ? 'Cục KSTTHC' : sender === 'vietcombank' ? 'Ngân hàng Vietcombank' : (sender || 'Đối tác bên ngoài');
+    
+    const newDoc = {
+      id: docId,
+      docNo: `CV-DEN-2026-00${Math.floor(158 + Math.random() * 10)}`,
+      subject: subject,
+      sender: senderName,
+      originalNo: originalNo || '1025/VNPT-VP',
+      date: dateStr,
+      priority: priority === 'Urgent' ? 'Khẩn' : priority === 'Secret' ? 'Mật' : priority === 'TopSecret' ? 'Hỏa tốc' : 'Thường',
+      status: 'Chờ xử lý',
+      content: content
+    };
+
+    try {
+      const existing = localStorage.getItem('custom_incoming_docs');
+      const list = existing ? JSON.parse(existing) : [];
+      list.unshift(newDoc);
+      localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+    } catch (err) {
+      console.error(err);
+    }
+
+    setTimeout(() => {
+      setSubmitting(false);
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        router.push('/documents/incoming');
+      }, 1000);
+    }, 600);
   };
 
   return (

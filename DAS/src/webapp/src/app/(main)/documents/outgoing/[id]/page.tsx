@@ -16,6 +16,8 @@ export default function OutgoingDocDetail() {
   const [signedDate, setSignedDate] = useState('19/07/2026 10:15');
   const [hashValue, setHashValue] = useState('8f3a9d72b1c2e4f5a6b7c8d9e0f1a2b3c4d5e6f7');
 
+  const [customDoc, setCustomDoc] = useState<any>(null);
+
   useEffect(() => {
     const saved = localStorage.getItem(`signed-doc-outgoing-${docId}`);
     if (saved !== null) {
@@ -27,9 +29,32 @@ export default function OutgoingDocDetail() {
         setSigned(true);
       }
     }
+
+    try {
+      const customSaved = localStorage.getItem('custom_outgoing_docs');
+      if (customSaved) {
+        const list = JSON.parse(customSaved);
+        const found = list.find((d: any) => d.id === docId);
+        if (found) setCustomDoc(found);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, [docId]);
 
-  const doc = {
+  const doc = customDoc ? {
+    id: docId,
+    docNo: customDoc.docNo,
+    subject: customDoc.subject,
+    type: 'Công văn đi',
+    signer: 'Giám đốc Nguyễn Văn Director',
+    department: 'Ban Giám đốc',
+    date: customDoc.date,
+    status: signed ? 'Đã ký số & Phát hành' : (customDoc.status || 'Chờ xử lý'),
+    priority: customDoc.priority || 'Thường',
+    recipient: customDoc.receiver || 'Đối tác nhận',
+    summary: customDoc.content || customDoc.subject
+  } : {
     id: docId,
     docNo: docId === '1' ? 'CV-DI-2026-00089' : 'CV-DI-2026-00088',
     subject: docId === '1' ? 'Quyết định bổ nhiệm nhân sự phòng Kế toán doanh nghiệp' : 'Thông báo thay đổi tài khoản nhận thanh toán',

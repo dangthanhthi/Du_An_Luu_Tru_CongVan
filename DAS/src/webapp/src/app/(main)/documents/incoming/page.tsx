@@ -1,18 +1,32 @@
 'use client';
 import Header from '@/components/Header';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function IncomingDocs() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('Tất cả trạng thái');
   const [priorityFilter, setPriorityFilter] = useState('Tất cả độ khẩn');
+  const [customDocs, setCustomDocs] = useState<any[]>([]);
 
-  const docs = [
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('custom_incoming_docs');
+      if (saved) {
+        setCustomDocs(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const defaultDocs = [
     { id: '1', docNo: 'CV-DEN-2026-00157', subject: 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II', sender: 'VNPT', date: '19/07/2026', priority: 'Mật', status: 'Chờ xử lý' },
     { id: '2', docNo: 'CV-DEN-2026-00156', subject: 'Hợp đồng dịch vụ bảo trì hạ tầng hệ thống máy chủ', sender: 'Vietcombank', date: '18/07/2026', priority: 'Thường', status: 'Đã phân phối' },
     { id: '3', docNo: 'CV-DEN-2026-00155', subject: 'Thông báo thanh tra về việc thực hiện thủ tục hành chính', sender: 'KSTTHC', date: '15/07/2026', priority: 'Hỏa tốc', status: 'Đã phân phối' },
   ];
+
+  const docs = [...customDocs, ...defaultDocs];
 
   const filteredDocs = docs.filter((doc) => {
     const matchesSearch = 
