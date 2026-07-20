@@ -74,7 +74,7 @@ export default function Settings() {
     setScanResult(null);
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/scan-email', {
+      const res = await fetch('/api/scan-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
