@@ -1,6 +1,42 @@
 import { NextResponse, NextRequest } from 'next/server';
 import imaps from 'imap-simple';
 
+async function fetchPdfData(config: any, uid: number) {
+  const connection = await imaps.connect(config);
+  try {
+    await connection.openBox('INBOX');
+    const searchCriteria = [['UID', uid]];
+    const fetchOptions = {
+      bodies: ['HEADER'],
+      struct: true
+    };
+
+    const messages = await connection.search(searchCriteria, fetchOptions);
+    if (!messages || messages.length === 0) {
+      throw new Error(`Message with UID ${uid} not found`);
+    }
+
+    const msg = messages[0];
+    const parts = imaps.getParts(msg.attributes.struct || []);
+    
+    const pdfPart = parts.find((part: any) => {
+      const isPdfSubtype = part.subtype && part.subtype.toUpperCase() === 'PDF';
+      const hasPdfName = (part.params && part.params.name && part.params.name.toLowerCase().endsWith('.pdf')) ||
+                         (part.disposition && part.disposition.params && part.disposition.params.filename && part.disposition.params.filename.toLowerCase().endsWith('.pdf'));
+      return !!(isPdfSubtype || hasPdfName);
+    });
+
+    if (!pdfPart) {
+      throw new Error('No PDF attachment found in this message structure.');
+    }
+
+    const partData = await connection.getPartData(msg, pdfPart);
+    return partData;
+  } finally {
+    try { connection.end(); } catch (e) {}
+  }
+}
+
 export async function GET(request: NextRequest) {
   let filename = 'document.pdf';
   try {
@@ -28,55 +64,20 @@ export async function GET(request: NextRequest) {
         host: server || 'imap.gmail.com',
         port: port,
         tls: useSsl,
-        authTimeout: 5000,
-        connTimeout: 5000,
+        authTimeout: 8000,
+        connTimeout: 8000,
         tlsOptions: { rejectUnauthorized: false }
       }
     };
 
-    // Enforce a strict 10-second connection timeout to prevent infinite socket/DNS hangs
-    const connectPromise = imaps.connect(config);
+    // Enforce a strict 15-second unified timeout for the entire PDF retrieval process
+    const pdfPromise = fetchPdfData(config, uid);
     const timeoutPromise = new Promise<any>((_, reject) => 
-      setTimeout(() => reject(new Error('Kết nối tới Gmail IMAP bị treo (DNS hoặc Firewall chặn).')), 10000)
+      setTimeout(() => reject(new Error('Thời gian tải tệp PDF từ Gmail quá hạn (15 giây).')), 15000)
     );
 
-    const connection = await Promise.race([connectPromise, timeoutPromise]);
-    await connection.openBox('INBOX');
+    const partData = await Promise.race([pdfPromise, timeoutPromise]);
 
-    // Search specifically for the message with this UID
-    const searchCriteria = [['UID', uid]];
-    const fetchOptions = {
-      bodies: ['HEADER'],
-      struct: true
-    };
-
-    const messages = await connection.search(searchCriteria, fetchOptions);
-    if (!messages || messages.length === 0) {
-      connection.end();
-      return NextResponse.json({ error: `Message with UID ${uid} not found` }, { status: 404 });
-    }
-
-    const msg = messages[0];
-    const parts = imaps.getParts(msg.attributes.struct || []);
-    
-    // Find the PDF part
-    const pdfPart = parts.find((part: any) => {
-      const isPdfSubtype = part.subtype && part.subtype.toUpperCase() === 'PDF';
-      const hasPdfName = (part.params && part.params.name && part.params.name.toLowerCase().endsWith('.pdf')) ||
-                         (part.disposition && part.disposition.params && part.disposition.params.filename && part.disposition.params.filename.toLowerCase().endsWith('.pdf'));
-      return !!(isPdfSubtype || hasPdfName);
-    });
-
-    if (!pdfPart) {
-      connection.end();
-      return NextResponse.json({ error: 'No PDF attachment found in this message structure.' }, { status: 404 });
-    }
-
-    // Get the part data (Buffer)
-    const partData = await connection.getPartData(msg, pdfPart);
-    connection.end();
-
-    // Return the binary file directly to the browser
     return new NextResponse(partData, {
       headers: {
         'Content-Type': 'application/pdf',
