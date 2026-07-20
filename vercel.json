@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "installCommand": "cd DAS/src/webapp && npm install",
+  "buildCommand": "cd DAS/src/webapp && npm run build",
+  "outputDirectory": "DAS/src/webapp/.next"
+}
