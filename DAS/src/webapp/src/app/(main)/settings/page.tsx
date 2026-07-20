@@ -18,19 +18,26 @@ export default function Settings() {
   const [scanResult, setScanResult] = useState<any>(null);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('email-watcher-address');
-      if (saved) {
-        setEmailAccount(saved);
+    const loadEmail = () => {
+      try {
+        const saved = localStorage.getItem('email-watcher-address');
+        if (saved) {
+          setEmailAccount(saved);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+    loadEmail();
+    window.addEventListener('storage', loadEmail);
+    return () => window.removeEventListener('storage', loadEmail);
   }, []);
 
   const handleSaveEmailConfig = () => {
     try {
-      localStorage.setItem('email-watcher-address', emailAccount);
+      const clean = emailAccount.trim();
+      localStorage.setItem('email-watcher-address', clean);
+      window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error(e);
     }

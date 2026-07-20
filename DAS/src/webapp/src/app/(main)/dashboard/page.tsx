@@ -13,17 +13,23 @@ export default function Dashboard() {
   const [editSuccess, setEditSuccess] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('email-watcher-address');
-      if (saved) {
-        setWatchEmail(saved);
+    const loadEmail = () => {
+      try {
+        const saved = localStorage.getItem('email-watcher-address');
+        if (saved) {
+          setWatchEmail(saved);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+    loadEmail();
+    window.addEventListener('storage', loadEmail);
+    return () => window.removeEventListener('storage', loadEmail);
   }, []);
 
-  const handleSaveEmail = () => {
+  const handleSaveEmail = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setEditError('');
     if (editPassword !== '123456') {
       setEditError('Mật khẩu quản trị không đúng! (Mật khẩu thử nghiệm: 123456)');
@@ -33,9 +39,11 @@ export default function Dashboard() {
       setEditError('Vui lòng nhập địa chỉ email hợp lệ.');
       return;
     }
-    setWatchEmail(editNewEmail);
+    const cleanEmail = editNewEmail.trim();
+    setWatchEmail(cleanEmail);
     try {
-      localStorage.setItem('email-watcher-address', editNewEmail);
+      localStorage.setItem('email-watcher-address', cleanEmail);
+      window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error(e);
     }
@@ -45,7 +53,7 @@ export default function Dashboard() {
       setEditSuccess(false);
       setEditPassword('');
       setEditNewEmail('');
-    }, 1200);
+    }, 1000);
   };
 
   const stats = [
@@ -299,7 +307,7 @@ export default function Dashboard() {
       {/* Edit Email Watcher Modal - Password Protected */}
       {editEmailModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
+          <form onSubmit={handleSaveEmail} className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center justify-center mx-auto">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -331,6 +339,7 @@ export default function Dashboard() {
                     type="email"
                     value={editNewEmail}
                     onChange={(e) => setEditNewEmail(e.target.value)}
+                    required
                     placeholder="example@company.vn"
                     className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
                   />
@@ -344,6 +353,7 @@ export default function Dashboard() {
                     type="password"
                     value={editPassword}
                     onChange={(e) => setEditPassword(e.target.value)}
+                    required
                     placeholder="Nhập mật khẩu để xác nhận thay đổi"
                     className="w-full px-3 py-2 border border-zinc-800 bg-zinc-900 rounded-lg text-xs text-white font-medium focus:outline-none focus:border-zinc-500"
                   />
@@ -361,20 +371,21 @@ export default function Dashboard() {
             {!editSuccess && (
               <div className="pt-2 flex justify-end gap-3 text-xs font-bold">
                 <button
+                  type="button"
                   onClick={() => setEditEmailModal(false)}
                   className="px-4 py-2 border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white rounded-lg cursor-pointer"
                 >
                   Hủy bỏ
                 </button>
                 <button
-                  onClick={handleSaveEmail}
+                  type="submit"
                   className="px-5 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg cursor-pointer shadow-md font-bold"
                 >
                   Xác nhận thay đổi
                 </button>
               </div>
             )}
-          </div>
+          </form>
         </div>
       )}
     </>
