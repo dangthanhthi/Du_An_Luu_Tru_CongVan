@@ -12,128 +12,110 @@ interface UserProfile {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<'login' | 'signup' | 'oauth_linking'>('login');
-  
-  // Login / Signup Form state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState('');
+  const [mounted, setMounted] = useState(false);
 
-  // OAuth linking state (for new Google/GitHub accounts)
-  const [oauthProvider, setOauthProvider] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [oauthEmail, setOauthEmail] = useState('');
-  const [dept, setDept] = useState('Phòng Hành chính');
-  const [role, setRole] = useState('Chuyên viên');
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  // Seed default admin and search helper
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Fetch existing registered users from localStorage
-    const savedUsersStr = localStorage.getItem('das-registered-users');
-    let registeredUsers: Record<string, { pass: string; profile: UserProfile }> = {};
-    if (savedUsersStr) {
-      try {
-        registeredUsers = JSON.parse(savedUsersStr);
-      } catch (e) {}
-    }
+    const lowerUser = username.trim().toLowerCase();
+    const pass = password.trim();
 
-    // Default admin seed
-    if (username === 'admin' && password === '123456') {
-      setLoading(true);
-      setLoadingMsg('Đang xác thực tài khoản quản trị...');
-      setTimeout(() => {
-        localStorage.setItem('das-token', 'mock-jwt-token');
-        localStorage.setItem('current-user', JSON.stringify({
-          name: 'Administrator',
-          email: 'admin@cv.com',
-          avatar: 'AD',
-          department: 'Ban Giám đốc',
-          role: 'Giám đốc'
-        }));
-        router.push('/dashboard');
-      }, 1000);
-      return;
-    }
+    let userProfile: UserProfile | null = null;
+    let token = 'mock-user-token';
 
-    // Check custom registered users
-    const matchedUser = registeredUsers[username.toLowerCase()];
-    if (matchedUser && matchedUser.pass === password) {
-      setLoading(true);
-      setLoadingMsg(`Đang đăng nhập dưới danh nghĩa ${matchedUser.profile.name}...`);
-      setTimeout(() => {
-        localStorage.setItem('das-token', 'mock-user-token');
-        localStorage.setItem('current-user', JSON.stringify(matchedUser.profile));
-        router.push('/dashboard');
-      }, 1000);
-    } else {
-      setError('Sai tài khoản hoặc mật khẩu (Thử: admin / 123456 hoặc tạo tài khoản mới bên dưới)');
-    }
-  };
-
-  const handleSignupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (username.toLowerCase() === 'admin') {
-      setError('Tài khoản "admin" đã được đăng ký mặc định trên hệ thống.');
-      return;
-    }
-
-    setLoading(true);
-    setLoadingMsg('Đang khởi tạo tài khoản mới...');
-
-    setTimeout(() => {
-      // Save user to simulated DB in localStorage
-      const savedUsersStr = localStorage.getItem('das-registered-users') || '{}';
-      let registeredUsers = {};
-      try {
-        registeredUsers = JSON.parse(savedUsersStr);
-      } catch (e) {}
-
-      const cleanUsername = username.trim().toLowerCase();
-      const initials = cleanUsername.substring(0, 2).toUpperCase() || 'US';
-      const userProfile: UserProfile = {
-        name: username.split('@')[0],
-        email: cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@cv.com`,
-        avatar: initials,
+    if (lowerUser === 'admin' && pass === '123456') {
+      userProfile = {
+        name: 'Quản trị viên Hệ thống',
+        email: 'admin@taskmanager.com',
+        avatar: 'AD',
+        department: 'Phòng CNTT',
+        role: 'Admin'
+      };
+      token = 'mock-admin-token';
+    } else if (lowerUser === 'giamdoc' && pass === '123456') {
+      userProfile = {
+        name: 'Trần Văn Giám Đốc',
+        email: 'giamdoc@taskmanager.com',
+        avatar: 'GD',
+        department: 'Ban Giám đốc',
+        role: 'Giám đốc'
+      };
+      token = 'mock-giamdoc-token';
+    } else if (lowerUser === 'truongphong' && pass === '123456') {
+      userProfile = {
+        name: 'Nguyễn Văn Trưởng Phòng',
+        email: 'truongphong.hc@taskmanager.com',
+        avatar: 'TP',
+        department: 'Phòng Hành chính',
+        role: 'Trưởng phòng'
+      };
+      token = 'mock-manager-token';
+    } else if (lowerUser === 'nhanvien' && pass === '123456') {
+      userProfile = {
+        name: 'Lê Thị Văn Thư',
+        email: 'vanthu.hc@taskmanager.com',
+        avatar: 'VT',
         department: 'Phòng Hành chính',
         role: 'Chuyên viên'
       };
+      token = 'mock-staff-token';
+    }
 
-      // Save user record
-      (registeredUsers as any)[cleanUsername] = {
-        pass: password,
-        profile: userProfile
-      };
-      localStorage.setItem('das-registered-users', JSON.stringify(registeredUsers));
-
-      // Auto log in as the newly created user
-      localStorage.setItem('das-token', 'mock-user-token');
-      localStorage.setItem('current-user', JSON.stringify(userProfile));
-      
-      setLoading(false);
-      router.push('/dashboard');
-    }, 1200);
+    if (userProfile) {
+      setLoading(true);
+      setLoadingMsg(`Đang xác thực thông tin đăng nhập...`);
+      setTimeout(() => {
+        localStorage.setItem('das-token', token);
+        localStorage.setItem('current-user', JSON.stringify(userProfile));
+        router.push('/dashboard');
+      }, 1000);
+    } else {
+      setError('Sai tài khoản hoặc mật khẩu. Vui lòng sử dụng tài khoản doanh nghiệp gợi ý bên dưới.');
+    }
   };
 
   const triggerSSOLogin = (provider: string) => {
     let loginUrl = '';
+    let userProfile: UserProfile = {
+      name: 'Trần Văn Giám Đốc',
+      email: 'dangthanhthi213@gmail.com',
+      avatar: 'GD',
+      department: 'Ban Giám đốc',
+      role: 'Giám đốc'
+    };
+
     if (provider === 'Google') {
       loginUrl = 'https://accounts.google.com/InteractiveLogin';
+      userProfile = {
+        name: 'Trần Văn Giám Đốc',
+        email: 'dangthanhthi213@gmail.com',
+        avatar: 'GD',
+        department: 'Ban Giám đốc',
+        role: 'Giám đốc'
+      };
     } else if (provider === 'GitHub') {
       loginUrl = 'https://github.com/login';
-    } else if (provider === 'Apple') {
-      loginUrl = 'https://appleid.apple.com/auth/authorize';
+      userProfile = {
+        name: 'Quản trị viên Hệ thống',
+        email: 'dangthanhthi@github.com',
+        avatar: 'AD',
+        department: 'Phòng CNTT',
+        role: 'Admin'
+      };
     } else {
-      loginUrl = 'https://accounts.google.com';
+      loginUrl = 'https://appleid.apple.com/auth/authorize';
     }
 
-    // Open as a small popup window (which browsers allow popup.close() to close)
     const width = 500;
     const height = 600;
     const left = typeof window !== 'undefined' ? window.screen.width / 2 - width / 2 : 100;
@@ -148,370 +130,173 @@ export default function LoginPage() {
       );
     } catch (e) {}
 
-    // Automatically close the popup window after 1.5 seconds so no tab remains open!
     setTimeout(() => {
       try {
         if (popup && !popup.closed) {
           popup.close();
         }
       } catch (e) {}
-    }, 1500);
-
-    // Check if user has already linked an account for this provider
-    const linkedUserStr = localStorage.getItem(`das-sso-${provider.toLowerCase()}`);
-    if (linkedUserStr) {
-      setLoading(true);
-      setLoadingMsg(`Đăng nhập thành công với tài khoản ${provider}!`);
-      setTimeout(() => {
-        localStorage.setItem('das-token', `mock-${provider.toLowerCase()}-token`);
-        localStorage.setItem('current-user', linkedUserStr);
-        router.push('/dashboard');
-      }, 800);
-    } else {
-      // Instantly switch mode to oauth_linking with real user details prefilled
-      setLoading(false);
-      setOauthProvider(provider);
-      setFullName(provider === 'Google' ? 'Thành Thị Đặng' : 'Đặng Thành Thị');
-      setOauthEmail(provider === 'Google' ? 'dangthanhthi213@gmail.com' : 'dangthanhthi@github.com');
-      setMode('oauth_linking');
-    }
-  };
-
-  const handleOAuthLinkingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setLoadingMsg('Đang tạo hồ sơ và liên kết tài khoản...');
-
-    setTimeout(() => {
-      const initials = fullName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'SS';
-      const userProfile: UserProfile = {
-        name: fullName,
-        email: oauthEmail,
-        avatar: initials,
-        department: dept,
-        role: role
-      };
-
-      // Save linkage so next time they log in directly
-      localStorage.setItem(`das-sso-${oauthProvider.toLowerCase()}`, JSON.stringify(userProfile));
-      
-      // Add to registered users
-      const savedUsersStr = localStorage.getItem('das-registered-users') || '{}';
-      let registeredUsers = {};
-      try {
-        registeredUsers = JSON.parse(savedUsersStr);
-      } catch (e) {}
-      
-      const cleanUsername = oauthEmail.trim().toLowerCase();
-      (registeredUsers as any)[cleanUsername] = {
-        pass: 'sso-account-no-pass',
-        profile: userProfile
-      };
-      localStorage.setItem('das-registered-users', JSON.stringify(registeredUsers));
-
-      // Log in as new user
-      localStorage.setItem('das-token', `mock-${oauthProvider.toLowerCase()}-token`);
-      localStorage.setItem('current-user', JSON.stringify(userProfile));
-
-      setLoading(false);
-      router.push('/dashboard');
     }, 1200);
+
+    setLoading(true);
+    setLoadingMsg(`Kết nối xác thực với ${provider} thành công!`);
+    setTimeout(() => {
+      localStorage.setItem('das-token', `mock-${provider.toLowerCase()}-token`);
+      localStorage.setItem('current-user', JSON.stringify(userProfile));
+      router.push('/dashboard');
+    }, 1500);
   };
+
+  if (!mounted) return null;
 
   return (
-    <div className="w-full max-w-[400px] transition-all duration-300 relative">
-      
-      {/* Loading Overlay */}
+    <div className="min-h-screen bg-black flex flex-col justify-center items-center px-4 relative overflow-hidden select-none">
+      {/* Background gradients */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-zinc-900/40 blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-zinc-900/30 blur-[130px] pointer-events-none"></div>
+
       {loading && (
-        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-2xl border border-zinc-800 p-8 text-center">
-          <div className="w-10 h-10 border-2 border-zinc-700 border-t-white rounded-full animate-spin mb-4"></div>
-          <p className="text-sm font-semibold text-zinc-300">{loadingMsg}</p>
+        <div className="absolute inset-0 bg-black/95 z-50 flex flex-col items-center justify-center space-y-4 backdrop-blur-sm">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <span className="absolute w-12 h-12 rounded-full border-2 border-zinc-800 border-t-white animate-spin"></span>
+            <span className="text-[10px] font-bold text-zinc-400">CV</span>
+          </div>
+          <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider animate-pulse">{loadingMsg}</p>
         </div>
       )}
 
-      {/* Main card body */}
-      <div className="p-8 bg-zinc-950 border border-zinc-900 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-        
-        {/* CV Vector Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-950/30 transition-transform hover:scale-105 duration-200">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <line x1="10" y1="9" x2="8" y2="9" />
-            </svg>
+      {/* Main Login Card */}
+      <div className="w-full max-w-[390px] p-8 bg-zinc-950 border border-zinc-900 rounded-2xl shadow-2xl relative z-10 transition-all duration-300">
+        <div className="text-center space-y-3 mb-8">
+          <div className="inline-flex items-center gap-1 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Enterprise Edition</span>
+          </div>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Hệ thống Lưu trữ Công văn</h1>
+          <p className="text-xs text-zinc-500 font-medium">Đăng nhập tài khoản nội bộ doanh nghiệp</p>
+        </div>
+
+        <form onSubmit={handleLoginSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 bg-red-950/20 border border-red-900/40 text-red-400 text-[11px] rounded-lg font-semibold leading-relaxed">
+              ⚠️ {error}
+            </div>
+          )}
+
+          <div>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setError('');
+              }}
+              required
+              placeholder="Tên đăng nhập nội bộ"
+              className="w-full px-4 py-2.5 bg-black border border-zinc-800 focus:border-zinc-500 rounded-lg text-xs text-white placeholder-zinc-650 transition-colors font-semibold focus:outline-none"
+            />
+          </div>
+
+          <div className="relative">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError('');
+              }}
+              required
+              placeholder="Mật khẩu"
+              className="w-full px-4 py-2.5 bg-black border border-zinc-800 focus:border-zinc-500 rounded-lg text-xs text-white placeholder-zinc-650 transition-colors font-semibold focus:outline-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 bg-white hover:bg-zinc-200 text-black font-extrabold rounded-lg text-xs transition-all cursor-pointer shadow-sm active:scale-[0.98] transform"
+          >
+            ĐĂNG NHẬP HỆ THỐNG
+          </button>
+        </form>
+
+        {/* SSO Area */}
+        <div className="mt-6 space-y-4">
+          <div className="relative flex items-center justify-center my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-900"></div>
+            </div>
+            <span className="relative px-3 bg-zinc-950 text-[10px] font-bold text-zinc-555 uppercase tracking-widest">
+              Hoặc đăng nhập nhanh bằng
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => triggerSSOLogin('Google')}
+              className="flex items-center justify-center gap-2 py-2 bg-black border border-zinc-900 hover:bg-zinc-900/50 hover:border-zinc-800 text-xs font-semibold text-zinc-300 rounded-lg cursor-pointer transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 5.258 1 0 6.258 0 12.24s5.258 11.24 12.24 11.24c7.29 0 12.134-5.118 12.134-12.36 0-.832-.089-1.467-.2-1.835H12.24z"/>
+              </svg>
+              <span>Google</span>
+            </button>
+
+            <button
+              onClick={() => triggerSSOLogin('GitHub')}
+              className="flex items-center justify-center gap-2 py-2 bg-black border border-zinc-900 hover:bg-zinc-900/50 hover:border-zinc-800 text-xs font-semibold text-zinc-300 rounded-lg cursor-pointer transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577v-2.234c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.82 1.102.82 2.222v3.293c0 .319.22.694.825.576C20.565 21.795 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <span>GitHub</span>
+            </button>
           </div>
         </div>
 
-        {/* View switching logic */}
-        {mode === 'login' && (
-          <div>
-            <h2 className="text-2xl font-semibold text-center text-white tracking-tight mb-6">
-              Đăng nhập vào CV
-            </h2>
-
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 bg-red-950/20 border border-red-900/40 text-red-400 text-xs rounded-lg font-semibold">
-                  ⚠️ {error}
-                </div>
-              )}
-
-              <div>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setError('');
-                  }}
-                  required
-                  placeholder="Địa chỉ Email hoặc tài khoản"
-                  className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-white placeholder-zinc-500 transition-colors font-medium"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError('');
-                  }}
-                  required
-                  placeholder="Mật khẩu"
-                  className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-white placeholder-zinc-500 transition-colors font-semibold"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold rounded-lg text-sm transition-all cursor-pointer shadow-sm active:scale-[0.98] transform"
-              >
-                Đăng nhập
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="flex items-center my-6">
-              <div className="flex-1 border-t border-zinc-900"></div>
-              <span className="px-3 text-xs text-zinc-500 font-bold uppercase tracking-widest">Hoặc</span>
-              <div className="flex-1 border-t border-zinc-900"></div>
-            </div>
-
-            {/* SSO / OAuth Options */}
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => triggerSSOLogin('Google')}
-                className="w-full py-2.5 bg-black border border-zinc-900 rounded-lg text-sm text-zinc-300 font-medium hover:bg-zinc-900/50 hover:border-zinc-800 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-[0.99]"
-              >
-                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69a5.74 5.74 0 0 1-2.48 3.77v3.13h3.92c2.29-2.11 3.61-5.21 3.61-8.75z"/>
-                  <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.92-3.13c-1.08.72-2.48 1.15-4.04 1.15-3.11 0-5.74-2.11-6.68-4.96H1.21v3.23C3.18 21.3 7.27 24 12 24z"/>
-                  <path fill="#FBBC05" d="M5.32 14.15A7.16 7.16 0 0 1 5 12c0-.75.13-1.48.32-2.15V6.62H1.21A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.21 5.38l4.11-3.23z"/>
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.96 1.19 15.24 0 12 0 7.27 0 3.18 2.7 1.21 6.62l4.11 3.23c.94-2.85 3.57-4.96 6.68-4.96z"/>
-                </svg>
-                <span>Tiếp tục với Google</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => triggerSSOLogin('GitHub')}
-                className="w-full py-2.5 bg-black border border-zinc-900 rounded-lg text-sm text-zinc-300 font-medium hover:bg-zinc-900/50 hover:border-zinc-800 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-[0.99]"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.193 22 16.44 22 12.017 22 6.484 17.522 2 12 2z" />
-                </svg>
-                <span>Tiếp tục với GitHub</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => triggerSSOLogin('Apple')}
-                className="w-full py-2.5 bg-black border border-zinc-900 rounded-lg text-sm text-zinc-300 font-medium hover:bg-zinc-900/50 hover:border-zinc-800 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-[0.99]"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.5-.64.74-1.2 1.88-1.08 2.99 1.12.09 2.27-.58 3.03-1.43z"/>
-                </svg>
-                <span>Tiếp tục với Apple</span>
-              </button>
-            </div>
-
-            {/* Bottom Redirect */}
-            <div className="text-center mt-8 pt-4 border-t border-zinc-900">
-              <p className="text-xs text-zinc-400 font-medium">
-                Bạn chưa có tài khoản?{' '}
-                <button
-                  type="button"
-                  onClick={() => setMode('signup')}
-                  className="text-white hover:underline font-bold cursor-pointer transition-colors"
-                >
-                  Đăng ký
-                </button>
-              </p>
-            </div>
+        {/* Enterprise Accounts Quick Helper Panel */}
+        <div className="mt-6 p-4 bg-zinc-950 border border-zinc-900 rounded-xl space-y-3">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">Tài khoản thử nghiệm Doanh nghiệp</p>
+          <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <button
+              type="button"
+              onClick={() => { setUsername('admin'); setPassword('123456'); }}
+              className="p-2 border border-zinc-900 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-800 rounded-lg text-left text-zinc-300 font-semibold cursor-pointer transition-all active:scale-[0.97]"
+            >
+              <div className="text-white font-bold">🛠️ Admin Hệ thống</div>
+              <div className="text-zinc-500 font-mono mt-0.5">admin / 123456</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsername('giamdoc'); setPassword('123456'); }}
+              className="p-2 border border-zinc-900 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-800 rounded-lg text-left text-zinc-300 font-semibold cursor-pointer transition-all active:scale-[0.97]"
+            >
+              <div className="text-white font-bold">👔 Giám đốc (Director)</div>
+              <div className="text-zinc-500 font-mono mt-0.5">giamdoc / 123456</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsername('truongphong'); setPassword('123456'); }}
+              className="p-2 border border-zinc-900 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-800 rounded-lg text-left text-zinc-300 font-semibold cursor-pointer transition-all active:scale-[0.97]"
+            >
+              <div className="text-white font-bold">💼 Trưởng phòng HC</div>
+              <div className="text-zinc-500 font-mono mt-0.5">truongphong / 123456</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsername('nhanvien'); setPassword('123456'); }}
+              className="p-2 border border-zinc-900 bg-zinc-900/40 hover:bg-zinc-900/80 hover:border-zinc-800 rounded-lg text-left text-zinc-300 font-semibold cursor-pointer transition-all active:scale-[0.97]"
+            >
+              <div className="text-white font-bold">📄 Văn thư / Nhân viên</div>
+              <div className="text-zinc-500 font-mono mt-0.5">nhanvien / 123456</div>
+            </button>
           </div>
-        )}
-
-        {mode === 'signup' && (
-          <div>
-            <h2 className="text-2xl font-semibold text-center text-white tracking-tight mb-4">
-              Tạo tài khoản mới
-            </h2>
-            <p className="text-[11px] text-zinc-500 font-semibold text-center uppercase tracking-wider mb-6">
-              Đăng ký tài khoản CV thủ công
-            </p>
-
-            <form onSubmit={handleSignupSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 bg-red-950/20 border border-red-900/40 text-red-400 text-xs rounded-lg font-semibold">
-                  ⚠️ {error}
-                </div>
-              )}
-
-              <div>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setError('');
-                  }}
-                  required
-                  placeholder="Tên đăng nhập mới (Ví dụ: nguyenvana)"
-                  className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-white placeholder-zinc-500 transition-colors font-medium"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError('');
-                  }}
-                  required
-                  placeholder="Mật khẩu mới"
-                  className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-white placeholder-zinc-500 transition-colors font-semibold"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-white hover:bg-zinc-200 text-black font-semibold rounded-lg text-sm transition-all cursor-pointer shadow-sm active:scale-[0.98] transform"
-              >
-                Đăng ký tài khoản
-              </button>
-            </form>
-
-            {/* Bottom Redirect */}
-            <div className="text-center mt-8 pt-4 border-t border-zinc-900">
-              <p className="text-xs text-zinc-400 font-medium">
-                Đã có tài khoản?{' '}
-                <button
-                  type="button"
-                  onClick={() => setMode('login')}
-                  className="text-white hover:underline font-bold cursor-pointer transition-colors"
-                >
-                  Đăng nhập
-                </button>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {mode === 'oauth_linking' && (
-          <div>
-            <h2 className="text-xl font-bold text-center text-white tracking-tight mb-2">
-              Liên kết với {oauthProvider}
-            </h2>
-            <p className="text-xs text-zinc-400 text-center mb-6">
-              Không tìm thấy hồ sơ của bạn. Hãy tạo tài khoản mới để liên kết!
-            </p>
-
-            <form onSubmit={handleOAuthLinkingSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-zinc-500 mb-1 uppercase tracking-wide">Họ và tên</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  placeholder="Ví dụ: Nguyễn Văn A"
-                  className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 text-white transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-zinc-500 mb-1 uppercase tracking-wide">Email</label>
-                <input
-                  type="email"
-                  value={oauthEmail}
-                  onChange={(e) => setOauthEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 text-white transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-zinc-500 mb-1 uppercase tracking-wide">Phòng ban</label>
-                <select
-                  value={dept}
-                  onChange={(e) => setDept(e.target.value)}
-                  className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 text-white"
-                >
-                  <option value="Ban Giám đốc">Ban Giám đốc</option>
-                  <option value="Phòng Hành chính">Phòng Hành chính</option>
-                  <option value="Phòng Kế hoạch">Phòng Kế hoạch</option>
-                  <option value="Phòng Tài chính">Phòng Tài chính</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-zinc-500 mb-1 uppercase tracking-wide">Chức danh</label>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full px-4 py-2 bg-black border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-zinc-500 text-white"
-                >
-                  <option value="Giám đốc">Giám đốc</option>
-                  <option value="Trưởng phòng">Trưởng phòng</option>
-                  <option value="Chuyên viên">Chuyên viên</option>
-                  <option value="Thư ký">Thư ký</option>
-                </select>
-              </div>
-
-              <div className="pt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMode('login')}
-                  className="flex-1 py-2 bg-transparent border border-zinc-800 text-zinc-400 hover:text-white rounded-lg text-xs font-semibold cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 bg-white text-black hover:bg-zinc-200 rounded-lg text-xs font-bold cursor-pointer"
-                >
-                  Tạo tài khoản
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Vercel styled terms disclaimer */}
       <div className="text-center mt-6">
         <p className="text-[10px] text-zinc-650 font-semibold leading-relaxed max-w-[340px] mx-auto">
-          Bằng việc tham gia, bạn đồng ý với các{' '}
-          <a href="#" className="text-zinc-400 hover:underline">Điều khoản dịch vụ</a> và{' '}
-          <a href="#" className="text-zinc-400 hover:underline">Chính sách bảo mật</a> của chúng tôi.
+          Hệ thống lưu trữ công văn nội bộ doanh nghiệp. Mọi hành vi truy cập trái phép sẽ bị xử lý theo quy định của pháp luật.
         </p>
       </div>
     </div>

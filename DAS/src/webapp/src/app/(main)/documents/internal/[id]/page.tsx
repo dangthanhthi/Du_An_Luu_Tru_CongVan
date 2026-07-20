@@ -17,6 +17,7 @@ export default function InternalDocDetail() {
   const [hashValue, setHashValue] = useState('7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8');
 
   const [customDoc, setCustomDoc] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>('');
 
   useEffect(() => {
     const saved = localStorage.getItem(`signed-doc-internal-${docId}`);
@@ -36,6 +37,12 @@ export default function InternalDocDetail() {
         const list = JSON.parse(customSaved);
         const found = list.find((d: any) => d.id === docId);
         if (found) setCustomDoc(found);
+      }
+
+      const userStr = localStorage.getItem('current-user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setUserRole(user.role || '');
       }
     } catch (e) {
       console.error(e);
@@ -78,7 +85,19 @@ export default function InternalDocDetail() {
     }
   };
 
+  const handleOpenSignModal = () => {
+    if (userRole !== 'Trưởng phòng' && userRole !== 'Giám đốc') {
+      alert('⚠️ Quyền hạn không đủ! Chỉ Trưởng phòng trở lên mới được phép thực hiện ký chữ ký số CA.');
+      return;
+    }
+    setSigningModal(true);
+  };
+
   const handleUnsign = () => {
+    if (userRole !== 'Trưởng phòng' && userRole !== 'Giám đốc') {
+      alert('⚠️ Quyền hạn không đủ! Chỉ Trưởng phòng trở lên mới được phép hủy chữ ký số CA.');
+      return;
+    }
     setSigned(false);
     localStorage.setItem(`signed-doc-internal-${docId}`, 'false');
     window.dispatchEvent(new Event('storage'));
@@ -119,7 +138,7 @@ export default function InternalDocDetail() {
 
             {!signed ? (
               <button 
-                onClick={() => setSigningModal(true)}
+                onClick={handleOpenSignModal}
                 className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition-all cursor-pointer shadow-sm flex items-center gap-2 animate-pulse"
               >
                 🔏 Thực hiện Ký số CA

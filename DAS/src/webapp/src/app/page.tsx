@@ -26,16 +26,9 @@ export default function WelcomePage() {
         <div className="flex items-center gap-4">
           <Link
             href="/login"
-            className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="px-4 py-1.5 bg-white text-black hover:bg-zinc-200 font-semibold rounded-lg text-xs transition-all duration-150 cursor-pointer shadow-sm active:scale-95 shrink-0"
           >
             Đăng nhập
-          </Link>
-          
-          <Link
-            href="/login"
-            className="px-3.5 py-1.5 bg-white text-black hover:bg-zinc-200 font-semibold rounded-lg text-xs transition-all duration-150 cursor-pointer shadow-sm active:scale-95 shrink-0"
-          >
-            Đăng ký
           </Link>
         </div>
       </header>
