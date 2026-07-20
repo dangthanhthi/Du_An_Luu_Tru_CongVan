@@ -104,18 +104,24 @@ export async function POST(request: Request) {
         hasPdf = true;
       }
 
-      // Check if this email looks like a document:
-      // (1) Has a PDF attachment OR
-      // (2) Subject or body contains common document headings like "CỘNG HÒA XÃ HỘI CHỦ NGHĨA", "TẬP ĐOÀN VNPT", "Số: ...", "V/v ..."
-      const isDocText = subject.toLowerCase().includes('công văn') || 
-                        subject.toLowerCase().includes('cv-') || 
-                        bodyText.includes('CỘNG HÒA XÃ HỘI CHỦ NGHĨA') || 
-                        bodyText.includes('TẬP ĐOÀN') ||
-                        bodyText.includes('Kính gửi') ||
-                        bodyText.includes('Số:') || 
-                        bodyText.includes('V/v');
+      // Strictly check if the email contains a valid official document
+      const hasNationalMotto = bodyText.includes('CỘNG HÒA XÃ HỘI CHỦ NGHĨA') && 
+                               bodyText.includes('Độc lập - Tự do - Hạnh phúc');
+      
+      const hasDocNumberPattern = /Số:\s*\d+\/[A-Za-z0-9\-]+/i.test(bodyText) || 
+                                  /Số\s*hiệu:\s*\d+\/[A-Za-z0-9\-]+/i.test(bodyText);
+      
+      const hasFormalSubject = subject.toLowerCase().includes('công văn') || 
+                               subject.toLowerCase().includes('cv-') ||
+                               /cv\s*\d+/i.test(subject);
 
-      if (hasPdf || isDocText) {
+      // A document is suitable if:
+      // (1) It contains a PDF attachment
+      // (2) OR it contains the Vietnamese National Motto (copy-pasted document)
+      // (3) OR it has a formal subject and a document number pattern in the body
+      const isSuitableDoc = hasPdf || hasNationalMotto || (hasFormalSubject && hasDocNumberPattern);
+
+      if (isSuitableDoc) {
         // Extract original reference number (Số công văn gốc)
         let originalNo = '';
         
