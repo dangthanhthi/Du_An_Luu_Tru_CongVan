@@ -78,6 +78,26 @@ export default function IncomingDocDetail() {
 
   const isSamplePdf = !!(doc.fileName && doc.fileName.includes('sample'));
 
+  const [pdfUrl, setPdfUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (doc && !isSamplePdf && doc.id.startsWith('doc-scan-real-')) {
+      const server = localStorage.getItem('email-watcher-imap-server') || 'imap.gmail.com';
+      const port = localStorage.getItem('email-watcher-imap-port') || '993';
+      const ssl = (localStorage.getItem('email-watcher-use-ssl') || 'true') === 'true';
+      const email = localStorage.getItem('email-watcher-address') || '';
+      const password = localStorage.getItem('email-watcher-app-password') || '';
+      
+      const parts = doc.id.split('-');
+      const uid = parts[parts.length - 1];
+      
+      if (uid && email && password) {
+        const url = `/api/document-pdf?uid=${uid}&server=${encodeURIComponent(server)}&port=${port}&ssl=${ssl}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&filename=${encodeURIComponent(doc.fileName || 'document.pdf')}`;
+        setPdfUrl(url);
+      }
+    }
+  }, [customDoc, isSamplePdf]);
+
   const handleSign = () => {
     if (pinCode === '1234' || pinCode.length >= 4) {
       setSigned(true);
@@ -297,6 +317,12 @@ export default function IncomingDocDetail() {
                       className="w-full h-full border-none rounded-lg"
                       title="Tài liệu PDF Công văn"
                     />
+                  ) : pdfUrl ? (
+                    <iframe 
+                      src={pdfUrl}
+                      className="w-full h-full border-none rounded-lg"
+                      title="Tài liệu PDF Công văn"
+                    />
                   ) : (
                     <div className="w-full min-h-[700px] border border-zinc-200 rounded-lg bg-white text-zinc-900 p-8 md:p-12 font-serif relative shadow-md select-text">
                       {/* National Motto / Header */}
@@ -414,6 +440,12 @@ export default function IncomingDocDetail() {
               {isSamplePdf ? (
                 <iframe 
                   src={doc.fileName || "/documents/samples/outgoing-sample.pdf"}
+                  className="w-full h-full border-none rounded-lg"
+                  title="Tài liệu PDF Công văn"
+                />
+              ) : pdfUrl ? (
+                <iframe 
+                  src={pdfUrl}
                   className="w-full h-full border-none rounded-lg"
                   title="Tài liệu PDF Công văn"
                 />
