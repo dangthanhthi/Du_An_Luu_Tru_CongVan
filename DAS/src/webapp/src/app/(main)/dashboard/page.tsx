@@ -190,47 +190,14 @@ export default function Dashboard() {
         throw new Error(data.error || 'Lỗi kết nối IMAP');
       }
     } catch (err: any) {
-      console.warn("Lỗi quét email thật, chuyển sang dữ liệu mẫu:", err);
-
-      // Fallback to mock data so it always works
-      setTimeout(() => {
-        const now = new Date();
-        const timeStr = `Vừa xong (${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})`;
-        setLastScanTime(timeStr);
-
-        const newDocId = `doc-scan-${Date.now()}`;
-        const newDoc = {
-          id: newDocId,
-          docNo: `CV-DEN-2026-00158`,
-          subject: `CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026`,
-          sender: `Tập đoàn VNPT`,
-          originalNo: `1025/VNPT-VP`,
-          date: now.toLocaleDateString('vi-VN'),
-          priority: `Mật`,
-          status: `Chờ xử lý`,
-          content: `Tự động quét từ Gmail tiếp nhận (${watchEmail}). Kế hoạch phối hợp triển khai hạ tầng kết nối số và ký số CA 2 thành phần.`
-        };
-
-        try {
-          const existing = localStorage.getItem('custom_incoming_docs');
-          const list = existing ? JSON.parse(existing) : [];
-          if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
-            list.unshift(newDoc);
-            localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
-            window.dispatchEvent(new Event('storage'));
-          }
-        } catch (storageErr) {
-          console.error(storageErr);
-        }
-
-        setManualScanning(false);
-        setScanToast({
-          success: true,
-          docNo: 'CV-DEN-2026-00158',
-          sender: 'Tập đoàn VNPT',
-          subject: 'V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026'
-        });
-      }, 1200);
+      console.error("Lỗi quét email thật:", err);
+      const isAbort = err.name === 'AbortError';
+      const errMsg = isAbort 
+        ? 'Thời gian kết nối tới máy chủ Gmail quá hạn (quá 12 giây). Vui lòng kiểm tra lại cấu hình mạng hoặc mật khẩu ứng dụng.' 
+        : (err.message || 'Không thể kết nối đến máy chủ IMAP.');
+      
+      alert(`⚠️ Lỗi quét email: ${errMsg}`);
+      setManualScanning(false);
     }
   };
 
@@ -306,12 +273,17 @@ export default function Dashboard() {
     return 0;
   };
 
-  const allIncoming = [
-    ...customIncoming.map(d => ({ ...d, type: 'Đến', originalType: 'incoming' })),
+  const defaultIncoming = [
     { id: '1', docNo: 'CV-DEN-2026-00157', type: 'Đến', originalType: 'incoming', subject: 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II', status: 'Chờ xử lý', date: '19/07/2026' },
     { id: '2', docNo: 'CV-DEN-2026-00156', type: 'Đến', originalType: 'incoming', subject: 'Hợp đồng dịch vụ bảo trì hạ tầng hệ thống máy chủ', status: 'Đã phân phối', date: '18/07/2026' },
     { id: '3', docNo: 'CV-DEN-2026-00155', type: 'Đến', originalType: 'incoming', subject: 'Thông báo thanh tra về việc thực hiện thủ tục hành chính', status: 'Đã phân phối', date: '15/07/2026' },
-  ].map(d => ({
+  ];
+
+  const allIncoming = (
+    customIncoming.length > 0 
+      ? customIncoming.map(d => ({ ...d, type: 'Đến', originalType: 'incoming' }))
+      : defaultIncoming
+  ).map(d => ({
     ...d,
     status: getStatus('incoming', d.id, d.status || 'Chờ xử lý')
   }));

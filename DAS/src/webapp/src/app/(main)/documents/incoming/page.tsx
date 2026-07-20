@@ -26,7 +26,7 @@ export default function IncomingDocs() {
     { id: '3', docNo: 'CV-DEN-2026-00155', subject: 'Thông báo thanh tra về việc thực hiện thủ tục hành chính', sender: 'KSTTHC', date: '15/07/2026', priority: 'Hỏa tốc', status: 'Đã phân phối' },
   ];
 
-  const docs = [...customDocs, ...defaultDocs];
+  const docs = customDocs.length > 0 ? customDocs : defaultDocs;
 
   const filteredDocs = docs.filter((doc) => {
     const matchesSearch = 

@@ -141,46 +141,22 @@ export default function Settings() {
         throw new Error(data.error || 'Lỗi kết nối IMAP');
       }
     } catch (err: any) {
-      console.warn("Lỗi quét email thật, chuyển sang dữ liệu mẫu:", err);
+      console.error("Lỗi quét email thật:", err);
+      const isAbort = err.name === 'AbortError';
+      const errMsg = isAbort 
+        ? 'Thời gian kết nối tới máy chủ Gmail quá hạn (quá 12 giây). Vui lòng kiểm tra lại cấu hình mạng hoặc mật khẩu ứng dụng.' 
+        : (err.message || 'Không thể kết nối đến máy chủ IMAP.');
       
-      setTimeout(() => {
-        const now = new Date();
-        const newDocId = `doc-scan-${Date.now()}`;
-        const newDoc = {
-          id: newDocId,
-          docNo: `CV-DEN-2026-00158`,
-          subject: `CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026`,
-          sender: `Tập đoàn VNPT`,
-          originalNo: `1025/VNPT-VP`,
-          date: now.toLocaleDateString('vi-VN'),
-          priority: `Mật`,
-          status: `Chờ xử lý`,
-          content: `Tự động quét từ Gmail tiếp nhận (${emailAccount}). Kế hoạch phối hợp triển khai hạ tầng kết nối số và ký số CA 2 thành phần.`
-        };
-
-        try {
-          const existing = localStorage.getItem('custom_incoming_docs');
-          const list = existing ? JSON.parse(existing) : [];
-          if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
-            list.unshift(newDoc);
-            localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
-            window.dispatchEvent(new Event('storage'));
-          }
-        } catch (storageErr) {
-          console.error(storageErr);
-        }
-
-        setTestingScan(false);
-        setScanResult({
-          success: true,
-          server: imapServer,
-          account: emailAccount,
-          emailsFound: 1,
-          docSubject: 'CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số',
-          sender: 'Tập đoàn VNPT (truyenthong@vnpt.vn)',
-          fileName: 'CV_1025_VNPT_Signed.pdf'
-        });
-      }, 1200);
+      setScanResult({
+        success: false,
+        server: imapServer,
+        account: emailAccount,
+        emailsFound: 0,
+        docSubject: `⚠️ Lỗi kết nối: ${errMsg}`,
+        sender: '-',
+        fileName: '-'
+      });
+      setTestingScan(false);
     }
   };
 
