@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="*" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="*" />
+    <PackageReference Include="MailKit" Version="4.17.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="*" />
     <PackageReference Include="Novell.Directory.Ldap" Version="*" />
   </ItemGroup>

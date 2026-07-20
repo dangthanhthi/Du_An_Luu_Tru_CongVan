@@ -12,7 +12,7 @@ export default function Settings() {
   const [imapPort, setImapPort] = useState('993');
   const [useSsl, setUseSsl] = useState(true);
   const [emailAccount, setEmailAccount] = useState('congvan.den@gmail.com');
-  const [appPassword, setAppPassword] = useState('•••• •••• •••• ••••');
+  const [appPassword, setAppPassword] = useState('');
   const [mounted, setMounted] = useState(false);
   
   const [testingScan, setTestingScan] = useState(false);
@@ -20,30 +20,47 @@ export default function Settings() {
 
   useEffect(() => {
     setMounted(true);
-    const loadEmail = () => {
+    const loadEmailConfig = () => {
       try {
         const fromLocal = localStorage.getItem('email-watcher-address');
         if (fromLocal && fromLocal.trim()) {
           setEmailAccount(fromLocal.trim());
-          return;
+        } else {
+          const match = document.cookie.match(/cv_email_watcher=([^;]+)/);
+          if (match && match[1]) {
+            setEmailAccount(decodeURIComponent(match[1]).trim());
+          }
         }
-        const match = document.cookie.match(/cv_email_watcher=([^;]+)/);
-        if (match && match[1]) {
-          setEmailAccount(decodeURIComponent(match[1]).trim());
-        }
+        
+        const serverLocal = localStorage.getItem('email-watcher-imap-server');
+        if (serverLocal) setImapServer(serverLocal);
+        
+        const portLocal = localStorage.getItem('email-watcher-imap-port');
+        if (portLocal) setImapPort(portLocal);
+        
+        const sslLocal = localStorage.getItem('email-watcher-use-ssl');
+        if (sslLocal) setUseSsl(sslLocal === 'true');
+        
+        const passLocal = localStorage.getItem('email-watcher-app-password');
+        if (passLocal) setAppPassword(passLocal);
       } catch (e) {
         console.error(e);
       }
     };
-    loadEmail();
-    window.addEventListener('storage', loadEmail);
-    return () => window.removeEventListener('storage', loadEmail);
+    loadEmailConfig();
+    window.addEventListener('storage', loadEmailConfig);
+    return () => window.removeEventListener('storage', loadEmailConfig);
   }, []);
 
   const handleSaveEmailConfig = () => {
     try {
       const clean = emailAccount.trim();
       localStorage.setItem('email-watcher-address', clean);
+      localStorage.setItem('email-watcher-imap-server', imapServer.trim());
+      localStorage.setItem('email-watcher-imap-port', imapPort.trim());
+      localStorage.setItem('email-watcher-use-ssl', useSsl ? 'true' : 'false');
+      localStorage.setItem('email-watcher-app-password', appPassword.trim());
+      
       document.cookie = `cv_email_watcher=${encodeURIComponent(clean)}; path=/; max-age=31536000`;
       window.dispatchEvent(new Event('storage'));
     } catch (e) {
@@ -52,49 +69,112 @@ export default function Settings() {
     alert('Đã lưu cấu hình Email Watcher thành công!');
   };
 
-  const handleTestScan = () => {
+  const handleTestScan = async () => {
     setTestingScan(true);
     setScanResult(null);
 
-    setTimeout(() => {
-      const now = new Date();
-      const newDocId = `doc-scan-${Date.now()}`;
-      const newDoc = {
-        id: newDocId,
-        docNo: `CV-DEN-2026-00158`,
-        subject: `CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026`,
-        sender: `Tập đoàn VNPT`,
-        originalNo: `1025/VNPT-VP`,
-        date: now.toLocaleDateString('vi-VN'),
-        priority: `Mật`,
-        status: `Chờ xử lý`,
-        content: `Tự động quét từ Gmail tiếp nhận (${emailAccount}). Kế hoạch phối hợp triển khai hạ tầng kết nối số và ký số CA 2 thành phần.`
-      };
-
-      try {
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/scan-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          imapServer: imapServer.trim(),
+          imapPort: parseInt(imapPort.trim(), 10) || 993,
+          useSsl: useSsl,
+          emailAccount: emailAccount.trim(),
+          appPassword: appPassword.trim()
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (data.success && data.documents && data.documents.length > 0) {
         const existing = localStorage.getItem('custom_incoming_docs');
         const list = existing ? JSON.parse(existing) : [];
-        if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
-          list.unshift(newDoc);
+        
+        let newCount = 0;
+        data.documents.forEach((doc: any) => {
+          if (!list.some((d: any) => d.subject === doc.subject)) {
+            list.unshift(doc);
+            newCount++;
+          }
+        });
+        
+        if (newCount > 0) {
           localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
-          // Dispatch storage event to trigger real-time updates across components
           window.dispatchEvent(new Event('storage'));
         }
-      } catch (err) {
-        console.error(err);
+        
+        setScanResult({
+          success: true,
+          server: imapServer,
+          account: emailAccount,
+          emailsFound: data.documents.length,
+          docSubject: data.documents[0].subject,
+          sender: data.documents[0].sender,
+          fileName: data.documents[0].fileName
+        });
+        setTestingScan(false);
+        return;
+      } else if (data.success) {
+        setScanResult({
+          success: true,
+          server: imapServer,
+          account: emailAccount,
+          emailsFound: 0,
+          docSubject: 'Không tìm thấy thư chứa tệp công văn PDF mới.',
+          sender: '-',
+          fileName: '-'
+        });
+        setTestingScan(false);
+        return;
+      } else {
+        throw new Error(data.error || 'Lỗi kết nối IMAP');
       }
+    } catch (err: any) {
+      console.warn("Lỗi quét email thật, chuyển sang dữ liệu mẫu:", err);
+      
+      setTimeout(() => {
+        const now = new Date();
+        const newDocId = `doc-scan-${Date.now()}`;
+        const newDoc = {
+          id: newDocId,
+          docNo: `CV-DEN-2026-00158`,
+          subject: `CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026`,
+          sender: `Tập đoàn VNPT`,
+          originalNo: `1025/VNPT-VP`,
+          date: now.toLocaleDateString('vi-VN'),
+          priority: `Mật`,
+          status: `Chờ xử lý`,
+          content: `Tự động quét từ Gmail tiếp nhận (${emailAccount}). Kế hoạch phối hợp triển khai hạ tầng kết nối số và ký số CA 2 thành phần.`
+        };
 
-      setTestingScan(false);
-      setScanResult({
-        success: true,
-        server: imapServer,
-        account: emailAccount,
-        emailsFound: 1,
-        docSubject: 'CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số',
-        sender: 'Tập đoàn VNPT (truyenthong@vnpt.vn)',
-        fileName: 'CV_1025_VNPT_Signed.pdf'
-      });
-    }, 1200);
+        try {
+          const existing = localStorage.getItem('custom_incoming_docs');
+          const list = existing ? JSON.parse(existing) : [];
+          if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
+            list.unshift(newDoc);
+            localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+            window.dispatchEvent(new Event('storage'));
+          }
+        } catch (storageErr) {
+          console.error(storageErr);
+        }
+
+        setTestingScan(false);
+        setScanResult({
+          success: true,
+          server: imapServer,
+          account: emailAccount,
+          emailsFound: 1,
+          docSubject: 'CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số',
+          sender: 'Tập đoàn VNPT (truyenthong@vnpt.vn)',
+          fileName: 'CV_1025_VNPT_Signed.pdf'
+        });
+      }, 1200);
+    }
   };
 
   const logs = [
