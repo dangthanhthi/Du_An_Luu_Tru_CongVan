@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
   // Email Watcher config state with Cookie & LocalStorage fallback
-  const [watchEmail, setWatchEmail] = useState('congvan.den@gmail.com');
+  const [watchEmail, setWatchEmail] = useState('thivc888@gmail.com');
   const [mounted, setMounted] = useState(false);
   const [editEmailModal, setEditEmailModal] = useState(false);
   const [editPassword, setEditPassword] = useState('');
@@ -498,7 +498,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-400 font-medium">Quét email từ:</span>
                   <span suppressHydrationWarning className="font-mono text-emerald-400 text-[10px] truncate max-w-[140px]" title={watchEmail}>
-                    {mounted ? watchEmail : 'congvan.den@gmail.com'}
+                    {mounted ? watchEmail : 'thivc888@gmail.com'}
                   </span>
                 </div>
 

@@ -54,11 +54,10 @@ export async function GET(request: NextRequest) {
     
     // Find the PDF part
     const pdfPart = parts.find((part: any) => {
-      return part.disposition && 
-             part.disposition.type.toUpperCase() === 'ATTACHMENT' && 
-             (part.subtype.toUpperCase() === 'PDF' || 
-              (part.params && part.params.name && part.params.name.toLowerCase().endsWith('.pdf')) ||
-              (part.disposition.params && part.disposition.params.filename && part.disposition.params.filename.toLowerCase().endsWith('.pdf')));
+      const isPdfSubtype = part.subtype && part.subtype.toUpperCase() === 'PDF';
+      const hasPdfName = (part.params && part.params.name && part.params.name.toLowerCase().endsWith('.pdf')) ||
+                         (part.disposition && part.disposition.params && part.disposition.params.filename && part.disposition.params.filename.toLowerCase().endsWith('.pdf'));
+      return !!(isPdfSubtype || hasPdfName);
     });
 
     if (!pdfPart) {

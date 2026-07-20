@@ -11,7 +11,7 @@ export default function Settings() {
   const [imapServer, setImapServer] = useState('imap.gmail.com');
   const [imapPort, setImapPort] = useState('993');
   const [useSsl, setUseSsl] = useState(true);
-  const [emailAccount, setEmailAccount] = useState('congvan.den@gmail.com');
+  const [emailAccount, setEmailAccount] = useState('thivc888@gmail.com');
   const [appPassword, setAppPassword] = useState('');
   const [mounted, setMounted] = useState(false);
   
@@ -287,7 +287,7 @@ export default function Settings() {
                       type="email"
                       value={mounted ? emailAccount : ''}
                       onChange={(e) => setEmailAccount(e.target.value)}
-                      placeholder="congvan.den@gmail.com"
+                      placeholder="thivc888@gmail.com"
                       suppressHydrationWarning
                       className="w-full px-4 py-2.5 border border-zinc-800 bg-zinc-900 rounded-xl text-xs focus:outline-none focus:border-zinc-500 text-white font-mono"
                     />
