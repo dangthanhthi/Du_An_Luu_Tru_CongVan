@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const startSeq = Math.max(1, total - 14);
     const searchCriteria = [`${startSeq}:${total}`];
     const fetchOptions = {
-      bodies: ['HEADER', 'TEXT', ''],
+      bodies: ['HEADER', 'TEXT'],
       struct: true
     };
 
@@ -49,44 +49,59 @@ export async function POST(request: Request) {
     const scannedDocs: any[] = [];
 
     for (const msg of lastMessages) {
-      // Fetch message body
-      const allPart = msg.parts.find(p => p.which === '');
-      const rawEmail = allPart ? allPart.body : '';
+      const headerPart = msg.parts.find(p => p.which === 'HEADER');
+      const textPart = msg.parts.find(p => p.which === 'TEXT');
       
-      let subject = 'Không có chủ đề';
+      const headersObj = headerPart ? headerPart.body : {};
+      const rawText = textPart ? textPart.body : '';
+
+      // Reconstruct raw headers string
+      let headerString = '';
+      for (const [key, val] of Object.entries(headersObj)) {
+        if (Array.isArray(val)) {
+          val.forEach(v => {
+            headerString += `${key}: ${v}\r\n`;
+          });
+        } else {
+          headerString += `${key}: ${val}\r\n`;
+        }
+      }
+
+      // Reconstruct lightweight email string (no attachments)
+      const lightweightEmail = `${headerString}\r\n${rawText}`;
+      const parsed = await simpleParser(lightweightEmail);
+
+      let subject = parsed.subject || 'Không có chủ đề';
       let sender = 'Không rõ';
       let senderEmail = '';
-      let dateStr = new Date().toLocaleDateString('vi-VN');
-      let bodyText = '';
+      
+      if (parsed.from && parsed.from.value && parsed.from.value.length > 0) {
+        const fromVal = parsed.from.value[0];
+        sender = fromVal.name || fromVal.address || 'Không rõ';
+        senderEmail = fromVal.address || '';
+      } else {
+        sender = parsed.from?.text || 'Không rõ';
+      }
+      
+      const dateStr = parsed.date ? new Date(parsed.date).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN');
+      const bodyText = parsed.text || parsed.html || '';
+      
+      // Check if there are PDF attachments in metadata struct
+      const parts = imaps.getParts(msg.attributes.struct || []);
       let fileName = 'document.pdf';
       let hasPdf = false;
 
-      if (rawEmail) {
-        const parsed = await simpleParser(rawEmail);
-        subject = parsed.subject || 'Không có chủ đề';
-        
-        if (parsed.from && parsed.from.value && parsed.from.value.length > 0) {
-          const fromVal = parsed.from.value[0];
-          sender = fromVal.name || fromVal.address || 'Không rõ';
-          senderEmail = fromVal.address || '';
-        } else {
-          sender = parsed.from?.text || 'Không rõ';
-        }
-        
-        dateStr = parsed.date ? new Date(parsed.date).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN');
-        bodyText = parsed.text || parsed.html || '';
+      const pdfPart = parts.find((part: any) => {
+        return part.disposition && 
+               part.disposition.type.toUpperCase() === 'ATTACHMENT' && 
+               (part.subtype.toUpperCase() === 'PDF' || 
+                (part.params && part.params.name && part.params.name.toLowerCase().endsWith('.pdf')) ||
+                (part.disposition.params && part.disposition.params.filename && part.disposition.params.filename.toLowerCase().endsWith('.pdf')));
+      });
 
-        // Check if there are attachments
-        if (parsed.attachments && parsed.attachments.length > 0) {
-          const pdfAttachment = parsed.attachments.find(att => 
-            att.contentType === 'application/pdf' || 
-            att.filename?.toLowerCase().endsWith('.pdf')
-          );
-          if (pdfAttachment) {
-            fileName = pdfAttachment.filename || 'document.pdf';
-            hasPdf = true;
-          }
-        }
+      if (pdfPart) {
+        fileName = pdfPart.params?.name || pdfPart.disposition?.params?.filename || 'document.pdf';
+        hasPdf = true;
       }
 
       // Check if this email looks like a document:
