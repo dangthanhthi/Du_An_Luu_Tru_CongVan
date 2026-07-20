@@ -5,6 +5,9 @@ using TaskManager.Backend.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Enable CORS services
+builder.Services.AddCors();
+
 // Configure EF Core with SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=taskmanager.db"));
