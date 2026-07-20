@@ -22,9 +22,14 @@ export default function Settings() {
     setMounted(true);
     const loadEmail = () => {
       try {
-        const saved = localStorage.getItem('email-watcher-address');
-        if (saved) {
-          setEmailAccount(saved);
+        const fromLocal = localStorage.getItem('email-watcher-address');
+        if (fromLocal && fromLocal.trim()) {
+          setEmailAccount(fromLocal.trim());
+          return;
+        }
+        const match = document.cookie.match(/cv_email_watcher=([^;]+)/);
+        if (match && match[1]) {
+          setEmailAccount(decodeURIComponent(match[1]).trim());
         }
       } catch (e) {
         console.error(e);
@@ -39,6 +44,7 @@ export default function Settings() {
     try {
       const clean = emailAccount.trim();
       localStorage.setItem('email-watcher-address', clean);
+      document.cookie = `cv_email_watcher=${encodeURIComponent(clean)}; path=/; max-age=31536000`;
       window.dispatchEvent(new Event('storage'));
     } catch (e) {
       console.error(e);
@@ -51,17 +57,42 @@ export default function Settings() {
     setScanResult(null);
 
     setTimeout(() => {
+      const now = new Date();
+      const newDocId = `doc-scan-${Date.now()}`;
+      const newDoc = {
+        id: newDocId,
+        docNo: `CV-DEN-2026-00158`,
+        subject: `CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số và bảo mật năm 2026`,
+        sender: `Tập đoàn VNPT`,
+        originalNo: `1025/VNPT-VP`,
+        date: now.toLocaleDateString('vi-VN'),
+        priority: `Mật`,
+        status: `Chờ xử lý`,
+        content: `Tự động quét từ Gmail tiếp nhận (${emailAccount}). Kế hoạch phối hợp triển khai hạ tầng kết nối số và ký số CA 2 thành phần.`
+      };
+
+      try {
+        const existing = localStorage.getItem('custom_incoming_docs');
+        const list = existing ? JSON.parse(existing) : [];
+        if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
+          list.unshift(newDoc);
+          localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
       setTestingScan(false);
       setScanResult({
         success: true,
         server: imapServer,
         account: emailAccount,
         emailsFound: 1,
-        docSubject: 'CV-1025/VNPT-VP: V/v phối hợp kết nối hạ tầng số',
+        docSubject: 'CV-1025/VNPT-VP: V/v phối hợp triển khai hạ tầng kết nối số',
         sender: 'Tập đoàn VNPT (truyenthong@vnpt.vn)',
         fileName: 'CV_1025_VNPT_Signed.pdf'
       });
-    }, 1500);
+    }, 1200);
   };
 
   const logs = [
