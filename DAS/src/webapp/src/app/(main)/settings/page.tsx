@@ -77,6 +77,8 @@ export default function Settings() {
         if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
           list.unshift(newDoc);
           localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+          // Dispatch storage event to trigger real-time updates across components
+          window.dispatchEvent(new Event('storage'));
         }
       } catch (err) {
         console.error(err);

@@ -68,6 +68,7 @@ export default function NewIncomingDoc() {
       const list = existing ? JSON.parse(existing) : [];
       list.unshift(newDoc);
       localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+      window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error(err);
     }

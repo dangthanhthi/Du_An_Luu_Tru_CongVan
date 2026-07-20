@@ -18,6 +18,26 @@ export default function Dashboard() {
   const [scanToast, setScanToast] = useState<any>(null);
   const [lastScanTime, setLastScanTime] = useState('11:00 (15 phút trước)');
 
+  // Loaded custom lists
+  const [customIncoming, setCustomIncoming] = useState<any[]>([]);
+  const [customOutgoing, setCustomOutgoing] = useState<any[]>([]);
+  const [customInternal, setCustomInternal] = useState<any[]>([]);
+
+  // Function to load all custom lists
+  const loadData = () => {
+    try {
+      const incomingSaved = localStorage.getItem('custom_incoming_docs');
+      const outgoingSaved = localStorage.getItem('custom_outgoing_docs');
+      const internalSaved = localStorage.getItem('custom_internal_docs');
+
+      setCustomIncoming(incomingSaved ? JSON.parse(incomingSaved) : []);
+      setCustomOutgoing(outgoingSaved ? JSON.parse(outgoingSaved) : []);
+      setCustomInternal(internalSaved ? JSON.parse(internalSaved) : []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
     const loadEmail = () => {
@@ -25,19 +45,27 @@ export default function Dashboard() {
         const fromLocal = localStorage.getItem('email-watcher-address');
         if (fromLocal && fromLocal.trim()) {
           setWatchEmail(fromLocal.trim());
-          return;
-        }
-        const match = document.cookie.match(/cv_email_watcher=([^;]+)/);
-        if (match && match[1]) {
-          setWatchEmail(decodeURIComponent(match[1]).trim());
+        } else {
+          const match = document.cookie.match(/cv_email_watcher=([^;]+)/);
+          if (match && match[1]) {
+            setWatchEmail(decodeURIComponent(match[1]).trim());
+          }
         }
       } catch (e) {
         console.error(e);
       }
     };
+
     loadEmail();
-    window.addEventListener('storage', loadEmail);
-    return () => window.removeEventListener('storage', loadEmail);
+    loadData();
+
+    const handleStorageChange = () => {
+      loadEmail();
+      loadData();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleSaveEmail = (e?: React.FormEvent) => {
@@ -99,6 +127,8 @@ export default function Dashboard() {
         if (!list.some((d: any) => d.docNo === 'CV-DEN-2026-00158')) {
           list.unshift(newDoc);
           localStorage.setItem('custom_incoming_docs', JSON.stringify(list));
+          // Dispatch storage event to notify other components/tabs
+          window.dispatchEvent(new Event('storage'));
         }
       } catch (err) {
         console.error(err);
@@ -114,10 +144,27 @@ export default function Dashboard() {
     }, 1200);
   };
 
+  const getStatus = (type: 'incoming' | 'outgoing' | 'internal', id: string, defaultStatus: string) => {
+    if (typeof window === 'undefined') return defaultStatus;
+    const signed = localStorage.getItem(`signed-doc-${type}-${id}`) === 'true';
+    if (signed) {
+      if (type === 'incoming') return 'Đã ký duyệt & Phân phối';
+      if (type === 'outgoing') return 'Đã ký số & Phát hành';
+      return 'Đã ký số ban hành';
+    }
+    return defaultStatus;
+  };
+
+  const isDefaultIncoming1Signed = typeof window !== 'undefined' && localStorage.getItem('signed-doc-incoming-1') === 'true';
+  const customPendingIncoming = customIncoming.filter(d => getStatus('incoming', d.id, d.status || 'Chờ xử lý') === 'Chờ xử lý').length;
+  const customPendingOutgoing = customOutgoing.filter(d => getStatus('outgoing', d.id, d.status || 'Chờ xử lý') === 'Chờ xử lý').length;
+  const customPendingInternal = customInternal.filter(d => getStatus('internal', d.id, d.status || 'Chờ xử lý') === 'Chờ xử lý').length;
+  const totalPending = 18 - (isDefaultIncoming1Signed ? 1 : 0) + customPendingIncoming + customPendingOutgoing + customPendingInternal;
+
   const stats = [
     { 
       name: 'Công văn đến', 
-      value: '157', 
+      value: (157 + customIncoming.length).toString(), 
       trend: '+12% so với tháng trước',
       icon: (
         <svg className="w-4.5 h-4.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -127,7 +174,7 @@ export default function Dashboard() {
     },
     { 
       name: 'Công văn đi', 
-      value: '89', 
+      value: (89 + customOutgoing.length).toString(), 
       trend: '+5% so với tháng trước',
       icon: (
         <svg className="w-4.5 h-4.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -137,7 +184,7 @@ export default function Dashboard() {
     },
     { 
       name: 'Công văn nội bộ', 
-      value: '34', 
+      value: (34 + customInternal.length).toString(), 
       trend: 'Ổn định',
       icon: (
         <svg className="w-4.5 h-4.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -147,7 +194,7 @@ export default function Dashboard() {
     },
     { 
       name: 'Chờ xử lý', 
-      value: '18', 
+      value: totalPending.toString(), 
       trend: 'Cần giải quyết sớm',
       icon: (
         <svg className="w-4.5 h-4.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -157,11 +204,62 @@ export default function Dashboard() {
     },
   ];
 
-  const recentDocs = [
-    { id: '1', docNo: 'CV-DEN-2026-00157', type: 'Đến', subject: 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II', status: 'Chờ xử lý', date: '19/07/2026' },
-    { id: '2', docNo: 'CV-DI-2026-00089', type: 'Đi', subject: 'Quyết định bổ nhiệm nhân sự phòng kế toán', status: 'Đã phát hành', date: '18/07/2026' },
-    { id: '3', docNo: 'CV-NB-2026-00034', type: 'Nội bộ', subject: 'Thông báo lịch nghỉ phép tập thể năm 2026', status: 'Đã phân phối', date: '17/07/2026' },
-  ];
+  const parseDate = (dateStr: string) => {
+    if (!dateStr) return 0;
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      return new Date(year, month, day).getTime();
+    }
+    return 0;
+  };
+
+  const allIncoming = [
+    ...customIncoming.map(d => ({ ...d, type: 'Đến', originalType: 'incoming' })),
+    { id: '1', docNo: 'CV-DEN-2026-00157', type: 'Đến', originalType: 'incoming', subject: 'V/v hướng dẫn công tác báo cáo công văn lưu trữ quý II', status: 'Chờ xử lý', date: '19/07/2026' },
+    { id: '2', docNo: 'CV-DEN-2026-00156', type: 'Đến', originalType: 'incoming', subject: 'Hợp đồng dịch vụ bảo trì hạ tầng hệ thống máy chủ', status: 'Đã phân phối', date: '18/07/2026' },
+    { id: '3', docNo: 'CV-DEN-2026-00155', type: 'Đến', originalType: 'incoming', subject: 'Thông báo thanh tra về việc thực hiện thủ tục hành chính', status: 'Đã phân phối', date: '15/07/2026' },
+  ].map(d => ({
+    ...d,
+    status: getStatus('incoming', d.id, d.status || 'Chờ xử lý')
+  }));
+
+  const allOutgoing = [
+    ...customOutgoing.map(d => ({ ...d, type: 'Đi', originalType: 'outgoing' })),
+    { id: '1', docNo: 'CV-DI-2026-00089', type: 'Đi', originalType: 'outgoing', subject: 'Quyết định bổ nhiệm nhân sự phòng kế toán', status: 'Đã phát hành', date: '18/07/2026' },
+    { id: '2', docNo: 'CV-DI-2026-00088', type: 'Đi', originalType: 'outgoing', subject: 'Công văn trả lời v/v đề nghị cung cấp thông tin hạ tầng', status: 'Đã phát hành', date: '12/07/2026' },
+  ].map(d => ({
+    ...d,
+    status: getStatus('outgoing', d.id, d.status || 'Chờ xử lý')
+  }));
+
+  const allInternal = [
+    ...customInternal.map(d => ({ ...d, type: 'Nội bộ', originalType: 'internal' })),
+    { id: '1', docNo: 'CV-NB-2026-00034', type: 'Nội bộ', originalType: 'internal', subject: 'Thông báo lịch nghỉ phép tập thể năm 2026', status: 'Đã phân phối', date: '17/07/2026' },
+  ].map(d => ({
+    ...d,
+    status: getStatus('internal', d.id, d.status || 'Chờ xử lý')
+  }));
+
+  const allDocs = [...allIncoming, ...allOutgoing, ...allInternal];
+  const sortedDocs = allDocs.sort((a, b) => {
+    const timeA = parseDate(a.date);
+    const timeB = parseDate(b.date);
+    if (timeB !== timeA) return timeB - timeA;
+    return b.docNo.localeCompare(a.docNo);
+  });
+  const recentDocs = sortedDocs.slice(0, 5);
+
+  const getDocLink = (doc: any) => {
+    const typeFolder = doc.originalType || (
+      doc.type === 'Đi' ? 'outgoing' : 
+      doc.type === 'Nội bộ' ? 'internal' : 
+      'incoming'
+    );
+    return `/documents/${typeFolder}/${doc.id}`;
+  };
 
   return (
     <>
@@ -378,12 +476,14 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-zinc-900">
                 {recentDocs.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-zinc-900/40 transition-colors">
+                  <tr key={doc.docNo} className="hover:bg-zinc-900/40 transition-colors">
                     <td className="py-3.5 px-2 font-mono font-bold text-white hover:underline">
-                      <Link href={`/documents/incoming/${doc.id}`}>{doc.docNo}</Link>
+                      <Link href={getDocLink(doc)}>{doc.docNo}</Link>
                     </td>
                     <td className="py-3.5 px-2 text-xs font-medium text-zinc-400">{doc.type}</td>
-                    <td className="py-3.5 px-2 text-zinc-200 font-medium">{doc.subject}</td>
+                    <td className="py-3.5 px-2 text-zinc-200 font-medium hover:underline">
+                      <Link href={getDocLink(doc)}>{doc.subject}</Link>
+                    </td>
                     <td className="py-3.5 px-2 text-zinc-500 font-mono text-xs">{doc.date}</td>
                     <td className="py-3.5 px-2">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs rounded-full font-semibold border ${

@@ -66,6 +66,7 @@ export default function NewInternalDoc() {
       const list = existing ? JSON.parse(existing) : [];
       list.unshift(newDoc);
       localStorage.setItem('custom_internal_docs', JSON.stringify(list));
+      window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error(err);
     }

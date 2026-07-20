@@ -69,6 +69,7 @@ export default function IncomingDocDetail() {
     if (pinCode === '1234' || pinCode.length >= 4) {
       setSigned(true);
       localStorage.setItem(`signed-doc-incoming-${docId}`, 'true');
+      window.dispatchEvent(new Event('storage'));
       const now = new Date();
       setSignedDate(now.toLocaleString('vi-VN'));
       setHashValue('b' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
@@ -81,6 +82,7 @@ export default function IncomingDocDetail() {
   const handleUnsign = () => {
     setSigned(false);
     localStorage.setItem(`signed-doc-incoming-${docId}`, 'false');
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handlePrint = () => {
