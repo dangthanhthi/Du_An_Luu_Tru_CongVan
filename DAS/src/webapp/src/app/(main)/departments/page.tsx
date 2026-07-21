@@ -15,6 +15,7 @@ export default function Departments() {
   const [depts, setDepts] = useState<DepartmentItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
   
   // Form fields
   const [name, setName] = useState('');
@@ -41,6 +42,26 @@ export default function Departments() {
     }
   }, []);
 
+  const handleOpenCreate = () => {
+    setEditingDeptId(null);
+    setName('');
+    setCode('');
+    setManager('');
+    setSecretary('');
+    setCount(0);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (d: DepartmentItem) => {
+    setEditingDeptId(d.id);
+    setName(d.name);
+    setCode(d.code);
+    setManager(d.manager === 'Chưa chỉ định' ? '' : d.manager);
+    setSecretary(d.secretary === 'Chưa chỉ định' ? '' : d.secretary);
+    setCount(d.count);
+    setIsModalOpen(true);
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !code) {
@@ -48,18 +69,39 @@ export default function Departments() {
       return;
     }
 
-    const newDept: DepartmentItem = {
-      id: `dept-${Date.now()}`,
-      name: name.trim(),
-      code: code.trim().toUpperCase(),
-      manager: manager.trim() || 'Chưa chỉ định',
-      secretary: secretary.trim() || 'Chưa chỉ định',
-      count: count || 0
-    };
+    if (editingDeptId) {
+      // Edit mode
+      const updated = depts.map(d => {
+        if (d.id === editingDeptId) {
+          return {
+            ...d,
+            name: name.trim(),
+            code: code.trim().toUpperCase(),
+            manager: manager.trim() || 'Chưa chỉ định',
+            secretary: secretary.trim() || 'Chưa chỉ định',
+            count: count
+          };
+        }
+        return d;
+      });
+      localStorage.setItem('custom_departments', JSON.stringify(updated));
+      setDepts(updated);
+      setEditingDeptId(null);
+    } else {
+      // Create mode
+      const newDept: DepartmentItem = {
+        id: `dept-${Date.now()}`,
+        name: name.trim(),
+        code: code.trim().toUpperCase(),
+        manager: manager.trim() || 'Chưa chỉ định',
+        secretary: secretary.trim() || 'Chưa chỉ định',
+        count: count || 0
+      };
 
-    const updated = [newDept, ...depts];
-    localStorage.setItem('custom_departments', JSON.stringify(updated));
-    setDepts(updated);
+      const updated = [newDept, ...depts];
+      localStorage.setItem('custom_departments', JSON.stringify(updated));
+      setDepts(updated);
+    }
     
     // Reset Form & Close Modal
     setName('');
@@ -90,7 +132,7 @@ export default function Departments() {
             className="w-80 px-3 py-2 border border-zinc-800 bg-zinc-900 text-white rounded-lg text-sm focus:outline-none focus:border-emerald-600 font-medium"
           />
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenCreate}
             className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -110,7 +152,15 @@ export default function Departments() {
                     <h4 className="font-bold text-white text-base leading-tight mb-1.5">{d.name}</h4>
                     <span className="text-[10px] px-2.5 py-0.5 bg-zinc-900 border border-zinc-800 text-emerald-400 font-extrabold rounded-md uppercase tracking-wider">{d.code}</span>
                   </div>
-                  <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-full">{d.count} thành viên</span>
+                  <div className="text-right space-y-2">
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider bg-zinc-900 border border-zinc-800 px-2.5 py-0.5 rounded-full block">{d.count} thành viên</span>
+                    <button 
+                      onClick={() => handleOpenEdit(d)}
+                      className="text-[10px] text-zinc-500 hover:text-emerald-400 font-bold transition-colors cursor-pointer inline-flex items-center gap-1 bg-zinc-900 hover:bg-zinc-850 px-2 py-0.5 rounded-md border border-zinc-800"
+                    >
+                      ✏️ Chỉnh sửa
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2.5 text-xs border-t border-zinc-900 pt-4 font-medium">
                   <div className="flex justify-between">
@@ -133,12 +183,14 @@ export default function Departments() {
 
       </main>
 
-      {/* Creation Modal */}
+      {/* Creation/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 animate-scale-in text-white">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-900">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-400">Tạo phòng ban mới</h3>
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-400">
+                {editingDeptId ? 'Chỉnh sửa thông tin phòng ban' : 'Tạo phòng ban mới'}
+              </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
                 className="text-zinc-400 hover:text-white cursor-pointer"

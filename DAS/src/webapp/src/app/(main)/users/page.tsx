@@ -21,6 +21,7 @@ export default function Users() {
   const [departments, setDepartments] = useState<DepartmentItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
   // Form fields
   const [name, setName] = useState('');
@@ -66,6 +67,26 @@ export default function Users() {
     }
   }, []);
 
+  const handleOpenCreate = () => {
+    setEditingUserId(null);
+    setName('');
+    setEmail('');
+    setRole('Employee');
+    if (departments.length > 0) {
+      setDept(departments[0].name);
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (u: UserItem) => {
+    setEditingUserId(u.id);
+    setName(u.name);
+    setEmail(u.email);
+    setRole(u.role);
+    setDept(u.dept);
+    setIsModalOpen(true);
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) {
@@ -73,18 +94,38 @@ export default function Users() {
       return;
     }
 
-    const newUser: UserItem = {
-      id: `user-${Date.now()}`,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      role: role,
-      dept: dept || 'Chưa phân phòng',
-      status: 'Hoạt động'
-    };
+    if (editingUserId) {
+      // Edit mode
+      const updated = users.map(u => {
+        if (u.id === editingUserId) {
+          return {
+            ...u,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            role: role,
+            dept: dept
+          };
+        }
+        return u;
+      });
+      localStorage.setItem('custom_users', JSON.stringify(updated));
+      setUsers(updated);
+      setEditingUserId(null);
+    } else {
+      // Create mode
+      const newUser: UserItem = {
+        id: `user-${Date.now()}`,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        role: role,
+        dept: dept || 'Chưa phân phòng',
+        status: 'Hoạt động'
+      };
 
-    const updated = [newUser, ...users];
-    localStorage.setItem('custom_users', JSON.stringify(updated));
-    setUsers(updated);
+      const updated = [newUser, ...users];
+      localStorage.setItem('custom_users', JSON.stringify(updated));
+      setUsers(updated);
+    }
 
     // Reset Form & Close Modal
     setName('');
@@ -144,7 +185,7 @@ export default function Users() {
             className="w-80 px-3 py-2 border border-zinc-800 bg-zinc-900 text-white rounded-lg text-sm focus:outline-none focus:border-emerald-600 font-medium"
           />
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenCreate}
             className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -191,6 +232,12 @@ export default function Users() {
                       </td>
                       <td className="py-4 px-6 text-right flex justify-end gap-3 font-bold text-xs">
                         <button 
+                          onClick={() => handleOpenEdit(u)}
+                          className="text-emerald-500 hover:underline cursor-pointer"
+                        >
+                          Sửa
+                        </button>
+                        <button 
                           onClick={() => toggleStatus(u.id)}
                           className={`hover:underline cursor-pointer ${
                             u.status === 'Hoạt động' ? 'text-amber-500' : 'text-emerald-500'
@@ -221,12 +268,14 @@ export default function Users() {
 
       </main>
 
-      {/* Creation Modal */}
+      {/* Creation/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 animate-scale-in text-white">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-900">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-400">Thêm tài khoản mới</h3>
+              <h3 className="text-sm font-extrabold uppercase tracking-wider text-emerald-400">
+                {editingUserId ? 'Chỉnh sửa thông tin tài khoản' : 'Thêm tài khoản mới'}
+              </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
                 className="text-zinc-400 hover:text-white cursor-pointer"
@@ -302,7 +351,7 @@ export default function Users() {
                   type="submit"
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white cursor-pointer font-bold"
                 >
-                  Thêm tài khoản
+                  {editingUserId ? 'Cập nhật' : 'Thêm tài khoản'}
                 </button>
               </div>
             </form>
