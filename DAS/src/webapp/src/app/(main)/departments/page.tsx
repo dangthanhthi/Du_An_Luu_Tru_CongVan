@@ -16,6 +16,7 @@ export default function Departments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('');
   
   // Form fields
   const [name, setName] = useState('');
@@ -24,7 +25,7 @@ export default function Departments() {
   const [secretary, setSecretary] = useState('');
   const [count, setCount] = useState(0);
 
-  // Load from localStorage
+  // Load from localStorage & current user role
   useEffect(() => {
     const stored = localStorage.getItem('custom_departments');
     if (stored) {
@@ -40,9 +41,25 @@ export default function Departments() {
       localStorage.setItem('custom_departments', JSON.stringify(defaultDepts));
       setDepts(defaultDepts);
     }
+
+    const userStr = localStorage.getItem('current-user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setCurrentUserRole(user.role || '');
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, []);
 
+  const isAdmin = currentUserRole === 'Admin';
+
   const handleOpenCreate = () => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị phòng ban.');
+      return;
+    }
     setEditingDeptId(null);
     setName('');
     setCode('');
@@ -53,6 +70,10 @@ export default function Departments() {
   };
 
   const handleOpenEdit = (d: DepartmentItem) => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị phòng ban.');
+      return;
+    }
     setEditingDeptId(d.id);
     setName(d.name);
     setCode(d.code);
@@ -62,8 +83,24 @@ export default function Departments() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = (id: string) => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị phòng ban.');
+      return;
+    }
+    if (confirm('Bạn có chắc chắn muốn xóa phòng ban này?')) {
+      const updated = depts.filter(d => d.id !== id);
+      localStorage.setItem('custom_departments', JSON.stringify(updated));
+      setDepts(updated);
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị phòng ban.');
+      return;
+    }
     if (!name || !code) {
       alert('Vui lòng nhập tên và mã phòng ban!');
       return;
@@ -131,15 +168,17 @@ export default function Departments() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-80 px-3 py-2 border border-zinc-800 bg-zinc-900 text-white rounded-lg text-sm focus:outline-none focus:border-emerald-600 font-medium"
           />
-          <button 
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Tạo phòng ban mới
-          </button>
+          {isAdmin && (
+            <button 
+              onClick={handleOpenCreate}
+              className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Tạo phòng ban mới
+            </button>
+          )}
         </div>
 
         {/* Grid of Departments */}
@@ -152,14 +191,24 @@ export default function Departments() {
                     <h4 className="font-bold text-white text-base leading-tight mb-1.5">{d.name}</h4>
                     <span className="text-[10px] px-2.5 py-0.5 bg-zinc-900 border border-zinc-800 text-emerald-400 font-extrabold rounded-md uppercase tracking-wider">{d.code}</span>
                   </div>
-                  <div className="text-right space-y-2">
+                  <div className="text-right space-y-2.5">
                     <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider bg-zinc-900 border border-zinc-800 px-2.5 py-0.5 rounded-full block">{d.count} thành viên</span>
-                    <button 
-                      onClick={() => handleOpenEdit(d)}
-                      className="text-[10px] text-zinc-500 hover:text-emerald-400 font-bold transition-colors cursor-pointer inline-flex items-center gap-1 bg-zinc-900 hover:bg-zinc-850 px-2 py-0.5 rounded-md border border-zinc-800"
-                    >
-                      ✏️ Chỉnh sửa
-                    </button>
+                    {isAdmin && (
+                      <div className="flex gap-1.5 justify-end">
+                        <button 
+                          onClick={() => handleOpenEdit(d)}
+                          className="text-[10px] text-zinc-500 hover:text-emerald-400 font-bold transition-colors cursor-pointer inline-flex items-center gap-1 bg-zinc-900 hover:bg-zinc-850 px-2 py-0.5 rounded-md border border-zinc-800"
+                        >
+                          ✏️ Sửa
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(d.id)}
+                          className="text-[10px] text-zinc-500 hover:text-red-400 font-bold transition-colors cursor-pointer inline-flex items-center gap-1 bg-zinc-900 hover:bg-zinc-850 px-2 py-0.5 rounded-md border border-zinc-800"
+                        >
+                          🗑️ Xóa
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2.5 text-xs border-t border-zinc-900 pt-4 font-medium">
@@ -184,7 +233,7 @@ export default function Departments() {
       </main>
 
       {/* Creation/Edit Modal */}
-      {isModalOpen && (
+      {isModalOpen && isAdmin && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 animate-scale-in text-white">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-900">

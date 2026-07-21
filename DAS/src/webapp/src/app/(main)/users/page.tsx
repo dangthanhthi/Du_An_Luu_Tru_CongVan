@@ -22,6 +22,7 @@ export default function Users() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('');
 
   // Form fields
   const [name, setName] = useState('');
@@ -29,7 +30,7 @@ export default function Users() {
   const [role, setRole] = useState('Employee');
   const [dept, setDept] = useState('');
 
-  // Load state from localStorage
+  // Load state from localStorage & current user role
   useEffect(() => {
     // Load Users
     const storedUsers = localStorage.getItem('custom_users');
@@ -65,9 +66,26 @@ export default function Users() {
       setDepartments(defaultDepts);
       setDept(defaultDepts[0].name);
     }
+
+    // Load current user role
+    const userStr = localStorage.getItem('current-user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setCurrentUserRole(user.role || '');
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }, []);
 
+  const isAdmin = currentUserRole === 'Admin';
+
   const handleOpenCreate = () => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị người dùng.');
+      return;
+    }
     setEditingUserId(null);
     setName('');
     setEmail('');
@@ -79,6 +97,10 @@ export default function Users() {
   };
 
   const handleOpenEdit = (u: UserItem) => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị người dùng.');
+      return;
+    }
     setEditingUserId(u.id);
     setName(u.name);
     setEmail(u.email);
@@ -89,6 +111,10 @@ export default function Users() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị người dùng.');
+      return;
+    }
     if (!name || !email) {
       alert('Vui lòng điền tên và email!');
       return;
@@ -138,6 +164,10 @@ export default function Users() {
   };
 
   const toggleStatus = (id: string) => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị người dùng.');
+      return;
+    }
     const updated: UserItem[] = users.map(u => {
       if (u.id === id) {
         return {
@@ -152,6 +182,10 @@ export default function Users() {
   };
 
   const deleteUser = (id: string) => {
+    if (!isAdmin) {
+      alert('Bạn không có quyền thực hiện hành động này! Chỉ Admin mới được quyền quản trị người dùng.');
+      return;
+    }
     if (id === '1') {
       alert('Không thể xóa tài khoản Administrator mặc định của hệ thống!');
       return;
@@ -184,15 +218,17 @@ export default function Users() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-80 px-3 py-2 border border-zinc-800 bg-zinc-900 text-white rounded-lg text-sm focus:outline-none focus:border-emerald-600 font-medium"
           />
-          <button 
-            onClick={handleOpenCreate}
-            className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            Thêm tài khoản mới
-          </button>
+          {isAdmin && (
+            <button 
+              onClick={handleOpenCreate}
+              className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              Thêm tài khoản mới
+            </button>
+          )}
         </div>
 
         {/* Table */}
@@ -206,7 +242,7 @@ export default function Users() {
                   <th className="py-4 px-6">Vai trò</th>
                   <th className="py-4 px-6">Phòng ban</th>
                   <th className="py-4 px-6">Trạng thái</th>
-                  <th className="py-4 px-6 text-right">Hành động</th>
+                  {isAdmin && <th className="py-4 px-6 text-right">Hành động</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-900 text-white">
@@ -230,33 +266,35 @@ export default function Users() {
                           {u.status}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right flex justify-end gap-3 font-bold text-xs">
-                        <button 
-                          onClick={() => handleOpenEdit(u)}
-                          className="text-emerald-500 hover:underline cursor-pointer"
-                        >
-                          Sửa
-                        </button>
-                        <button 
-                          onClick={() => toggleStatus(u.id)}
-                          className={`hover:underline cursor-pointer ${
-                            u.status === 'Hoạt động' ? 'text-amber-500' : 'text-emerald-500'
-                          }`}
-                        >
-                          {u.status === 'Hoạt động' ? 'Vô hiệu hóa' : 'Kích hoạt'}
-                        </button>
-                        <button 
-                          onClick={() => deleteUser(u.id)}
-                          className="text-red-500 hover:underline cursor-pointer"
-                        >
-                          Xóa
-                        </button>
-                      </td>
+                      {isAdmin && (
+                        <td className="py-4 px-6 text-right flex justify-end gap-3 font-bold text-xs">
+                          <button 
+                            onClick={() => handleOpenEdit(u)}
+                            className="text-emerald-500 hover:underline cursor-pointer"
+                          >
+                            Sửa
+                          </button>
+                          <button 
+                            onClick={() => toggleStatus(u.id)}
+                            className={`hover:underline cursor-pointer ${
+                              u.status === 'Hoạt động' ? 'text-amber-500' : 'text-emerald-500'
+                            }`}
+                          >
+                            {u.status === 'Hoạt động' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                          </button>
+                          <button 
+                            onClick={() => deleteUser(u.id)}
+                            className="text-red-500 hover:underline cursor-pointer"
+                          >
+                            Xóa
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-zinc-500">
+                    <td colSpan={isAdmin ? 6 : 5} className="py-8 text-center text-zinc-500">
                       Không tìm thấy người dùng nào phù hợp.
                     </td>
                   </tr>
@@ -269,7 +307,7 @@ export default function Users() {
       </main>
 
       {/* Creation/Edit Modal */}
-      {isModalOpen && (
+      {isModalOpen && isAdmin && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 animate-scale-in text-white">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-900">
