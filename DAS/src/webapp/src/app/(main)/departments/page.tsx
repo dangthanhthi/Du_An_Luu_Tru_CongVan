@@ -91,9 +91,12 @@ export default function Departments() {
           />
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white hover:opacity-90 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+            className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
           >
-            + Tạo phòng ban mới
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Tạo phòng ban mới
           </button>
         </div>
 

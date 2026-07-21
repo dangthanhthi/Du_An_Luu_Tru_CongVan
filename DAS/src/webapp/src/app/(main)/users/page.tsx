@@ -145,9 +145,12 @@ export default function Users() {
           />
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white hover:opacity-90 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+            className="px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 rounded-lg text-xs font-bold transition-all active:scale-95 duration-150 flex items-center gap-2 shadow-xs cursor-pointer"
           >
-            + Thêm tài khoản mới
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Thêm tài khoản mới
           </button>
         </div>
 
