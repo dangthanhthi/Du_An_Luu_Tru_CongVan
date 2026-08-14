@@ -1,5 +1,0 @@
-{
-  "buildCommand": "cd DAS-Frontend && npm install && npm run build",
-  "outputDirectory": "DAS-Frontend/.next",
-  "framework": "nextjs"
-}
