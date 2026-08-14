@@ -46,7 +46,7 @@ import defaultData from './data'
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
 
-declare module '@tanstack/table-core' {
+declare module '@tanstack/react-table' {
   interface FilterFns {
     fuzzy: FilterFn<unknown>
   }

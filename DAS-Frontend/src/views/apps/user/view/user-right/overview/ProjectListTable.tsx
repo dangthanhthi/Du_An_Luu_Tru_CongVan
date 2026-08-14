@@ -52,7 +52,7 @@ type ProjectListDataType = {
   progressColor: ThemeColor
 }
 
-declare module '@tanstack/table-core' {
+declare module '@tanstack/react-table' {
   interface FilterFns {
     fuzzy: FilterFn<unknown>
   }
