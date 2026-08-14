@@ -74,7 +74,7 @@ const UserDropdown = () => {
     !open ? setOpen(true) : setOpen(false)
   }
 
-  const handleDropdownClose = (event?: MouseEvent<HTMLLIElement> | (MouseEvent | TouchEvent), url?: string) => {
+  const handleDropdownClose = (event?: MouseEvent<HTMLLIElement> | (MouseEvent | TouchEvent) | any, url?: string) => {
     if (url) {
       router.push(getLocalizedUrl(url, locale as Locale))
     }
@@ -137,7 +137,7 @@ const UserDropdown = () => {
             }}
           >
             <Paper className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}>
-              <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent<Document>)}>
+              <ClickAwayListener onClickAway={e => handleDropdownClose(e)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
                     <Avatar alt={user?.fullName || 'User'} src='/images/avatars/1.png' />
