@@ -225,7 +225,7 @@ const UserListTable = ({ tableData }: { tableData?: UsersType[] }) => {
               variant='tonal'
               label={row.original.status}
               size='small'
-              color={userStatusObj[row.original.status]}
+              color={userStatusObj[row.original.status || 'active']}
               className='capitalize'
             />
           </div>

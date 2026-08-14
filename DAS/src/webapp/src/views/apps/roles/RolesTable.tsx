@@ -223,7 +223,7 @@ const RolesTable = ({ tableData }: { tableData?: UsersType[] }) => {
               className='capitalize'
               label={row.original.status}
               size='small'
-              color={userStatusObj[row.original.status]}
+              color={userStatusObj[row.original.status || 'active']}
             />
           </div>
         )

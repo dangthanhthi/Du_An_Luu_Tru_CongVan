@@ -145,7 +145,7 @@ const ReferredUsersTable = ({ referralsData }: { referralsData?: ReferralsType[]
       columnHelper.accessor('status', {
         header: 'Status',
         cell: ({ row }) => (
-          <Chip variant='tonal' label={row.original.status} size='small' color={userStatusObj[row.original.status]} />
+          <Chip variant='tonal' label={row.original.status} size='small' color={userStatusObj[row.original.status || 'active']} />
         )
       }),
       columnHelper.accessor('value', {
