@@ -1,5 +1,6 @@
 export type PartnerType = {
   id: string
+  code?: string
   fullName: string
   shortName: string
   entityType?: string
@@ -7,9 +8,9 @@ export type PartnerType = {
   phone?: string
   address?: string
   taxCode?: string
-  isActive: boolean
-  isDeleted: boolean
-  createdAt: string
+  isActive?: boolean
+  isDeleted?: boolean
+  createdAt?: string
   updatedAt?: string
 }
 
