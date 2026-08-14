@@ -1,0 +1,168 @@
+================================================================================
+BÁO CÁO PHÂN TÍCH LỖI NGUỒN, RỦI RO BẢO MẬT VÀ BẤT BÌNH THƯỜNG TRONG AUTH SERVICE
+================================================================================
+Ngày đánh giá: 13/08/2026
+Dự án: Intern Document Administration System — Auth Service (Dev Lead)
+Đơn vị đánh giá: AI Antigravity Pair Programmer & QA Automation
+
+KẾT LUẬN CHÍNH:
+Tất cả 6 điểm bạn nêu ra đều HOÀN TOÀN CHÍNH XÁC 100%. Các phát hiện này phản ánh đúng
+thực tế mã nguồn C# trong `services/auth-service`, kết quả log runtime JSON của
+bộ test Node.js, và các rủi ro thiết kế/bảo mật thực tế.
+
+--------------------------------------------------------------------------------
+1. LỖI CLAIM ROLE TRONG JWT TOKEN (ClaimTypes.Role vs "role")
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/TokenService.cs` (Dòng 31)
+  ```csharp
+  claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+  ```
+- Thực trạng:
+  `ClaimTypes.Role` trong .NET Security Claims là một hằng số có giá trị là chuỗi URI:
+  `"http://schemas.microsoft.com/ws/2008/06/identity/claims/role"`
+  Khi `JwtSecurityTokenHandler` ghi ra chuỗi Token JWT, Key của claim sẽ là chuỗi URI dài này chứ KHÔNG PHẢI chuỗi ngắn `"role"`.
+- Bằng chứng thực tế (từ log `auth_test_results.json` - TC-AUTH-20):
+  Trong script test Node.js, khi decode payload JWT, ta bắt buộc phải dùng key URI:
+  `payloadJson['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']`
+- Hậu quả:
+  Nếu Frontend (React/Vue/Angular) hoặc các Service ngôn ngữ khác (Node.js, Go, Java) đọc trực tiếp chuỗi JSON Payload của JWT và tìm key `"role"`, kết quả sẽ trả về `undefined`/`null`.
+- Khuyến nghị khắc phục:
+  Đổi từ `ClaimTypes.Role` sang key chuỗi ngắn `"role"`:
+  ```csharp
+  claims.AddRange(roles.Select(r => new Claim("role", r)));
+  ```
+
+--------------------------------------------------------------------------------
+2. LỖI THIẾT KẾ ENDPOINT TRA CỨU USER: GET /api/users?role= CHỈ TRẢ VỀ 1 USER
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/AuthController.cs` (Dòng 161)
+  ```csharp
+  var user = await _db.Users
+      .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+      .FirstOrDefaultAsync(u => u.UserRoles.Any(ur => ur.Role.Name == role) && u.IsActive);
+  ```
+- Thực trạng:
+  Code sử dụng `FirstOrDefaultAsync` và trả về một Object duy nhất `{ id, fullName, email, role, departmentId }` thay vì một danh sách (Array/List).
+- Hậu quả:
+  Trong dữ liệu seed hiện tại, mỗi vai trò chỉ có đúng 1 user nên test pass. Tuy nhiên khi hệ thống vận hành thực tế có hàng trăm `Employee` hoặc nhiều `Secretary`, API này chỉ trả về đúng 1 user ngẫu nhiên (do không có `OrderBy`). Tất cả các user khác có cùng role sẽ bị ẩn hoàn toàn khỏi API.
+- Khuyến nghị khắc phục:
+  Nếu API phục vụ việc lấy danh sách người dùng theo vai trò, cần sửa thành:
+  ```csharp
+  var users = await _db.Users
+      .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+      .Where(u => u.UserRoles.Any(ur => ur.Role.Name == role) && u.IsActive)
+      .Select(u => new {
+          id = u.Id,
+          fullName = u.FullName,
+          email = u.Email,
+          role = u.UserRoles.Select(ur => ur.Role.Name).FirstOrDefault(),
+          departmentId = u.DepartmentId
+      })
+      .ToListAsync();
+
+  return Ok(new { success = true, data = users });
+  ```
+
+--------------------------------------------------------------------------------
+3. LỖI BẢO MẬT: GET /api/auth/me KHÔNG KIỂM TRA IsActive
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/AuthController.cs` (Dòng 137)
+  ```csharp
+  var user = await _db.Users
+      .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+      .FirstOrDefaultAsync(u => u.Id == userId); // Thiếu && u.IsActive
+  ```
+- Thực trạng:
+  Trong hàm `Login` và `Refresh`, code đều kiểm tra chặt chẽ `&& u.IsActive`. Nhưng trong hàm `Me()`, Dev Lead đã bỏ sót điều kiện `u.IsActive`.
+- Hậu quả:
+  Nếu Quản trị viên vô hiệu hóa/khóa tài khoản của một nhân viên (`IsActive = false`), nhưng nhân viên đó đang có một AccessToken cũ còn hạn (thời hạn 1h), nhân viên đó vẫn có thể gọi API `GET /api/auth/me` thành công và lấy thông tin cá nhân. Điều này vi phạm tính nhất quán bảo mật.
+- Khuyến nghị khắc phục:
+  Thêm điều kiện `&& u.IsActive` vào truy vấn `Me()`:
+  ```csharp
+  var user = await _db.Users
+      .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+      .FirstOrDefaultAsync(u => u.Id == userId && u.IsActive);
+
+  if (user is null) return Unauthorized(new { success = false, message = "Tài khoản không tồn tại hoặc đã bị khóa." });
+  ```
+
+--------------------------------------------------------------------------------
+4. RỦI RO BẢO MẬT: GET /api/users KHÔNG PHÂN QUYỀN TRUY CẬP (AUTHORIZATION LEAK)
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/AuthController.cs` (Dòng 155-156)
+  ```csharp
+  [HttpGet("/api/users")]
+  [Authorize]
+  public async Task<IActionResult> GetUserByRole([FromQuery] string? role)
+  ```
+- Thực trạng:
+  Endpoint chỉ sử dụng thuộc tính `[Authorize]` chung chung mà không giới hạn Role (`[Authorize(Roles = "Admin,Secretary")]`) hoặc sử dụng API Key/Service Token cho giao tiếp liên microservice (Inter-service authentication).
+- Hậu quả:
+  Bất kỳ tài khoản người dùng thông thường nào (ví dụ vai trò `Employee`) chỉ cần đăng nhập thành công là có thể gửi request `GET /api/users?role=Admin` hoặc `GET /api/users?role=SecretaryDirector` để lấy toàn bộ thông tin nhạy cảm (Email, Họ tên, GUID) của Quản trị viên và Thư ký Ban Giám Đốc.
+- Khuyến nghị khắc phục:
+  Bổ sung Phân quyền truy cập theo vai trò hoặc cơ chế Xác thực Inter-Service:
+  ```csharp
+  [Authorize(Roles = "Admin,SecretaryDirector")]
+  ```
+
+--------------------------------------------------------------------------------
+5. CẤU HÌNH SWAGGER BẬT TRÊN TẤT CẢ CÁC MÔI TRƯỜNG (kể cả Production)
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/Program.cs` (Dòng 96-97)
+  ```csharp
+  app.UseSwagger();
+  app.UseSwaggerUI();
+  ```
+- Thực trạng:
+  Dev Lead không bọc lệnh này trong điều kiện `if (app.Environment.IsDevelopment())`.
+- Hậu quả:
+  Khi biên dịch và triển khai ứng dụng lên môi trường Production, giao diện Swagger UI `/swagger/index.html` và file tả API `/swagger/v1/swagger.json` sẽ tiếp tục hiển thị công khai. Kẻ tấn công có thể dễ dàng dò quét cấu trúc API, danh sách Endpoint và DTO để thực hiện các cuộc tấn công khai thác.
+- Khuyến nghị khắc phục:
+  Bọc điều kiện môi trường Dev:
+  ```csharp
+  if (app.Environment.IsDevelopment())
+  {
+      app.UseSwagger();
+      app.UseSwaggerUI();
+  }
+  ```
+
+--------------------------------------------------------------------------------
+6. THIẾU VALIDATE ĐỘ DÀI TỐI THIỂU CỦA KHÓA BÍ MẬT Jwt:Secret (HMAC-SHA256)
+--------------------------------------------------------------------------------
+- Vị trí mã nguồn: `services/auth-service/Program.cs` (Dòng 31-36)
+  ```csharp
+  var jwtSecret = builder.Configuration["Jwt:Secret"];
+  if (string.IsNullOrEmpty(jwtSecret) || jwtSecret == "REPLACE_WITH_RANDOM_STRING_AT_LEAST_32_CHARACTERS_LONG")
+  {
+      throw new InvalidOperationException(...);
+  }
+  ```
+- Thực trạng:
+  Code chỉ kiểm tra chuỗi rỗng hoặc đúng bằng chuỗi placeholder mẫu, mà KHÔNG kiểm tra độ dài thực tế `jwtSecret.Length < 32`.
+- Hậu quả:
+  Nếu người quản trị cấu hình một chuỗi ngắn (ví dụ: `"Secret123"`), ứng dụng vẫn khởi động thành công. Tuy nhiên, ngay khi có người dùng đầu tiên thực hiện Đăng nhập, thuật toán HMAC-SHA256 sẽ bắn ra ngoại lệ `ArgumentOutOfRangeException` / `IDX10720` tại Runtime làm gián đoạn dịch vụ.
+- Khuyến nghị khắc phục:
+  Kiểm tra độ dài tối thiểu 32 ký tự ngay lúc khởi động (Fail Fast):
+  ```csharp
+  if (string.IsNullOrEmpty(jwtSecret) || jwtSecret.Length < 32 || jwtSecret == "REPLACE_WITH_RANDOM_STRING_AT_LEAST_32_CHARACTERS_LONG")
+  {
+      throw new InvalidOperationException("Cấu hình Jwt:Secret bắt buộc phải có độ dài tối thiểu 32 ký tự để đảm bảo an toàn cho HMAC-SHA256.");
+  }
+  ```
+
+--------------------------------------------------------------------------------
+7. VÊNH GIỮA TÀI LIỆU ĐẶC TẢ VÀ THỰC TẾ XỬ LÝ (MÃ LỖI 400 VS 401)
+--------------------------------------------------------------------------------
+- Phân tích thực tế:
+  + Đối với kịch bản gửi thiếu password (TC-AUTH-13) hoặc gửi rỗng body/sai kiểu dữ liệu (TC-AUTH-19), ASP.NET Core API Controller mặc định tự động kích hoạt Model Validation trước khi vào Controller Action.
+  + Do các DTO như `LoginRequest(string Username, string Password)` được định nghĩa dạng Non-nullable reference types trong .NET, ASP.NET Core tự động trả về **HTTP 400 Bad Request** kèm theo cấu trúc chuẩn `ProblemDetails` (`"The Password field is required."`).
+  + Trong tài liệu đặc tả ban đầu, người viết ghi kỳ vọng `401 Unauthorized`. Nhưng trong script test Node.js thực tế, người viết test đã nhận ra điều này và nới lỏng assertion sang `400 || 401`.
+- Khuyến nghị:
+  Cập nhật lại tài liệu đặc tả (File 01_TOAN_BO_YEU_CAU_VA_DAC_TA.txt) ở kịch bản TC-AUTH-13 và TC-AUTH-19 thành **400 Bad Request** để khớp hoàn toàn với cơ chế Model Validation chuẩn của ASP.NET Core.
+
+================================================================================
+TỔNG KẾT
+Phân tích của bạn cực kỳ sắc bén và chính xác 100% về mặt chuyên môn kỹ thuật.
+Toàn bộ các nội dung trên đã được tổng hợp đầy đủ vào file báo cáo đánh giá này.
+================================================================================

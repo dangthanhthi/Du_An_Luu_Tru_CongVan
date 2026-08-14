@@ -1,0 +1,176 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${DB_SA_PASSWORD}"
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$DB_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      Jwt__Secret: "${JWT_SECRET}"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      document-service:
+        condition: service_healthy
+      partner-service:
+        condition: service_healthy
+      files-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+    ports:
+      - "5001:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  document-service:
+    build: ./services/document-service
+    container_name: document-service
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+      Services__AuthService: "http://auth-service:8080"
+      Services__PartnerService: "http://partner-service:8080"
+      Services__FilesService: "http://files-service:8080"
+      Services__NotificationService: "http://notification-service:8080"
+    ports:
+      - "5002:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  partner-service:
+    build: ./services/partner-service
+    container_name: partner-service
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+    ports:
+      - "5003:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  files-service:
+    build: ./services/files-service
+    container_name: files-service
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+      Storage__Path: "/app/storage"
+    volumes:
+      - files_storage:/app/storage
+    ports:
+      - "5004:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  email-worker-service:
+    build: ./services/email-worker-service
+    container_name: email-worker-service
+    environment:
+      Services__DocumentService: "http://document-service:8080"
+      Services__FilesService: "http://files-service:8080"
+      Email__Host: "${EMAIL_IMAP_HOST}"
+      Email__Username: "${EMAIL_IMAP_USERNAME}"
+      Email__Password: "${EMAIL_IMAP_PASSWORD}"
+    depends_on:
+      document-service:
+        condition: service_healthy
+      files-service:
+        condition: service_healthy
+
+  ai-ocr-service:
+    build: ./services/ai-ocr-service
+    container_name: ai-ocr-service
+    environment:
+      Services__FilesService: "http://files-service:8080"
+      Jwt__Secret: "${JWT_SECRET}"
+    ports:
+      - "5006:8080"
+    depends_on:
+      files-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Secret: "${JWT_SECRET}"
+      Smtp__Host: "${SMTP_HOST}"
+      Smtp__Username: "${SMTP_USERNAME}"
+      Smtp__Password: "${SMTP_PASSWORD}"
+    ports:
+      - "5007:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  sqlserver_data:
+  files_storage:

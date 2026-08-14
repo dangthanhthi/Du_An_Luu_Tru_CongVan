@@ -14,10 +14,14 @@
 *.user
 *.suo
 
-# SQLite db
-# Keep database if needed, or exclude:
-# TaskManager.Backend/taskmanager.db
+# Large Templates & Temp
+Theme Template/
+scratch/
+.agents/
 
-# OS files
+# OS / Binary files
 .DS_Store
 Thumbs.db
+*.exe
+*.lnk
+*.log

@@ -1,0 +1,18 @@
+# Normalize line endings across the team (some members on Windows, some may not be).
+# Prevents "whole file changed" diffs caused only by CRLF vs LF.
+
+* text=auto
+
+*.cs     text diff=csharp
+*.csproj text
+*.sln    text eol=crlf
+*.json   text
+*.md     text
+*.sql    text
+*.yml    text
+*.yaml   text
+Dockerfile text
+
+*.png    binary
+*.jpg    binary
+*.pdf    binary

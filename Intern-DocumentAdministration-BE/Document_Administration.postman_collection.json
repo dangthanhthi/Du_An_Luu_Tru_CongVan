@@ -1,0 +1,1038 @@
+{
+  "info": {
+    "_postman_id": "8e3c6312-d04b-4f76-880c-7b003a3d5e23",
+    "name": "Document Administration",
+    "description": "Collection for testing all microservice APIs of the Document Administration System.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "2. Health Endpoints",
+      "item": [
+        {
+          "name": "Gateway Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AuthService Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5001/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5001",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DocumentService Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5002/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5002",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PartnerService Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5003/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5003",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. AuthService",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Login succeeded\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.accessToken).to.be.a(\"string\");",
+                  "});",
+                  "",
+                  "pm.environment.set(\"token\", response.data.accessToken);",
+                  "pm.environment.set(\"refreshToken\", response.data.refreshToken);",
+                  "",
+                  "if (response.data.user?.id) {",
+                  "    pm.environment.set(\"userId\", response.data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin_user\",\n  \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User (me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "",
+                  "pm.test(\"Current user was returned\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.id).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.environment.set(\"token\", response.data.accessToken);",
+                  "pm.environment.set(\"refreshToken\", response.data.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Roles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "const roles = response.data;",
+                  "const role = roles.find(x => x.name === \"Staff\") || roles.find(x => x.name === \"Admin\") || roles[0];",
+                  "pm.environment.set(\"roleId\", role.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Department",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Department was created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.environment.set(\"departmentId\", response.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Test Department\",\n  \"code\": \"POSTMAN-DEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "departments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Departments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "departments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"User was created\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.environment.set(\"userId\", response.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman.user\",\n  \"password\": \"Postman@123\",\n  \"fullName\": \"Postman Test User\",\n  \"email\": \"postman.user@example.com\",\n  \"phone\": \"0900000000\",\n  \"departmentId\": \"{{departmentId}}\",\n  \"roleIds\": [\"{{roleId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/users?page=1&pageSize=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Disable/Enable User",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "users", "{{userId}}", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. PartnerService",
+      "item": [
+        {
+          "name": "Create Partner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Partner was created\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.id).to.exist;",
+                  "});",
+                  "pm.environment.set(\"partnerId\", response.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Test Partner\",\n  \"shortName\": \"PTP\",\n  \"entityType\": \"Both\",\n  \"email\": \"partner@example.com\",\n  \"phone\": \"0900000001\",\n  \"address\": \"Ho Chi Minh City\",\n  \"taxCode\": \"POSTMAN-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/partners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Partners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners"],
+              "query": [
+                { "key": "pageNumber", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Partner Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Partner",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Postman Test Partner\",\n  \"shortName\": \"UPTP\",\n  \"entityType\": \"Both\",\n  \"email\": \"updated.partner@example.com\",\n  \"phone\": \"0900000002\",\n  \"address\": \"Ha Noi\",\n  \"taxCode\": \"POSTMAN-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Soft-delete Partner",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Partner",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/partners/{{partnerId}}/restore",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "partners", "{{partnerId}}", "restore"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. FilesService",
+      "item": [
+        {
+          "name": "Upload File",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"File was uploaded\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.id).to.exist;",
+                  "    pm.expect(response.data.originalName).to.exist;",
+                  "});",
+                  "pm.environment.set(\"fileId\", response.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/files/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files", "upload"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get File Info",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"File metadata was returned\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.id).to.eql(pm.environment.get(\"fileId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/{{fileId}}/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files", "{{fileId}}", "info"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/files/{{fileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "files", "{{fileId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. DocumentService",
+      "item": [
+        {
+          "name": "Create Incoming Document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Document was created as Draft\", function () {",
+                  "    pm.expect(response.success).to.eql(true);",
+                  "    pm.expect(response.data.id).to.exist;",
+                  "    pm.expect(response.data.status).to.eql(\"Draft\");",
+                  "});",
+                  "pm.environment.set(\"documentId\", response.data.id);",
+                  "if (response.data.attachments?.length) {",
+                  "    pm.environment.set(\"attachmentId\", response.data.attachments[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Incoming document created from Postman\",\n  \"summary\": \"Postman integration test\",\n  \"partnerId\": \"{{partnerId}}\",\n  \"receivedAt\": \"2026-08-13T08:00:00Z\",\n  \"attachmentFileIds\": [\"{{fileId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/incoming",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "incoming"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Outgoing Document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Outgoing document created from Postman\",\n  \"summary\": \"Postman outgoing-document test\",\n  \"partnerId\": \"{{partnerId}}\",\n  \"senderDepartmentId\": \"{{departmentId}}\",\n  \"attachmentFileIds\": [\"{{fileId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/outgoing",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "outgoing"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Internal Document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Internal document created from Postman\",\n  \"summary\": \"Postman internal-document test\",\n  \"senderDepartmentId\": \"{{departmentId}}\",\n  \"attachmentFileIds\": [\"{{fileId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/internal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "internal"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents?pageNumber=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents"],
+              "query": [
+                { "key": "pageNumber", "value": "1" },
+                { "key": "pageSize", "value": "10" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update a Draft Document",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated document title\",\n  \"summary\": \"Updated through Postman\",\n  \"partnerId\": \"{{partnerId}}\",\n  \"senderDepartmentId\": null,\n  \"receivedAt\": \"2026-08-13T08:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Departments",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"departmentIds\": [\"{{departmentId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/assign-departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "assign-departments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Another Attachment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Attachment was added\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const response = pm.response.json();",
+                  "const attachments = response.data.attachments;",
+                  "if (attachments?.length) {",
+                  "    pm.environment.set(\"attachmentId\", attachments[attachments.length - 1].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileId\": \"{{fileId}}\",\n  \"attachmentType\": \"Reference\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/attachments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "attachments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/attachments/{{attachmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "attachments", "{{attachmentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Status to Reviewed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Document is Reviewed\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.status).to.eql(\"Reviewed\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Reviewed\",\n  \"note\": \"Reviewed through Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Status to Distributed",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Distributed\",\n  \"note\": \"Distributed through Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a Draft Document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "documents", "{{documentId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. NotificationService",
+      "item": [
+        {
+          "name": "List Notification Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/logs?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "logs"],
+              "query": [
+                { "key": "page", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send a Notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Request completed\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+                  "});",
+                  "const response = pm.response.json();",
+                  "pm.test(\"Response uses the standard envelope\", function () {",
+                  "    pm.expect(response).to.have.property(\"success\");",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "    pm.expect(response).to.have.property(\"errors\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientUserId\": \"{{userId}}\",\n  \"recipientEmail\": \"test-recipient@example.com\",\n  \"subject\": \"Postman notification test\",\n  \"body\": \"This is a test notification.\",\n  \"relatedDocumentId\": \"{{documentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. EmailWorkerService",
+      "item": [
+        {
+          "name": "Trigger Manual Poll",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5005/api/email-worker/trigger",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5005",
+              "path": ["api", "email-worker", "trigger"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Authentication Errors",
+      "item": [
+        {
+          "name": "Missing Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid-token",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ]
+}

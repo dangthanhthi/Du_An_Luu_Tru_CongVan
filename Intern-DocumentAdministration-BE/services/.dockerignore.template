@@ -1,0 +1,29 @@
+# Copy this file into each service folder (next to its Dockerfile).
+# Keeps the Docker build context small and prevents stale local
+# build output from being copied into the image.
+
+bin/
+obj/
+
+# Local-only config — the container gets its config from environment
+# variables (docker-compose.yml + .env), never from these files.
+appsettings.Development.json
+appsettings.*.local.json
+.env
+
+# Editor/IDE junk
+.vs/
+.vscode/
+.idea/
+
+# Git metadata — never needed inside the image
+.git/
+.gitignore
+.gitattributes
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

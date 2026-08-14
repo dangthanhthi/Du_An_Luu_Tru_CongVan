@@ -1,0 +1,10 @@
+bin/
+obj/
+
+# Local SQLite test databases
+*.db
+*.db-shm
+*.db-wal
+appsettings.Development.json
+appsettings.*.local.json
+.env

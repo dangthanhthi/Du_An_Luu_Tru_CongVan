@@ -1,0 +1,305 @@
+=== DAS Requirement - v1.docx ===
+
+Yêu cầu chung của App:
+Web app, back-end C#, front-end NextJS.
+Kiến trúc micro service, deploy bằng docker container
+Tính năng chính:
+Đăng ký công văn mới lên hệ thống để lấy số công văn.
+Cho phép upload file vào công văn đã đăng ký để truy xuất lại sau này.
+Công văn đến (Incoming Document):
+Định kỳ 1 tiếng check email 1 lần, nếu có email mới (trong hộp thư này chỉ có các email từ máy fax gửi đến, mỗi email là 1 bản fax đã nhận, bản fax là 1 file PDF attachment), thì đăng ký công văn đến.
+Hệ thống generate số công văn với format định sẵn.
+Dùng AI để đọc công văn đến, điền thông tin người gửi đến tương ứng với danh sách đối tác đã có (“External Entities”).
+Notify thư ký Giám đốc (user được định nghĩa sẵn role thư ký GĐ) qua email báo về công văn mới.
+Thư ký thông tin mở công văn, đọc file attachment, điều chỉnh các trường thông tin của công văn nếu có sai sót -> chọn gửi tới các phòng ban nào (List có sẵn) -> Save.
+Các phòng ban được chọn vào danh sách nhận công văn sẽ có quyền truy cập vào detail của công văn này.
+Công Văn đi (Outgoing Doc):
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin, gồm đối tác nhận (External Entities)
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn.
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Công văn nội bộ:
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin. Công văn này không gửi đi đâu, chỉ gửi cho ban lãnh đạo công ty.
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn.
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Quản lý Đối tác (External Entitle):
+Đối tác là doanh nghiệp, tổ chức, hoặc cơ quan chức năng bên ngoài. Được tạo trong hệ thống, gồm: Tên full của đối tác tổ chức, tên viết tắt, Người liên hệ, thông tin liên hệ, Phone, Email.
+Danh sách đối tác này CRUD được, nhưng soft delete, không được xóa hẳn.
+
+
+=========================================
+
+=== KIẾN TRÚC TỔNG THỂ.docx ===
+
+KIẾN TRÚC TỔNG THỂ
+Danh sách service ( microservice )
+AuthService – login, JWT, refresh token, User, Role, Department (RBAC)
+DocumentService – Incoming, Outgoing, Internal Document, sinh số công văn
+PartnerService (External Entity) – CRUD đối tác, soft delete
+FileService – upload/download PDF, lưu trữ
+EmailWorkerService – job định kỳ check email, tạo công văn đến
+AiOcrService – đọc PDF, match đối tác
+NotificationService – gửi email thông báo
+ApiGateway : Ocelot
+
+Cụ thể:
+1. API Gateway
+Cổng vào duy nhất cho Frontend, định tuyến request tới các service, xử lý JWT validation tập trung (hoặc đẩy xuống từng service). Công nghệ: Ocelot
+2. Auth Service
+Đăng nhập, cấp JWT + Refresh Token.
+Quản lý User, Role, Department (RBAC).
+Endpoint /login, /me, CRUD user/role/department.
+3. Document Service
+Service trung tâm của hệ thống, xử lý cả 3 loại công văn (Incoming/Outgoing/Internal, phân biệt bằng DocumentType):
+Đăng ký công văn mới, sinh số công văn theo format định sẵn.
+Workflow chuyển trạng thái (Draft → Reviewed → Distributed).
+Quản lý phân quyền truy cập công văn theo phòng ban (DocumentDepartmentAccess).
+Nhận dữ liệu từ Email Worker (công văn đến) và từ thư ký các phòng (công văn đi/nội bộ).
+4. Partner Service (External Entities)
+CRUD danh sách đối tác (tên đầy đủ, tên viết tắt, người liên hệ, phone, email), soft delete.
+5. File Service
+Upload/download file PDF, lưu trữ và liên kết file với công văn tương ứng để truy xuất lại sau này.
+6. Email Worker Service
+Job chạy định kỳ 1 tiếng/lần, check hộp thư fax, tách file PDF attachment, gọi Document Service để đăng ký công văn đến mới.
+7. AI/OCR Service
+Đọc nội dung file PDF công văn đến, trích xuất thông tin, match với danh sách đối tác (External Entities) đã có để điền tự động.
+8. Notification Service
+Gửi email thông báo — chủ yếu là báo cho thư ký Giám đốc khi có công văn đến mới cần xử lý.
+
+
+
+Sơ đồ kiến trúc
+
+·  Xanh dương (Auth, Document, Partner, File) — các service lõi, xử lý nghiệp vụ chính.
+·  Cam (Email Worker, AI/OCR, Notification) — các service tích hợp, chạy nền và gọi vào Document Service khi có sự kiện (email mới, cần OCR, cần báo thư ký GĐ).
+·  Tất cả service nằm chung trong Docker Compose, kết nối tới 1 SQL Server nhưng tách schema riêng theo service.
+·  Frontend chỉ gọi qua API Gateway duy nhất — không gọi thẳng vào từng service.
+
+Schema:
+/* ============================================================
+   SCHEMA HOÀN CHỈNH - HỆ THỐNG QUẢN LÝ CÔNG VĂN
+   1 SQL Server instance, tách theo schema cho từng service
+   Mỗi service chỉ được đọc/ghi trực tiếp vào schema của mình.
+   Truy cập dữ liệu của service khác PHẢI qua API, không JOIN
+   chéo schema trong code (trừ báo cáo/reporting nội bộ nếu cần).
+   ============================================================ */
+
+-- Luôn tạo và làm việc trong database riêng, KHÔNG chạy trong master
+IF DB_ID('DocumentManagementDb') IS NULL
+BEGIN
+    CREATE DATABASE DocumentManagementDb;
+END
+GO
+
+USE DocumentManagementDb;
+GO
+
+/* ============================================================
+   SCHEMA: auth  (AuthService - login, JWT, User/Role/Department)
+   ============================================================ */
+CREATE SCHEMA auth;
+GO
+
+CREATE TABLE auth.Departments (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Name            NVARCHAR(200)   NOT NULL,
+    Code            NVARCHAR(50)    NOT NULL UNIQUE,   -- VD: "IT", "KTOAN"
+    IsActive        BIT             NOT NULL DEFAULT 1,
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt       DATETIME2       NULL
+);
+
+CREATE TABLE auth.Roles (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Name            NVARCHAR(100)   NOT NULL UNIQUE,   -- Admin, SecretaryDirector, SecretaryDept, Staff
+    Description     NVARCHAR(300)   NULL
+);
+
+CREATE TABLE auth.Users (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Username        NVARCHAR(100)   NOT NULL UNIQUE,
+    PasswordHash    NVARCHAR(255)   NOT NULL,
+    FullName        NVARCHAR(200)   NOT NULL,
+    Email           NVARCHAR(200)   NULL,
+    Phone           NVARCHAR(20)    NULL,
+    DepartmentId    UNIQUEIDENTIFIER NULL REFERENCES auth.Departments(Id),
+    IsActive        BIT             NOT NULL DEFAULT 1,
+    LastLoginAt     DATETIME2       NULL,
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt       DATETIME2       NULL
+);
+
+CREATE TABLE auth.UserRoles (
+    UserId          UNIQUEIDENTIFIER NOT NULL REFERENCES auth.Users(Id),
+    RoleId          UNIQUEIDENTIFIER NOT NULL REFERENCES auth.Roles(Id),
+    PRIMARY KEY (UserId, RoleId)
+);
+
+CREATE TABLE auth.RefreshTokens (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId          UNIQUEIDENTIFIER NOT NULL REFERENCES auth.Users(Id),
+    Token           NVARCHAR(500)   NOT NULL UNIQUE,
+    ExpiresAt       DATETIME2       NOT NULL,
+    RevokedAt       DATETIME2       NULL,
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+CREATE INDEX IX_Users_DepartmentId ON auth.Users(DepartmentId);
+CREATE INDEX IX_RefreshTokens_UserId ON auth.RefreshTokens(UserId);
+
+
+/* ============================================================
+   SCHEMA: partner  (PartnerService - External Entities)
+   ============================================================ */
+CREATE SCHEMA partner;
+GO
+
+CREATE TABLE partner.ExternalEntities (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    FullName        NVARCHAR(300)   NOT NULL,          -- tên đầy đủ tổ chức
+    ShortName       NVARCHAR(100)   NULL,               -- tên viết tắt
+    ContactPerson   NVARCHAR(200)   NULL,
+    Phone           NVARCHAR(20)    NULL,
+    Email           NVARCHAR(200)   NULL,
+    Address         NVARCHAR(500)   NULL,
+    EntityType      NVARCHAR(20)    NOT NULL DEFAULT 'Recipient'
+        CHECK (EntityType IN ('Sender', 'Recipient', 'Both')),
+        -- Sender    = chỉ dùng cho công văn ĐẾN (nơi gửi công văn vào)
+        -- Recipient = chỉ dùng cho công văn ĐI (nơi mình gửi công văn ra)
+        -- Both      = vừa gửi vừa nhận, hiện ở cả 2 danh sách
+    IsDeleted       BIT             NOT NULL DEFAULT 0, -- soft delete
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt       DATETIME2       NULL
+);
+
+CREATE INDEX IX_ExternalEntities_ShortName ON partner.ExternalEntities(ShortName)
+    WHERE IsDeleted = 0;
+
+CREATE INDEX IX_ExternalEntities_EntityType ON partner.ExternalEntities(EntityType)
+    WHERE IsDeleted = 0;
+
+
+/* ============================================================
+   SCHEMA: files  (FileService - upload/lưu trữ)
+   ============================================================ */
+CREATE SCHEMA files;
+GO
+
+CREATE TABLE files.Files (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    OriginalName    NVARCHAR(300)   NOT NULL,
+    StoragePath     NVARCHAR(1000)  NOT NULL,          -- path/URL lưu trữ thật
+    ContentType     NVARCHAR(100)   NOT NULL,           -- VD: application/pdf
+    SizeBytes       BIGINT          NOT NULL,
+    UploadedByUserId UNIQUEIDENTIFIER NOT NULL,          -- tham chiếu logic sang auth.Users, không FK cứng
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+
+/* ============================================================
+   SCHEMA: document  (DocumentService - Incoming/Outgoing/Internal)
+   ============================================================ */
+CREATE SCHEMA document;
+GO
+
+-- Bảng đếm số công văn, dùng transaction + UPDLOCK để tránh trùng số
+CREATE TABLE document.DocumentNumberCounters (
+    DocType         NVARCHAR(20)    NOT NULL,   -- INCOMING / OUTGOING / INTERNAL
+    Year            INT             NOT NULL,
+    CurrentValue    INT             NOT NULL DEFAULT 0,
+    PRIMARY KEY (DocType, Year)
+);
+
+CREATE TABLE document.Documents (
+    Id                  UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    DocumentNumber      NVARCHAR(50)    NOT NULL UNIQUE,   -- VD: CV-DEN-2026-0001
+    DocType             NVARCHAR(20)    NOT NULL,           -- INCOMING / OUTGOING / INTERNAL
+    Status              NVARCHAR(20)    NOT NULL DEFAULT 'Draft', -- Draft/Reviewed/Distributed
+    Title               NVARCHAR(500)   NOT NULL,
+    Summary             NVARCHAR(MAX)   NULL,
+    PartnerId           UNIQUEIDENTIFIER NULL,     -- ref logic sang partner.ExternalEntities
+        -- Incoming: chỉ chọn trong danh sách EntityType='Sender' hoặc 'Both'
+        -- Outgoing: chỉ chọn trong danh sách EntityType='Recipient' hoặc 'Both'
+    SenderDepartmentId  UNIQUEIDENTIFIER NULL,     -- ref logic sang auth.Departments (công văn đi/nội bộ: phòng ban đăng ký)
+    CreatedByUserId     UNIQUEIDENTIFIER NOT NULL, -- ref logic sang auth.Users
+    ReceivedAt          DATETIME2       NULL,       -- thời điểm nhận (đối với công văn đến)
+    DistributedAt       DATETIME2       NULL,       -- thời điểm chuyển trạng thái Distributed
+    CreatedAt           DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt           DATETIME2       NULL
+);
+
+-- File đính kèm của công văn (tham chiếu logic sang files.Files)
+CREATE TABLE document.DocumentAttachments (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    DocumentId      UNIQUEIDENTIFIER NOT NULL REFERENCES document.Documents(Id),
+    FileId          UNIQUEIDENTIFIER NOT NULL,     -- ref logic sang files.Files
+    AttachmentType  NVARCHAR(50)    NULL,           -- VD: Original, Scan, Reference
+    CreatedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+-- Phòng ban nào được xem chi tiết công văn đến nào (many-to-many)
+CREATE TABLE document.DocumentDepartmentAccess (
+    DocumentId      UNIQUEIDENTIFIER NOT NULL REFERENCES document.Documents(Id),
+    DepartmentId    UNIQUEIDENTIFIER NOT NULL,      -- ref logic sang auth.Departments
+    AssignedAt      DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    AssignedByUserId UNIQUEIDENTIFIER NOT NULL,      -- ref logic sang auth.Users (thư ký GĐ)
+    PRIMARY KEY (DocumentId, DepartmentId)
+);
+
+-- Lịch sử thay đổi trạng thái công văn (audit trail)
+CREATE TABLE document.DocumentStatusHistory (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    DocumentId      UNIQUEIDENTIFIER NOT NULL REFERENCES document.Documents(Id),
+    OldStatus       NVARCHAR(20)    NULL,
+    NewStatus       NVARCHAR(20)    NOT NULL,
+    ChangedByUserId UNIQUEIDENTIFIER NOT NULL,       -- ref logic sang auth.Users
+    ChangedAt       DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    Note            NVARCHAR(500)   NULL
+);
+
+CREATE INDEX IX_Documents_DocType_Status ON document.Documents(DocType, Status);
+CREATE INDEX IX_Documents_PartnerId ON document.Documents(PartnerId);
+CREATE INDEX IX_DocumentAttachments_DocumentId ON document.DocumentAttachments(DocumentId);
+CREATE INDEX IX_DocumentDepartmentAccess_DepartmentId ON document.DocumentDepartmentAccess(DepartmentId);
+CREATE INDEX IX_DocumentStatusHistory_DocumentId ON document.DocumentStatusHistory(DocumentId);
+
+
+/* ============================================================
+   SCHEMA: notification  (NotificationService - log gửi email)
+   ============================================================ */
+CREATE SCHEMA notification;
+GO
+
+CREATE TABLE notification.NotificationLogs (
+    Id              UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    RecipientUserId UNIQUEIDENTIFIER NOT NULL,        -- ref logic sang auth.Users
+    RecipientEmail  NVARCHAR(200)   NOT NULL,
+    Subject         NVARCHAR(300)   NOT NULL,
+    RelatedDocumentId UNIQUEIDENTIFIER NULL,           -- ref logic sang document.Documents
+    Status          NVARCHAR(20)    NOT NULL DEFAULT 'Sent', -- Sent/Failed
+    SentAt          DATETIME2       NOT NULL DEFAULT SYSUTCDATETIME(),
+    ErrorMessage    NVARCHAR(1000)  NULL
+);
+
+
+/* ============================================================
+   SEED DATA CƠ BẢN
+   ============================================================ */
+INSERT INTO auth.Roles (Name, Description) VALUES
+    ('Admin', N'Quản trị hệ thống'),
+    ('SecretaryDirector', N'Thư ký Giám đốc'),
+    ('SecretaryDept', N'Thư ký phòng ban'),
+    ('Staff', N'Nhân viên phòng ban');
+
+
+
+Trong lúc đợi lead backend setup
+Người 2 (Backend Developer - DocumentService)
+Đọc kỹ ERD/schema document, tự dựng project ASP.NET Core rỗng cho DocumentService (chưa cần chạy trong docker-compose), viết trước các DTO/Entity class map với bảng Documents, DocumentAttachments...
+Nghiên cứu trước cách implement sinh số công văn an toàn (transaction + lock) vì đây là phần khó nhất.
+Người 3 (Backend Integration)
+Setup thử kết nối email (IMAP/POP3) đọc hộp thư test bằng code mẫu độc lập, chưa cần tích hợp vào hệ thống.
+Tìm hiểu trước thư viện OCR/AI sẽ dùng (Tesseract, Azure OCR, hay gọi API ngoài) và test thử đọc 1 file PDF mẫu.
+Người 4 & Người 5 (Frontend)
+Dựng khung project NextJS, cấu trúc thư mục, cài Tailwind/UI library, dựng layout chung (sidebar, header).
+Code UI tĩnh (chưa gọi API thật) cho các màn hình chính dựa theo mô tả tính năng — Login, Dashboard, danh sách công văn — dùng data giả (mock JSON) trước.
+Khi xong API Contract, chỉ cần thay mock bằng gọi API thật.

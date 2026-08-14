@@ -1,0 +1,56 @@
+## ===== Secrets — never commit =====
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.*.local.json
+
+## ===== .NET build output (applies to every service folder) =====
+bin/
+obj/
+out/
+*.user
+*.suo
+
+## ===== EF Core =====
+# Migrations themselves ARE committed (they're code, not output) —
+# do not ignore services/*/Migrations/
+
+## ===== Visual Studio / VS Code / Rider =====
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.DotSettings.user
+
+## ===== Docker =====
+# Local bind-mounted data (if any service writes to a mounted volume)
+**/storage-uploads/
+docker-data/
+
+## ===== OS junk =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## ===== Logs =====
+*.log
+logs/
+
+## ===== NuGet =====
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## ===== Local SQLite databases =====
+*.db
+*.db-shm
+*.db-wal
+
+## ===== Reports & Scratch =====
+document_service_report.html
+
+# Local testing uploads and scratch
+**/Uploads/
+scratch/
+

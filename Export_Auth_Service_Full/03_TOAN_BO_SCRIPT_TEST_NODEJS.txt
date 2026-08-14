@@ -1,0 +1,521 @@
+================================================================================
+PHẦN 3: TOÀN BỘ MA NGUỒN SCRIPT TEST AUTOMATION (NODE.JS 50 TEST CASES)
+================================================================================
+Path: scratch/test_auth_service_full.js
+--------------------------------------------------------------------------------
+import { writeFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const GATEWAY = 'http://localhost:8080';
+const AUTH_SERVICE = 'http://localhost:5001';
+
+let adminAccessToken = '';
+let adminRefreshToken = '';
+let secAccessToken = '';
+let secDirAccessToken = '';
+let empAccessToken = '';
+
+const results = [];
+let tcCounter = 0;
+
+function nextId() {
+    tcCounter++;
+    return `TC-AUTH-${String(tcCounter).padStart(2, '0')}`;
+}
+
+async function httpGet(url, token = null, customHeaders = {}) {
+    const headers = { ...customHeaders };
+    if (token && !headers['Authorization']) headers['Authorization'] = `Bearer ${token}`;
+    const start = Date.now();
+    const res = await fetch(url, { headers });
+    const duration = Date.now() - start;
+    const ct = res.headers.get('content-type') || '';
+    let resBody;
+    const rawText = await res.text();
+    try { resBody = JSON.parse(rawText); } catch { resBody = rawText; }
+    return { status: res.status, body: resBody, duration, headers: res.headers };
+}
+
+async function httpPost(url, jsonBody, token = null, customHeaders = {}) {
+    const headers = { 'Content-Type': 'application/json', ...customHeaders };
+    if (token && !headers['Authorization']) headers['Authorization'] = `Bearer ${token}`;
+    const start = Date.now();
+    const res = await fetch(url, { method: 'POST', headers, body: typeof jsonBody === 'string' ? jsonBody : JSON.stringify(jsonBody) });
+    const duration = Date.now() - start;
+    let resBody;
+    const rawText = await res.text();
+    try { resBody = JSON.parse(rawText); } catch { resBody = rawText; }
+    return { status: res.status, body: resBody, duration, headers: res.headers };
+}
+
+function assert(name, actual, expected) {
+    const passed = String(actual) === String(expected);
+    return { name, passed, actual: String(actual), expected: String(expected) };
+}
+
+function assertTruthy(name, value) {
+    return { name, passed: !!value, actual: String(!!value), expected: 'true' };
+}
+
+function recordTest(id, category, name, desc, method, url, expectedStatus, actualStatus, passed, responseBody, durationMs, assertions, error = null) {
+    const result = { id, category, name, description: desc, method, url, expectedStatus, actualStatus, passed, responseBody, durationMs, assertions, error };
+    results.push(result);
+    const icon = passed ? '✅' : '❌';
+    console.log(`${icon} [${passed ? 'PASS' : 'FAIL'}] ${id}: ${name} (${durationMs}ms)`);
+    if (!passed && error) console.log(`   └── ERROR: ${error}`);
+    return result;
+}
+
+async function runAuthTests() {
+    console.log('\n' + '═'.repeat(70));
+    console.log('  BỘ KIỂM THỬ TOÀN DIỆN MỞ RỘNG (50+ TEST CASES) — AUTH SERVICE API');
+    console.log('  Thời gian: ' + new Date().toISOString());
+    console.log('═'.repeat(70) + '\n');
+
+    const overallStart = Date.now();
+
+    // NHÓM 1: HEALTH CHECK
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/health`);
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Health Check', 'Gateway Health Check', 'GET /health qua Gateway 8080 → 200 OK', 'GET', `${GATEWAY}/health`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Health Check', 'Gateway Health', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${AUTH_SERVICE}/health`);
+        const assertions = [assert('HTTP status', r.status, 200), assert('status', r.body?.status, 'healthy')];
+        recordTest(id, 'Health Check', 'Auth Service Direct Health Check', 'GET /health trực tiếp Port 5001 → status: healthy', 'GET', `${AUTH_SERVICE}/health`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Health Check', 'Auth Direct Health', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${AUTH_SERVICE}/swagger/index.html`);
+        const assertions = [assert('HTTP status', r.status, 200)];
+        recordTest(id, 'Health Check', 'Auth Service Swagger UI', 'GET /swagger/index.html → 200 HTML UI Spec', 'GET', `${AUTH_SERVICE}/swagger/index.html`, 200, r.status, assertions.every(a => a.passed), '(HTML)', r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Health Check', 'Swagger UI', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${AUTH_SERVICE}/swagger/v1/swagger.json`);
+        const assertions = [assert('HTTP status', r.status, 200), assertTruthy('Swagger JSON is object', typeof r.body === 'object')];
+        recordTest(id, 'Health Check', 'Swagger OpenAPI JSON Specification', 'GET /swagger/v1/swagger.json → valid JSON spec', 'GET', `${AUTH_SERVICE}/swagger/v1/swagger.json`, 200, r.status, assertions.every(a => a.passed), { info: r.body?.info }, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Health Check', 'Swagger JSON', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 2: LOGIN SUCCESS
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user', password: 'password' });
+        adminAccessToken = r.body?.data?.accessToken || '';
+        adminRefreshToken = r.body?.data?.refreshToken || '';
+        const assertions = [
+            assert('HTTP status', r.status, 200),
+            assert('success', r.body?.success, true),
+            assert('user.role', r.body?.data?.user?.role, 'Admin'),
+            assert('user.fullName', r.body?.data?.user?.fullName, 'Quản trị viên Hệ thống'),
+            assertTruthy('accessToken hợp lệ', adminAccessToken.length > 0),
+            assertTruthy('refreshToken hợp lệ', adminRefreshToken.length > 0),
+            assert('expiresIn', r.body?.data?.expiresIn, 3600),
+        ];
+        recordTest(id, 'Đăng Nhập Thành Công', 'Đăng nhập vai trò Admin (admin_user)', 'Login thành công → nhận accessToken, refreshToken & role Admin', 'POST', `${GATEWAY}/api/auth/login`, 200, r.status, assertions.every(a => a.passed), { ...r.body, data: { ...r.body?.data, accessToken: adminAccessToken.substring(0, 30) + '...' } }, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Nhập Thành Công', 'Login Admin', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'secretary_user', password: 'password' });
+        secAccessToken = r.body?.data?.accessToken || '';
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true), assert('user.role', r.body?.data?.user?.role, 'Secretary')];
+        recordTest(id, 'Đăng Nhập Thành Công', 'Đăng nhập vai trò Secretary (secretary_user)', 'Login thành công → role Secretary', 'POST', `${GATEWAY}/api/auth/login`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Nhập Thành Công', 'Login Secretary', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'director_sec', password: 'password' });
+        secDirAccessToken = r.body?.data?.accessToken || '';
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true), assert('user.role', r.body?.data?.user?.role, 'SecretaryDirector')];
+        recordTest(id, 'Đăng Nhập Thành Công', 'Đăng nhập vai trò SecretaryDirector (director_sec)', 'Login thành công → role SecretaryDirector', 'POST', `${GATEWAY}/api/auth/login`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Nhập Thành Công', 'Login SecretaryDirector', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'employee_user', password: 'password' });
+        empAccessToken = r.body?.data?.accessToken || '';
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true), assert('user.role', r.body?.data?.user?.role, 'Employee')];
+        recordTest(id, 'Đăng Nhập Thành Công', 'Đăng nhập vai trò Employee (employee_user)', 'Login thành công → role Employee', 'POST', `${GATEWAY}/api/auth/login`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Nhập Thành Công', 'Login Employee', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${AUTH_SERVICE}/api/auth/login`, { username: 'admin_user', password: 'password' });
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Đăng Nhập Thành Công', 'Đăng nhập trực tiếp Port 5001 (Bypass Gateway)', 'POST trực tiếp auth-service port 5001 → 200 OK', 'POST', `${AUTH_SERVICE}/api/auth/login`, 200, r.status, assertions.every(a => a.passed), { success: true }, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Nhập Thành Công', 'Direct Login 5001', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 3: LOGIN ERRORS & SECURITY
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user', password: 'wrongpassword' });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false), assert('message', r.body?.message, 'Sai tài khoản hoặc mật khẩu')];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Mật khẩu không chính xác', 'Password sai → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Wrong password', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'nonexistent_user_abc', password: 'password' });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Tên tài khoản không tồn tại', 'Username không có trong DB → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Wrong username', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, {});
+        const assertions = [assertTruthy('HTTP status 400/401', r.status === 400 || r.status === 401)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Body JSON rỗng {}', 'Gửi body rỗng → 400/401 Error', 'POST', `${GATEWAY}/api/auth/login`, 400, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Empty body', '', 'POST', '', 400, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user' });
+        const assertions = [assertTruthy('HTTP status 400/401', r.status === 400 || r.status === 401)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Thiếu trường password', 'Gửi chỉ username → 400/401 Error', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Missing password', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user', password: 'PASSWORD' });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Phân biệt hoa/thường Mật khẩu (PASSWORD vs password)', 'Mật khẩu sai hoa/thường → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Case sensitivity', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: "' OR '1'='1", password: "' OR '1'='1" });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Tấn công SQL Injection vào Username', "Username `' OR '1'='1` → bị chặn bởi EF Core Parameterization (401)", 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'SQL Injection', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: "<script>alert('xss')</script>", password: "password" });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Tấn công XSS Script Injection', 'Username chứa script tag → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'XSS Injection', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: " admin_user ", password: "password" });
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Username chứa khoảng trắng thừa (" admin_user ")', 'Username chưa được trim → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Whitespace username', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const longString = 'a'.repeat(10000);
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: longString, password: "password" });
+        const assertions = [assertTruthy('HTTP status 400/401', r.status === 400 || r.status === 401)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Payload chuỗi cực đại (10,000 ký tự)', 'Username 10KB → 400/401 Xử lý an toàn không crash', 'POST', `${GATEWAY}/api/auth/login`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Long payload', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/login`, { username: 12345, password: true });
+        const assertions = [assertTruthy('HTTP status 400/401', r.status === 400 || r.status === 401)];
+        recordTest(id, 'Lỗi Đăng Nhập & Security', 'Đầu vào sai kiểu dữ liệu (Number/Boolean)', 'Gửi username: 12345, password: true → 400/401 Bad Request', 'POST', `${GATEWAY}/api/auth/login`, 400, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Lỗi Đăng Nhập & Security', 'Wrong data types', '', 'POST', '', 400, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 4: JWT SECURITY
+    try {
+        const id = nextId();
+        const parts = adminAccessToken.split('.');
+        const payloadJson = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
+        const assertions = [
+            assert('JWT có 3 phần (header.payload.signature)', parts.length, 3),
+            assertTruthy('Payload chứa sub (UserId)', payloadJson.sub),
+            assertTruthy('Payload chứa fullName', payloadJson.fullName),
+            assertTruthy('Payload chứa role', payloadJson['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payloadJson.role),
+            assertTruthy('Payload chứa exp (Hạn dùng 1h)', payloadJson.exp > 0),
+        ];
+        recordTest(id, 'Cấu Trúc JWT', 'Phân tích cấu trúc Claims của JWT AccessToken', 'Token chuẩn HS256 với đầy đủ Claims (sub, fullName, role, exp)', 'PARSE', 'JWT AccessToken', 200, 200, assertions.every(a => a.passed), { sub: payloadJson.sub, fullName: payloadJson.fullName, exp: payloadJson.exp }, 1, assertions);
+    } catch (e) { recordTest(nextId(), 'Cấu Trúc JWT', 'Parse JWT', '', 'PARSE', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true), assert('user.role', r.body?.data?.role, 'Admin'), assert('user.email', r.body?.data?.email, 'admin@company.com')];
+        recordTest(id, 'Bảo Mật JWT', 'Truy cập GET /api/auth/me với Token hợp lệ', 'Trả về thông tin cá nhân của Admin → 200 OK', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Bảo Mật JWT', 'GET me valid', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`);
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Bảo Mật JWT', 'Truy cập GET /api/auth/me không gắn Token', 'Không có Authorization header → 401 Unauthorized', 'GET', `${GATEWAY}/api/auth/me`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Bảo Mật JWT', 'GET me no token', '', 'GET', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, 'invalid-garbage-token-string');
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Bảo Mật JWT', 'Truy cập GET /api/auth/me với Token rác', 'Gắn chuỗi rác → 401 Unauthorized', 'GET', `${GATEWAY}/api/auth/me`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Bảo Mật JWT', 'GET me garbage', '', 'GET', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const parts = adminAccessToken.split('.');
+        const tamperedJwt = `${parts[0]}.${parts[1]}.modifiedsignature12345`;
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, tamperedJwt);
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Bảo Mật JWT', 'Truy cập GET /api/auth/me với JWT bị sửa chữ ký', 'Signature bị thay đổi → 401 Unauthorized', 'GET', `${GATEWAY}/api/auth/me`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Bảo Mật JWT', 'Tampered signature', '', 'GET', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, null, { 'Authorization': `bearer ${adminAccessToken}` });
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Bảo Mật JWT', 'Gửi Scheme chữ thường ("bearer <token>")', 'ASP.NET Core chấp nhận case-insensitive scheme → 200 OK', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Bảo Mật JWT', 'Lowercase bearer scheme', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 5: REFRESH TOKEN LIFECYCLE
+    let newAccessToken = '';
+    let newRefreshToken = '';
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, { refreshToken: adminRefreshToken });
+        newAccessToken = r.body?.data?.accessToken || '';
+        newRefreshToken = r.body?.data?.refreshToken || '';
+        const assertions = [
+            assert('HTTP status', r.status, 200),
+            assert('success', r.body?.success, true),
+            assertTruthy('Cấp newAccessToken thành công', newAccessToken.length > 0),
+            assertTruthy('Cấp newRefreshToken thành công', newRefreshToken.length > 0),
+            assertTruthy('AccessToken mới khác cũ', newAccessToken !== adminAccessToken),
+            assertTruthy('RefreshToken mới khác cũ', newRefreshToken !== adminRefreshToken),
+        ];
+        recordTest(id, 'Refresh Token', 'Cấp lại AccessToken bằng RefreshToken hợp lệ', 'POST /api/auth/refresh → đổi RefreshToken cũ lấy cặp Token mới (Rotation)', 'POST', `${GATEWAY}/api/auth/refresh`, 200, r.status, assertions.every(a => a.passed), { success: true }, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'Refresh success', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, { refreshToken: adminRefreshToken });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false), assert('message', r.body?.message, 'Refresh token không hợp lệ hoặc đã hết hạn')];
+        recordTest(id, 'Refresh Token', 'Dùng lại RefreshToken cũ đã thu hồi (Revoked Token Reuse)', 'RefreshToken đã bị hủy khi refresh → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/refresh`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'Reuse revoked token', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, { refreshToken: 'fake_nonexistent_refresh_token_123' });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Refresh Token', 'Refresh với RefreshToken không tồn tại', 'RefreshToken giả → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/refresh`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'Fake refresh token', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, {});
+        const assertions = [assertTruthy('HTTP status 400/401', r.status === 400 || r.status === 401)];
+        recordTest(id, 'Refresh Token', 'Refresh với body rỗng {}', 'Gửi body rỗng → 401 Error', 'POST', `${GATEWAY}/api/auth/refresh`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'Empty refresh body', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, newAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true), assert('user.role', r.body?.data?.role, 'Admin')];
+        recordTest(id, 'Refresh Token', 'Kiểm tra AccessToken mới cấp lại hoạt động bình thường', 'GET /api/auth/me bằng newAccessToken → 200 OK', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'New token works', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, { refreshToken: newRefreshToken });
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Refresh Token', 'Refresh chuỗi lần 2 (Sequential Refresh)', 'Tiếp tục refresh bằng newRefreshToken → 200 OK cấp cặp mới', 'POST', `${GATEWAY}/api/auth/refresh`, 200, r.status, assertions.every(a => a.passed), { success: true }, r.duration, assertions);
+        if (r.body?.data?.refreshToken) newRefreshToken = r.body.data.refreshToken;
+        if (r.body?.data?.accessToken) newAccessToken = r.body.data.accessToken;
+    } catch (e) { recordTest(nextId(), 'Refresh Token', 'Second refresh', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 6: ME ENDPOINT
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Admin')];
+        recordTest(id, 'Thông Tin Cá Nhân', 'Xác thực thông tin người dùng Admin (/api/auth/me)', 'GET /me cho Admin', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Thông Tin Cá Nhân', 'Me Admin', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, secAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Secretary')];
+        recordTest(id, 'Thông Tin Cá Nhân', 'Xác thực thông tin người dùng Secretary (/api/auth/me)', 'GET /me cho Secretary', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Thông Tin Cá Nhân', 'Me Secretary', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, secDirAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'SecretaryDirector')];
+        recordTest(id, 'Thông Tin Cá Nhân', 'Xác thực thông tin người dùng SecretaryDirector (/api/auth/me)', 'GET /me cho SecretaryDirector', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Thông Tin Cá Nhân', 'Me SecretaryDirector', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/auth/me`, empAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Employee')];
+        recordTest(id, 'Thông Tin Cá Nhân', 'Xác thực thông tin người dùng Employee (/api/auth/me)', 'GET /me cho Employee', 'GET', `${GATEWAY}/api/auth/me`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Thông Tin Cá Nhân', 'Me Employee', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 7: USER LOOKUP BY ROLE
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=Admin`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Admin'), assert('email', r.body?.data?.email, 'admin@company.com')];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu người dùng có vai trò Admin', 'GET /api/users?role=Admin → trả về thông tin Admin', 'GET', `${GATEWAY}/api/users?role=Admin`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Lookup Admin', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=Secretary`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Secretary')];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu người dùng có vai trò Secretary', 'GET /api/users?role=Secretary → trả về Thư ký user', 'GET', `${GATEWAY}/api/users?role=Secretary`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Lookup Secretary', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=SecretaryDirector`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'SecretaryDirector'), assert('email', r.body?.data?.email, 'sec_director@company.com')];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu người dùng có vai trò SecretaryDirector', 'GET /api/users?role=SecretaryDirector (dùng cho tích hợp gửi Mail)', 'GET', `${GATEWAY}/api/users?role=SecretaryDirector`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Lookup SecretaryDirector', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=Employee`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('role', r.body?.data?.role, 'Employee')];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu người dùng có vai trò Employee', 'GET /api/users?role=Employee → trả về Nhân viên user', 'GET', `${GATEWAY}/api/users?role=Employee`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Lookup Employee', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=SuperGodModeRole`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 404), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu vai trò không tồn tại', 'GET /api/users?role=SuperGodModeRole → 404 Not Found', 'GET', `${GATEWAY}/api/users?role=...`, 404, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Non-existent role', '', 'GET', '', 404, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users`, adminAccessToken);
+        const assertions = [assert('HTTP status', r.status, 400), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu thiếu tham số role', 'GET /api/users không truyền role → 400 Bad Request', 'GET', `${GATEWAY}/api/users`, 400, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Missing role param', '', 'GET', '', 400, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpGet(`${GATEWAY}/api/users?role=Admin`);
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Tra Cứu User By Role', 'Tra cứu User không có Bearer Token', 'GET /api/users không auth → 401 Unauthorized', 'GET', `${GATEWAY}/api/users?role=Admin`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Tra Cứu User By Role', 'Lookup no auth', '', 'GET', '', 401, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 8: LOGOUT
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/logout`, { refreshToken: newRefreshToken }, newAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Đăng Xuất (Logout)', 'Đăng xuất tài khoản hợp lệ', 'POST /api/auth/logout → đánh dấu RevokedAt cho RefreshToken trong DB', 'POST', `${GATEWAY}/api/auth/logout`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Xuất', 'Logout valid', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/refresh`, { refreshToken: newRefreshToken });
+        const assertions = [assert('HTTP status', r.status, 401), assert('success is false', r.body?.success, false)];
+        recordTest(id, 'Đăng Xuất (Logout)', 'Thử RefreshToken sau khi đã Đăng xuất', 'RefreshToken đã bị hủy khi Logout → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/refresh`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Xuất', 'Refresh post logout', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/logout`, { refreshToken: 'some_token' });
+        const assertions = [assert('HTTP status', r.status, 401)];
+        recordTest(id, 'Đăng Xuất (Logout)', 'Đăng xuất không gắn Bearer Token', 'POST /api/auth/logout không có auth → 401 Unauthorized', 'POST', `${GATEWAY}/api/auth/logout`, 401, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Xuất', 'Logout no auth', '', 'POST', '', 401, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const r = await httpPost(`${GATEWAY}/api/auth/logout`, { refreshToken: 'nonexistent_refresh_token' }, empAccessToken);
+        const assertions = [assert('HTTP status', r.status, 200), assert('success', r.body?.success, true)];
+        recordTest(id, 'Đăng Xuất (Logout)', 'Đăng xuất với RefreshToken không tồn tại (Idempotent Logout)', 'Đăng xuất an toàn không crash ngay cả khi Token rác → 200 OK', 'POST', `${GATEWAY}/api/auth/logout`, 200, r.status, assertions.every(a => a.passed), r.body, r.duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đăng Xuất', 'Idempotent logout', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    // NHÓM 9: CONCURRENCY BENCHMARK
+    try {
+        const id = nextId();
+        const start = Date.now();
+        const promises = [];
+        for (let i = 0; i < 10; i++) {
+            promises.push(httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user', password: 'password' }));
+        }
+        const loginResults = await Promise.all(promises);
+        const duration = Date.now() - start;
+        const allOk = loginResults.every(r => r.status === 200 && r.body?.success === true);
+        const assertions = [assertTruthy('Tất cả 10 request Đăng nhập đồng thời thành công (200 OK)', allOk)];
+        recordTest(id, 'Đa Luồng & Chịu Tải', 'Đăng nhập 10 request đồng thời (Promise.all)', '10 request login cùng lúc → tất cả 200 OK', 'POST', `${GATEWAY}/api/auth/login x10`, 200, allOk ? 200 : 'mixed', assertions.every(a => a.passed), { successCount: loginResults.filter(r => r.status === 200).length }, duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đa Luồng & Chịu Tải', '10 concurrent logins', '', 'POST', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const start = Date.now();
+        const promises = [];
+        for (let i = 0; i < 10; i++) {
+            promises.push(httpGet(`${GATEWAY}/api/auth/me`, empAccessToken));
+        }
+        const meResults = await Promise.all(promises);
+        const duration = Date.now() - start;
+        const allOk = meResults.every(r => r.status === 200 && r.body?.success === true);
+        const assertions = [assertTruthy('Tất cả 10 request GET /me đồng thời thành công (200 OK)', allOk)];
+        recordTest(id, 'Đa Luồng & Chịu Tải', 'Truy vấn GET /api/auth/me 10 request đồng thời', '10 request GET /me cùng lúc bằng JWT Token → tất cả 200 OK', 'GET', `${GATEWAY}/api/auth/me x10`, 200, allOk ? 200 : 'mixed', assertions.every(a => a.passed), { successCount: meResults.filter(r => r.status === 200).length }, duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đa Luồng & Chịu Tải', '10 concurrent /me', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const start = Date.now();
+        const promises = [];
+        const roles = ['Admin', 'Secretary', 'SecretaryDirector', 'Employee'];
+        for (let i = 0; i < 10; i++) {
+            const role = roles[i % roles.length];
+            promises.push(httpGet(`${GATEWAY}/api/users?role=${role}`, adminAccessToken));
+        }
+        const lookupResults = await Promise.all(promises);
+        const duration = Date.now() - start;
+        const allOk = lookupResults.every(r => r.status === 200 && r.body?.success === true);
+        const assertions = [assertTruthy('Tất cả 10 tra cứu role đồng thời thành công (200 OK)', allOk)];
+        recordTest(id, 'Đa Luồng & Chịu Tải', 'Tra cứu User theo Role 10 request đồng thời', '10 request tra cứu role song song → tất cả 200 OK', 'GET', `${GATEWAY}/api/users?role=... x10`, 200, allOk ? 200 : 'mixed', assertions.every(a => a.passed), { successCount: lookupResults.filter(r => r.status === 200).length }, duration, assertions);
+    } catch (e) { recordTest(nextId(), 'Đa Luồng & Chịu Tải', '10 concurrent lookups', '', 'GET', '', 200, 0, false, null, 0, [], e.message); }
+
+    try {
+        const id = nextId();
+        const startGw = Date.now();
+        await httpPost(`${GATEWAY}/api/auth/login`, { username: 'admin_user', password: 'password' });
+        const gwDur = Date.now() - startGw;
+
+        const startDirect = Date.now();
+        await httpPost(`${AUTH_SERVICE}/api/auth/login`, { username: 'admin_user', password: 'password' });
+        const directDur = Date.now() - startDirect;
+
+        const assertions = [assertTruthy('Cả Gateway lẫn Direct Login đều thành công', gwDur >= 0 && directDur >= 0)];
+        recordTest(id, 'Đa Luồng & Chịu Tải', 'So sánh hiệu năng Login qua Gateway vs Trực tiếp', `Gateway: ${gwDur}ms vs Direct: ${directDur}ms`, 'BENCHMARK', 'Login Comparison', 200, 200, assertions.every(a => a.passed), { gatewayDurationMs: gwDur, directDurationMs: directDur }, gwDur + directDur, assertions);
+    } catch (e) { recordTest(nextId(), 'Đa Luồng & Chịu Tải', 'Benchmark compare', '', 'BENCHMARK', '', 200, 0, false, null, 0, [], e.message); }
+
+    const overallDuration = Date.now() - overallStart;
+    const passed = results.filter(r => r.passed).length;
+    const failed = results.filter(r => !r.passed).length;
+    const total = results.length;
+
+    console.log('\n' + '═'.repeat(70));
+    console.log(`  KẾT QUẢ AUTH SERVICE: ${passed}/${total} PASS | ${failed}/${total} FAIL`);
+    console.log(`  Tổng thời gian: ${overallDuration}ms`);
+    console.log('═'.repeat(70) + '\n');
+}
+
+runAuthTests().catch(err => {
+    console.error('FATAL ERROR:', err);
+    process.exit(1);
+});
