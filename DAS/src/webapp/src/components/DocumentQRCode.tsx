@@ -1,146 +1,171 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+'use client'
+
+import { useState, useEffect } from 'react'
+
+// MUI Imports
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import IconButton from '@mui/material/IconButton'
+import Chip from '@mui/material/Chip'
+import Tooltip from '@mui/material/Tooltip'
+
+// Hook Imports
+import { useAppDictionary } from '@/hooks/useDictionary'
 
 interface DocumentQRCodeProps {
-  docNo: string;
-  title?: string;
+  docNo: string
+  title?: string
+  pdfUrl?: string
 }
 
-export default function DocumentQRCode({ docNo, title = 'Mã QR chia sẻ & truy cập nhanh' }: DocumentQRCodeProps) {
-  const [shareUrl, setShareUrl] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+export default function DocumentQRCode({ docNo, title, pdfUrl }: DocumentQRCodeProps) {
+  const { isEn } = useAppDictionary()
+  const [shareUrl, setShareUrl] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setShareUrl(window.location.href);
+      const fullUrl = pdfUrl
+        ? (pdfUrl.startsWith('http') ? pdfUrl : `${window.location.origin}${pdfUrl}`)
+        : window.location.href
+      setShareUrl(fullUrl)
     }
-  }, []);
+  }, [pdfUrl])
 
   const handleCopy = () => {
     if (shareUrl) {
-      navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
-  };
+  }
+
+  const defaultTitle = isEn ? 'QR Code Quick Access' : 'Mã QR Chia Sẻ & Truy Cập Nhanh'
+
+  // Standard high-reliability QR code image url with local fallback
+  const qrImageUrl = shareUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(shareUrl)}&size=200x200&format=svg&color=0f172a`
+    : ''
+
+  const qrLargeImageUrl = shareUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(shareUrl)}&size=300x300&format=svg&color=0f172a`
+    : ''
 
   return (
-    <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl text-center space-y-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        <h4 className="font-bold text-xs uppercase tracking-wider text-white text-left">{title}</h4>
-        <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded-full flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live Link
-        </span>
-      </div>
-
-      {/* Interactive QR Code Container */}
-      <div 
-        onClick={() => setShowModal(true)}
-        className="w-44 h-44 bg-white border border-zinc-700 rounded-xl mx-auto flex items-center justify-center p-3 cursor-pointer transition-transform hover:scale-105 shadow-md relative group"
-        title="Click để phóng to mã QR chia sẻ"
-      >
-        {shareUrl ? (
-          <QRCodeSVG 
-            value={shareUrl} 
-            size={150} 
-            bgColor="#ffffff" 
-            fgColor="#000000" 
-            level="H" 
-            includeMargin={false} 
-          />
-        ) : (
-          <div className="text-zinc-400 text-xs font-mono">Đang tạo mã QR...</div>
-        )}
-        <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1.5">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-          </svg>
-          Phóng to
-        </div>
-      </div>
-
-      <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
-        Quét mã QR để mở trực tiếp tài liệu <span className="font-mono font-bold text-white">{docNo}</span> trên thiết bị di động.
-      </p>
-
-      {/* Action Buttons */}
-      <div className="pt-2 flex flex-col gap-2">
-        <button
-          onClick={handleCopy}
-          className={`w-full py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
-            copied
-              ? 'bg-emerald-600 text-white border border-emerald-500'
-              : 'bg-zinc-900 border border-zinc-800 text-white hover:bg-zinc-800 hover:border-zinc-700'
-          }`}
-        >
-          {copied ? (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              Đã sao chép liên kết!
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Sao chép Link chia sẻ
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Modal Phóng to QR Code */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-sm rounded-2xl p-6 text-center space-y-5 shadow-2xl relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-900 cursor-pointer"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div>
-              <h3 className="font-extrabold text-white text-base">Mã QR Chia sẻ Công văn</h3>
-              <p className="text-xs text-zinc-400 font-mono mt-1">{docNo}</p>
-            </div>
-
-            <div className="w-56 h-56 bg-white border border-zinc-700 rounded-xl mx-auto flex items-center justify-center p-4 shadow-lg">
-              <QRCodeSVG 
-                value={shareUrl} 
-                size={200} 
-                bgColor="#ffffff" 
-                fgColor="#000000" 
-                level="H" 
-                includeMargin={false} 
+    <>
+      <Card className='border border-divider shadow-sm'>
+        <CardHeader
+          title={
+            <div className='flex items-center justify-between'>
+              <Typography variant='subtitle2' className='font-semibold uppercase tracking-wider'>
+                {title || defaultTitle}
+              </Typography>
+              <Chip
+                label='Live Link'
+                size='small'
+                color='success'
+                variant='tonal'
+                avatar={<span className='w-2 h-2 rounded-full bg-success animate-pulse mis-1' />}
               />
             </div>
-
-            <div className="text-left bg-zinc-900 border border-zinc-800 p-3 rounded-lg text-xs font-mono text-zinc-300 break-all">
-              <span className="text-[10px] text-zinc-500 font-bold block mb-1 uppercase">URL Truy cập:</span>
-              {shareUrl}
-            </div>
-
-            <button
-              onClick={handleCopy}
-              className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
-                copied
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-white text-black hover:bg-zinc-200'
-              }`}
+          }
+        />
+        <CardContent className='flex flex-col items-center gap-4 text-center'>
+          {/* Interactive QR Code Box */}
+          <Tooltip title={isEn ? 'Click to enlarge QR Code' : 'Bấm để phóng to mã QR'} arrow>
+            <div
+              onClick={() => setShowModal(true)}
+              className='p-3 bg-white border border-divider rounded-xl cursor-pointer hover:scale-105 transition-transform shadow-md flex items-center justify-center relative group w-[160px] h-[160px]'
             >
-              {copied ? 'Đã sao chép liên kết!' : 'Sao chép liên kết công văn'}
-            </button>
+              {qrImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={qrImageUrl}
+                  alt={`QR Code for ${docNo}`}
+                  className='w-[136px] h-[136px] object-contain'
+                  loading='eager'
+                />
+              ) : (
+                <div className='text-textDisabled text-xs'>{isEn ? 'Generating QR...' : 'Đang tạo mã QR...'}</div>
+              )}
+            </div>
+          </Tooltip>
+
+          <Typography variant='caption' color='text.secondary' className='leading-relaxed'>
+            {isEn
+              ? `Scan QR code with your mobile camera to open & preview document ${docNo} instantly.`
+              : `Quét mã QR bằng điện thoại để mở và xem trực tiếp công văn số ${docNo}.`}
+          </Typography>
+
+          <Button
+            variant={copied ? 'contained' : 'tonal'}
+            color={copied ? 'success' : 'primary'}
+            fullWidth
+            size='small'
+            startIcon={<i className={copied ? 'tabler-check' : 'tabler-copy'} />}
+            onClick={handleCopy}
+          >
+            {copied
+              ? (isEn ? 'Link Copied to Clipboard!' : 'Đã Sao Chép Liên Kết!')
+              : (isEn ? 'Copy Document Link' : 'Sao Chép Link Chia Sẻ')}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Enlarged QR Modal Dialog */}
+      <Dialog open={showModal} onClose={() => setShowModal(false)} maxWidth='xs' fullWidth>
+        <DialogTitle className='flex items-center justify-between pb-2'>
+          <div>
+            <Typography variant='h6' className='font-bold'>
+              {isEn ? 'Document QR Code' : 'Mã QR Công Văn Điện Tử'}
+            </Typography>
+            <Typography variant='caption' color='text.secondary' className='font-mono'>
+              {docNo}
+            </Typography>
           </div>
-        </div>
-      )}
-    </div>
-  );
+          <IconButton size='small' onClick={() => setShowModal(false)}>
+            <i className='tabler-x' />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent className='flex flex-col items-center gap-4 pt-4 text-center'>
+          <div className='p-4 bg-white border border-divider rounded-2xl shadow-lg w-[240px] h-[240px] flex items-center justify-center'>
+            {qrLargeImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={qrLargeImageUrl}
+                alt={`Large QR Code for ${docNo}`}
+                className='w-[200px] h-[200px] object-contain'
+                loading='eager'
+              />
+            )}
+          </div>
+          <div className='w-full p-2.5 rounded bg-actionHover text-left break-all font-mono text-xs text-textSecondary'>
+            <span className='font-semibold block text-[10px] text-textDisabled uppercase'>
+              {isEn ? 'Access URL:' : 'Đường Dẫn Truy Cập:'}
+            </span>
+            {shareUrl}
+          </div>
+        </DialogContent>
+        <DialogActions className='p-4 pt-0'>
+          <Button
+            fullWidth
+            variant='contained'
+            color={copied ? 'success' : 'primary'}
+            startIcon={<i className={copied ? 'tabler-check' : 'tabler-copy'} />}
+            onClick={handleCopy}
+          >
+            {copied ? (isEn ? 'Copied!' : 'Đã sao chép!') : (isEn ? 'Copy Shareable Link' : 'Sao chép liên kết')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  )
 }
