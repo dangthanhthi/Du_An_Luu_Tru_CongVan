@@ -9,6 +9,9 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import { useTheme } from '@mui/material/styles'
 
+// Third-party Imports
+import type { ApexOptions } from 'apexcharts'
+
 // Hook Imports
 import { useAppDictionary } from '@/hooks/useDictionary'
 
@@ -19,7 +22,7 @@ const DocumentByStatus = () => {
   const theme = useTheme()
   const { t } = useAppDictionary()
 
-  const options = {
+  const options: ApexOptions = {
     chart: {
       parentHeightOffset: 0
     },
@@ -64,7 +67,7 @@ const DocumentByStatus = () => {
       position: 'bottom',
       labels: { colors: theme.palette.text.secondary },
       markers: {
-        radius: 12
+        shape: 'circle'
       }
     }
   }
