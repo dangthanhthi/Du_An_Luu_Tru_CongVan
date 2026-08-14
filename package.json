@@ -1,0 +1,10 @@
+{
+  "name": "du-an-luu-tru-cong-van",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix DAS-Frontend run dev",
+    "build": "npm --prefix DAS-Frontend run build",
+    "start": "npm --prefix DAS-Frontend run start"
+  }
+}
