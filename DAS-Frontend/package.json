@@ -5,14 +5,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
     "migrate": "dotenv -e .env -- npx prisma migrate dev",
-    "postinstall": "prisma generate && npm run build:icons",
     "removeI18n": "tsx src/remove-translation-scripts/index.ts",
     "clean": "rm -rf .next",
     "clear": "rm -rf node_modules .next"

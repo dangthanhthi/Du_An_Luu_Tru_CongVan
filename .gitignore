@@ -1,11 +1,11 @@
-# Root gitignore to prevent pushing build artifacts and packages
-
 # Node / Next.js
 **/node_modules/
 **/.next/
 **/out/
 **/build/
 .env*.local
+.pnpm-store/
+pnpm-workspace.yaml
 
 # .NET / C#
 **/bin/
@@ -16,12 +16,17 @@
 
 # Large Templates & Temp
 Theme Template/
+Export_Auth_Service_Full/
+TaskManager.Backend/
 scratch/
 .agents/
 
-# OS / Binary files
-.DS_Store
-Thumbs.db
+# Docs, Reports, Binaries
 *.exe
 *.lnk
 *.log
+*.docx
+*.html
+*.txt
+.DS_Store
+Thumbs.db
