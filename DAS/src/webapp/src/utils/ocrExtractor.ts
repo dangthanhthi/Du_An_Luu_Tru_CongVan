@@ -39,12 +39,12 @@ export function parseOcrDocumentMetadata(doc: {
 
   // Regex nhận diện mọi số hiệu hành chính chuẩn hoặc phi chuẩn
   const patterns = [
-    /(?:Số|No|Ref|Ký hiệu|Số hiệu|V/v)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i,
+    /(?:Số|No|Ref|Ký hiệu|Số hiệu|V\/v)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i,
     /(?:Số|No|Ref|Ký hiệu|Số hiệu)[:.]?\s*([A-Z0-9Đ\-_]+(?:\/[A-Z0-9Đ\-_]+)+)/i,
     /\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,25}(?:\/[0-9]{4})?)\b/i,
     /\b([A-Z0-9Đ\-_]{2,12}\/[0-9]{1,5}\/[A-Z0-9Đ\-_]{2,12})\b/i,
     /\b(SEV-[0-9]{4}\/[0-9]{4})\b/i,
-    /\b(Ref\.?\s*No\.?:?\s*[A-Z0-9\-_/]+)/i
+    /\b(Ref\.?\s*No\.?:?\s*[A-Z0-9\-_\/]+)/i
   ]
 
   for (const regex of patterns) {
