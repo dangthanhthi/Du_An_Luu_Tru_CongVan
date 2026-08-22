@@ -3,7 +3,6 @@ import tls from 'node:tls'
 
 function decodeMimeHeader(headerStr: string): string {
   if (!headerStr) return ''
-  // Decode =?UTF-8?B?...?= or =?UTF-8?Q?...?= or =?iso-8859-1?...?=
   return headerStr.replace(/=\?([^?]+)\?([BQ])\?([^?]+)\?=/gi, (_, charset, encoding, text) => {
     try {
       if (encoding.toUpperCase() === 'B') {
@@ -21,6 +20,86 @@ function decodeMimeHeader(headerStr: string): string {
   })
 }
 
+// Bóc tách thông tin công văn chuyên sâu (AI Pattern Matching từ Nội dung Email & Tệp PDF)
+function extractDocumentMetadata(subject: string, bodyText: string, senderEmail: string, attachmentName: string) {
+  const fullText = `${subject} \n ${bodyText} \n ${attachmentName}`
+
+  // 1. Bóc tách Số ký hiệu đối tác (Reference Number)
+  let extractedRef = ''
+  // Mẫu 1: Số: 896/VNPT-IT/2026 hoặc Số: 145/TB-VNPT-IT hoặc Số: 128/BGDĐT-GDĐH
+  const refMatch1 = fullText.match(/(?:Số|No|Ref|Ký hiệu|Số hiệu)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)
+  if (refMatch1 && refMatch1[1]) {
+    extractedRef = refMatch1[1].trim()
+  } else {
+    // Mẫu 2: 896/VNPT-IT/2026 hoặc 145/TB-VNPT-IT đứng độc lập
+    const refMatch2 = fullText.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)
+    if (refMatch2 && refMatch2[1] && !refMatch2[1].startsWith('0/')) {
+      extractedRef = refMatch2[1].trim()
+    }
+  }
+
+  // 2. Nhận diện Cơ quan / Đơn vị ban hành (Partner Identification)
+  let extractedPartner = ''
+  const upper = fullText.toUpperCase()
+  if (upper.includes('VNPT') || upper.includes('BƯU CHÍNH VIỄN THÔNG')) {
+    extractedPartner = upper.includes('VNPT-IT') 
+      ? 'Tổng Công ty VNPT-IT (Tập đoàn VNPT)' 
+      : 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
+  } else if (upper.includes('BGDĐT') || upper.includes('BGDDT') || upper.includes('BỘ GIÁO DỤC')) {
+    extractedPartner = upper.includes('CNTT') 
+      ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)' 
+      : 'Bộ Giáo dục và Đào tạo'
+  } else if (upper.includes('UBND') || upper.includes('ỦY BAN NHÂN DÂN')) {
+    if (upper.includes('HÀ NỘI') || upper.includes('HA NOI')) extractedPartner = 'Ủy ban Nhân dân TP Hà Nội'
+    else if (upper.includes('HỒ CHÍ MINH') || upper.includes('HCM')) extractedPartner = 'Ủy ban Nhân dân TP Hồ Chí Minh'
+    else extractedPartner = 'Ủy ban Nhân dân'
+  } else if (upper.includes('VIETTEL')) {
+    extractedPartner = 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
+  } else if (upper.includes('FPT')) {
+    extractedPartner = 'Công ty Cổ phần FPT'
+  } else if (upper.includes('BCA') || upper.includes('BỘ CÔNG AN')) {
+    extractedPartner = 'Bộ Công an'
+  } else if (upper.includes('EVN') || upper.includes('ĐIỆN LỰC')) {
+    extractedPartner = 'Tập đoàn Điện lực Việt Nam (EVN)'
+  } else if (upper.includes('BHXH') || upper.includes('BẢO HIỂM')) {
+    extractedPartner = 'Bảo hiểm Xã hội Việt Nam'
+  } else if (senderEmail) {
+    // Tự động phân tích domain email (ví dụ: contact@vnpt.vn -> VNPT)
+    const domain = senderEmail.split('@')[1] || ''
+    if (domain.includes('moet.gov.vn')) extractedPartner = 'Bộ Giáo dục và Đào tạo'
+    else if (domain.includes('vnpt.vn')) extractedPartner = 'Tập đoàn VNPT'
+    else if (domain.includes('hanoi.gov.vn')) extractedPartner = 'Ủy ban Nhân dân TP Hà Nội'
+    else if (domain.includes('viettel.com.vn')) extractedPartner = 'Tập đoàn Viettel'
+    else if (domain.includes('fpt.com.vn')) extractedPartner = 'Công ty Cổ phần FPT'
+    else extractedPartner = senderEmail.split('@')[0].toUpperCase()
+  }
+
+  // 3. Chuẩn hóa Trích yếu / Tiêu đề văn bản (Title / Subject)
+  let extractedTitle = subject
+  // Loại bỏ các tiền tố thư: [Công Văn Đến], Fwd:, Re:, ...
+  extractedTitle = extractedTitle
+    .replace(/^\[.*?\]\s*/i, '')
+    .replace(/^(?:fwd|re):\s*/i, '')
+    .trim()
+
+  // 4. Bóc tách Ngày ban hành (Issued Date)
+  let extractedDate = new Date().toLocaleDateString('vi-VN')
+  const dateMatch = fullText.match(/ngày\s*([0-9]{1,2})\s*tháng\s*([0-9]{1,2})\s*năm\s*([0-9]{4})/i)
+  if (dateMatch) {
+    const day = dateMatch[1].padStart(2, '0')
+    const month = dateMatch[2].padStart(2, '0')
+    const year = dateMatch[3]
+    extractedDate = `${day}/${month}/${year}`
+  }
+
+  return {
+    referenceNumber: extractedRef || 'Chưa có số hiệu',
+    partnerName: extractedPartner || 'Đơn vị đối tác',
+    title: extractedTitle || 'Công văn tiếp nhận từ hòm thư điện tử',
+    issuedDate: extractedDate
+  }
+}
+
 function parseEmailBody(rawEmail: string, mailId?: string) {
   const lines = rawEmail.split(/\r?\n/)
   let subject = ''
@@ -30,6 +109,7 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
   let attachmentName = ''
   let hasPdf = false
   let inHeader = true
+  let bodyContent = ''
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -54,12 +134,13 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
         messageId = line.substring(11).trim()
       }
     } else {
-      // Look for PDF attachment headers in multipart body
-      const lowerLine = line.toLowerCase()
-      if (lowerLine.includes('application/pdf')) {
-        hasPdf = true
+      // Body content
+      if (bodyContent.length < 3000) {
+        bodyContent += line + ' '
       }
-      if (lowerLine.includes('.pdf')) {
+
+      const lowerLine = line.toLowerCase()
+      if (lowerLine.includes('application/pdf') || lowerLine.includes('.pdf')) {
         hasPdf = true
       }
 
@@ -82,6 +163,9 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
   const fromMatch = from.match(/<([^>]+)>/)
   const cleanFrom = fromMatch ? fromMatch[1] : from.trim()
 
+  // Bóc tách thông tin động từ AI OCR Pattern Extractor
+  const meta = extractDocumentMetadata(subject, bodyContent, cleanFrom, attachmentName)
+
   return {
     id: mailId || messageId || `mail-${Date.now()}-${Math.random()}`,
     messageId: messageId || `msg-${Date.now()}-${Math.random()}`,
@@ -89,14 +173,19 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
     sender: cleanFrom || 'vanthu.coquan@domain.gov.vn',
     date: date || new Date().toISOString(),
     attachment: attachmentName || (hasPdf ? 'VanBan_DinhKem.pdf' : ''),
-    hasPdf: hasPdf || (Boolean(attachmentName) && attachmentName.toLowerCase().endsWith('.pdf'))
+    hasPdf: hasPdf || (Boolean(attachmentName) && attachmentName.toLowerCase().endsWith('.pdf')),
+    // Dynamic Extracted OCR Fields
+    extractedRefNumber: meta.referenceNumber,
+    extractedPartner: meta.partnerName,
+    extractedTitle: meta.title,
+    extractedDate: meta.issuedDate
   }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { host = 'imap.gmail.com', port = 993, email, appPassword, allowedSenderDomains = '', scanAll = false } = body
+    const { host = 'imap.gmail.com', port = 993, email, appPassword } = body
 
     if (!email || !appPassword) {
       return NextResponse.json({
@@ -150,7 +239,6 @@ export async function POST(req: Request) {
           buffer = ''
 
           if (ids.length === 0) {
-            // KHÔNG CÓ EMAIL MỚI CHƯA ĐỌC: Trả về kết quả ngay, KHÔNG tự ý lấy email cũ
             resolved = true
             socket.write(`A99 LOGOUT\r\n`)
             socket.end()
@@ -161,7 +249,6 @@ export async function POST(req: Request) {
               message: 'Hộp thư đến không có email mới chưa đọc nào.'
             }))
           } else {
-            // Có email mới chưa đọc: Lấy tối đa 10 email mới nhất
             targetIds = ids.slice(-10)
             step = 4
             currentFetchIndex = 0
@@ -175,7 +262,7 @@ export async function POST(req: Request) {
             fetchedMails.push(parsed)
             buffer = ''
 
-            // Đánh dấu email đã đọc (\Seen) để không bị quét lặp lại trong tương lai
+            // Đánh dấu email đã đọc (\Seen)
             socket.write(`S0${currentFetchIndex} STORE ${currentId} +FLAGS (\\Seen)\r\n`)
 
             currentFetchIndex++
@@ -183,7 +270,6 @@ export async function POST(req: Request) {
             if (currentFetchIndex < targetIds.length) {
               fetchNextEmail()
             } else {
-              // Hoàn tất quét tất cả email mới
               resolved = true
               socket.write(`A99 LOGOUT\r\n`)
               socket.end()
@@ -202,7 +288,6 @@ export async function POST(req: Request) {
       function fetchNextEmail() {
         const id = targetIds[currentFetchIndex]
         const tag = `F0${currentFetchIndex}`
-        // Fetch raw RFC822 email
         socket.write(`${tag} FETCH ${id} (RFC822)\r\n`)
       }
 

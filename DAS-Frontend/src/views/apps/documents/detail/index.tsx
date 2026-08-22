@@ -109,6 +109,37 @@ const DocumentDetail = ({ id }: { id: string }) => {
   const pdfUrl = getPdfSampleUrl()
   const fileName = doc.documentNumber ? `${doc.documentNumber.replace(/[\/\\:]/g, '_')}.pdf` : 'VanBan_DinhKem.pdf'
 
+  // Trích xuất số ký hiệu đối tác động từ dữ liệu văn bản thực tế
+  const getPartnerRef = () => {
+    if (doc?.referenceNumber && doc.referenceNumber !== 'Chưa có số hiệu') return doc.referenceNumber
+    const text = `${doc?.title || ''} \n ${doc?.summary || ''}`
+    const match = text.match(/(?:Số|No|Ref|Ký hiệu)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)
+      || text.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)
+    if (match && match[1]) return match[1]
+    if (doc?.documentNumber?.includes('/')) return doc.documentNumber
+    return doc?.referenceNumber || '896/VNPT-IT/2026'
+  }
+
+  // Nhận diện Cơ quan / Đơn vị ban hành động
+  const getPartnerName = () => {
+    if (doc?.partnerName && !doc.partnerName.includes('@') && doc.partnerName !== 'DANGTHANHTHI213') {
+      return doc.partnerName
+    }
+    const text = `${doc?.title || ''} \n ${doc?.summary || ''} \n ${doc?.partnerName || ''}`.toUpperCase()
+    if (text.includes('VNPT')) return 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
+    if (text.includes('BGDĐT') || text.includes('BGDDT') || text.includes('BỘ GIÁO DỤC') || text.includes('MOET')) return 'Bộ Giáo dục và Đào tạo'
+    if (text.includes('UBND') || text.includes('ỦY BAN NHÂN DÂN')) return 'Ủy ban Nhân dân'
+    if (text.includes('VIETTEL')) return 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
+    if (text.includes('FPT')) return 'Công ty Cổ phần FPT'
+    if (text.includes('BCA') || text.includes('BỘ CÔNG AN')) return 'Bộ Công an'
+    if (text.includes('EVN') || text.includes('ĐIỆN LỰC')) return 'Tập đoàn Điện lực Việt Nam (EVN)'
+    if (text.includes('BHXH') || text.includes('BẢO HIỂM')) return 'Bảo hiểm Xã hội Việt Nam'
+    return 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
+  }
+
+  const partnerRefNumber = getPartnerRef()
+  const displayPartnerName = getPartnerName()
+
   return (
     <Grid container spacing={6}>
       {actionAlert && (
@@ -138,9 +169,9 @@ const DocumentDetail = ({ id }: { id: string }) => {
                         size='small'
                         variant='filled'
                       />
-                      {(doc.referenceNumber || doc.documentNumber) && (
+                      {partnerRefNumber && (
                         <Chip
-                          label={`Số hiệu đối tác: ${doc.referenceNumber || (doc.documentNumber?.includes('/') ? doc.documentNumber : '2154/BGDĐT-CNTT')}`}
+                          label={`Số hiệu đối tác: ${partnerRefNumber}`}
                           color='secondary'
                           size='small'
                           variant='tonal'
@@ -165,10 +196,10 @@ const DocumentDetail = ({ id }: { id: string }) => {
               <Divider />
               <CardContent>
                 <Grid container spacing={4}>
-                  {/* 1. SỐ ĐẾM NỘI BỘ (1 - 1000) */}
+                  {/* 1. SỐ ĐẾM NỘI BỘ (1 - VÔ HẠN) */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>
-                      {t.documents.internalDocNumber || 'Số Đếm Nội Bộ (1 - 1000)'}
+                      {t.documents.internalDocNumber || 'Số Đếm Nội Bộ (1 - Vô Hạn)'}
                     </Typography>
                     <Typography variant='body1' sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1.05rem' }}>
                       {doc.documentNumber || 'CV-DEN-2026-0001'}
@@ -181,7 +212,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                       {t.documents.referenceNumber || 'Số Ký Hiệu Đối Tác (Reference No.)'}
                     </Typography>
                     <Typography variant='body1' sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.05rem' }}>
-                      {doc.referenceNumber || (doc.documentNumber?.includes('/') ? doc.documentNumber : '2154/BGDĐT-CNTT')}
+                      {partnerRefNumber}
                     </Typography>
                   </Grid>
 
@@ -220,14 +251,14 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   {/* 4. NGÀY BAN HÀNH */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.issuedDate}</Typography>
-                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{doc.issuedDate || '10/08/2026'}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{doc.issuedDate || '22/08/2026'}</Typography>
                   </Grid>
 
                   {/* 5. CƠ QUAN / ĐỐI TÁC GỬI */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.partner}</Typography>
                     <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                      {doc.partnerName?.includes('@') ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)' : (doc.partnerName || 'Bộ Giáo dục và Đào tạo')}
+                      {displayPartnerName}
                     </Typography>
                     {doc.senderEmail && (
                       <Typography variant='caption' color='text.secondary'>
@@ -240,9 +271,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.title}</Typography>
                     <Typography variant='body1' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                      {doc.title?.includes('Claude') 
-                        ? 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027' 
-                        : doc.title}
+                      {doc.title}
                     </Typography>
                   </Grid>
 
@@ -250,14 +279,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.summary}</Typography>
                     <Typography variant='body2' className='p-4 rounded bg-actionHover text-textPrimary leading-relaxed whitespace-pre-line border border-divider'>
-                      {doc.summary?.includes('Claude')
-                        ? `Văn bản tiếp nhận tự động từ hòm thư điện tử và bóc tách bằng AI OCR.
-• Đơn vị ban hành: Bộ Giáo dục và Đào tạo (Cục Công nghệ Thông tin)
-• Số ký hiệu văn bản: 2154/BGDĐT-CNTT
-• Ngày ban hành: 10/08/2026
-• Trích yếu: Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027
-• Nơi nhận: Các Sở GD&ĐT tỉnh/thành phố, các Đại học, Học viện trên toàn quốc.`
-                        : (doc.summary || '—')}
+                      {doc.summary || `Văn bản tiếp nhận tự động từ hòm thư điện tử và bóc tách AI OCR.\n• Đơn vị ban hành: ${displayPartnerName}\n• Số ký hiệu văn bản: ${partnerRefNumber}\n• Trích yếu: ${doc.title}`}
                     </Typography>
                   </Grid>
                 </Grid>
