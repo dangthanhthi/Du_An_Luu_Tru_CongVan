@@ -11,6 +11,9 @@ import ReduxProvider from '@/redux-store/ReduxProvider'
 // Styled Component Imports
 import AppReactToastify from '@/libs/styles/AppReactToastify'
 
+// Component Imports
+import AutoEmailScanner from '@/components/AutoEmailScanner'
+
 // Util Imports
 import { getMode, getSettingsFromCookie, getSystemMode } from '@core/utils/serverHelpers'
 
@@ -33,6 +36,7 @@ const Providers = async (props: Props) => {
         <SettingsProvider settingsCookie={settingsCookie} mode={mode}>
           <ThemeProvider direction={direction} systemMode={systemMode}>
             <ReduxProvider>{children}</ReduxProvider>
+            <AutoEmailScanner />
             <AppReactToastify direction={direction} hideProgressBar />
           </ThemeProvider>
         </SettingsProvider>

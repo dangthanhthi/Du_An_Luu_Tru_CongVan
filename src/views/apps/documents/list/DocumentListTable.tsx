@@ -162,6 +162,17 @@ const DocumentListTable = () => {
     }
 
     fetchDocs()
+
+    const handleDocsUpdated = () => {
+      fetchDocs()
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('das_documents_updated', handleDocsUpdated)
+      return () => {
+        window.removeEventListener('das_documents_updated', handleDocsUpdated)
+      }
+    }
   }, [])
 
   // Đếm số lượng tài liệu theo từng phân loại
