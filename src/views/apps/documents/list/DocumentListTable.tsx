@@ -38,6 +38,7 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import type { ThemeColor } from '@core/types'
 import type { DocumentType, DocumentStatus, DocumentDirection } from '@/types/apps/documentTypes'
+import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
@@ -188,45 +189,54 @@ const DocumentListTable = () => {
   const columns = useMemo<ColumnDef<DocumentTypeWithAction, any>[]>(
     () => [
       columnHelper.accessor('documentNumber', {
-        header: 'Số Nội Bộ / Số Đối Tác',
-        cell: ({ row }) => (
-          <div className='flex flex-col gap-1'>
-            <Typography
-              component={Link}
-              href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
-              color='primary.main'
-              sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
-            >
-              {row.original.documentNumber}
-            </Typography>
-            {row.original.referenceNumber && (
-              <div className='flex items-center gap-1'>
-                <Chip
-                  label={`Ref: ${row.original.referenceNumber}`}
-                  size='small'
-                  variant='tonal'
-                  color='secondary'
-                  sx={{ height: 20, fontSize: '0.72rem', px: 0.5 }}
-                />
-              </div>
-            )}
-          </div>
-        )
+        header: t.documents.docNumber,
+        cell: ({ row }) => {
+          const meta = parseOcrDocumentMetadata(row.original)
+          const displayDocNum = row.original.documentNumber
+          const displayRef = meta.referenceNumber
+
+          return (
+            <div className='flex flex-col gap-1 min-w-[170px]'>
+              <Typography
+                component={Link}
+                href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
+                color='primary.main'
+                sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
+              >
+                {displayDocNum}
+              </Typography>
+              {displayRef && (
+                <div className='flex items-center gap-1'>
+                  <Chip
+                    label={`Số đối tác: ${displayRef}`}
+                    size='small'
+                    variant='tonal'
+                    color='secondary'
+                    sx={{ fontSize: '0.72rem', height: 20 }}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        }
       }),
       columnHelper.accessor('title', {
         header: t.documents.title,
-        cell: ({ row }) => (
-          <div className='flex flex-col max-w-[320px]'>
-            <Typography variant='body2' className='font-medium line-clamp-2 text-textPrimary'>
-              {row.original.title}
-            </Typography>
-            {row.original.summary && (
-              <Typography variant='caption' color='text.secondary' className='line-clamp-1'>
-                {row.original.summary}
+        cell: ({ row }) => {
+          const meta = parseOcrDocumentMetadata(row.original)
+          return (
+            <div className='flex flex-col max-w-[320px]'>
+              <Typography variant='body2' className='font-medium line-clamp-2 text-textPrimary'>
+                {meta.title || row.original.title}
               </Typography>
-            )}
-          </div>
-        )
+              {row.original.summary && (
+                <Typography variant='caption' color='text.secondary' className='line-clamp-1'>
+                  {row.original.summary}
+                </Typography>
+              )}
+            </div>
+          )
+        }
       }),
       columnHelper.accessor('direction', {
         header: t.documents.type,
@@ -267,11 +277,14 @@ const DocumentListTable = () => {
       }),
       columnHelper.accessor('issuedDate', {
         header: t.documents.issuedDate,
-        cell: ({ row }) => (
-          <Typography variant='body2' color='text.secondary'>
-            {row.original.issuedDate}
-          </Typography>
-        )
+        cell: ({ row }) => {
+          const meta = parseOcrDocumentMetadata(row.original)
+          return (
+            <Typography variant='body2' color='text.secondary'>
+              {meta.issuedDate || row.original.issuedDate}
+            </Typography>
+          )
+        }
       }),
       columnHelper.accessor('partnerName', {
         header: t.documents.partner,

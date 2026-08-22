@@ -29,6 +29,7 @@ import { useAppDictionary } from '@/hooks/useDictionary'
 // Component Imports
 import DocumentQRCode from '@/components/DocumentQRCode'
 import DocumentPDFPreview from '@/components/DocumentPDFPreview'
+import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 const DocumentDetail = ({ id }: { id: string }) => {
   const router = useRouter()
@@ -75,16 +76,15 @@ const DocumentDetail = ({ id }: { id: string }) => {
 
   const getPdfSampleUrl = () => {
     if (doc?.fileUrl) return doc.fileUrl
-    const num = (doc?.documentNumber || '').toUpperCase()
-    const title = (doc?.title || '').toLowerCase()
+    const full = `${doc?.title || ''} ${doc?.referenceNumber || ''} ${doc?.partnerName || ''}`.toLowerCase()
 
-    if (num.includes('BGDDT') || title.includes('giáo dục')) return '/samples/01_Cong_Van_Den_Bo_GDDT.pdf'
-    if (num.includes('UBND') || title.includes('hà nội')) return '/samples/02_Quyet_Dinh_UBND_Ha_Noi.pdf'
-    if (num.includes('VNPT') || title.includes('vnpt')) return '/samples/03_Thong_Bao_Tap_Doan_VNPT.pdf'
-    if (num.includes('DHQG') || num.includes('ĐHQG') || title.includes('đại học')) return '/samples/04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf'
-    if (num.includes('ABCTECH') || num.includes('GM-') || title.includes('hội thảo')) return '/samples/05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf'
+    if (full.includes('vnpt') || full.includes('145/tb') || full.includes('896/vnpt') || full.includes('bưu chính')) return '/samples/03_Thong_Bao_Tap_Doan_VNPT.pdf'
+    if (full.includes('bgddt') || full.includes('giáo dục') || full.includes('2154') || full.includes('128')) return '/samples/01_Cong_Van_Den_Bo_GDDT.pdf'
+    if (full.includes('ubnd') || full.includes('hà nội')) return '/samples/02_Quyet_Dinh_UBND_Ha_Noi.pdf'
+    if (full.includes('dhqg') || full.includes('đại học')) return '/samples/04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf'
+    if (full.includes('abc') || full.includes('hội thảo')) return '/samples/05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf'
 
-    return '/samples/01_Cong_Van_Den_Bo_GDDT.pdf'
+    return '/samples/03_Thong_Bao_Tap_Doan_VNPT.pdf'
   }
 
   if (loading) {
@@ -109,36 +109,12 @@ const DocumentDetail = ({ id }: { id: string }) => {
   const pdfUrl = getPdfSampleUrl()
   const fileName = doc.documentNumber ? `${doc.documentNumber.replace(/[\/\\:]/g, '_')}.pdf` : 'VanBan_DinhKem.pdf'
 
-  // Trích xuất số ký hiệu đối tác động từ dữ liệu văn bản thực tế
-  const getPartnerRef = () => {
-    if (doc?.referenceNumber && doc.referenceNumber !== 'Chưa có số hiệu') return doc.referenceNumber
-    const text = `${doc?.title || ''} \n ${doc?.summary || ''}`
-    const match = text.match(/(?:Số|No|Ref|Ký hiệu)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)
-      || text.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)
-    if (match && match[1]) return match[1]
-    if (doc?.documentNumber?.includes('/')) return doc.documentNumber
-    return doc?.referenceNumber || '896/VNPT-IT/2026'
-  }
-
-  // Nhận diện Cơ quan / Đơn vị ban hành động
-  const getPartnerName = () => {
-    if (doc?.partnerName && !doc.partnerName.includes('@') && doc.partnerName !== 'DANGTHANHTHI213') {
-      return doc.partnerName
-    }
-    const text = `${doc?.title || ''} \n ${doc?.summary || ''} \n ${doc?.partnerName || ''}`.toUpperCase()
-    if (text.includes('VNPT')) return 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
-    if (text.includes('BGDĐT') || text.includes('BGDDT') || text.includes('BỘ GIÁO DỤC') || text.includes('MOET')) return 'Bộ Giáo dục và Đào tạo'
-    if (text.includes('UBND') || text.includes('ỦY BAN NHÂN DÂN')) return 'Ủy ban Nhân dân'
-    if (text.includes('VIETTEL')) return 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
-    if (text.includes('FPT')) return 'Công ty Cổ phần FPT'
-    if (text.includes('BCA') || text.includes('BỘ CÔNG AN')) return 'Bộ Công an'
-    if (text.includes('EVN') || text.includes('ĐIỆN LỰC')) return 'Tập đoàn Điện lực Việt Nam (EVN)'
-    if (text.includes('BHXH') || text.includes('BẢO HIỂM')) return 'Bảo hiểm Xã hội Việt Nam'
-    return 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
-  }
-
-  const partnerRefNumber = getPartnerRef()
-  const displayPartnerName = getPartnerName()
+  // Bóc tách động thông tin chuẩn xác qua AI OCR Parser
+  const meta = parseOcrDocumentMetadata(doc)
+  const partnerRefNumber = meta.referenceNumber
+  const displayPartnerName = meta.partnerName
+  const displayTitle = meta.title
+  const displayDate = meta.issuedDate
 
   return (
     <Grid container spacing={6}>
@@ -251,7 +227,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   {/* 4. NGÀY BAN HÀNH */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.issuedDate}</Typography>
-                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{doc.issuedDate || '22/08/2026'}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{displayDate || doc.issuedDate || '12/08/2026'}</Typography>
                   </Grid>
 
                   {/* 5. CƠ QUAN / ĐỐI TÁC GỬI */}
@@ -271,7 +247,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.title}</Typography>
                     <Typography variant='body1' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                      {doc.title}
+                      {displayTitle || doc.title}
                     </Typography>
                   </Grid>
 
@@ -279,7 +255,7 @@ const DocumentDetail = ({ id }: { id: string }) => {
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.summary}</Typography>
                     <Typography variant='body2' className='p-4 rounded bg-actionHover text-textPrimary leading-relaxed whitespace-pre-line border border-divider'>
-                      {doc.summary || `Văn bản tiếp nhận tự động từ hòm thư điện tử và bóc tách AI OCR.\n• Đơn vị ban hành: ${displayPartnerName}\n• Số ký hiệu văn bản: ${partnerRefNumber}\n• Trích yếu: ${doc.title}`}
+                      {meta.summary || doc.summary}
                     </Typography>
                   </Grid>
                 </Grid>

@@ -416,10 +416,12 @@ export const documentApi = {
     const newDoc = {
       id: `doc-${Date.now()}`,
       documentNumber: data.documentNumber,
+      referenceNumber: data.referenceNumber || '',
       title: data.title,
       direction: data.direction || 'incoming',
-      issuedDate: data.issuedDate || new Date().toISOString().split('T')[0],
+      issuedDate: data.issuedDate || new Date().toLocaleDateString('vi-VN'),
       partnerName: data.partnerName || 'Chưa xác định',
+      senderEmail: data.senderEmail || '',
       status: 'pending',
       summary: data.summary || '',
       fileIds: data.fileIds || []
