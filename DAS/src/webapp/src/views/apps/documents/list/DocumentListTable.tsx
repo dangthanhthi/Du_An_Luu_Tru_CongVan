@@ -138,11 +138,18 @@ const DocumentListTable = () => {
     overdue: { text: t.documents.overdue, color: 'error' }
   }
 
-  // Fetch live documents from backend or persistent store
+  // Fetch live documents from backend or persistent store with Auto-Purge of legacy corrupted items
   useEffect(() => {
     const fetchDocs = async () => {
       setLoading(true)
       try {
+        if (typeof window !== 'undefined') {
+          const raw = localStorage.getItem('das_documents_store')
+          if (raw && (raw.includes('/EMAIL') || raw.includes('/GMAIL') || raw.includes('/MAIL') || raw.includes('/PRIORITY') || raw.includes('instagram.com'))) {
+            localStorage.removeItem('das_documents_store')
+          }
+        }
+
         const res = await documentApi.getList({ pageSize: 100 })
         if (res?.success && res?.data) {
           const items = Array.isArray(res.data) ? res.data : res.data.items || []
