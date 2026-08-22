@@ -168,9 +168,21 @@ const EmailIntegrationView = () => {
         const newLogs: any[] = []
         let autoCreatedCount = 0
         let pendingReviewCount = 0
+        let skippedDuplicateCount = 0
+
+        // Lấy danh sách email đã từng xử lý để chống trùng lặp
+        const processedIds: string[] = JSON.parse(localStorage.getItem('das_processed_email_ids') || '[]')
 
         for (let i = 0; i < data.items.length; i++) {
           const item = data.items[i]
+          const mailKey = item.messageId || `${item.sender}_${item.subject}_${item.date}`
+
+          // Nếu email này đã từng được quét và ghi nhận rồi -> bỏ qua, không nhân bản
+          if (processedIds.includes(mailKey)) {
+            skippedDuplicateCount++
+            continue
+          }
+
           const currentYear = new Date().getFullYear()
           const currentSeq = logs.length + newLogs.length + 1
           const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
@@ -207,6 +219,7 @@ const EmailIntegrationView = () => {
               message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : 'Đã phát hiện PDF hợp lệ. AI OCR bóc tách và tự động tạo Công văn đến.'
             }
             newLogs.push(logEntry)
+            processedIds.push(mailKey)
             autoCreatedCount++
 
             // Lưu công văn chính thức
@@ -239,6 +252,7 @@ const EmailIntegrationView = () => {
                 : 'Email không có tệp PDF công văn đính kèm. Cần Thư ký duyệt để tạo công văn thủ công.'
             }
             newLogs.push(logEntry)
+            processedIds.push(mailKey)
             pendingReviewCount++
           }
         }
@@ -246,8 +260,16 @@ const EmailIntegrationView = () => {
         const updatedLogs = [...newLogs, ...logs]
         setLogs(updatedLogs)
         localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
+        localStorage.setItem('das_processed_email_ids', JSON.stringify(processedIds))
 
-        if (pendingReviewCount > 0 && autoCreatedCount > 0) {
+        if (newLogs.length === 0 && skippedDuplicateCount > 0) {
+          setNotification({
+            type: 'info',
+            message: isEn
+              ? 'All scanned emails were already processed and saved.'
+              : 'Tất cả email vừa quét đã được xử lý từ trước, không có email mới.'
+          })
+        } else if (pendingReviewCount > 0 && autoCreatedCount > 0) {
           setNotification({
             type: 'info',
             message: isEn

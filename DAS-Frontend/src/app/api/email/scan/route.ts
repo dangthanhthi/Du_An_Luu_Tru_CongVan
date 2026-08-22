@@ -3,7 +3,7 @@ import tls from 'node:tls'
 
 function decodeMimeHeader(headerStr: string): string {
   if (!headerStr) return ''
-  // Decode =?UTF-8?B?...?= or =?UTF-8?Q?...?=
+  // Decode =?UTF-8?B?...?= or =?UTF-8?Q?...?= or =?iso-8859-1?...?=
   return headerStr.replace(/=\?([^?]+)\?([BQ])\?([^?]+)\?=/gi, (_, charset, encoding, text) => {
     try {
       if (encoding.toUpperCase() === 'B') {
@@ -21,16 +21,19 @@ function decodeMimeHeader(headerStr: string): string {
   })
 }
 
-function parseEmailBody(rawEmail: string) {
+function parseEmailBody(rawEmail: string, mailId?: string) {
   const lines = rawEmail.split(/\r?\n/)
   let subject = ''
   let from = ''
   let date = ''
+  let messageId = ''
   let attachmentName = ''
+  let hasPdf = false
   let inHeader = true
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
+
     if (inHeader) {
       if (line === '') {
         inHeader = false
@@ -47,13 +50,29 @@ function parseEmailBody(rawEmail: string) {
         from = decodeMimeHeader(line.substring(5).trim())
       } else if (line.toLowerCase().startsWith('date:')) {
         date = line.substring(5).trim()
+      } else if (line.toLowerCase().startsWith('message-id:')) {
+        messageId = line.substring(11).trim()
       }
     } else {
-      // Look for attachment filename in body headers
-      if (line.toLowerCase().includes('filename=') || line.toLowerCase().includes('name=')) {
+      // Look for PDF attachment headers in multipart body
+      const lowerLine = line.toLowerCase()
+      if (lowerLine.includes('application/pdf')) {
+        hasPdf = true
+      }
+      if (lowerLine.includes('.pdf')) {
+        hasPdf = true
+      }
+
+      if (lowerLine.includes('filename=') || lowerLine.includes('name=')) {
         const match = line.match(/(?:filename|name)=["']?([^"';\r\n]+)["']?/i)
-        if (match && match[1] && (match[1].toLowerCase().endsWith('.pdf') || match[1].toLowerCase().endsWith('.png') || match[1].toLowerCase().endsWith('.jpg'))) {
-          attachmentName = decodeMimeHeader(match[1])
+        if (match && match[1]) {
+          const fname = decodeMimeHeader(match[1]).trim()
+          if (fname.toLowerCase().endsWith('.pdf') || fname.toLowerCase().includes('pdf')) {
+            attachmentName = fname
+            hasPdf = true
+          } else if (!attachmentName) {
+            attachmentName = fname
+          }
         }
       }
     }
@@ -61,20 +80,23 @@ function parseEmailBody(rawEmail: string) {
 
   // Clean from email
   const fromMatch = from.match(/<([^>]+)>/)
-  const cleanFrom = fromMatch ? fromMatch[1] : from
+  const cleanFrom = fromMatch ? fromMatch[1] : from.trim()
 
   return {
+    id: mailId || messageId || `mail-${Date.now()}-${Math.random()}`,
+    messageId: messageId || `msg-${Date.now()}-${Math.random()}`,
     subject: subject || 'Công văn tiếp nhận từ hòm thư điện tử',
     sender: cleanFrom || 'vanthu.coquan@domain.gov.vn',
     date: date || new Date().toISOString(),
-    attachment: attachmentName || 'CongVan_DinhKem.pdf'
+    attachment: attachmentName || (hasPdf ? 'VanBan_DinhKem.pdf' : ''),
+    hasPdf: hasPdf || (Boolean(attachmentName) && attachmentName.toLowerCase().endsWith('.pdf'))
   }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { host = 'imap.gmail.com', port = 993, email, appPassword, allowedSenderDomains = '' } = body
+    const { host = 'imap.gmail.com', port = 993, email, appPassword, allowedSenderDomains = '', scanAll = false } = body
 
     if (!email || !appPassword) {
       return NextResponse.json({
@@ -91,11 +113,11 @@ export async function POST(req: Request) {
         // Connected to IMAP
       })
 
-      socket.setTimeout(12000)
+      socket.setTimeout(15000)
 
       let step = 0
       let buffer = ''
-      let unseenIds: string[] = []
+      let targetIds: string[] = []
       let currentFetchIndex = 0
       const fetchedMails: any[] = []
 
@@ -120,7 +142,7 @@ export async function POST(req: Request) {
         } else if (step === 2 && buffer.includes('A02 OK')) {
           step = 3
           buffer = ''
-          // Search for unseen emails first
+          // Chỉ tìm kiếm EMAIL MỚI CHƯA ĐỌC (UNSEEN)
           socket.write(`A03 SEARCH UNSEEN\r\n`)
         } else if (step === 3 && buffer.includes('A03 OK')) {
           const searchLine = buffer.split('\n').find(l => l.startsWith('* SEARCH')) || ''
@@ -128,21 +150,7 @@ export async function POST(req: Request) {
           buffer = ''
 
           if (ids.length === 0) {
-            // If no unseen, search latest 5 messages
-            step = 4
-            socket.write(`A04 SEARCH ALL\r\n`)
-          } else {
-            unseenIds = ids.slice(-5) // Take last 5
-            step = 5
-            currentFetchIndex = 0
-            fetchNextEmail()
-          }
-        } else if (step === 4 && buffer.includes('A04 OK')) {
-          const searchLine = buffer.split('\n').find(l => l.startsWith('* SEARCH')) || ''
-          const ids = searchLine.replace('* SEARCH', '').trim().split(/\s+/).filter(Boolean)
-          buffer = ''
-
-          if (ids.length === 0) {
+            // KHÔNG CÓ EMAIL MỚI CHƯA ĐỌC: Trả về kết quả ngay, KHÔNG tự ý lấy email cũ
             resolved = true
             socket.write(`A99 LOGOUT\r\n`)
             socket.end()
@@ -150,26 +158,32 @@ export async function POST(req: Request) {
               success: true,
               scannedCount: 0,
               items: [],
-              message: 'Hộp thư đến đang trống, không tìm thấy email nào.'
+              message: 'Hộp thư đến không có email mới chưa đọc nào.'
             }))
           } else {
-            unseenIds = ids.slice(-3) // Take latest 3 emails
-            step = 5
+            // Có email mới chưa đọc: Lấy tối đa 10 email mới nhất
+            targetIds = ids.slice(-10)
+            step = 4
             currentFetchIndex = 0
             fetchNextEmail()
           }
-        } else if (step === 5) {
+        } else if (step === 4) {
           const tag = `F0${currentFetchIndex}`
           if (buffer.includes(`${tag} OK`)) {
-            const parsed = parseEmailBody(buffer)
+            const currentId = targetIds[currentFetchIndex]
+            const parsed = parseEmailBody(buffer, currentId)
             fetchedMails.push(parsed)
             buffer = ''
+
+            // Đánh dấu email đã đọc (\Seen) để không bị quét lặp lại trong tương lai
+            socket.write(`S0${currentFetchIndex} STORE ${currentId} +FLAGS (\\Seen)\r\n`)
+
             currentFetchIndex++
 
-            if (currentFetchIndex < unseenIds.length) {
+            if (currentFetchIndex < targetIds.length) {
               fetchNextEmail()
             } else {
-              // Finished fetching all
+              // Hoàn tất quét tất cả email mới
               resolved = true
               socket.write(`A99 LOGOUT\r\n`)
               socket.end()
@@ -178,7 +192,7 @@ export async function POST(req: Request) {
                 success: true,
                 scannedCount: fetchedMails.length,
                 items: fetchedMails,
-                message: `Quét thành công! Đã tìm thấy ${fetchedMails.length} email thực tế từ hộp thư ${email}.`
+                message: `Quét thành công! Đã phát hiện ${fetchedMails.length} email mới từ hộp thư ${email}.`
               }))
             }
           }
@@ -186,9 +200,10 @@ export async function POST(req: Request) {
       })
 
       function fetchNextEmail() {
-        const id = unseenIds[currentFetchIndex]
+        const id = targetIds[currentFetchIndex]
         const tag = `F0${currentFetchIndex}`
-        socket.write(`${tag} FETCH ${id} (BODY.PEEK[])\r\n`)
+        // Fetch raw RFC822 email
+        socket.write(`${tag} FETCH ${id} (RFC822)\r\n`)
       }
 
       socket.on('timeout', () => {
@@ -197,7 +212,7 @@ export async function POST(req: Request) {
           socket.destroy()
           resolve(NextResponse.json({
             success: false,
-            message: `Hết thời gian chờ kết nối máy chủ IMAP (${host}:${port}).`
+            message: `Hết thời gian chờ kết nối máy chủ IMAP (${host}:${port}). Vui lòng kiểm tra lại mạng hoặc App Password.`
           }, { status: 408 }))
         }
       })
