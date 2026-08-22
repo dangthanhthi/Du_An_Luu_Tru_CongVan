@@ -166,62 +166,109 @@ const EmailIntegrationView = () => {
       if (data.success && data.items && data.items.length > 0) {
         // Real emails scanned from mailbox!
         const newLogs: any[] = []
+        let autoCreatedCount = 0
+        let pendingReviewCount = 0
 
         for (let i = 0; i < data.items.length; i++) {
           const item = data.items[i]
-          const seq = String(logs.length + i + 1).padStart(4, '0')
-          const internalDocNum = `CV-DEN-2026-${seq}`
-          
-          // Trích xuất số hiệu đối tác (Reference Number) từ tệp hoặc email
-          const partnerRefNum = item.attachment?.includes('BGDDT') || item.sender?.includes('moet') || item.subject?.includes('2154')
-            ? '2154/BGDĐT-CNTT'
-            : (item.subject?.match(/(?:Số|No|Ref)[:.]?\s*([0-9A-Z\/\-_]+)/i)?.[1] || '2154/BGDĐT-CNTT')
+          const currentYear = new Date().getFullYear()
+          const currentSeq = logs.length + newLogs.length + 1
+          const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
+          const internalDocNum = `CV-DEN-${currentYear}-${String(currentSeq).padStart(minDigits, '0')}`
 
-          const partnerName = item.sender?.includes('moet') || item.sender?.includes('claude')
-            ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)'
-            : (item.sender ? item.sender.split('@')[0].toUpperCase() : 'Đối tác gửi')
+          // Kiểm tra xem email có tệp đính kèm PDF hợp lệ hay không
+          const hasPdfAttachment = Boolean(
+            item.attachment && (item.attachment.toLowerCase().endsWith('.pdf') || item.hasPdf)
+          )
 
-          const title = item.subject?.includes('Claude') || !item.subject
-            ? 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027'
-            : item.subject
+          if (hasPdfAttachment) {
+            // CÓ TỆP PDF: Tự động bóc tách AI OCR và đưa thẳng vào danh sách Công Văn Đến
+            const partnerRefNum = item.attachment?.includes('BGDDT') || item.sender?.includes('moet') || item.subject?.includes('2154')
+              ? '2154/BGDĐT-CNTT'
+              : (item.subject?.match(/(?:Số|No|Ref)[:.]?\s*([0-9A-Z\/\-_]+)/i)?.[1] || '2154/BGDĐT-CNTT')
 
-          const logEntry = {
-            id: `log-${Date.now()}-${i}`,
-            timestamp: new Date().toLocaleString('vi-VN'),
-            sender: item.sender,
-            subject: title,
-            attachment: item.attachment || '01_Cong_Van_Den_Bo_GDDT.pdf',
-            docNumber: `${internalDocNum} (Ref: ${partnerRefNum})`,
-            status: 'success',
-            message: isEn ? 'Real email fetched, AI OCR extracted partner & reference number.' : 'Đã quét email, AI OCR tự động bóc tách số hiệu 2154/BGDĐT-CNTT và tạo Công văn đến.'
+            const partnerName = item.sender?.includes('moet') || item.sender?.includes('claude')
+              ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)'
+              : (item.sender ? item.sender.split('@')[0].toUpperCase() : 'Đối tác gửi')
+
+            const title = item.subject?.includes('Claude') || !item.subject
+              ? 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027'
+              : item.subject
+
+            const logEntry = {
+              id: `log-${Date.now()}-${i}`,
+              timestamp: new Date().toLocaleString('vi-VN'),
+              sender: item.sender,
+              subject: title,
+              attachment: item.attachment || '01_Cong_Van_Den_Bo_GDDT.pdf',
+              hasPdf: true,
+              docNumber: `${internalDocNum} (Ref: ${partnerRefNum})`,
+              status: 'success',
+              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : 'Đã phát hiện PDF hợp lệ. AI OCR bóc tách và tự động tạo Công văn đến.'
+            }
+            newLogs.push(logEntry)
+            autoCreatedCount++
+
+            // Lưu công văn chính thức
+            try {
+              await documentApi.create({
+                documentNumber: internalDocNum,
+                referenceNumber: partnerRefNum,
+                title: title,
+                direction: 'incoming',
+                issuedDate: '10/08/2026',
+                partnerName: partnerName,
+                senderEmail: item.sender,
+                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || '01_Cong_Van_Den_Bo_GDDT.pdf'}`
+              })
+            } catch {}
+          } else {
+            // KHÔNG CÓ TỆP PDF: Yêu cầu Thư ký xác nhận lại trước khi tạo công văn
+            const logEntry = {
+              id: `log-${Date.now()}-${i}`,
+              timestamp: new Date().toLocaleString('vi-VN'),
+              sender: item.sender,
+              subject: item.subject || 'Email trao đổi không đính kèm tệp PDF',
+              attachment: isEn ? 'No PDF attached' : 'Không có tệp PDF',
+              hasPdf: false,
+              rawItem: item,
+              docNumber: isEn ? 'Pending review' : 'Chờ xác nhận',
+              status: 'pending_confirmation',
+              message: isEn
+                ? 'No PDF attachment found. Requires secretary confirmation before creating document.'
+                : 'Email không có tệp PDF công văn đính kèm. Cần Thư ký duyệt để tạo công văn thủ công.'
+            }
+            newLogs.push(logEntry)
+            pendingReviewCount++
           }
-          newLogs.push(logEntry)
-
-          // Save real document with 2-tier numbering
-          try {
-            await documentApi.create({
-              documentNumber: internalDocNum,
-              referenceNumber: partnerRefNum,
-              title: title,
-              direction: 'incoming',
-              issuedDate: '10/08/2026',
-              partnerName: partnerName,
-              senderEmail: item.sender,
-              summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || '01_Cong_Van_Den_Bo_GDDT.pdf'}`
-            })
-          } catch {}
         }
 
         const updatedLogs = [...newLogs, ...logs]
         setLogs(updatedLogs)
         localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
 
-        setNotification({
-          type: 'success',
-          message: isEn
-            ? `Successfully scanned ${data.items.length} real email(s) from ${settings.email}!`
-            : `Quét thành công! Đã tải và bóc tách ${data.items.length} email thực tế từ hòm thư '${settings.email}'.`
-        })
+        if (pendingReviewCount > 0 && autoCreatedCount > 0) {
+          setNotification({
+            type: 'info',
+            message: isEn
+              ? `Scanned: ${autoCreatedCount} PDF email(s) auto-registered, ${pendingReviewCount} email(s) without PDF pending confirmation.`
+              : `Quét xong: Đã tự động tạo ${autoCreatedCount} công văn có PDF, và ${pendingReviewCount} email không có PDF đang chờ bạn duyệt xác nhận.`
+          })
+        } else if (pendingReviewCount > 0) {
+          setNotification({
+            type: 'info',
+            message: isEn
+              ? `Found ${pendingReviewCount} email(s) without PDF attachments. Please review and confirm in the table below.`
+              : `Tìm thấy ${pendingReviewCount} email không có tệp PDF đính kèm. Vui lòng bấm 'Xác nhận tạo CV' trong bảng bên dưới nếu muốn tiếp nhận.`
+          })
+        } else {
+          setNotification({
+            type: 'success',
+            message: isEn
+              ? `Successfully scanned & registered ${autoCreatedCount} incoming document(s) with PDF!`
+              : `Quét thành công! Đã bóc tách và tự động tạo ${autoCreatedCount} công văn đến từ các tệp PDF.`
+          })
+        }
       } else if (data.success) {
         setNotification({
           type: 'info',
@@ -480,40 +527,72 @@ const EmailIntegrationView = () => {
                       <TableCell>{isEn ? 'Email Subject' : 'Tiêu Đề Email'}</TableCell>
                       <TableCell>{isEn ? 'Attachment (PDF)' : 'Tệp Đính Kèm (PDF)'}</TableCell>
                       <TableCell>{isEn ? 'Generated Ref No.' : 'Số Công Văn Đã Sinh'}</TableCell>
-                      <TableCell>{isEn ? 'Status' : 'Trạng Thái Xử Lý'}</TableCell>
+                      <TableCell align='center'>{isEn ? 'Action / Status' : 'Hành Động / Trạng Thái'}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {logs.map(log => (
-                      <TableRow key={log.id} hover>
-                        <TableCell>
-                          <Typography variant='body2' className='font-mono'>{log.timestamp}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='body2' className='font-semibold'>{log.sender}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant='body2' className='max-w-[240px] truncate'>{log.subject}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <div className='flex items-center gap-1.5 text-error'>
-                            <i className='tabler-file-type-pdf text-lg' />
-                            <Typography variant='caption' className='font-medium'>{log.attachment}</Typography>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Chip label={log.docNumber} size='small' color='primary' variant='tonal' />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={isEn ? 'Success' : 'Thành công'}
-                            size='small'
-                            color='success'
-                            icon={<i className='tabler-check' />}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {logs.map(log => {
+                      const isPending = log.status === 'pending_confirmation'
+
+                      return (
+                        <TableRow key={log.id} hover>
+                          <TableCell>
+                            <Typography variant='body2' className='font-mono'>{log.timestamp}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='body2' className='font-semibold'>{log.sender}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant='body2' className='max-w-[240px] truncate'>{log.subject}</Typography>
+                          </TableCell>
+                          <TableCell>
+                            {log.attachment && log.attachment.toLowerCase().endsWith('.pdf') ? (
+                              <div className='flex items-center gap-1.5 text-error'>
+                                <i className='tabler-file-type-pdf text-lg' />
+                                <Typography variant='caption' className='font-medium'>{log.attachment}</Typography>
+                              </div>
+                            ) : (
+                              <Chip
+                                label={isEn ? 'No PDF' : 'Không có PDF'}
+                                size='small'
+                                color='warning'
+                                variant='tonal'
+                                icon={<i className='tabler-alert-circle text-xs' />}
+                              />
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={log.docNumber}
+                              size='small'
+                              color={isPending ? 'warning' : 'primary'}
+                              variant={isPending ? 'outlined' : 'tonal'}
+                            />
+                          </TableCell>
+                          <TableCell align='center'>
+                            {isPending ? (
+                              <Button
+                                size='small'
+                                variant='contained'
+                                color='warning'
+                                startIcon={<i className='tabler-check text-xs' />}
+                                onClick={() => handleConfirmEmailToIntake(log.id)}
+                                sx={{ textTransform: 'none', py: 0.5, px: 2 }}
+                              >
+                                {isEn ? 'Confirm Intake' : 'Xác nhận tạo CV'}
+                              </Button>
+                            ) : (
+                              <Chip
+                                label={isEn ? 'Auto Created' : 'Đã tạo CV'}
+                                size='small'
+                                color='success'
+                                icon={<i className='tabler-check text-xs' />}
+                              />
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
