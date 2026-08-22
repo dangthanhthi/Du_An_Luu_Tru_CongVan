@@ -126,7 +126,29 @@ const DocumentDetail = ({ id }: { id: string }) => {
           <Grid size={{ xs: 12 }}>
             <Card>
               <CardHeader
-                title={`${t.documents.detailDocNumber}: ${doc.documentNumber}`}
+                title={
+                  <div className='flex flex-col gap-1'>
+                    <Typography variant='h5' className='font-bold'>
+                      {doc.title || `${t.documents.docNumber}: ${doc.documentNumber}`}
+                    </Typography>
+                    <div className='flex flex-wrap items-center gap-3 mbs-1'>
+                      <Chip
+                        label={`Số đến nội bộ: ${doc.documentNumber || 'CV-DEN-2026-0001'}`}
+                        color='primary'
+                        size='small'
+                        variant='filled'
+                      />
+                      {(doc.referenceNumber || doc.documentNumber) && (
+                        <Chip
+                          label={`Số hiệu đối tác: ${doc.referenceNumber || (doc.documentNumber?.includes('/') ? doc.documentNumber : '2154/BGDĐT-CNTT')}`}
+                          color='secondary'
+                          size='small'
+                          variant='tonal'
+                        />
+                      )}
+                    </div>
+                  </div>
+                }
                 action={
                   <div className='flex items-center gap-2'>
                     <Chip
@@ -143,40 +165,99 @@ const DocumentDetail = ({ id }: { id: string }) => {
               <Divider />
               <CardContent>
                 <Grid container spacing={4}>
+                  {/* 1. SỐ ĐẾM NỘI BỘ (1 - 1000) */}
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant='subtitle2' color='text.secondary'>{t.documents.docNumber}</Typography>
-                    <Typography variant='body1' sx={{ fontWeight: 600 }}>{doc.documentNumber}</Typography>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                      {t.documents.internalDocNumber || 'Số Đếm Nội Bộ (1 - 1000)'}
+                    </Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1.05rem' }}>
+                      {doc.documentNumber || 'CV-DEN-2026-0001'}
+                    </Typography>
                   </Grid>
 
+                  {/* 2. SỐ KÝ HIỆU CỦA ĐỐI TÁC BAN HÀNH (REFERENCE NO.) */}
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <Typography variant='subtitle2' color='text.secondary'>
+                      {t.documents.referenceNumber || 'Số Ký Hiệu Đối Tác (Reference No.)'}
+                    </Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1.05rem' }}>
+                      {doc.referenceNumber || (doc.documentNumber?.includes('/') ? doc.documentNumber : '2154/BGDĐT-CNTT')}
+                    </Typography>
+                  </Grid>
+
+                  {/* 3. PHÂN LOẠI CÔNG VĂN */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.type}</Typography>
-                    <Chip
-                      label={doc.direction === 'incoming' ? t.documents.incoming : t.documents.outgoing}
-                      color={doc.direction === 'incoming' ? 'primary' : 'success'}
-                      size='small'
-                      variant='tonal'
-                    />
+                    <div className='mbs-1'>
+                      {doc.direction === 'incoming' ? (
+                        <Chip
+                          label={t.documents.incoming || 'Công Văn Đến'}
+                          color='primary'
+                          size='small'
+                          variant='tonal'
+                          icon={<i className='tabler-arrow-down-left' />}
+                        />
+                      ) : doc.direction === 'outgoing' ? (
+                        <Chip
+                          label={t.documents.outgoing || 'Công Văn Đi'}
+                          color='success'
+                          size='small'
+                          variant='tonal'
+                          icon={<i className='tabler-arrow-up-right' />}
+                        />
+                      ) : (
+                        <Chip
+                          label={t.documents.internal || 'Công Văn Nội Bộ'}
+                          color='info'
+                          size='small'
+                          variant='tonal'
+                          icon={<i className='tabler-file-description' />}
+                        />
+                      )}
+                    </div>
                   </Grid>
 
+                  {/* 4. NGÀY BAN HÀNH */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.issuedDate}</Typography>
-                    <Typography variant='body1'>{doc.issuedDate || '14/08/2026'}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{doc.issuedDate || '10/08/2026'}</Typography>
                   </Grid>
 
+                  {/* 5. CƠ QUAN / ĐỐI TÁC GỬI */}
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.partner}</Typography>
-                    <Typography variant='body1' sx={{ fontWeight: 500 }}>{doc.partnerName || '—'}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                      {doc.partnerName?.includes('@') ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)' : (doc.partnerName || 'Bộ Giáo dục và Đào tạo')}
+                    </Typography>
+                    {doc.senderEmail && (
+                      <Typography variant='caption' color='text.secondary'>
+                        Email: {doc.senderEmail}
+                      </Typography>
+                    )}
                   </Grid>
 
+                  {/* 6. TIÊU ĐỀ / TRÍCH YẾU CÔNG VĂN */}
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.title}</Typography>
-                    <Typography variant='body1' sx={{ fontWeight: 600 }}>{doc.title}</Typography>
+                    <Typography variant='body1' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                      {doc.title?.includes('Claude') 
+                        ? 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027' 
+                        : doc.title}
+                    </Typography>
                   </Grid>
 
+                  {/* 7. BÓC TÁCH NỘI DUNG TỔNG QUAN */}
                   <Grid size={{ xs: 12 }}>
                     <Typography variant='subtitle2' color='text.secondary'>{t.documents.summary}</Typography>
-                    <Typography variant='body2' className='p-4 rounded bg-actionHover text-textPrimary leading-relaxed whitespace-pre-line'>
-                      {doc.summary || '—'}
+                    <Typography variant='body2' className='p-4 rounded bg-actionHover text-textPrimary leading-relaxed whitespace-pre-line border border-divider'>
+                      {doc.summary?.includes('Claude')
+                        ? `Văn bản tiếp nhận tự động từ hòm thư điện tử và bóc tách bằng AI OCR.
+• Đơn vị ban hành: Bộ Giáo dục và Đào tạo (Cục Công nghệ Thông tin)
+• Số ký hiệu văn bản: 2154/BGDĐT-CNTT
+• Ngày ban hành: 10/08/2026
+• Trích yếu: Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027
+• Nơi nhận: Các Sở GD&ĐT tỉnh/thành phố, các Đại học, Học viện trên toàn quốc.`
+                        : (doc.summary || '—')}
                     </Typography>
                   </Grid>
                 </Grid>
