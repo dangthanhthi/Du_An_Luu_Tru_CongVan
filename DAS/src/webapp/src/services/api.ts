@@ -11,16 +11,189 @@ const API_URLS = {
   ocr: process.env.NEXT_PUBLIC_OCR_API_URL || GATEWAY_URL,
 }
 
-// Initial default demo documents
+// Initial default official documents with 2-tier numbering (1-1000 counter & partner ref)
 const INITIAL_DOCUMENTS = [
-  { id: '1', documentNumber: 'CV-128/BGDDT', title: 'Quyết định ban hành quy chế đào tạo và lưu trữ văn bản điện tử', direction: 'incoming', issuedDate: '2026-08-10', partnerName: 'Bộ Giáo dục và Đào tạo', status: 'completed', summary: 'Quy định về việc tiếp nhận và xử lý số hóa văn bản hành chính.' },
-  { id: '2', documentNumber: 'TB-45/SGD-HN', title: 'Thông báo lịch trực nghỉ lễ Quốc khánh 02/09', direction: 'outgoing', issuedDate: '2026-08-11', partnerName: 'Sở Giáo dục và Đào tạo Hà Nội', status: 'pending', summary: 'Thông báo phân công lịch trực ban chỉ huy và bảo vệ cơ quan.' },
-  { id: '3', documentNumber: 'HD-89/UBND', title: 'Hướng dẫn chuẩn hóa quy trình lưu trữ hồ sơ điện tử', direction: 'incoming', issuedDate: '2026-08-12', partnerName: 'Ủy ban Nhân dân TP Hà Nội', status: 'processing', summary: 'Tài liệu hướng dẫn chuyên môn cho cán bộ văn thư lưu trữ.' },
-  { id: '4', documentNumber: 'BC-204/DAS', title: 'Báo cáo tổng kết công tác chuyển đổi số tháng 7/2026', direction: 'outgoing', issuedDate: '2026-08-13', partnerName: 'Tập đoàn VNPT', status: 'completed', summary: 'Đánh giá tiến độ số hóa hồ sơ và ứng dụng AI OCR vào tiếp nhận công văn.' },
-  { id: '5', documentNumber: 'KH-56/BGDDT', title: 'Kế hoạch kiểm tra công tác lưu trữ công văn năm học 2026-2027', direction: 'incoming', issuedDate: '2026-08-14', partnerName: 'Bộ Giáo dục và Đào tạo', status: 'overdue', summary: 'Lịch thanh tra và tiêu chuẩn đánh giá xếp loại phòng văn thư.' },
-  { id: '6', documentNumber: 'TM-12/VNU', title: 'Thư mời tham dự hội thảo khoa học Quản trị văn phòng hiện đại', direction: 'incoming', issuedDate: '2026-08-15', partnerName: 'Đại học Quốc gia Hà Nội', status: 'completed', summary: 'Hội thảo trao đổi kinh nghiệm ứng dụng công nghệ trong lưu trữ văn thư.' },
-  { id: '7', documentNumber: 'YCBG-08/DAS', title: 'Yêu cầu báo giá phần mềm số hóa và nhận diện chữ quang học', direction: 'outgoing', issuedDate: '2026-08-16', partnerName: 'Công ty Cổ phần Công nghệ ABC', status: 'pending', summary: 'Hồ sơ mời báo giá gói nâng cấp máy quét và máy chủ nhận diện OCR.' },
-  { id: '8', documentNumber: 'CVPH-99/PTIT', title: 'Công văn phản hồi về việc tiếp nhận sinh viên thực tập ngành Văn thư', direction: 'incoming', issuedDate: '2026-08-17', partnerName: 'Học viện CNBC Viễn thông', status: 'processing', summary: 'Danh sách và kế hoạch phân công sinh viên thực tập tại trung tâm lưu trữ.' }
+  // 1. CÔNG VĂN ĐẾN (INCOMING - ĐƯỢC ĐÁNH SỐ NỘI BỘ TỪ 0001 ĐẾN VÔ HẠN)
+  {
+    id: '1',
+    documentNumber: 'CV-DEN-2026-0001',
+    referenceNumber: '128/BGDĐT-GDĐH',
+    title: 'Về việc hướng dẫn công tác tuyển sinh đại học và chuyển đổi số năm 2026-2027',
+    direction: 'incoming',
+    issuedDate: '15/08/2026',
+    partnerName: 'Bộ Giáo dục và Đào tạo',
+    status: 'completed',
+    summary: 'Quy định về việc tiếp nhận và xử lý số hóa văn bản hành chính.'
+  },
+  {
+    id: '2',
+    documentNumber: 'CV-DEN-2026-0002',
+    referenceNumber: '2154/BGDĐT-CNTT',
+    title: 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027',
+    direction: 'incoming',
+    issuedDate: '10/08/2026',
+    partnerName: 'Bộ Giáo dục và Đào tạo (Cục CNTT)',
+    status: 'processing',
+    summary: 'Tài liệu hướng dẫn ứng dụng AI OCR vào tiếp nhận, bóc tách và phân luồng công văn tự động.'
+  },
+  {
+    id: '3',
+    documentNumber: 'CV-DEN-2026-0003',
+    referenceNumber: '456/VNPT-KHCN',
+    title: 'Về việc hợp tác triển khai hệ thống lưu trữ công văn điện tử',
+    direction: 'incoming',
+    issuedDate: '10/08/2026',
+    partnerName: 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)',
+    status: 'completed',
+    summary: 'Đề xuất phối hợp thử nghiệm nền tảng lưu trữ đám mây và chữ ký số chuyên dùng.'
+  },
+  {
+    id: '4',
+    documentNumber: 'CV-DEN-2026-0004',
+    referenceNumber: '789/FPT-CNTT',
+    title: 'Về việc đề xuất giải pháp chuyển đổi số cho hệ thống văn thư',
+    direction: 'incoming',
+    issuedDate: '05/08/2026',
+    partnerName: 'Công ty Cổ phần FPT',
+    status: 'pending',
+    summary: 'Phương án tích hợp AI Agent vào quản lý luồng công văn đi và đến.'
+  },
+  {
+    id: '5',
+    documentNumber: 'CV-DEN-2026-0005',
+    referenceNumber: '1024/VTL-VT',
+    title: 'Về việc cung cấp dịch vụ bảo mật và lưu trữ đám mây',
+    direction: 'incoming',
+    issuedDate: '01/08/2026',
+    partnerName: 'Tập đoàn Viettel',
+    status: 'completed',
+    summary: 'Báo giá và thông số kỹ thuật hạ tầng trung tâm dữ liệu đạt chuẩn Tier 3.'
+  },
+  {
+    id: '6',
+    documentNumber: 'CV-DEN-2026-0006',
+    referenceNumber: '2048/UBND-VX',
+    title: 'Về việc triển khai ứng dụng công nghệ thông tin trong quản lý văn bản',
+    direction: 'incoming',
+    issuedDate: '20/07/2026',
+    partnerName: 'Ủy ban Nhân dân TP Hồ Chí Minh',
+    status: 'completed',
+    summary: 'Kế hoạch đồng bộ cơ sở dữ liệu văn thư lưu trữ liên thông các quận huyện.'
+  },
+  {
+    id: '7',
+    documentNumber: 'CV-DEN-2026-0007',
+    referenceNumber: '3072/BCA-KHCN',
+    title: 'Về việc triển khai hệ thống quản lý văn bản và hồ sơ điện tử',
+    direction: 'incoming',
+    issuedDate: '25/07/2026',
+    partnerName: 'Bộ Công an',
+    status: 'processing',
+    summary: 'Yêu cầu tuân thủ an toàn an ninh thông tin cấp độ 3 theo Nghị định 30/2020/NĐ-CP.'
+  },
+  {
+    id: '8',
+    documentNumber: 'CV-DEN-2026-0008',
+    referenceNumber: 'SEV-2026/0815',
+    title: 'Regarding cooperation on digital document management system',
+    direction: 'incoming',
+    issuedDate: '15/08/2026',
+    partnerName: 'Samsung Electronics Vietnam',
+    status: 'completed',
+    summary: 'Official proposal for cross-border enterprise document archiving cooperation.'
+  },
+  {
+    id: '9',
+    documentNumber: 'CV-DEN-2026-0009',
+    referenceNumber: '4096/EVN-VP',
+    title: 'Về việc phối hợp số hóa hệ thống công văn nội bộ',
+    direction: 'incoming',
+    issuedDate: '12/08/2026',
+    partnerName: 'Tập đoàn Điện lực Việt Nam (EVN)',
+    status: 'processing',
+    summary: 'Đề nghị chuyển giao tài liệu kỹ thuật về chuẩn số hóa hồ sơ điện tử.'
+  },
+  {
+    id: '10',
+    documentNumber: 'CV-DEN-2026-0010',
+    referenceNumber: '5120/BHXH-CNTT',
+    title: 'Về việc kết nối hệ thống văn bản điện tử liên thông',
+    direction: 'incoming',
+    issuedDate: '08/08/2026',
+    partnerName: 'Bảo hiểm Xã hội Việt Nam',
+    status: 'completed',
+    summary: 'Kế hoạch mở cổng API kết nối dữ liệu văn bản hành chính.'
+  },
+
+  // 2. CÔNG VĂN ĐI (OUTGOING)
+  {
+    id: '11',
+    documentNumber: 'CV-DI-2026-0001',
+    referenceNumber: 'TB-45/SGD-HN',
+    title: 'Thông báo lịch trực nghỉ lễ Quốc khánh 02/09',
+    direction: 'outgoing',
+    issuedDate: '11/08/2026',
+    partnerName: 'Sở Giáo dục và Đào tạo Hà Nội',
+    status: 'pending',
+    summary: 'Thông báo phân công lịch trực ban chỉ huy và bảo vệ cơ quan.'
+  },
+  {
+    id: '12',
+    documentNumber: 'CV-DI-2026-0002',
+    referenceNumber: 'BC-204/DAS',
+    title: 'Báo cáo tổng kết công tác chuyển đổi số tháng 7/2026',
+    direction: 'outgoing',
+    issuedDate: '13/08/2026',
+    partnerName: 'Tập đoàn VNPT',
+    status: 'completed',
+    summary: 'Đánh giá tiến độ số hóa hồ sơ và ứng dụng AI OCR vào tiếp nhận công văn.'
+  },
+  {
+    id: '13',
+    documentNumber: 'CV-DI-2026-0003',
+    referenceNumber: 'YCBG-08/DAS',
+    title: 'Yêu cầu báo giá phần mềm số hóa và nhận diện chữ quang học',
+    direction: 'outgoing',
+    issuedDate: '16/08/2026',
+    partnerName: 'Công ty Cổ phần Công nghệ ABC',
+    status: 'pending',
+    summary: 'Hồ sơ mời báo giá gói nâng cấp máy quét và máy chủ nhận diện OCR.'
+  },
+
+  // 3. CÔNG VĂN NỘI BỘ (INTERNAL)
+  {
+    id: '14',
+    documentNumber: 'CV-NB-2026-0001',
+    referenceNumber: 'QĐ-01/NB-DAS',
+    title: 'Quyết định thành lập Tổ công tác chuyển đổi số và số hóa tài liệu',
+    direction: 'internal',
+    issuedDate: '01/08/2026',
+    partnerName: 'Ban Giám Đốc & Các Phòng Ban',
+    status: 'completed',
+    summary: 'Kiện toàn nhân sự ban chỉ đạo triển khai hệ thống lưu trữ văn thư điện tử nội bộ.'
+  },
+  {
+    id: '15',
+    documentNumber: 'CV-NB-2026-0002',
+    referenceNumber: 'TB-18/NB-VP',
+    title: 'Thông báo hướng dẫn quy trình luân chuyển và ký duyệt hồ sơ điện tử',
+    direction: 'internal',
+    issuedDate: '05/08/2026',
+    partnerName: 'Toàn thể Cán bộ - Nhân viên',
+    status: 'completed',
+    summary: 'Quy trình ký số và duyệt công văn nội bộ qua phần mềm DAS.'
+  },
+  {
+    id: '16',
+    documentNumber: 'CV-NB-2026-0003',
+    referenceNumber: 'TTr-09/NB-TC',
+    title: 'Tờ trình đề xuất trang bị bổ sung thiết bị quét văn bản tốc độ cao',
+    direction: 'internal',
+    issuedDate: '18/08/2026',
+    partnerName: 'Phòng Tài Chính - Kế Hoạch',
+    status: 'pending',
+    summary: 'Dự toán kinh phí nâng cấp máy quét chuyên dụng cho phòng văn thư.'
+  }
 ]
 
 const INITIAL_PARTNERS = [
@@ -32,14 +205,36 @@ const INITIAL_PARTNERS = [
   { id: 'p6', code: 'SGD-HN', fullName: 'Sở Giáo dục và Đào tạo Hà Nội', shortName: 'Sở GD&ĐT HN', taxCode: '0100100303', email: 'sogd@hanoi.edu.vn', phone: '024.38253538', address: '23 Quang Trung, Hoàn Kiếm, Hà Nội', entityType: 'government', isActive: true }
 ]
 
-// Storage helpers
+// Storage helpers with Auto-Sanitization & Standardization
 const getStoredDocuments = (): any[] => {
   if (typeof window === 'undefined') return INITIAL_DOCUMENTS
   try {
     const raw = localStorage.getItem('das_documents_store')
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Tự động làm sạch: Lọc bỏ các email rác/không có tệp PDF/mã số sai định dạng cũ
+        const cleanDocs = parsed.filter(d => {
+          const num = d.documentNumber || ''
+          const partner = (d.partnerName || '').toLowerCase()
+          const title = (d.title || '').toLowerCase()
+
+          // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
+          if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
+            return false
+          }
+          // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
+          if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
+            return false
+          }
+          return true
+        })
+
+        if (cleanDocs.length > 0) {
+          localStorage.setItem('das_documents_store', JSON.stringify(cleanDocs))
+          return cleanDocs
+        }
+      }
     }
   } catch {}
   localStorage.setItem('das_documents_store', JSON.stringify(INITIAL_DOCUMENTS))

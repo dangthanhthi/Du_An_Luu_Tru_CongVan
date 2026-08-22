@@ -170,21 +170,27 @@ const DocumentListTable = () => {
   const columns = useMemo<ColumnDef<DocumentTypeWithAction, any>[]>(
     () => [
       columnHelper.accessor('documentNumber', {
-        header: t.documents.docNumber,
+        header: 'Số Nội Bộ / Số Đối Tác',
         cell: ({ row }) => (
-          <div className='flex flex-col gap-0.5'>
+          <div className='flex flex-col gap-1'>
             <Typography
               component={Link}
               href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
               color='primary.main'
-              sx={{ fontWeight: 600, '&:hover': { textDecoration: 'underline' } }}
+              sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
             >
               {row.original.documentNumber}
             </Typography>
             {row.original.referenceNumber && (
-              <Typography variant='caption' color='text.secondary'>
-                Số đối tác: <span className='font-medium text-textPrimary'>{row.original.referenceNumber}</span>
-              </Typography>
+              <div className='flex items-center gap-1'>
+                <Chip
+                  label={`Ref: ${row.original.referenceNumber}`}
+                  size='small'
+                  variant='tonal'
+                  color='secondary'
+                  sx={{ height: 20, fontSize: '0.72rem', px: 0.5 }}
+                />
+              </div>
             )}
           </div>
         )
