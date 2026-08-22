@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
@@ -26,14 +26,21 @@ namespace EmailWorkerService.Services.Integration
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        public async Task<string?> RegisterIncomingDocumentAsync(string title, string fileId, DateTime receivedAt)
+        public async Task<string?> RegisterIncomingDocumentAsync(
+            string title,
+            string? referenceNumber,
+            Guid? partnerId,
+            Guid fileId,
+            DateTime receivedAt)
         {
             var requestBody = new
             {
                 title = title,
-                partnerId = (string?)null,
-                fileId = fileId,
-                receivedAt = receivedAt
+                referenceNumber = referenceNumber,
+                summary = (string?)null,
+                partnerId = partnerId,
+                receivedAt = receivedAt,
+                attachmentFileIds = new[] { fileId }
             };
 
             var response = await _httpClient.PostAsJsonAsync("/api/documents/incoming", requestBody);

@@ -1,4 +1,4 @@
-﻿using EmailWorkerService.Services.Integration;
+using EmailWorkerService.Services.Integration;
 using EmailWorkerService;
 using EmailWorkerService.Services;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IEmailProcessor, EmailProcessor>();
 builder.Services.AddHttpClient<IFilesServiceClient, FilesServiceClient>();
 builder.Services.AddHttpClient<IDocumentServiceClient, DocumentServiceClient>();
+builder.Services.AddHttpClient<IAiOcrServiceClient, AiOcrServiceClient>();
 builder.Services.AddHostedService<EmailBackgroundWorker>();
 
 

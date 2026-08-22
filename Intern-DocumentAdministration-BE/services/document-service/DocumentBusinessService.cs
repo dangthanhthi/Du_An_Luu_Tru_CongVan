@@ -5,6 +5,7 @@ namespace DocumentService;
 
 public record CreateIncomingDocumentRequest(
     string Title,
+    string? ReferenceNumber,
     string? Summary,
     Guid? PartnerId,
     DateTime? ReceivedAt,
@@ -13,6 +14,7 @@ public record CreateIncomingDocumentRequest(
 
 public record CreateOutgoingDocumentRequest(
     string Title,
+    string? ReferenceNumber,
     string? Summary,
     Guid PartnerId,
     Guid SenderDepartmentId,
@@ -21,6 +23,7 @@ public record CreateOutgoingDocumentRequest(
 
 public record CreateInternalDocumentRequest(
     string Title,
+    string? ReferenceNumber,
     string? Summary,
     Guid SenderDepartmentId,
     List<Guid>? AttachmentFileIds
@@ -28,6 +31,7 @@ public record CreateInternalDocumentRequest(
 
 public record UpdateDocumentRequest(
     string Title,
+    string? ReferenceNumber,
     string? Summary,
     Guid? PartnerId,
     Guid? SenderDepartmentId,
@@ -238,6 +242,7 @@ public class DocumentBusinessService : IDocumentBusinessService
         var doc = new Document
         {
             DocumentNumber = docNumber,
+            ReferenceNumber = req.ReferenceNumber?.Trim(),
             DocType = DocumentTypeConstants.INCOMING,
             Status = DocumentStatusConstants.Draft,
             Title = req.Title.Trim(),
@@ -312,6 +317,7 @@ public class DocumentBusinessService : IDocumentBusinessService
         var doc = new Document
         {
             DocumentNumber = docNumber,
+            ReferenceNumber = req.ReferenceNumber?.Trim(),
             DocType = DocumentTypeConstants.OUTGOING,
             Status = DocumentStatusConstants.Draft,
             Title = req.Title.Trim(),
@@ -377,6 +383,7 @@ public class DocumentBusinessService : IDocumentBusinessService
         var doc = new Document
         {
             DocumentNumber = docNumber,
+            ReferenceNumber = req.ReferenceNumber?.Trim(),
             DocType = DocumentTypeConstants.INTERNAL,
             Status = DocumentStatusConstants.Draft,
             Title = req.Title.Trim(),
@@ -442,6 +449,7 @@ public class DocumentBusinessService : IDocumentBusinessService
             throw new ArgumentException("Tiêu đề công văn không được để trống.");
 
         doc.Title = req.Title.Trim();
+        doc.ReferenceNumber = req.ReferenceNumber?.Trim();
         doc.Summary = req.Summary?.Trim();
         if (req.PartnerId.HasValue)
         {
@@ -704,8 +712,8 @@ public class DocumentBusinessService : IDocumentBusinessService
             .Include(d => d.StatusHistories)
             .AsQueryable();
 
-        // Fail-closed RBAC/ABAC filtering cho người dùng không phải Admin / SecretaryDirector
-        if (userRole != "Admin" && userRole != "SecretaryDirector")
+        // Fail-closed RBAC/ABAC filtering cho người dùng không phải Admin / SecretaryDirector / Secretary
+        if (userRole != "Admin" && userRole != "SecretaryDirector" && userRole != "Secretary")
         {
             if (userDepartmentId.HasValue)
             {
@@ -725,6 +733,7 @@ public class DocumentBusinessService : IDocumentBusinessService
         {
             var term = filter.SearchTerm.Trim().ToLower();
             query = query.Where(d => d.DocumentNumber.ToLower().Contains(term)
+                                  || (d.ReferenceNumber != null && d.ReferenceNumber.ToLower().Contains(term))
                                   || d.Title.ToLower().Contains(term)
                                   || (d.Summary != null && d.Summary.ToLower().Contains(term)));
         }

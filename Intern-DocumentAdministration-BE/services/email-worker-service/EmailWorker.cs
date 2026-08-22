@@ -1,4 +1,4 @@
-﻿using EmailWorkerService.Models;
+using EmailWorkerService.Models;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
@@ -84,7 +84,7 @@ namespace EmailWorkerService
                     {
                         _logger.LogInformation($"     + Phát hiện công văn PDF: {part.FileName}");
 
-                        // 2. Chuyển đổi dữ liệu file từ email sang MemoryStream
+                        if (part.Content == null) continue;
                         using var memoryStream = new MemoryStream();
                         part.Content.DecodeTo(memoryStream);
                         memoryStream.Position = 0; // Reset con trỏ stream về đầu để chuẩn bị đọc

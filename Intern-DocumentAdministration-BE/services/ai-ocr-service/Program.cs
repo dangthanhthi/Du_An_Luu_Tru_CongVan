@@ -1,4 +1,4 @@
-using AiOcrService.Services;
+﻿using AiOcrService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +9,11 @@ builder.Services.AddSwaggerGen();
 // Đăng ký HttpClient để gọi giao tiếp inter-service
 builder.Services.AddHttpClient();
 
-// Đăng ký các Trạm OCR & Matcher
+// Đăng ký các Trạm OCR & Matcher & Dynamic Rule Engine
 builder.Services.AddSingleton<IOcrEngine, TesseractOcrEngine>();
 builder.Services.AddSingleton<IPartnerMatcher, PartnerMatcher>();
+builder.Services.AddSingleton<IOcrRuleService, OcrRuleService>();
+builder.Services.AddSingleton<IDynamicFieldExtractor, DynamicFieldExtractor>();
 
 var app = builder.Build();
 

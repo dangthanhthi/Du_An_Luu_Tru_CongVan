@@ -116,12 +116,27 @@ const HorizontalMenu = ({ dictionary }: Props) => {
         </MenuItem>
 
         <SubMenu label={t.nav.docManagement} icon={<i className='tabler-file-text' />}>
-          <MenuItem href={`/${locale}/apps/documents/list`}>{t.nav.docList}</MenuItem>
+          <MenuItem href={`/${locale}/apps/documents/list?type=incoming`} icon={<i className='tabler-file-import' />}>
+            {t.nav.incomingDocs || 'Công Văn Đến'}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/documents/list?type=outgoing`} icon={<i className='tabler-file-export' />}>
+            {t.nav.outgoingDocs || 'Công Văn Đi'}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/documents/list?type=internal`} icon={<i className='tabler-file-description' />}>
+            {t.nav.internalDocs || 'Công Văn Nội Bộ'}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/documents/list`} icon={<i className='tabler-files' />}>
+            {t.nav.allDocs || 'Tất Cả Công Văn'}
+          </MenuItem>
           {(isAdmin || isSecretary) && (
-            <MenuItem href={`/${locale}/apps/documents/add`}>{t.nav.addDoc}</MenuItem>
+            <MenuItem href={`/${locale}/apps/documents/add`} icon={<i className='tabler-plus' />}>
+              {t.nav.addDoc}
+            </MenuItem>
           )}
           {(isAdmin || isSecretary) && (
-            <MenuItem href={`/${locale}/apps/email-integration`}>{t.nav.emailIntegration}</MenuItem>
+            <MenuItem href={`/${locale}/apps/email-integration`} icon={<i className='tabler-mail-cog' />}>
+              {t.nav.emailIntegration}
+            </MenuItem>
           )}
         </SubMenu>
 

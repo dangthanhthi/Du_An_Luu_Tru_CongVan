@@ -1,4 +1,5 @@
-using AiOcrService.DTOs;
+﻿using AiOcrService.DTOs;
+using AiOcrService.Models;
 using AiOcrService.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,18 +17,27 @@ namespace AiOcrService.Controllers
     {
         private readonly IOcrEngine _ocrEngine;
         private readonly IPartnerMatcher _partnerMatcher;
+        private readonly IOcrRuleService _ruleService;
+        private readonly IDynamicFieldExtractor _fieldExtractor;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public AiOcrController(
             IOcrEngine ocrEngine, 
-            IPartnerMatcher partnerMatcher, 
+            IPartnerMatcher partnerMatcher,
+            IOcrRuleService ruleService,
+            IDynamicFieldExtractor fieldExtractor,
             IHttpClientFactory httpClientFactory)
         {
             _ocrEngine = ocrEngine;
             _partnerMatcher = partnerMatcher;
+            _ruleService = ruleService;
+            _fieldExtractor = fieldExtractor;
             _httpClientFactory = httpClientFactory;
         }
 
+        /// <summary>
+        /// Phân tích toàn diện tài liệu PDF: OCR chữ, bóc tách động các trường (Số hiệu, Trích yếu, Ngày tháng, Người ký) và nhận diện đối tác
+        /// </summary>
         [HttpPost("analyze")]
         public async Task<IActionResult> AnalyzeDocument([FromBody] AnalyzeRequest request)
         {
@@ -66,7 +76,10 @@ namespace AiOcrService.Controllers
                 // TRẠM 2: Trích xuất chữ bằng Tesseract / OCR Engine
                 var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
 
-                // TRẠM 3: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp
+                // TRẠM 3: Bóc tách động các trường nghiệp vụ (Số hiệu, Trích yếu, Ngày, Người ký, Loại văn bản) qua Rule Engine
+                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText);
+
+                // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
                 var partnerServiceUrl = Environment.GetEnvironmentVariable("Services__PartnerService") 
                                      ?? Environment.GetEnvironmentVariable("PARTNER_SERVICE_URL") 
                                      ?? "http://localhost:5003";
@@ -83,7 +96,6 @@ namespace AiOcrService.Controllers
 
                         if (root.TryGetProperty("data", out var dataElem))
                         {
-                            // Hỗ trợ cả 2 định dạng: data là mảng [ ... ] HOẶC data là object paged { items: [ ... ] }
                             JsonElement itemsArray = default;
                             if (dataElem.ValueKind == JsonValueKind.Array)
                             {
@@ -104,20 +116,28 @@ namespace AiOcrService.Controllers
                 }
                 catch
                 {
-                    // Nếu gặp lỗi khi gọi PartnerService, vẫn trả về chuỗi text đã OCR thành công
+                    // Nếu gặp lỗi khi gọi PartnerService, vẫn tiếp tục trả về chuỗi text và các trường đã bóc tách
                 }
 
-                var (matchedPartnerId, confidence) = _partnerMatcher.MatchPartner(extractedText, partners);
+                var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, request.SenderEmail);
+                var finalRefNumber = extractedFields.ReferenceNumber ?? _partnerMatcher.ExtractReferenceNumber(extractedText);
 
-                // Trả về kết quả JSON theo chuẩn API Contract
+                // Trả về kết quả JSON phong phú theo chuẩn API Contract
                 return Ok(new
                 {
                     success = true,
                     data = new
                     {
                         extractedText = extractedText,
-                        matchedPartnerId = matchedPartnerId,
-                        confidence = confidence
+                        extractedReferenceNumber = finalRefNumber,
+                        extractedSubject = extractedFields.Subject,
+                        extractedDate = extractedFields.DocumentDate,
+                        extractedDateString = extractedFields.DocumentDateString,
+                        extractedSigner = extractedFields.Signer,
+                        extractedDocumentType = extractedFields.DocumentType,
+                        matchedPartnerId = matchResult.PartnerId,
+                        confidence = matchResult.Confidence,
+                        matchMethod = matchResult.MatchMethod
                     },
                     message = (string?)null,
                     errors = Array.Empty<string>()
@@ -128,10 +148,142 @@ namespace AiOcrService.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message, errors = new[] { ex.ToString() } });
             }
         }
+
+        // =========================================================================
+        // RESTful API QUẢN TRỊ QUY TẮC NHẬN DIỆN ĐỘNG DÀNH CHO ADMIN / FRONTEND
+        // =========================================================================
+
+        /// <summary>
+        /// Lấy danh sách quy tắc nhận diện (hỗ trợ lọc theo ruleType và isActive)
+        /// </summary>
+        [HttpGet("rules")]
+        public async Task<IActionResult> GetRules([FromQuery] string? ruleType = null, [FromQuery] bool? isActive = null)
+        {
+            var rules = await _ruleService.GetRulesAsync(ruleType, isActive);
+            return Ok(new
+            {
+                success = true,
+                data = rules,
+                totalCount = rules.Count,
+                message = (string?)null,
+                errors = Array.Empty<string>()
+            });
+        }
+
+        /// <summary>
+        /// Lấy chi tiết một quy tắc theo ID
+        /// </summary>
+        [HttpGet("rules/{id:guid}")]
+        public async Task<IActionResult> GetRuleById(Guid id)
+        {
+            var rule = await _ruleService.GetRuleByIdAsync(id);
+            if (rule == null)
+            {
+                return NotFound(new { success = false, message = $"Không tìm thấy quy tắc ID: {id}", errors = new[] { "Rule not found" } });
+            }
+
+            return Ok(new { success = true, data = rule, message = (string?)null, errors = Array.Empty<string>() });
+        }
+
+        /// <summary>
+        /// Tạo mới một quy tắc nhận diện động (Admin)
+        /// </summary>
+        [HttpPost("rules")]
+        public async Task<IActionResult> CreateRule([FromBody] CreateOcrRuleRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.RuleType) || string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Pattern))
+            {
+                return BadRequest(new { success = false, message = "RuleType, Name và Pattern là các trường bắt buộc.", errors = new[] { "Validation error" } });
+            }
+
+            var createdRule = await _ruleService.CreateRuleAsync(request);
+            return CreatedAtAction(nameof(GetRuleById), new { id = createdRule.Id }, new
+            {
+                success = true,
+                data = createdRule,
+                message = "Đã tạo quy tắc nhận diện động thành công.",
+                errors = Array.Empty<string>()
+            });
+        }
+
+        /// <summary>
+        /// Cập nhật quy tắc nhận diện (Admin)
+        /// </summary>
+        [HttpPut("rules/{id:guid}")]
+        public async Task<IActionResult> UpdateRule(Guid id, [FromBody] UpdateOcrRuleRequest request)
+        {
+            var updatedRule = await _ruleService.UpdateRuleAsync(id, request);
+            if (updatedRule == null)
+            {
+                return NotFound(new { success = false, message = $"Không tìm thấy quy tắc ID: {id}", errors = new[] { "Rule not found" } });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                data = updatedRule,
+                message = "Đã cập nhật quy tắc nhận diện thành công.",
+                errors = Array.Empty<string>()
+            });
+        }
+
+        /// <summary>
+        /// Xóa một quy tắc nhận diện (Admin)
+        /// </summary>
+        [HttpDelete("rules/{id:guid}")]
+        public async Task<IActionResult> DeleteRule(Guid id)
+        {
+            var deleted = await _ruleService.DeleteRuleAsync(id);
+            if (!deleted)
+            {
+                return NotFound(new { success = false, message = $"Không tìm thấy quy tắc ID: {id}", errors = new[] { "Rule not found" } });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                data = (object?)null,
+                message = "Đã xóa quy tắc nhận diện thành công.",
+                errors = Array.Empty<string>()
+            });
+        }
+
+        /// <summary>
+        /// Khôi phục toàn bộ quy tắc về mặc định chuẩn hành chính
+        /// </summary>
+        [HttpPost("rules/reset-defaults")]
+        public async Task<IActionResult> ResetDefaults()
+        {
+            var defaultRules = await _ruleService.ResetToDefaultsAsync();
+            return Ok(new
+            {
+                success = true,
+                data = defaultRules,
+                message = "Đã khôi phục toàn bộ quy tắc mặc định thành công.",
+                errors = Array.Empty<string>()
+            });
+        }
+
+        /// <summary>
+        /// Thử nghiệm một mẫu Regex pattern trên đoạn văn bản mẫu trước khi lưu
+        /// </summary>
+        [HttpPost("rules/test")]
+        public IActionResult TestPattern([FromBody] TestPatternRequest request)
+        {
+            var result = _ruleService.TestPattern(request);
+            return Ok(new
+            {
+                success = true,
+                data = result,
+                message = "Đã thực thi kiểm thử mẫu Regex.",
+                errors = Array.Empty<string>()
+            });
+        }
     }
 
     public class AnalyzeRequest
     {
         public Guid FileId { get; set; }
+        public string? SenderEmail { get; set; }
     }
 }

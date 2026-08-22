@@ -20,7 +20,8 @@ public static class DocumentStatusConstants
 public class Document
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string DocumentNumber { get; set; } = default!;
+    public string DocumentNumber { get; set; } = default!; // Số đến / số công văn nội bộ (CV-DEN-2026-0001)
+    public string? ReferenceNumber { get; set; } // Số ký hiệu / công văn của đối tác ban hành (Reference No.)
     public string DocType { get; set; } = default!; // INCOMING / OUTGOING / INTERNAL
     public string Status { get; set; } = DocumentStatusConstants.Draft; // Draft / Reviewed / Distributed
     public string Title { get; set; } = default!;
@@ -112,6 +113,9 @@ public class DocumentDbContext : DbContext
 
         modelBuilder.Entity<Document>()
             .HasIndex(d => d.DocumentNumber).IsUnique();
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(d => d.ReferenceNumber);
 
         // Soft delete: tự động lọc bỏ công văn đã xóa khỏi mọi truy vấn
         modelBuilder.Entity<Document>()

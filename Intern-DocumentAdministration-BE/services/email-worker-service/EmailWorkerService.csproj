@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>d763d19f-d047-4d73-9c7b-20f8e6499f2e</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <CETCompat>false</CETCompat>
   </PropertyGroup>
 
   <ItemGroup>
