@@ -223,7 +223,7 @@ const EmailIntegrationView = () => {
             processedIds.push(mailKey)
             autoCreatedCount++
 
-            // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế
+            // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế và file PDF thật
             try {
               await documentApi.create({
                 documentNumber: internalDocNum,
@@ -233,7 +233,8 @@ const EmailIntegrationView = () => {
                 issuedDate: issuedDate,
                 partnerName: partnerName,
                 senderEmail: item.sender,
-                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'CV_896_VNPT_IT.pdf'}`
+                fileUrl: item.fileUrl || '',
+                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
               })
             } catch {}
           } else {

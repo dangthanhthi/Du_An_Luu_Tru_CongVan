@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import tls from 'node:tls'
+import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 function decodeMimeHeader(headerStr: string): string {
   if (!headerStr) return ''
@@ -20,84 +21,61 @@ function decodeMimeHeader(headerStr: string): string {
   })
 }
 
-// Bóc tách thông tin công văn chuyên sâu (AI Pattern Matching từ Nội dung Email & Tệp PDF)
-function extractDocumentMetadata(subject: string, bodyText: string, senderEmail: string, attachmentName: string) {
-  const fullText = `${subject} \n ${bodyText} \n ${attachmentName}`
+// Bóc tách Base64 của tệp PDF THẬT từ raw RFC 822 email
+function extractRealPdfBase64(rawEmail: string): { base64Data: string; filename: string } | null {
+  try {
+    // 1. Tìm boundary và các part trong multipart email
+    const lines = rawEmail.split(/\r?\n/)
+    let inPdfPart = false
+    let isBase64Encoding = false
+    let currentFileName = ''
+    let base64Buffer = ''
 
-  // 1. Bóc tách Số ký hiệu đối tác (Reference Number)
-  let extractedRef = ''
-  // Mẫu 1: Số: 896/VNPT-IT/2026 hoặc Số: 145/TB-VNPT-IT hoặc Số: 128/BGDĐT-GDĐH
-  const refMatch1 = fullText.match(/(?:Số|No|Ref|Ký hiệu|Số hiệu)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)
-  if (refMatch1 && refMatch1[1]) {
-    extractedRef = refMatch1[1].trim()
-  } else {
-    // Mẫu 2: 896/VNPT-IT/2026 hoặc 145/TB-VNPT-IT đứng độc lập
-    const refMatch2 = fullText.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)
-    if (refMatch2 && refMatch2[1] && !refMatch2[1].startsWith('0/')) {
-      extractedRef = refMatch2[1].trim()
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+
+      if (line.toLowerCase().includes('content-type: application/pdf') || line.toLowerCase().includes('.pdf')) {
+        inPdfPart = true
+      }
+
+      if (inPdfPart) {
+        if (line.toLowerCase().includes('content-transfer-encoding: base64')) {
+          isBase64Encoding = true
+        }
+
+        if (line.toLowerCase().includes('filename=') || line.toLowerCase().includes('name=')) {
+          const match = line.match(/(?:filename|name)=["']?([^"';\r\n]+)["']?/i)
+          if (match && match[1]) {
+            currentFileName = decodeMimeHeader(match[1]).trim()
+          }
+        }
+
+        // Dòng trống đầu tiên báo hiệu kết thúc header của part và bắt đầu nội dung base64
+        if (line === '' && isBase64Encoding) {
+          // Thu thập các dòng base64 tiếp theo cho đến khi gặp boundary tiếp theo
+          for (let j = i + 1; j < lines.length; j++) {
+            const contentLine = lines[j].trim()
+            if (contentLine.startsWith('--')) {
+              // Gặp boundary kết thúc part
+              break
+            }
+            if (/^[A-Za-z0-9+/=]+$/.test(contentLine)) {
+              base64Buffer += contentLine
+            }
+          }
+          break
+        }
+      }
     }
-  }
 
-  // 2. Nhận diện Cơ quan / Đơn vị ban hành (Partner Identification)
-  let extractedPartner = ''
-  const upper = fullText.toUpperCase()
-  if (upper.includes('VNPT') || upper.includes('BƯU CHÍNH VIỄN THÔNG')) {
-    extractedPartner = upper.includes('VNPT-IT') 
-      ? 'Tổng Công ty VNPT-IT (Tập đoàn VNPT)' 
-      : 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
-  } else if (upper.includes('BGDĐT') || upper.includes('BGDDT') || upper.includes('BỘ GIÁO DỤC')) {
-    extractedPartner = upper.includes('CNTT') 
-      ? 'Bộ Giáo dục và Đào tạo (Cục CNTT)' 
-      : 'Bộ Giáo dục và Đào tạo'
-  } else if (upper.includes('UBND') || upper.includes('ỦY BAN NHÂN DÂN')) {
-    if (upper.includes('HÀ NỘI') || upper.includes('HA NOI')) extractedPartner = 'Ủy ban Nhân dân TP Hà Nội'
-    else if (upper.includes('HỒ CHÍ MINH') || upper.includes('HCM')) extractedPartner = 'Ủy ban Nhân dân TP Hồ Chí Minh'
-    else extractedPartner = 'Ủy ban Nhân dân'
-  } else if (upper.includes('VIETTEL')) {
-    extractedPartner = 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
-  } else if (upper.includes('FPT')) {
-    extractedPartner = 'Công ty Cổ phần FPT'
-  } else if (upper.includes('BCA') || upper.includes('BỘ CÔNG AN')) {
-    extractedPartner = 'Bộ Công an'
-  } else if (upper.includes('EVN') || upper.includes('ĐIỆN LỰC')) {
-    extractedPartner = 'Tập đoàn Điện lực Việt Nam (EVN)'
-  } else if (upper.includes('BHXH') || upper.includes('BẢO HIỂM')) {
-    extractedPartner = 'Bảo hiểm Xã hội Việt Nam'
-  } else if (senderEmail) {
-    // Tự động phân tích domain email (ví dụ: contact@vnpt.vn -> VNPT)
-    const domain = senderEmail.split('@')[1] || ''
-    if (domain.includes('moet.gov.vn')) extractedPartner = 'Bộ Giáo dục và Đào tạo'
-    else if (domain.includes('vnpt.vn')) extractedPartner = 'Tập đoàn VNPT'
-    else if (domain.includes('hanoi.gov.vn')) extractedPartner = 'Ủy ban Nhân dân TP Hà Nội'
-    else if (domain.includes('viettel.com.vn')) extractedPartner = 'Tập đoàn Viettel'
-    else if (domain.includes('fpt.com.vn')) extractedPartner = 'Công ty Cổ phần FPT'
-    else extractedPartner = senderEmail.split('@')[0].toUpperCase()
-  }
-
-  // 3. Chuẩn hóa Trích yếu / Tiêu đề văn bản (Title / Subject)
-  let extractedTitle = subject
-  // Loại bỏ các tiền tố thư: [Công Văn Đến], Fwd:, Re:, ...
-  extractedTitle = extractedTitle
-    .replace(/^\[.*?\]\s*/i, '')
-    .replace(/^(?:fwd|re):\s*/i, '')
-    .trim()
-
-  // 4. Bóc tách Ngày ban hành (Issued Date)
-  let extractedDate = new Date().toLocaleDateString('vi-VN')
-  const dateMatch = fullText.match(/ngày\s*([0-9]{1,2})\s*tháng\s*([0-9]{1,2})\s*năm\s*([0-9]{4})/i)
-  if (dateMatch) {
-    const day = dateMatch[1].padStart(2, '0')
-    const month = dateMatch[2].padStart(2, '0')
-    const year = dateMatch[3]
-    extractedDate = `${day}/${month}/${year}`
-  }
-
-  return {
-    referenceNumber: extractedRef || 'Chưa có số hiệu',
-    partnerName: extractedPartner || 'Đơn vị đối tác',
-    title: extractedTitle || 'Công văn tiếp nhận từ hòm thư điện tử',
-    issuedDate: extractedDate
-  }
+    if (base64Buffer.length > 500) {
+      return {
+        base64Data: `data:application/pdf;base64,${base64Buffer}`,
+        filename: currentFileName || 'VanBan_DinhKem_Tu_Email.pdf'
+      }
+    }
+  } catch {}
+  return null
 }
 
 function parseEmailBody(rawEmail: string, mailId?: string) {
@@ -107,7 +85,6 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
   let date = ''
   let messageId = ''
   let attachmentName = ''
-  let hasPdf = false
   let inHeader = true
   let bodyContent = ''
 
@@ -134,27 +111,8 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
         messageId = line.substring(11).trim()
       }
     } else {
-      // Body content
-      if (bodyContent.length < 3000) {
+      if (bodyContent.length < 5000) {
         bodyContent += line + ' '
-      }
-
-      const lowerLine = line.toLowerCase()
-      if (lowerLine.includes('application/pdf') || lowerLine.includes('.pdf')) {
-        hasPdf = true
-      }
-
-      if (lowerLine.includes('filename=') || lowerLine.includes('name=')) {
-        const match = line.match(/(?:filename|name)=["']?([^"';\r\n]+)["']?/i)
-        if (match && match[1]) {
-          const fname = decodeMimeHeader(match[1]).trim()
-          if (fname.toLowerCase().endsWith('.pdf') || fname.toLowerCase().includes('pdf')) {
-            attachmentName = fname
-            hasPdf = true
-          } else if (!attachmentName) {
-            attachmentName = fname
-          }
-        }
       }
     }
   }
@@ -163,8 +121,17 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
   const fromMatch = from.match(/<([^>]+)>/)
   const cleanFrom = fromMatch ? fromMatch[1] : from.trim()
 
-  // Bóc tách thông tin động từ AI OCR Pattern Extractor
-  const meta = extractDocumentMetadata(subject, bodyContent, cleanFrom, attachmentName)
+  // Trích xuất file PDF THẬT từ email
+  const realPdf = extractRealPdfBase64(rawEmail)
+  const hasRealPdf = Boolean(realPdf && realPdf.base64Data)
+
+  // Bóc tách thông tin động từ AI OCR Universal Extractor
+  const meta = parseOcrDocumentMetadata({
+    title: subject,
+    summary: bodyContent,
+    senderEmail: cleanFrom,
+    attachmentName: realPdf?.filename || ''
+  })
 
   return {
     id: mailId || messageId || `mail-${Date.now()}-${Math.random()}`,
@@ -172,8 +139,9 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
     subject: subject || 'Công văn tiếp nhận từ hòm thư điện tử',
     sender: cleanFrom || 'vanthu.coquan@domain.gov.vn',
     date: date || new Date().toISOString(),
-    attachment: attachmentName || (hasPdf ? 'VanBan_DinhKem.pdf' : ''),
-    hasPdf: hasPdf || (Boolean(attachmentName) && attachmentName.toLowerCase().endsWith('.pdf')),
+    attachment: realPdf?.filename || (hasRealPdf ? 'VanBan_DinhKem.pdf' : ''),
+    hasPdf: hasRealPdf,
+    fileUrl: realPdf?.base64Data || '', // Base64 của PDF THẬT 100%
     // Dynamic Extracted OCR Fields
     extractedRefNumber: meta.referenceNumber,
     extractedPartner: meta.partnerName,
@@ -202,7 +170,7 @@ export async function POST(req: Request) {
         // Connected to IMAP
       })
 
-      socket.setTimeout(15000)
+      socket.setTimeout(20000)
 
       let step = 0
       let buffer = ''
@@ -231,7 +199,6 @@ export async function POST(req: Request) {
         } else if (step === 2 && buffer.includes('A02 OK')) {
           step = 3
           buffer = ''
-          // Chỉ tìm kiếm EMAIL MỚI CHƯA ĐỌC (UNSEEN)
           socket.write(`A03 SEARCH UNSEEN\r\n`)
         } else if (step === 3 && buffer.includes('A03 OK')) {
           const searchLine = buffer.split('\n').find(l => l.startsWith('* SEARCH')) || ''

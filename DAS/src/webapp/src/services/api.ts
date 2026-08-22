@@ -422,6 +422,7 @@ export const documentApi = {
       issuedDate: data.issuedDate || new Date().toLocaleDateString('vi-VN'),
       partnerName: data.partnerName || 'Chưa xác định',
       senderEmail: data.senderEmail || '',
+      fileUrl: data.fileUrl || '',
       status: 'pending',
       summary: data.summary || '',
       fileIds: data.fileIds || []

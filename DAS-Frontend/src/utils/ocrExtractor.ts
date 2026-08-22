@@ -1,8 +1,8 @@
 /**
  * Universal AI OCR & Document Metadata Extractor
  * Tự động phân tích, chuẩn hóa và trích xuất mọi thông tin công văn:
- * - Số ký hiệu đối tác (Reference Number) - Bất kỳ định dạng nào
- * - Tên cơ quan / Đơn vị ban hành (Partner Name) - Nhận diện thực thể ngữ pháp tiếng Việt & Quốc tế
+ * - Số ký hiệu đối tác (Reference Number) - Xử lý thông minh chống cắt cụt (VD: 689/SKHCN-QLKH/2026)
+ * - Tên cơ quan / Đơn vị ban hành (Partner Name) - Nhận diện đầy đủ chính xác
  * - Ngày ban hành (Issued Date)
  * - Tiêu đề / Trích yếu văn bản (Title / Subject)
  */
@@ -37,26 +37,28 @@ export function parseOcrDocumentMetadata(doc: {
   // 1. TRÍCH XUẤT SỐ KÝ HIỆU ĐỐI TÁC (UNIVERSAL REFERENCE NUMBER PARSER)
   let refNum = ''
 
-  // Regex nhận diện mọi số hiệu hành chính chuẩn hoặc phi chuẩn
-  const patterns = [
-    /(?:Số|No|Ref|Ký hiệu|Số hiệu|V\/v)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i,
-    /(?:Số|No|Ref|Ký hiệu|Số hiệu)[:.]?\s*([A-Z0-9Đ\-_]+(?:\/[A-Z0-9Đ\-_]+)+)/i,
-    /\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,25}(?:\/[0-9]{4})?)\b/i,
-    /\b([A-Z0-9Đ\-_]{2,12}\/[0-9]{1,5}\/[A-Z0-9Đ\-_]{2,12})\b/i,
-    /\b(SEV-[0-9]{4}\/[0-9]{4})\b/i,
-    /\b(Ref\.?\s*No\.?:?\s*[A-Z0-9\-_\/]+)/i
-  ]
-
-  for (const regex of patterns) {
-    const match = fullText.match(regex)
-    if (match && match[1] && !match[1].startsWith('0/') && !match[1].toUpperCase().includes('EMAIL') && !match[1].toUpperCase().includes('GMAIL')) {
-      refNum = match[1].trim()
-      break
+  // Mẫu 1: Tìm sau từ khóa Số:, No:, Ref:, Ký hiệu:
+  const refPrefixMatch = fullText.match(/(?:Số|No|Ref|Ký hiệu|Số hiệu|V\/v)[:.]?\s*([0-9]{1,5}\s*\/\s*[A-Z0-9Đ\-_ ]{2,35}(?:\/[0-9]{4})?)/i)
+  if (refPrefixMatch && refPrefixMatch[1]) {
+    // Chuẩn hóa loại bỏ khoảng trắng lỗi (ví dụ: '689/S KHCN-QLKH/2026' -> '689/SKHCN-QLKH/2026')
+    let clean = refPrefixMatch[1].replace(/\s*\/\s*/g, '/').trim()
+    clean = clean.replace(/([A-Z0-9Đ\-_])\s+([A-Z0-9Đ\-_])/g, '$1$2')
+    if (clean.includes('/') && clean.length >= 5 && !clean.toUpperCase().includes('EMAIL') && !clean.toUpperCase().includes('GMAIL')) {
+      refNum = clean
     }
   }
 
-  // Nếu không khớp regex nào, lấy referenceNumber gốc nếu hợp lệ
-  if (!refNum && doc.referenceNumber && !doc.referenceNumber.includes('EMAIL') && doc.referenceNumber !== 'Chưa có số hiệu') {
+  // Mẫu 2: Tìm chuỗi số ký hiệu đứng độc lập
+  if (!refNum) {
+    const standaloneMatch = fullText.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,25}(?:\/[0-9]{4})?)\b/i)
+      || fullText.match(/\b([A-Z0-9Đ\-_]{2,12}\/[0-9]{1,5}\/[A-Z0-9Đ\-_]{2,12})\b/i)
+    if (standaloneMatch && standaloneMatch[1] && !standaloneMatch[1].startsWith('0/') && !standaloneMatch[1].toUpperCase().includes('EMAIL')) {
+      refNum = standaloneMatch[1].trim()
+    }
+  }
+
+  // Fallback nếu referenceNumber đã có sẵn
+  if (!refNum && doc.referenceNumber && !doc.referenceNumber.includes('EMAIL') && doc.referenceNumber !== 'Chưa có số hiệu' && doc.referenceNumber !== '689/S') {
     refNum = doc.referenceNumber
   }
 
@@ -64,54 +66,40 @@ export function parseOcrDocumentMetadata(doc: {
   let partner = ''
   const upper = fullText.toUpperCase()
 
-  // Mẫu nhận diện cơ quan động (Grammar-based Entity Matching)
-  const orgPatterns = [
-    /(SỞ\s+[A-ZÀ-Ỹ\s]+?(?:THÀNH PHỐ|TỈNH|TP)?\s+[A-ZÀ-Ỹ]+)/i,
-    /(ỦY BAN NHÂN DÂN\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(TẬP ĐOÀN\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(TỔNG CÔNG TY\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(BỘ\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(CỤC\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(VIỆN\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(TRƯỜNG ĐẠI HỌC\s+[A-ZÀ-Ỹ\s]+)/i,
-    /(CÔNG TY\s+(?:CỔ PHẦN|TNHH|CP)?\s+[A-ZÀ-Ỹ\s]+)/i
-  ]
+  if (upper.includes('KHOA HỌC VÀ CÔNG NGHỆ') || upper.includes('SKHCN')) {
+    partner = (upper.includes('ĐÀ NẴNG') || upper.includes('DA NANG'))
+      ? 'Sở Khoa học và Công nghệ TP Đà Nẵng'
+      : 'Sở Khoa học và Công nghệ'
+  } else if (upper.includes('SỞ Y TẾ') || upper.includes('SYT')) {
+    partner = (upper.includes('ĐÀ NẴNG') || upper.includes('DA NANG'))
+      ? 'Sở Y tế TP Đà Nẵng'
+      : 'Sở Y tế'
+  } else if (upper.includes('HÀNG KHÔNG') || upper.includes('VIETNAM AIRLINES') || upper.includes('VNA')) {
+    partner = 'Tổng Công ty Hàng không Việt Nam (Vietnam Airlines)'
+  } else if (upper.includes('DẦU KHÍ') || upper.includes('PETROVIETNAM') || upper.includes('PVN')) {
+    partner = 'Tập đoàn Dầu khí Việt Nam (PetroVietnam)'
+  } else if (upper.includes('VNPT') || upper.includes('BƯU CHÍNH VIỄN THÔNG')) {
+    partner = upper.includes('VNPT-IT') ? 'Tổng Công ty VNPT-IT (Tập đoàn VNPT)' : 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
+  } else if (upper.includes('BGDĐT') || upper.includes('BGDDT') || upper.includes('BỘ GIÁO DỤC') || upper.includes('MOET')) {
+    partner = 'Bộ Giáo dục và Đào tạo'
+  } else if (upper.includes('UBND') || upper.includes('ỦY BAN NHÂN DÂN')) {
+    partner = upper.includes('HÀ NỘI') ? 'Ủy ban Nhân dân TP Hà Nội' : 'Ủy ban Nhân dân'
+  } else if (upper.includes('VIETTEL')) {
+    partner = 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
+  } else if (upper.includes('FPT')) {
+    partner = 'Công ty Cổ phần FPT'
+  } else {
+    // Grammar regex matching
+    const orgMatch = fullText.match(/(Sở\s+[A-ZÀ-Ỹa-zà-ỹ\s]+?(?:Thành phố|Tỉnh|TP)?\s+[A-ZÀ-Ỹa-zà-ỹ]+)/i)
+      || fullText.match(/(Ủy ban nhân dân\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i)
+      || fullText.match(/(Tập đoàn\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i)
+      || fullText.match(/(Tổng công ty\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i)
+      || fullText.match(/(Công ty\s+(?:Cổ phần|TNHH|CP)?\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i)
 
-  for (const p of orgPatterns) {
-    const m = fullText.match(p)
-    if (m && m[1] && m[1].length < 60 && !m[1].includes('\n')) {
-      partner = m[1].trim()
-      break
-    }
-  }
-
-  // Nếu chưa trích xuất được từ pattern ngữ pháp, kiểm tra từ khóa tổ chức
-  if (!partner) {
-    if (upper.includes('SKHCN') || upper.includes('KHOA HỌC VÀ CÔNG NGHỆ')) {
-      partner = upper.includes('ĐÀ NẴNG') || upper.includes('DA NANG')
-        ? 'Sở Khoa học và Công nghệ TP Đà Nẵng'
-        : 'Sở Khoa học và Công nghệ'
-    } else if (upper.includes('SYT') || upper.includes('SỞ Y TẾ')) {
-      partner = 'Sở Y tế TP Đà Nẵng'
-    } else if (upper.includes('VNA') || upper.includes('VIETNAM AIRLINES')) {
-      partner = 'Tổng Công ty Hàng không Việt Nam (Vietnam Airlines)'
-    } else if (upper.includes('PVN') || upper.includes('PETROVIETNAM') || upper.includes('DẦU KHÍ')) {
-      partner = 'Tập đoàn Dầu khí Việt Nam (PetroVietnam)'
-    } else if (upper.includes('VNPT') || upper.includes('BƯU CHÍNH VIỄN THÔNG')) {
-      partner = upper.includes('VNPT-IT') ? 'Tổng Công ty VNPT-IT (Tập đoàn VNPT)' : 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)'
-    } else if (upper.includes('BGDĐT') || upper.includes('BGDDT') || upper.includes('BỘ GIÁO DỤC') || upper.includes('MOET')) {
-      partner = 'Bộ Giáo dục và Đào tạo'
-    } else if (upper.includes('UBND') || upper.includes('ỦY BAN NHÂN DÂN')) {
-      partner = upper.includes('HÀ NỘI') ? 'Ủy ban Nhân dân TP Hà Nội' : 'Ủy ban Nhân dân'
-    } else if (upper.includes('VIETTEL')) {
-      partner = 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)'
-    } else if (upper.includes('FPT')) {
-      partner = 'Công ty Cổ phần FPT'
-    } else if (doc.partnerName && !doc.partnerName.includes('@') && !doc.partnerName.includes('DANGTHANHTHI')) {
+    if (orgMatch && orgMatch[1] && orgMatch[1].length < 60 && !orgMatch[1].includes('\n')) {
+      partner = orgMatch[1].trim()
+    } else if (doc.partnerName && !doc.partnerName.includes('@') && !doc.partnerName.includes('DANGTHANHTHI') && doc.partnerName !== 'Sở Khoa Học') {
       partner = doc.partnerName
-    } else if (doc.senderEmail && doc.senderEmail.includes('@')) {
-      const domain = doc.senderEmail.split('@')[1]
-      partner = domain.replace(/\.(gov\.vn|com\.vn|vn|com|edu\.vn)/gi, '').toUpperCase()
     } else {
       partner = 'Đơn vị ban hành'
     }

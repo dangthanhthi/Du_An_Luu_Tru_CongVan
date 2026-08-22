@@ -88,7 +88,7 @@ export const AutoEmailScanner = () => {
               processedIds.push(mailKey)
               newlyCreatedDocs++
 
-              // Lưu công văn vào cơ sở dữ liệu
+              // Lưu công văn vào cơ sở dữ liệu với file PDF thật 100%
               try {
                 await documentApi.create({
                   documentNumber: internalDocNum,
@@ -98,7 +98,8 @@ export const AutoEmailScanner = () => {
                   issuedDate: issuedDate,
                   partnerName: partnerName,
                   senderEmail: item.sender,
-                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'CV_896_VNPT_IT.pdf'}`
+                  fileUrl: item.fileUrl || '',
+                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
                 })
               } catch {}
             } else {

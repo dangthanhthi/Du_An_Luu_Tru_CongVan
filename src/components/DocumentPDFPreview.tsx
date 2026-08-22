@@ -27,7 +27,7 @@ interface DocumentPDFPreviewProps {
 }
 
 export default function DocumentPDFPreview({
-  pdfUrl = '/samples/01_Cong_Van_Den_Bo_GDDT.pdf',
+  pdfUrl,
   fileName = 'VanBan_DinhKem.pdf',
   docNumber = 'CV-2026',
   summaryText
@@ -35,6 +35,26 @@ export default function DocumentPDFPreview({
   const { isEn } = useAppDictionary()
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [activeView, setActiveView] = useState<'pdf' | 'text'>('pdf')
+
+  if (!pdfUrl) {
+    return (
+      <Card className='border border-dashed border-error/50 p-8 text-center bg-error/5 rounded-lg'>
+        <div className='flex flex-col items-center justify-center gap-3'>
+          <div className='p-3 rounded-full bg-error/10 text-error'>
+            <i className='tabler-file-alert text-4xl' />
+          </div>
+          <Typography variant='h6' color='error.main' className='font-bold'>
+            {isEn ? 'No Real PDF Attached to this Email' : 'Không có tệp PDF thực tế đính kèm'}
+          </Typography>
+          <Typography variant='body2' color='text.secondary' className='max-w-md'>
+            {isEn
+              ? 'This document was received from email without a valid PDF file. The system does not use sample PDFs.'
+              : 'Công văn này được tiếp nhận từ email không có tệp PDF đính kèm hoặc tệp bị lỗi. Hệ thống chỉ hiển thị tệp PDF thật từ email của bạn, không dùng file mẫu.'}
+          </Typography>
+        </div>
+      </Card>
+    )
+  }
 
   const handleDownload = () => {
     const link = document.createElement('a')
@@ -55,7 +75,7 @@ export default function DocumentPDFPreview({
                 <i className='tabler-file-type-pdf text-2xl text-error' />
                 <div>
                   <Typography variant='subtitle1' className='font-semibold'>
-                    {isEn ? 'PDF Document Preview' : 'Xem Trước Tệp PDF & Bản Scan'}
+                    {isEn ? 'Real PDF Document Preview' : 'Xem Trước Tệp PDF Thực Tế'}
                   </Typography>
                   <Typography variant='caption' color='text.secondary'>
                     {fileName}

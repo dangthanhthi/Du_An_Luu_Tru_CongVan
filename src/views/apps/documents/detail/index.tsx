@@ -74,19 +74,6 @@ const DocumentDetail = ({ id }: { id: string }) => {
     }
   }
 
-  const getPdfSampleUrl = () => {
-    if (doc?.fileUrl) return doc.fileUrl
-    const full = `${doc?.title || ''} ${doc?.referenceNumber || ''} ${doc?.partnerName || ''}`.toLowerCase()
-
-    if (full.includes('vnpt') || full.includes('145/tb') || full.includes('896/vnpt') || full.includes('bưu chính')) return '/samples/03_Thong_Bao_Tap_Doan_VNPT.pdf'
-    if (full.includes('bgddt') || full.includes('giáo dục') || full.includes('2154') || full.includes('128')) return '/samples/01_Cong_Van_Den_Bo_GDDT.pdf'
-    if (full.includes('ubnd') || full.includes('hà nội')) return '/samples/02_Quyet_Dinh_UBND_Ha_Noi.pdf'
-    if (full.includes('dhqg') || full.includes('đại học')) return '/samples/04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf'
-    if (full.includes('abc') || full.includes('hội thảo')) return '/samples/05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf'
-
-    return '/samples/03_Thong_Bao_Tap_Doan_VNPT.pdf'
-  }
-
   if (loading) {
     return (
       <div className='flex justify-center items-center min-bs-[300px]'>
@@ -106,7 +93,8 @@ const DocumentDetail = ({ id }: { id: string }) => {
     )
   }
 
-  const pdfUrl = getPdfSampleUrl()
+  // Tệp PDF THẬT 100% từ email (Data URI Base64) - Tuyệt đối không dùng file mẫu có sẵn
+  const pdfUrl = doc?.fileUrl || ''
   const fileName = doc.documentNumber ? `${doc.documentNumber.replace(/[\/\\:]/g, '_')}.pdf` : 'VanBan_DinhKem.pdf'
 
   // Bóc tách động thông tin chuẩn xác qua AI OCR Parser
