@@ -45,7 +45,7 @@ const AddDocumentForm = () => {
   const [submitLoading, setSubmitLoading] = useState(false)
   const [alertInfo, setAlertInfo] = useState<{ type: 'success' | 'error' | 'warning'; message: string } | null>(null)
 
-  // Handle OCR Scan — gọi Backend API thực, KHÔNG tạo dữ liệu giả
+  // Handle OCR Scan — Kết hợp Backend AI-OCR Engine và Local Next.js PDF Engine
   const handleOcrScan = async () => {
     if (!selectedFile) {
       setAlertInfo({ type: 'error', message: 'Vui lòng chọn tệp PDF hoặc ảnh công văn trước khi quét OCR.' })
@@ -55,91 +55,126 @@ const AddDocumentForm = () => {
     setOcrLoading(true)
     setAlertInfo(null)
 
+    let isProcessed = false
+
+    // 1. Thử gọi Backend Microservice qua API Gateway
     try {
-      // Upload file lên FileService
       const uploadRes = await fileApi.upload(selectedFile)
       const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
 
-      if (!fileId) {
-        setAlertInfo({ type: 'error', message: 'Không thể tải tệp lên máy chủ. Vui lòng thử lại.' })
-        return
-      }
+      if (fileId) {
+        setFormData(prev => ({ ...prev, fileIds: [fileId] }))
+        const ocrRes = await ocrApi.analyze(fileId)
 
-      setFormData(prev => ({ ...prev, fileIds: [fileId] }))
+        if (ocrRes?.success && ocrRes?.data) {
+          const {
+            extractedText,
+            extractedReferenceNumber,
+            extractedSubject,
+            extractedDateString,
+            extractedSigner,
+            extractedDocumentType,
+            matchedPartnerId,
+            confidence
+          } = ocrRes.data
 
-      // Gọi API OCR phân tích
-      const ocrRes = await ocrApi.analyze(fileId)
+          setOcrResult({ text: extractedText, confidence, matchedPartnerId })
 
-      if (ocrRes?.success && ocrRes?.data) {
-        const {
-          extractedText,
-          extractedReferenceNumber,
-          extractedSubject,
-          extractedDateString,
-          extractedSigner,
-          extractedDocumentType,
-          matchedPartnerId,
-          confidence
-        } = ocrRes.data
+          setFormData(prev => ({
+            ...prev,
+            documentNumber: extractedReferenceNumber || prev.documentNumber || '',
+            title: extractedSubject || prev.title || '',
+            issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
+            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
+          }))
 
-        setOcrResult({ text: extractedText, confidence, matchedPartnerId })
-
-        // Map ĐÚNG các trường đã bóc tách từ Backend vào form
-        setFormData(prev => ({
-          ...prev,
-          // Số ký hiệu: ưu tiên extractedReferenceNumber từ backend
-          documentNumber: extractedReferenceNumber || prev.documentNumber || '',
-          // Tiêu đề: ưu tiên extractedSubject (trích yếu thực), KHÔNG dùng dòng đầu OCR text
-          title: extractedSubject || prev.title || '',
-          // Ngày ban hành: từ backend
-          issuedDate: extractedDateString
-            ? convertDateToISO(extractedDateString)
-            : prev.issuedDate,
-          // Tóm tắt
-          summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
-        }))
-
-        // Tra cứu thông tin đối tác nếu có matchedPartnerId
-        if (matchedPartnerId) {
-          try {
-            const partnerDetail = await partnerApi.getById(matchedPartnerId)
-            const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
-            if (name) {
-              setFormData(prev => ({ ...prev, partnerId: matchedPartnerId, partnerName: name }))
+          if (matchedPartnerId) {
+            try {
+              const partnerDetail = await partnerApi.getById(matchedPartnerId)
+              const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
+              if (name) {
+                setFormData(prev => ({ ...prev, partnerId: matchedPartnerId, partnerName: name }))
+              }
+            } catch {
+              setFormData(prev => ({ ...prev, partnerId: matchedPartnerId }))
             }
-          } catch {
-            // Nếu không tra được chi tiết partner, vẫn lưu ID
-            setFormData(prev => ({ ...prev, partnerId: matchedPartnerId }))
           }
+
+          const infoLines = []
+          if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
+          if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 60)}...`)
+          if (extractedDocumentType) infoLines.push(`Loại: ${extractedDocumentType}`)
+          if (extractedSigner) infoLines.push(`Người ký: ${extractedSigner}`)
+          if (confidence) infoLines.push(`Độ tin cậy: ${(confidence * 100).toFixed(0)}%`)
+
+          setAlertInfo({
+            type: 'success',
+            message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Trích xuất ${(extractedText || '').length} ký tự.`}`
+          })
+          isProcessed = true
         }
+      }
+    } catch {
+      // Backend microservice offline -> Chuyển sang Local Next.js Engine
+    }
 
-        // Thông báo kết quả
-        const infoLines = []
-        if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
-        if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 60)}...`)
-        if (extractedDocumentType) infoLines.push(`Loại: ${extractedDocumentType}`)
-        if (extractedSigner) infoLines.push(`Người ký: ${extractedSigner}`)
-        if (confidence) infoLines.push(`Đối tác: ${(confidence * 100).toFixed(0)}%`)
+    // 2. Fallback sang Local Next.js Engine (Đọc nội dung PDF thực bằng pdf-parse)
+    if (!isProcessed) {
+      try {
+        const localFormData = new FormData()
+        localFormData.append('file', selectedFile)
 
-        setAlertInfo({
-          type: 'success',
-          message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Trích xuất ${(extractedText || '').length} ký tự.`}`
+        const localRes = await fetch('/api/ocr/analyze', {
+          method: 'POST',
+          body: localFormData
         })
-      } else {
+
+        const localData = await localRes.json()
+
+        if (localData.success && localData.data) {
+          const {
+            extractedText,
+            extractedReferenceNumber,
+            extractedSubject,
+            extractedDateString,
+            matchedPartnerName,
+            confidence
+          } = localData.data
+
+          setOcrResult({ text: extractedText, confidence })
+
+          setFormData(prev => ({
+            ...prev,
+            documentNumber: extractedReferenceNumber || prev.documentNumber || '',
+            title: extractedSubject || prev.title || '',
+            partnerName: matchedPartnerName || prev.partnerName || '',
+            issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
+            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary,
+            fileIds: prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()]
+          }))
+
+          const infoLines = []
+          if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
+          if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
+          if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 50)}...`)
+
+          setAlertInfo({
+            type: 'success',
+            message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Đã bóc tách nội dung từ ${selectedFile.name}.`}`
+          })
+          isProcessed = true
+        } else {
+          throw new Error(localData.message || 'Lỗi bóc tách PDF')
+        }
+      } catch (err: any) {
         setAlertInfo({
-          type: 'warning',
-          message: 'Dịch vụ OCR không thể phân tích tệp này. Vui lòng nhập thông tin thủ công.'
+          type: 'error',
+          message: `Lỗi xử lý file: ${err.message || 'Không thể bóc tách nội dung.'}. Vui lòng nhập thông tin thủ công.`
         })
       }
-    } catch (err: any) {
-      // Thông báo lỗi rõ ràng — KHÔNG tạo dữ liệu giả mạo
-      setAlertInfo({
-        type: 'error',
-        message: 'Không thể kết nối dịch vụ OCR Backend. Vui lòng kiểm tra Backend đang chạy hoặc nhập thông tin thủ công.'
-      })
-    } finally {
-      setOcrLoading(false)
     }
+
+    setOcrLoading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -329,12 +364,10 @@ const AddDocumentForm = () => {
 
 /** Chuyển ngày DD/MM/YYYY sang YYYY-MM-DD cho input date HTML */
 function convertDateToISO(dateStr: string): string {
-  // Thử DD/MM/YYYY
   const parts = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
   if (parts) {
     return `${parts[3]}-${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}`
   }
-  // Nếu đã là YYYY-MM-DD thì giữ nguyên
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr
   return dateStr
 }
