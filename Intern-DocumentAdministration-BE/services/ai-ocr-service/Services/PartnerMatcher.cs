@@ -25,6 +25,14 @@ namespace AiOcrService.Services
             var rawText = extractedText ?? string.Empty;
             var normalizedText = rawText.ToUpperInvariant();
             var unaccentedText = RemoveDiacritics(rawText).ToUpperInvariant();
+            
+            int totalLength = normalizedText.Length;
+            int headerThreshold = (int)(totalLength * 0.3);
+            string headerText = normalizedText.Substring(0, Math.Min(totalLength, headerThreshold));
+            string unaccentedHeaderText = unaccentedText.Substring(0, Math.Min(totalLength, headerThreshold));
+            int noiNhanIndex = unaccentedText.IndexOf("NOI NHAN");
+
+            var matches = new List<MatchResult>();
 
             // -------------------------------------------------------------
             // TẦNG 1: SO KHỚP QUA SENDER EMAIL HOẶC EMAIL DOMAIN (Confidence 99% / 98%)
@@ -33,20 +41,18 @@ namespace AiOcrService.Services
             {
                 var cleanSender = senderEmail.Trim().ToLowerInvariant();
 
-                // 1.1 Khớp chính xác địa chỉ email người gửi
                 var directEmailMatch = partners.FirstOrDefault(p =>
                     !string.IsNullOrWhiteSpace(p.Email) && p.Email.Trim().ToLowerInvariant() == cleanSender);
                 if (directEmailMatch != null)
                 {
-                    return new MatchResult
+                    matches.Add(new MatchResult
                     {
                         PartnerId = directEmailMatch.Id,
                         Confidence = 0.99,
                         MatchMethod = "DirectSenderEmail"
-                    };
+                    });
                 }
 
-                // 1.2 Khớp qua Email Domain của tổ chức (bỏ qua các public email provider như gmail/yahoo)
                 var atIndex = cleanSender.IndexOf('@');
                 if (atIndex >= 0 && atIndex < cleanSender.Length - 1)
                 {
@@ -59,12 +65,12 @@ namespace AiOcrService.Services
 
                         if (domainMatch != null)
                         {
-                            return new MatchResult
+                            matches.Add(new MatchResult
                             {
                                 PartnerId = domainMatch.Id,
                                 Confidence = 0.98,
                                 MatchMethod = "EmailDomain"
-                            };
+                            });
                         }
                     }
                 }
@@ -83,12 +89,12 @@ namespace AiOcrService.Services
                     var taxPattern = $@"\b{Regex.Escape(taxCode)}\b";
                     if (Regex.IsMatch(rawText, taxPattern) || normalizedText.Contains(taxCode.ToUpperInvariant()))
                     {
-                        return new MatchResult
+                        matches.Add(new MatchResult
                         {
                             PartnerId = partner.Id,
                             Confidence = 0.98,
                             MatchMethod = "TaxCode"
-                        };
+                        });
                     }
                 }
             }
@@ -103,12 +109,12 @@ namespace AiOcrService.Services
 
                 if (rawText.ToLowerInvariant().Contains(partnerEmail))
                 {
-                    return new MatchResult
+                    matches.Add(new MatchResult
                     {
                         PartnerId = partner.Id,
                         Confidence = 0.95,
                         MatchMethod = "DocumentBodyEmail"
-                    };
+                    });
                 }
             }
 
@@ -122,34 +128,32 @@ namespace AiOcrService.Services
                 var cleanShortName = partner.ShortName.Trim().ToUpperInvariant();
                 var unaccentedShortName = RemoveDiacritics(partner.ShortName.Trim()).ToUpperInvariant();
 
-                // 4.1 ShortName dài (>= 4 ký tự) -> Contains
-                if (cleanShortName.Length >= 4)
-                {
-                    if (normalizedText.Contains(cleanShortName) || unaccentedText.Contains(unaccentedShortName))
-                    {
-                        return new MatchResult
-                        {
-                            PartnerId = partner.Id,
-                            Confidence = 0.95,
-                            MatchMethod = "ShortName"
-                        };
-                    }
-                }
-                else if (cleanShortName.Length >= 2)
-                {
-                    // 4.2 ShortName ngắn (2-3 ký tự) -> dùng Regex word boundary
-                    var pattern1 = $@"\b{Regex.Escape(cleanShortName)}\b";
-                    var pattern2 = $@"\b{Regex.Escape(unaccentedShortName)}\b";
+                var pattern1 = $@"\b{Regex.Escape(cleanShortName)}\b";
+                var pattern2 = $@"\b{Regex.Escape(unaccentedShortName)}\b";
 
-                    if (Regex.IsMatch(normalizedText, pattern1) || Regex.IsMatch(unaccentedText, pattern2))
+                Match m1 = Regex.Match(normalizedText, pattern1);
+                Match m2 = Regex.Match(unaccentedText, pattern2);
+
+                if (m1.Success || m2.Success)
+                {
+                    int matchIndex = m1.Success ? m1.Index : m2.Index;
+                    double conf = cleanShortName.Length >= 4 ? 0.95 : 0.90;
+                    
+                    if (matchIndex < headerThreshold)
                     {
-                        return new MatchResult
-                        {
-                            PartnerId = partner.Id,
-                            Confidence = 0.90,
-                            MatchMethod = "ShortNameBoundary"
-                        };
+                        conf += 0.05;
                     }
+                    if (noiNhanIndex >= 0 && matchIndex > noiNhanIndex)
+                    {
+                        conf -= 0.10;
+                    }
+                    
+                    matches.Add(new MatchResult
+                    {
+                        PartnerId = partner.Id,
+                        Confidence = Math.Min(0.99, conf),
+                        MatchMethod = cleanShortName.Length >= 4 ? "ShortName" : "ShortNameBoundary"
+                    });
                 }
             }
 
@@ -163,15 +167,31 @@ namespace AiOcrService.Services
                 var cleanFullName = partner.FullName.Trim().ToUpperInvariant();
                 var unaccentedFullName = RemoveDiacritics(partner.FullName.Trim()).ToUpperInvariant();
 
-                if (cleanFullName.Length >= 4 && (normalizedText.Contains(cleanFullName) || unaccentedText.Contains(unaccentedFullName)))
+                if (cleanFullName.Length >= 4)
                 {
-                    return new MatchResult
+                    int matchIndex = normalizedText.IndexOf(cleanFullName);
+                    if (matchIndex < 0)
+                        matchIndex = unaccentedText.IndexOf(unaccentedFullName);
+
+                    if (matchIndex >= 0)
                     {
-                        PartnerId = partner.Id,
-                        Confidence = 0.85,
-                        MatchMethod = "FullName"
-                    };
+                        double conf = 0.85;
+                        if (matchIndex < headerThreshold) conf += 0.05;
+                        if (noiNhanIndex >= 0 && matchIndex > noiNhanIndex) conf -= 0.10;
+                        
+                        matches.Add(new MatchResult
+                        {
+                            PartnerId = partner.Id,
+                            Confidence = Math.Min(0.99, conf),
+                            MatchMethod = "FullName"
+                        });
+                    }
                 }
+            }
+
+            if (matches.Any())
+            {
+                return matches.OrderByDescending(m => m.Confidence).First();
             }
 
             return new MatchResult { PartnerId = null, Confidence = 0.0, MatchMethod = null };
@@ -181,13 +201,11 @@ namespace AiOcrService.Services
         {
             if (string.IsNullOrWhiteSpace(extractedText)) return null;
 
-            // Regex các mẫu số hiệu công văn phổ biến trong văn bản hành chính Việt Nam & quốc tế
-            // Mẫu 1: "Số: 128/BGDĐT-GDĐH" hoặc "Số : 45/UBND-VX" hoặc "Số: 01/2026/QĐ-UBND"
             var patterns = new[]
             {
-                @"(?:Số|So|No|Số/No|Số\s*\/\s*No)\s*[:.]\s*([0-9A-ZĐa-z\/\-_]{2,40})",
+                @"(?:Số|So|No|Số/No|Số\s*\/\s*No)\s*[:.]\s*([0-9A-ZĐa-z\/\-_\s]{2,40})",
                 @"\b(?:Số|So)\s*([0-9]+\s*\/\s*[0-9A-ZĐa-z\-_]+(?:\s*\/\s*[0-9A-ZĐa-z\-_]+)?)",
-                @"(?:Ref|Reference)\s*(?:No|Number)?\s*[:.]\s*([0-9A-Za-z\/\-_]{2,40})"
+                @"(?:Ref|Reference)\s*(?:No|Number)?\s*[:.]\s*([0-9A-Za-z\/\-_\s]{2,40})"
             };
 
             foreach (var pattern in patterns)
@@ -196,8 +214,8 @@ namespace AiOcrService.Services
                 if (match.Success && match.Groups.Count > 1)
                 {
                     var result = match.Groups[1].Value.Trim();
-                    // Loại bỏ các ký tự dấu câu thừa ở cuối nếu có
-                    result = result.TrimEnd('.', ',', ';', ':', '-', ' ');
+                    result = Regex.Replace(result, @"\s+", "");
+                    result = result.TrimEnd('.', ',', ';', ':', '-');
                     if (result.Length >= 2 && !result.Equals("ngay", StringComparison.OrdinalIgnoreCase))
                     {
                         return result;

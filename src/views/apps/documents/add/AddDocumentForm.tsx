@@ -23,55 +23,6 @@ import type { Locale } from '@configs/i18n'
 import { documentApi, fileApi, ocrApi, partnerApi } from '@/services/api'
 import { useAppDictionary } from '@/hooks/useDictionary'
 
-// Preset test document OCR profiles for immediate testing
-const sampleOcrProfiles: Record<string, any> = {
-  '01_Cong_Van_Den_Bo_GDDT.pdf': {
-    documentNumber: '2154/BGDĐT-CNTT',
-    direction: 'incoming',
-    title: 'V/v Hướng dẫn triển khai chuyển đổi số và ứng dụng AI OCR vào lưu trữ công văn năm học 2026-2027',
-    partnerName: 'Bộ Giáo dục và Đào tạo',
-    issuedDate: '2026-08-10',
-    summary: 'Thực hiện Quyết định số 749/QĐ-TTg của Thủ tướng Chính phủ về phê duyệt Chương trình Chuyển đổi số quốc gia đến năm 2026, Bộ Giáo dục và Đào tạo hướng dẫn các đơn vị thực hiện công tác quản lý và số hóa văn bản hành chính:\n1. 100% công văn đến và đi phải được số hóa dưới định dạng PDF chuẩn, ứng dụng AI OCR nhận dạng ký tự quang học.\n2. Cấu hình chuẩn kết nối API liên thông dữ liệu văn bản theo trục liên thông quốc gia.\n3. Phân công cán bộ văn thư phụ trách tiếp nhận và đối chiếu kết quả so khớp tự động.',
-    confidence: 0.96
-  },
-  '02_Quyet_Dinh_UBND_Ha_Noi.pdf': {
-    documentNumber: '890/QĐ-UBND',
-    direction: 'incoming',
-    title: 'Quyết định phê duyệt Đề án Số hóa và Lưu trữ hồ sơ, công văn hành chính điện tử thành phố Hà Nội 2026-2030',
-    partnerName: 'Ủy ban Nhân dân Thành phố Hà Nội',
-    issuedDate: '2026-08-11',
-    summary: 'Điều 1. Phê duyệt Đề án Số hóa và Lưu trữ hồ sơ công văn hành chính điện tử thành phố Hà Nội giai đoạn 2026 - 2030.\nĐiều 2. Giao Sở Thông tin và Truyền thông chủ trì phối hợp với Văn phòng UBND Thành phố triển khai nền tảng phần mềm lưu trữ thông minh tích hợp AI OCR.\nĐiều 3. Quyết định có hiệu lực thi hành kể từ ngày ký.',
-    confidence: 0.98
-  },
-  '03_Thong_Bao_Tap_Doan_VNPT.pdf': {
-    documentNumber: '145/TB-VNPT-IT',
-    direction: 'incoming',
-    title: 'Thông báo về việc nâng cấp hệ thống kết nối AI OCR và bảo trì hạ tầng truyền dẫn văn bản số hóa',
-    partnerName: 'Tập đoàn Bưu chính Viễn thông Việt Nam',
-    issuedDate: '2026-08-12',
-    summary: 'Nhằm nâng cao hiệu năng xử lý nhận diện văn bản tự động và tối ưu hóa đường truyền dữ liệu lưu trữ công văn số lượng lớn:\n1. Thời gian bảo trì: Từ 22:00 ngày 15/08/2026 đến 04:00 ngày 16/08/2026.\n2. Phạm vi: Dịch vụ bóc tách AI OCR tạm dừng trong khung giờ bảo trì.\n3. Đầu mối hỗ trợ kỹ thuật: Trung tâm Điều hành Mạng VNPT Hotline 1800 1260.',
-    confidence: 0.95
-  },
-  '04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf': {
-    documentNumber: '320/TTr-ĐHQGHN',
-    direction: 'incoming',
-    title: 'Tờ trình về việc xin phê duyệt chủ trương đầu tư xây dựng Trung tâm Lưu trữ Dữ liệu và Số hóa Văn thư',
-    partnerName: 'Đại học Quốc gia Hà Nội',
-    issuedDate: '2026-08-13',
-    summary: 'Kính trình Giám đốc Đại học Quốc gia Hà Nội xem xét phê duyệt chủ trương đầu tư dự án Trung tâm Lưu trữ Dữ liệu và Số hóa Văn thư ĐHQGHN hiện đại:\n- Quy mô: Trang bị hệ thống máy chủ lưu trữ chuyên dụng và máy quét tốc độ cao tích hợp module AI OCR.\n- Thời gian thực hiện: Quý IV/2026 đến hết Quý II/2027.',
-    confidence: 0.94
-  },
-  '05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf': {
-    documentNumber: '58/GM-ABCTECH',
-    direction: 'incoming',
-    title: 'Giấy mời tham dự Hội thảo chuyên đề: "Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số"',
-    partnerName: 'Công ty Cổ phần Công nghệ ABC',
-    issuedDate: '2026-08-14',
-    summary: 'Công ty Cổ phần Công nghệ ABC trân trọng kính mời Quý Đại biểu tham dự Hội thảo công nghệ thường niên:\n- Thời gian: 08h30 - 11h30, Thứ Sáu, ngày 28/08/2026.\n- Địa điểm: Khách sạn JW Marriott, Số 08 Đỗ Đức Dục, Nam Từ Liêm, Hà Nội.\n- Nội dung: Trải nghiệm giải pháp bóc tách OCR tiếng Việt độ chính xác cao (>98%) và quy trình phê duyệt công văn điện tử.',
-    confidence: 0.97
-  }
-}
-
 const AddDocumentForm = () => {
   const router = useRouter()
   const { lang: locale } = useParams()
@@ -92,9 +43,9 @@ const AddDocumentForm = () => {
   const [ocrLoading, setOcrLoading] = useState(false)
   const [ocrResult, setOcrResult] = useState<{ text?: string; confidence?: number; matchedPartnerId?: string } | null>(null)
   const [submitLoading, setSubmitLoading] = useState(false)
-  const [alertInfo, setAlertInfo] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [alertInfo, setAlertInfo] = useState<{ type: 'success' | 'error' | 'warning'; message: string } | null>(null)
 
-  // Handle OCR Scan
+  // Handle OCR Scan — gọi Backend API thực, KHÔNG tạo dữ liệu giả
   const handleOcrScan = async () => {
     if (!selectedFile) {
       setAlertInfo({ type: 'error', message: 'Vui lòng chọn tệp PDF hoặc ảnh công văn trước khi quét OCR.' })
@@ -105,89 +56,87 @@ const AddDocumentForm = () => {
     setAlertInfo(null)
 
     try {
-      let isProcessed = false
+      // Upload file lên FileService
+      const uploadRes = await fileApi.upload(selectedFile)
+      const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
 
-      // 1. Try real Backend via API Gateway
-      try {
-        const uploadRes = await fileApi.upload(selectedFile)
-        const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
+      if (!fileId) {
+        setAlertInfo({ type: 'error', message: 'Không thể tải tệp lên máy chủ. Vui lòng thử lại.' })
+        return
+      }
 
-        if (fileId) {
-          setFormData(prev => ({ ...prev, fileIds: [fileId] }))
-          const ocrRes = await ocrApi.analyze(fileId)
-          
-          if (ocrRes?.success && ocrRes?.data) {
-            const { extractedText, matchedPartnerId, confidence } = ocrRes.data
-            setOcrResult({ text: extractedText, confidence, matchedPartnerId })
-            
-            if (extractedText) {
-              setFormData(prev => ({
-                ...prev,
-                summary: extractedText.trim(),
-                title: prev.title || (extractedText.split('\n')[0] || '').substring(0, 100)
-              }))
+      setFormData(prev => ({ ...prev, fileIds: [fileId] }))
+
+      // Gọi API OCR phân tích
+      const ocrRes = await ocrApi.analyze(fileId)
+
+      if (ocrRes?.success && ocrRes?.data) {
+        const {
+          extractedText,
+          extractedReferenceNumber,
+          extractedSubject,
+          extractedDateString,
+          extractedSigner,
+          extractedDocumentType,
+          matchedPartnerId,
+          confidence
+        } = ocrRes.data
+
+        setOcrResult({ text: extractedText, confidence, matchedPartnerId })
+
+        // Map ĐÚNG các trường đã bóc tách từ Backend vào form
+        setFormData(prev => ({
+          ...prev,
+          // Số ký hiệu: ưu tiên extractedReferenceNumber từ backend
+          documentNumber: extractedReferenceNumber || prev.documentNumber || '',
+          // Tiêu đề: ưu tiên extractedSubject (trích yếu thực), KHÔNG dùng dòng đầu OCR text
+          title: extractedSubject || prev.title || '',
+          // Ngày ban hành: từ backend
+          issuedDate: extractedDateString
+            ? convertDateToISO(extractedDateString)
+            : prev.issuedDate,
+          // Tóm tắt
+          summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
+        }))
+
+        // Tra cứu thông tin đối tác nếu có matchedPartnerId
+        if (matchedPartnerId) {
+          try {
+            const partnerDetail = await partnerApi.getById(matchedPartnerId)
+            const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
+            if (name) {
+              setFormData(prev => ({ ...prev, partnerId: matchedPartnerId, partnerName: name }))
             }
-            if (matchedPartnerId) {
-              try {
-                const partnerDetail = await partnerApi.getById(matchedPartnerId)
-                const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
-                if (name) {
-                  setFormData(prev => ({ ...prev, partnerId: matchedPartnerId, partnerName: name }))
-                }
-              } catch {}
-            }
-            setAlertInfo({
-              type: 'success',
-              message: `Quét AI OCR thành công! Trích xuất ${(extractedText || '').length} ký tự. ${confidence ? `Độ tin cậy so khớp đối tác: ${(confidence * 100).toFixed(0)}%` : ''}`
-            })
-            isProcessed = true
+          } catch {
+            // Nếu không tra được chi tiết partner, vẫn lưu ID
+            setFormData(prev => ({ ...prev, partnerId: matchedPartnerId }))
           }
         }
-      } catch {
-        // Fallback to client-side OCR profile analyzer
-      }
 
-      // 2. Intelligent OCR fallback for offline/sample test files
-      if (!isProcessed) {
-        // Check profile
-        const fileName = selectedFile.name
-        const profile = sampleOcrProfiles[fileName]
+        // Thông báo kết quả
+        const infoLines = []
+        if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
+        if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 60)}...`)
+        if (extractedDocumentType) infoLines.push(`Loại: ${extractedDocumentType}`)
+        if (extractedSigner) infoLines.push(`Người ký: ${extractedSigner}`)
+        if (confidence) infoLines.push(`Đối tác: ${(confidence * 100).toFixed(0)}%`)
 
-        if (profile) {
-          setFormData(prev => ({
-            ...prev,
-            documentNumber: profile.documentNumber,
-            title: profile.title,
-            direction: profile.direction,
-            issuedDate: profile.issuedDate,
-            partnerName: profile.partnerName,
-            summary: profile.summary,
-            fileIds: ['file-' + Date.now()]
-          }))
-          setOcrResult({ text: profile.summary, confidence: profile.confidence })
-          setAlertInfo({
-            type: 'success',
-            message: `Quét AI OCR thành công! Tự động nhận diện ${profile.partnerName} (Số hiệu: ${profile.documentNumber}) • Độ tin cậy: ${(profile.confidence * 100).toFixed(0)}%`
-          })
-        } else {
-          // Generic document extraction
-          const cleanName = fileName.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')
-          setFormData(prev => ({
-            ...prev,
-            documentNumber: prev.documentNumber || `CV-${Math.floor(100 + Math.random() * 900)}/DAS`,
-            title: prev.title || cleanName,
-            summary: prev.summary || `Văn bản được bóc tách từ tệp: ${fileName}.\nĐã nhận diện tiêu đề và nội dung trích yếu.`,
-            fileIds: ['file-' + Date.now()]
-          }))
-          setOcrResult({ text: 'Extracted text from ' + fileName, confidence: 0.92 })
-          setAlertInfo({
-            type: 'success',
-            message: `Quét OCR thành công! Đã bóc tách nội dung từ tệp '${fileName}' (Độ tin cậy: 92%).`
-          })
-        }
+        setAlertInfo({
+          type: 'success',
+          message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Trích xuất ${(extractedText || '').length} ký tự.`}`
+        })
+      } else {
+        setAlertInfo({
+          type: 'warning',
+          message: 'Dịch vụ OCR không thể phân tích tệp này. Vui lòng nhập thông tin thủ công.'
+        })
       }
     } catch (err: any) {
-      setAlertInfo({ type: 'error', message: err.message || 'Lỗi trong quá trình quét OCR.' })
+      // Thông báo lỗi rõ ràng — KHÔNG tạo dữ liệu giả mạo
+      setAlertInfo({
+        type: 'error',
+        message: 'Không thể kết nối dịch vụ OCR Backend. Vui lòng kiểm tra Backend đang chạy hoặc nhập thông tin thủ công.'
+      })
     } finally {
       setOcrLoading(false)
     }
@@ -376,6 +325,18 @@ const AddDocumentForm = () => {
       </CardContent>
     </Card>
   )
+}
+
+/** Chuyển ngày DD/MM/YYYY sang YYYY-MM-DD cho input date HTML */
+function convertDateToISO(dateStr: string): string {
+  // Thử DD/MM/YYYY
+  const parts = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (parts) {
+    return `${parts[3]}-${parts[2].padStart(2, '0')}-${parts[1].padStart(2, '0')}`
+  }
+  // Nếu đã là YYYY-MM-DD thì giữ nguyên
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr
+  return dateStr
 }
 
 export default AddDocumentForm

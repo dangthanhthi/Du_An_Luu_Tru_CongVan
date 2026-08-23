@@ -74,17 +74,34 @@ function extractRealPdfBase64(rawEmail: string): { base64Data: string; filename:
         filename: currentFileName || 'VanBan_DinhKem_Tu_Email.pdf'
       }
     }
-  } catch {}
+  } catch (err) {
+    console.error('Error extracting PDF base64:', err)
+  }
   return null
 }
 
-function parseEmailBody(rawEmail: string, mailId?: string) {
+// Trích xuất văn bản thực tế từ PDF bằng thư viện pdf-parse (100% Local)
+async function extractTextFromPdfBase64(base64Data: string): Promise<string> {
+  try {
+    const raw = base64Data.replace(/^data:application\/pdf;base64,/, '')
+    const buffer = Buffer.from(raw, 'base64')
+    const { PDFParse } = await import('pdf-parse')
+    const parser = new PDFParse({ data: buffer })
+    const result = await parser.getText()
+    await parser.destroy()
+    return result?.text || ''
+  } catch (err) {
+    console.error('Error parsing PDF text with pdf-parse:', err)
+    return ''
+  }
+}
+
+async function parseEmailBody(rawEmail: string, mailId?: string) {
   const lines = rawEmail.split(/\r?\n/)
   let subject = ''
   let from = ''
   let date = ''
   let messageId = ''
-  let attachmentName = ''
   let inHeader = true
   let bodyContent = ''
 
@@ -121,28 +138,36 @@ function parseEmailBody(rawEmail: string, mailId?: string) {
   const fromMatch = from.match(/<([^>]+)>/)
   const cleanFrom = fromMatch ? fromMatch[1] : from.trim()
 
-  // Trích xuất file PDF THẬT từ email
+  // 1. Trích xuất file PDF THẬT từ email
   const realPdf = extractRealPdfBase64(rawEmail)
   const hasRealPdf = Boolean(realPdf && realPdf.base64Data)
 
-  // Bóc tách thông tin động từ AI OCR Universal Extractor
+  // 2. Trích xuất văn bản THẬT từ nội dung bên trong PDF (Local PDF Text Parser)
+  let pdfText = ''
+  if (hasRealPdf && realPdf?.base64Data) {
+    pdfText = await extractTextFromPdfBase64(realPdf.base64Data)
+  }
+
+  // 3. Bóc tách thông tin động từ AI OCR Universal Extractor (Ưu tiên nội dung PDF thực tế)
   const meta = parseOcrDocumentMetadata({
     title: subject,
     summary: bodyContent,
     senderEmail: cleanFrom,
-    attachmentName: realPdf?.filename || ''
+    attachmentName: realPdf?.filename || '',
+    pdfText: pdfText
   })
 
   return {
     id: mailId || messageId || `mail-${Date.now()}-${Math.random()}`,
     messageId: messageId || `msg-${Date.now()}-${Math.random()}`,
-    subject: subject || 'Công văn tiếp nhận từ hòm thư điện tử',
+    subject: meta.title || subject || 'Công văn tiếp nhận từ hòm thư điện tử',
     sender: cleanFrom || 'vanthu.coquan@domain.gov.vn',
     date: date || new Date().toISOString(),
     attachment: realPdf?.filename || (hasRealPdf ? 'VanBan_DinhKem.pdf' : ''),
     hasPdf: hasRealPdf,
     fileUrl: realPdf?.base64Data || '', // Base64 của PDF THẬT 100%
-    // Dynamic Extracted OCR Fields
+    pdfExtractedLength: pdfText.length,
+    // Dynamic Extracted OCR Fields (Từ nội dung PDF thực)
     extractedRefNumber: meta.referenceNumber,
     extractedPartner: meta.partnerName,
     extractedTitle: meta.title,
@@ -170,7 +195,7 @@ export async function POST(req: Request) {
         // Connected to IMAP
       })
 
-      socket.setTimeout(20000)
+      socket.setTimeout(25000)
 
       let step = 0
       let buffer = ''
@@ -178,7 +203,7 @@ export async function POST(req: Request) {
       let currentFetchIndex = 0
       const fetchedMails: any[] = []
 
-      socket.on('data', data => {
+      socket.on('data', async data => {
         buffer += data.toString()
 
         if (step === 0 && buffer.includes('* OK')) {
@@ -225,7 +250,7 @@ export async function POST(req: Request) {
           const tag = `F0${currentFetchIndex}`
           if (buffer.includes(`${tag} OK`)) {
             const currentId = targetIds[currentFetchIndex]
-            const parsed = parseEmailBody(buffer, currentId)
+            const parsed = await parseEmailBody(buffer, currentId)
             fetchedMails.push(parsed)
             buffer = ''
 
@@ -245,7 +270,7 @@ export async function POST(req: Request) {
                 success: true,
                 scannedCount: fetchedMails.length,
                 items: fetchedMails,
-                message: `Quét thành công! Đã phát hiện ${fetchedMails.length} email mới từ hộp thư ${email}.`
+                message: `Quét thành công! Đã phát hiện và đọc nội dung PDF từ ${fetchedMails.length} email mới.`
               }))
             }
           }

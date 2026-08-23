@@ -12,7 +12,6 @@ namespace AiOcrService.Services
 
         public TesseractOcrEngine()
         {
-            // Tìm đường dẫn chứa tesseract traineddata tương thích cả Windows lẫn Linux Docker
             var envPath = Environment.GetEnvironmentVariable("TESSDATA_PREFIX");
             if (!string.IsNullOrWhiteSpace(envPath) && Directory.Exists(envPath))
             {
@@ -28,7 +27,6 @@ namespace AiOcrService.Services
             }
             else
             {
-                // Môi trường Windows Local Dev: lấy từ thư mục ./tessdata ngay cạnh ứng dụng
                 _tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
                 if (!Directory.Exists(_tessDataPath))
                 {
@@ -43,7 +41,6 @@ namespace AiOcrService.Services
 
             try
             {
-                // Kiểm tra xem traineddata tiếng Việt có tồn tại hay không
                 var vieTrainedData = Path.Combine(_tessDataPath, "vie.traineddata");
                 var engTrainedData = Path.Combine(_tessDataPath, "eng.traineddata");
                 
@@ -56,8 +53,7 @@ namespace AiOcrService.Services
                     }
                     else
                     {
-                        // Nếu chưa có file traineddata, trả về thông báo lỗi hướng dẫn người dùng
-                        return $"[Warning]: Thư mục Tessdata '{_tessDataPath}' chưa có file 'vie.traineddata'. Vui lòng tải file traineddata tiếng Việt từ Tesseract GitHub bỏ vào thư mục trên.";
+                        throw new Exception($"[Warning]: Thư mục Tessdata '{_tessDataPath}' chưa có file 'vie.traineddata'.");
                     }
                 }
 
@@ -66,19 +62,23 @@ namespace AiOcrService.Services
                     pdfStream.Position = 0;
                 }
 
+                var settings = new MagickReadSettings
+                {
+                    Density = new Density(300, 300),
+                    ColorSpace = ColorSpace.Gray
+                };
+
                 using var images = new MagickImageCollection();
-                
-                // Đọc luồng dữ liệu PDF / Image
-                images.Read(pdfStream);
+                images.Read(pdfStream, settings);
 
                 using var engine = new TesseractEngine(_tessDataPath, language, EngineMode.Default);
 
                 foreach (var image in images)
                 {
-                    // Tối ưu hóa ảnh bản fax/PDF trước khi nạp vào OCR
-                    image.Density = new Density(300, 300); // Đặt độ phân giải 300 DPI giúp nhận diện chữ mờ tốt hơn
                     image.Format = MagickFormat.Png;
-                    image.ColorSpace = ColorSpace.Gray;   // Chuyển sang ảnh xám để giảm nhiễu
+                    image.Deskew(new Percentage(40));
+                    image.Despeckle();
+                    image.AutoLevel();
 
                     using var ms = new MemoryStream();
                     image.Write(ms);
@@ -89,13 +89,19 @@ namespace AiOcrService.Services
                     
                     textBuilder.AppendLine(page.GetText());
                 }
+                
+                string extractedText = textBuilder.ToString();
+                if (extractedText.StartsWith("[Warning]") || extractedText.StartsWith("[Error"))
+                {
+                    throw new Exception(extractedText);
+                }
+                
+                return extractedText;
             }
             catch (Exception ex)
             {
-                textBuilder.AppendLine($"[Error during OCR Processing]: {ex.Message}");
+                throw new Exception($"[Error during OCR Processing]: {ex.Message}", ex);
             }
-
-            return textBuilder.ToString();
         }
     }
 }

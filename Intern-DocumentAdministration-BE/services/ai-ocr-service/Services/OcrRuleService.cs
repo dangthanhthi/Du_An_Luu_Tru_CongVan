@@ -1,4 +1,4 @@
-﻿using AiOcrService.Models;
+using AiOcrService.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -73,7 +73,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Việt - V/v (Về việc viết tắt)",
-                    Pattern = @"(?:V\/v|V\/V|v\/v)\s*[:.]\s*([^\r\n]{5,250})",
+                    Pattern = @"(?:V\/v|V\/V|v\/v)[:.]?\s*([\s\S]{5,500}?(?=\n\s*\n|$))",
                     Priority = 1,
                     IsActive = true,
                     Description = "Bóc tách trích yếu theo mẫu 'V/v: Hướng dẫn công tác tuyển sinh...'"
@@ -82,7 +82,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Việt - Về việc đầy đủ",
-                    Pattern = @"(?:Về việc|Ve viec|VỀ VIỆC)\s*[:.]\s*([^\r\n]{5,250})",
+                    Pattern = @"(?:Về việc|Ve viec|VỀ VIỆC)[:.]?\s*([\s\S]{5,500}?(?=\n\s*\n|$))",
                     Priority = 2,
                     IsActive = true,
                     Description = "Bóc tách trích yếu theo mẫu 'Về việc: Phối hợp số hóa...'"
@@ -91,7 +91,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Việt - Trích yếu",
-                    Pattern = @"(?:Trích yếu|Trich yeu|TRÍCH YẾU)\s*[:.]\s*([^\r\n]{5,250})",
+                    Pattern = @"(?:Trích yếu|Trich yeu|TRÍCH YẾU)[:.]?\s*([\s\S]{5,500}?(?=\n\s*\n|$))",
                     Priority = 3,
                     IsActive = true,
                     Description = "Bóc tách trích yếu theo mẫu văn thư 'Trích yếu: ...'"
@@ -100,7 +100,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Anh - Regarding / Re:",
-                    Pattern = @"(?:Regarding|regarding|Re|RE)\s*[:.]\s*([^\r\n]{5,250})",
+                    Pattern = @"(?:Regarding|regarding|Re|RE)[:.]?\s*([\s\S]{5,500}?(?=\n\s*\n|$))",
                     Priority = 4,
                     IsActive = true,
                     Description = "Bóc tách trích yếu công văn quốc tế 'Regarding: Cooperation on digital...'"
@@ -109,7 +109,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Anh - Subject:",
-                    Pattern = @"(?:Subject|SUBJECT)\s*[:.]\s*([^\r\n]{5,250})",
+                    Pattern = @"(?:Subject|SUBJECT)[:.]?\s*([\s\S]{5,500}?(?=\n\s*\n|$))",
                     Priority = 5,
                     IsActive = true,
                     Description = "Bóc tách trích yếu công văn theo nhãn 'Subject: ...'"
@@ -131,7 +131,7 @@ namespace AiOcrService.Services
                 {
                     RuleType = "ReferenceNumber",
                     Name = "Số công văn không dấu hai chấm",
-                    Pattern = @"\b(?:Số|So)\s+([0-9]+\s*\/\s*[0-9A-ZĐa-z\-_]+(?:\s*\/\s*[0-9A-ZĐa-z\-_]+)?)",
+                    Pattern = @"\b(?:Số|So)\s+([0-9]+\s*\/\s*[A-Z0-9Đa-z\-_]+(?:\s*\/\s*[A-Z0-9Đa-z\-_]+)*)",
                     Priority = 2,
                     IsActive = true,
                     Description = "Bóc tách số công văn dạng 'Số 789/FPT-CNTT'"
@@ -166,6 +166,15 @@ namespace AiOcrService.Services
                     Priority = 2,
                     IsActive = true,
                     Description = "Bóc tách ngày dạng 'Date: 15/08/2026' hoặc 'Ngày: 15-08-2026'"
+                },
+                new()
+                {
+                    RuleType = "DocumentDate",
+                    Name = "Ngày DD/MM/YYYY độc lập",
+                    Pattern = @"\b([0-9]{1,2})[/\-.]([0-9]{1,2})[/\-.]([0-9]{4})\b",
+                    Priority = 3,
+                    IsActive = true,
+                    Description = "Bóc tách ngày độc lập không có tiền tố Ngày/Date"
                 },
 
                 // ==========================================
@@ -326,7 +335,7 @@ namespace AiOcrService.Services
 
             try
             {
-                var regex = new Regex(request.Pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                var regex = new Regex(request.Pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromSeconds(2));
                 var match = regex.Match(request.SampleText ?? string.Empty);
 
                 if (match.Success)

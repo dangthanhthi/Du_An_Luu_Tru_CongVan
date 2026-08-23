@@ -60,35 +60,33 @@ export const AutoEmailScanner = () => {
             )
 
             if (hasPdfAttachment) {
-              const partnerRefNum = item.extractedRefNumber ||
-                (item.subject?.match(/(?:Số|No|Ref)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)?.[1] ||
-                 item.subject?.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)?.[1] ||
-                 '896/VNPT-IT/2026')
-
-              const partnerName = item.extractedPartner ||
-                (item.sender?.includes('vnpt') ? 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)' :
-                 item.sender?.includes('moet') ? 'Bộ Giáo dục và Đào tạo' :
-                 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)')
-
+              // Bóc tách thông tin chính xác từ OCR nội dung PDF thực tế
+              const partnerRefNum = item.extractedRefNumber || ''
+              const partnerName = item.extractedPartner || 'Chưa xác định'
               const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
-              const issuedDate = item.extractedDate || new Date().toLocaleDateString('vi-VN')
+              const issuedDate = item.extractedDate || new Date().toISOString().split('T')[0]
+              const attachmentFile = item.attachment || 'VanBan_DinhKem.pdf'
+
+              const docNumDisplay = partnerRefNum ? `${internalDocNum} (Ref: ${partnerRefNum})` : internalDocNum
 
               const logEntry = {
                 id: `log-${Date.now()}-${i}`,
                 timestamp: new Date().toLocaleString('vi-VN'),
                 sender: item.sender,
                 subject: title,
-                attachment: item.attachment || 'CV_896_VNPT_IT.pdf',
+                attachment: attachmentFile,
                 hasPdf: true,
-                docNumber: `${internalDocNum} (Ref: ${partnerRefNum})`,
+                docNumber: docNumDisplay,
                 status: 'success',
-                message: `Đã tự động bóc tách AI OCR: ${partnerRefNum} - ${partnerName}`
+                message: partnerRefNum
+                  ? `Đã tự động bóc tách AI OCR: ${partnerRefNum} - ${partnerName}`
+                  : `Đã tự động bóc tách AI OCR: ${partnerName}`
               }
               newLogs.push(logEntry)
               processedIds.push(mailKey)
               newlyCreatedDocs++
 
-              // Lưu công văn vào cơ sở dữ liệu với file PDF thật 100%
+              // Lưu công văn vào cơ sở dữ liệu với file PDF thật
               try {
                 await documentApi.create({
                   documentNumber: internalDocNum,
@@ -96,12 +94,14 @@ export const AutoEmailScanner = () => {
                   title: title,
                   direction: 'incoming',
                   issuedDate: issuedDate,
-                  partnerName: partnerName,
+                  partnerName: partnerName !== 'Chưa xác định' ? partnerName : undefined,
                   senderEmail: item.sender,
                   fileUrl: item.fileUrl || '',
-                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
+                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
                 })
-              } catch {}
+              } catch (err) {
+                console.error('Error auto-creating document from email:', err)
+              }
             } else {
               const logEntry = {
                 id: `log-${Date.now()}-${i}`,
@@ -136,7 +136,7 @@ export const AutoEmailScanner = () => {
             }
           }
         }
-      } catch {
+      } catch (err) {
         // Imap scan error suppressed in background
       } finally {
         isScanningRef.current = false
