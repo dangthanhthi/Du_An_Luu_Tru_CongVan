@@ -45,38 +45,7 @@ const DEFAULT_EMAIL_SETTINGS = {
   scanAttachmentsOnly: true
 }
 
-const DEFAULT_SCAN_LOGS = [
-  {
-    id: 'log-1',
-    timestamp: '14/08/2026 10:45:12',
-    sender: 'vanthu@moet.gov.vn',
-    subject: 'V/v Hướng dẫn chuyển đổi số năm học 2026-2027 kèm tệp công văn',
-    attachment: '01_Cong_Van_Den_Bo_GDDT.pdf',
-    docNumber: 'CV-2154/BGDĐT',
-    status: 'success',
-    message: 'Đã bóc tách AI OCR và tạo Công văn đến thành công'
-  },
-  {
-    id: 'log-2',
-    timestamp: '14/08/2026 09:30:04',
-    sender: 'vanphong@hanoi.gov.vn',
-    subject: 'Quyết định phê duyệt đề án số hóa lưu trữ 2026',
-    attachment: '02_Quyet_Dinh_UBND_Ha_Noi.pdf',
-    docNumber: 'QĐ-890/UBND',
-    status: 'success',
-    message: 'Đã bóc tách AI OCR và lưu hồ sơ lưu trữ điện tử'
-  },
-  {
-    id: 'log-3',
-    timestamp: '14/08/2026 08:15:20',
-    sender: 'support@vnpt.vn',
-    subject: 'Thông báo lịch bảo trì kết nối hạ tầng số',
-    attachment: '03_Thong_Bao_Tap_Doan_VNPT.pdf',
-    docNumber: 'TB-145/VNPT',
-    status: 'success',
-    message: 'Đã tự động tạo công văn đến từ tệp đính kèm'
-  }
-]
+const DEFAULT_SCAN_LOGS: any[] = []
 
 const EmailIntegrationView = () => {
   const { t, isEn } = useAppDictionary()

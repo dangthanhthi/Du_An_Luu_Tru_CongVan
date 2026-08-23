@@ -88,6 +88,7 @@
     "react-use": "17.6.0",
     "recharts": "3.6.0",
     "server-only": "0.0.1",
+    "tesseract.js": "^7.0.0",
     "valibot": "1.2.0"
   },
   "devDependencies": {
