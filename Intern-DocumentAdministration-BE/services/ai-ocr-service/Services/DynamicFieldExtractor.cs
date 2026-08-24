@@ -38,6 +38,7 @@ namespace AiOcrService.Services
                     if (match.Success)
                     {
                         var val = (match.Groups.Count > 1 ? match.Groups[1].Value : match.Value).Trim();
+                        val = Regex.Replace(val, @"\s*[\/\\|]\s*", "/");
                         val = val.TrimEnd('.', ',', ';', ':', '-', ' ');
                         if (val.Length >= 2 && !val.Equals("ngay", StringComparison.OrdinalIgnoreCase))
                         {

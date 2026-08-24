@@ -72,10 +72,10 @@ export function parseOcrDocumentMetadata(doc: {
 // TRÍCH XUẤT SỐ KÝ HIỆU
 // ============================================================================
 function extractReferenceNumber(text: string, existingRef?: string): string {
-  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé)
+  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé) và dấu / \ |
   const prefixPatterns = [
-    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]\s*(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*\/\s*\d{4})?)/i,
-    /(?:Số|Sô|Sổ|So)[\s]+(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*)/i,
+    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*(\d{1,5}\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*[\/\\|]\s*\d{4})?)/i,
+    /(?:Số|Sô|Sổ|So)[\s]+(\d{1,5}\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*)/i,
   ]
 
   for (const pattern of prefixPatterns) {
@@ -88,28 +88,30 @@ function extractReferenceNumber(text: string, existingRef?: string): string {
 
   // Mẫu 2: Số hiệu đứng độc lập (VD: 689/SKHCN-QLKH hoặc CV-145/ABC)
   const standalonePatterns = [
-    /\b(\d{1,5}\/[A-ZĐ][A-ZĐa-zÀ-ỹ0-9\-_]{1,20}(?:\/[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\/\d{4})?)\b/i,
-    /\b([A-ZĐ]{2,8}-\d{1,5}\/[A-ZĐa-zÀ-ỹ0-9\-_]{2,20})\b/i,
+    /\b(\d{1,5}[\/\\|][A-ZĐ][A-ZĐa-zÀ-ỹ0-9\-_]{1,20}(?:[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:[\/\\|]\d{4})?)\b/i,
+    /\b([A-ZĐ]{2,8}-\d{1,5}[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]{2,20})\b/i,
   ]
 
   for (const pattern of standalonePatterns) {
     const match = text.match(pattern)
-    if (match?.[1] && isValidRefNumber(match[1])) {
-      return normalizeRefNumber(match[1])
+    if (match?.[1]) {
+      const cleaned = normalizeRefNumber(match[1])
+      if (isValidRefNumber(cleaned)) return cleaned
     }
   }
 
   // Fallback: dùng giá trị có sẵn nếu hợp lệ
-  if (existingRef && isValidRefNumber(existingRef)) {
-    return existingRef
+  if (existingRef) {
+    const cleaned = normalizeRefNumber(existingRef)
+    if (isValidRefNumber(cleaned)) return cleaned
   }
 
   return ''
 }
 
 function normalizeRefNumber(raw: string): string {
-  // Chuẩn hóa: loại bỏ khoảng trắng thừa quanh dấu /
-  return raw.replace(/\s*\/\s*/g, '/').trim()
+  // Chuẩn hóa: thay thế dấu gạch chéo ngược \, gạch đứng | và khoảng trắng quanh chúng thành / chuẩn
+  return raw.replace(/\s*[\/\\|]\s*/g, '/').trim()
 }
 
 function isValidRefNumber(ref: string): boolean {
@@ -130,30 +132,30 @@ function extractPartnerName(text: string, existingPartner?: string): string {
   // Các mẫu ngữ pháp nhận diện tổ chức tiếng Việt (ưu tiên theo thứ tự)
   const orgPatterns: Array<{ pattern: RegExp; priority: number }> = [
     // Cơ quan cấp bộ
-    { pattern: /(?:^|\n)\s*(BỘ\s+[A-ZÀ-Ỹ\s]+?)(?:\n|$)/m, priority: 1 },
-    { pattern: /(Bộ\s+(?:Giáo dục|Y tế|Công an|Quốc phòng|Tài chính|Ngoại giao|Tư pháp|Xây dựng|Giao thông|Nông nghiệp|Công Thương|Lao động|Văn hóa|Thông tin|Khoa học|Tài nguyên|Nội vụ|Kế hoạch)[A-Za-zÀ-ỹ\s,\-]*)/i, priority: 2 },
+    { pattern: /(?:^|\n)\s*(BỘ\s+[A-ZÀ-Ỹ\s]+?)(?=\r?\n|$)/m, priority: 1 },
+    { pattern: /(?:^|\n)\s*(Bộ\s+(?:Giáo dục|Y tế|Công an|Quốc phòng|Tài chính|Ngoại giao|Tư pháp|Xây dựng|Giao thông|Nông nghiệp|Công Thương|Lao động|Văn hóa|Thông tin|Khoa học|Tài nguyên|Nội vụ|Kế hoạch)[^\r\n]*)/i, priority: 2 },
     
-    // UBND
-    { pattern: /((?:Ủy ban nhân dân|UBND)\s+(?:tỉnh|thành phố|TP|huyện|quận|xã|phường|thị xã|thị trấn)\s*\.?\s*[A-ZÀ-Ỹa-zà-ỹ\s]{2,30})/i, priority: 3 },
+    // UBND (Ủy ban nhân dân các cấp)
+    { pattern: /(?:^|\n)\s*((?:Ủy ban nhân dân|UBND|ỦY BAN NHÂN DÂN)\s+[^\r\n]{2,80})/i, priority: 3 },
     
     // Sở ban ngành
-    { pattern: /(Sở\s+[A-ZÀ-Ỹa-zà-ỹ\s]+?(?:\s+(?:tỉnh|TP|thành phố)\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)?)/i, priority: 4 },
+    { pattern: /(?:^|\n)\s*(Sở\s+[^\r\n]{2,80})/i, priority: 4 },
     
     // Tập đoàn / Tổng công ty
-    { pattern: /((?:Tập đoàn|TẬP ĐOÀN)\s+[A-ZÀ-Ỹa-zà-ỹ\s\-]+)/i, priority: 5 },
-    { pattern: /((?:Tổng [Cc]ông ty|TỔNG CÔNG TY)\s+[A-ZÀ-Ỹa-zà-ỹ\s\-]+)/i, priority: 6 },
+    { pattern: /(?:^|\n)\s*((?:Tập đoàn|TẬP ĐOÀN)\s+[^\r\n]{2,80})/i, priority: 5 },
+    { pattern: /(?:^|\n)\s*((?:Tổng [Cc]ông ty|TỔNG CÔNG TY)\s+[^\r\n]{2,80})/i, priority: 6 },
     
     // Công ty
-    { pattern: /(Công ty\s+(?:Cổ phần|TNHH|CP|TNHH MTV|Hợp danh)?\s*[A-ZÀ-Ỹa-zà-ỹ\s\-]+)/i, priority: 7 },
+    { pattern: /(?:^|\n)\s*(Công ty\s+(?:Cổ phần|TNHH|CP|TNHH MTV|Hợp danh)?[^\r\n]{2,80})/i, priority: 7 },
     
     // Trường / Đại học
-    { pattern: /((?:Đại học|Trường Đại học|Học viện)\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i, priority: 8 },
+    { pattern: /(?:^|\n)\s*((?:Đại học|Trường Đại học|Học viện)\s+[^\r\n]{2,80})/i, priority: 8 },
 
     // Viện / Trung tâm
-    { pattern: /((?:Viện|Trung tâm)\s+[A-ZÀ-Ỹa-zà-ỹ\s]+)/i, priority: 9 },
+    { pattern: /(?:^|\n)\s*((?:Viện|Trung tâm)\s+[^\r\n]{2,80})/i, priority: 9 },
 
     // Ngân hàng
-    { pattern: /((?:Ngân hàng|NH)\s+[A-ZÀ-Ỹa-zà-ỹ\s\-]+)/i, priority: 10 },
+    { pattern: /(?:^|\n)\s*((?:Ngân hàng|NH)\s+[^\r\n]{2,80})/i, priority: 10 },
   ]
 
   // Thử khớp theo thứ tự ưu tiên

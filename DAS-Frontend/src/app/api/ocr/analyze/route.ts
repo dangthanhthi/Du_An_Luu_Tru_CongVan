@@ -2,15 +2,49 @@ import { NextResponse } from 'next/server'
 import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 /**
+ * Trích xuất các luồng ảnh JPEG được nhúng bên trong tệp PDF scan
+ * (99% các máy scan văn phòng, máy photocopy, CamScanner lưu trang scan dạng JPEG stream)
+ */
+function extractJpegStreamsFromPdf(pdfBuffer: Buffer): Buffer[] {
+  const jpegs: Buffer[] = []
+  let offset = 0
+
+  while (offset < pdfBuffer.length - 4) {
+    // Tìm điểm bắt đầu của JPEG (SOI marker: 0xFF, 0xD8, 0xFF)
+    if (pdfBuffer[offset] === 0xFF && pdfBuffer[offset + 1] === 0xD8 && pdfBuffer[offset + 2] === 0xFF) {
+      const start = offset
+      offset += 3
+      // Tìm điểm kết thúc của JPEG (EOI marker: 0xFF, 0xD9)
+      while (offset < pdfBuffer.length - 1) {
+        if (pdfBuffer[offset] === 0xFF && pdfBuffer[offset + 1] === 0xD9) {
+          const end = offset + 2
+          const len = end - start
+          // Ảnh trang scan hợp lệ thường > 5KB
+          if (len > 5120) {
+            jpegs.push(pdfBuffer.subarray(start, end))
+          }
+          offset = end
+          break
+        }
+        offset++
+      }
+    } else {
+      offset++
+    }
+  }
+
+  return jpegs
+}
+
+/**
  * Real AI OCR Analysis API Route (100% Local / On-Premise)
  * =======================================================
  * Hỗ trợ nhận dạng quang học thực tế cho MỌI LOẠI TỆP:
  * 1. Tệp PDF Điện tử: Bóc tách trực tiếp luồng văn bản qua `pdf-parse`
- * 2. Tệp PDF Quét / Ảnh Scan / Tệp Ảnh (PNG, JPG, JPEG, TIFF, BMP):
- *    Chạy mạng nơ-ron nhận dạng ký tự quang học Tesseract AI (`vie+eng`)
- * 3. Bóc tách tự động Số hiệu, Cơ quan, Trích yếu, Ngày tháng theo ngữ pháp hành chính
+ * 2. Tệp PDF Quét / Bản Scan: Trích xuất ảnh scan nhúng bên trong PDF → Chạy Tesseract AI (`vie+eng`)
+ * 3. Tệp Ảnh (PNG, JPG, JPEG, TIFF, BMP, WEBP): Chạy Tesseract AI (`vie+eng`)
+ * 4. Bóc tách tự động Số hiệu, Cơ quan, Trích yếu, Ngày tháng theo ngữ pháp hành chính
  */
-
 export async function POST(req: Request) {
   try {
     const formData = await req.formData()
@@ -30,7 +64,7 @@ export async function POST(req: Request) {
 
     let extractedRawText = ''
     let ocrEngineUsed = 'unknown'
-    let tesseractConfidence = -1 // -1 = chưa có score thực từ Tesseract
+    let tesseractConfidence = -1
 
     // BƯỚC 1: XỬ LÝ TỆP PDF
     if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
@@ -41,38 +75,77 @@ export async function POST(req: Request) {
         const result = await parser.getText()
         await parser.destroy()
 
-        if (result?.text && result.text.trim().length > 30) {
+        if (result?.text && result.text.trim().length >= 30) {
           extractedRawText = result.text.trim()
           ocrEngineUsed = 'digital-pdf-parser'
         }
       } catch (err: any) {
-        console.warn('PDF stream extraction notice:', err.message)
+        console.warn('[OCR] PDF stream extraction notice:', err.message)
+      }
+
+      // 1.2 Nếu là PDF scan ảnh (< 30 ký tự text), trích xuất ảnh scan bên trong PDF rồi chạy Tesseract AI
+      if (!extractedRawText || extractedRawText.length < 30) {
+        try {
+          const imageBuffers = extractJpegStreamsFromPdf(buffer)
+          console.log(`[OCR] Phát hiện ${imageBuffers.length} ảnh nhúng trong PDF scan`)
+
+          if (imageBuffers.length > 0) {
+            const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))
+            const ocrChunks: string[] = []
+            let totalConf = 0
+            let pagesScanned = 0
+
+            // Quét tối đa 5 trang đầu để đảm bảo tốc độ và đầy đủ thông tin header/footer
+            for (let i = 0; i < Math.min(imageBuffers.length, 5); i++) {
+              const imgBuf = imageBuffers[i]
+              try {
+                const { data } = await Tesseract.recognize(imgBuf, 'vie+eng', {
+                  logger: () => {}
+                })
+                if (data?.text && data.text.trim().length > 0) {
+                  ocrChunks.push(data.text.trim())
+                  if (typeof data.confidence === 'number') {
+                    totalConf += data.confidence
+                    pagesScanned++
+                  }
+                }
+              } catch (pageErr: any) {
+                console.warn(`[OCR] Lỗi nhận dạng ảnh trang ${i + 1}:`, pageErr.message)
+              }
+            }
+
+            if (ocrChunks.length > 0) {
+              extractedRawText = ocrChunks.join('\n\n')
+              ocrEngineUsed = 'pdf-embedded-tesseract-ai'
+              tesseractConfidence = pagesScanned > 0 ? (totalConf / pagesScanned) / 100 : 0.85
+            }
+          }
+        } catch (scanErr: any) {
+          console.error('[OCR] Lỗi trích xuất ảnh từ PDF scan:', scanErr.message)
+        }
       }
     }
 
-    // BƯỚC 2: NẾU LÀ ẢNH HOẶC PDF SCAN KHÔNG CÓ LỚP TEXT -> CHẠY TESSERACT AI OCR THẬT
+    // BƯỚC 2: NẾU LÀ TỆP ẢNH TRỰC TIẾP (PNG, JPG, JPEG, TIFF, BMP, WEBP)
     const isImageFile = lowerName.endsWith('.png') || lowerName.endsWith('.jpg') ||
                          lowerName.endsWith('.jpeg') || lowerName.endsWith('.tiff') ||
                          lowerName.endsWith('.bmp') || lowerName.endsWith('.webp') ||
                          file.type.startsWith('image/')
 
-    if (!extractedRawText && (isImageFile || lowerName.endsWith('.pdf'))) {
+    if (!extractedRawText && isImageFile) {
       try {
         const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))
-        
-        // Chạy nhận dạng ký tự quang học tiếng Việt + tiếng Anh bằng Tesseract AI
         const { data } = await Tesseract.recognize(buffer, 'vie+eng', {
-          logger: () => {} // Suppress verbose progress in server logs
+          logger: () => {}
         })
 
         if (data?.text && data.text.trim().length > 0) {
           extractedRawText = data.text.trim()
           ocrEngineUsed = 'tesseract-ai-neural'
-          // Lưu confidence score thực từ Tesseract engine
           tesseractConfidence = typeof data.confidence === 'number' ? data.confidence / 100 : 0.85
         }
       } catch (ocrErr: any) {
-        console.error('Tesseract recognition warning:', ocrErr.message)
+        console.error('[OCR] Tesseract image recognition warning:', ocrErr.message)
       }
     }
 
@@ -84,13 +157,11 @@ export async function POST(req: Request) {
       pdfText: extractedRawText
     })
 
-    // Xác định độ tin cậy: ưu tiên score thực từ Tesseract, fallback heuristic cho pdf-parse
+    // Xác định độ tin cậy thực tế
     let calculatedConfidence = 0.85
     if (tesseractConfidence >= 0) {
-      // Dùng confidence score thực tế từ Tesseract AI engine
       calculatedConfidence = Math.max(0.1, Math.min(1.0, tesseractConfidence))
     } else if (ocrEngineUsed === 'digital-pdf-parser') {
-      // PDF điện tử: độ tin cậy cao vì text được nhúng sẵn
       calculatedConfidence = extractedRawText.length > 200 ? 0.98 : 0.95
     } else {
       calculatedConfidence = extractedRawText.length > 0 ? 0.88 : 0.5
