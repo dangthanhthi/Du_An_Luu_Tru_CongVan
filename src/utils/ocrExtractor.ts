@@ -94,46 +94,66 @@ export interface DirectionClassificationResult {
 
 /**
  * Phân loại thông minh thể loại công văn: Đến (incoming), Đi (outgoing), hoặc Nội bộ (internal)
- * Dựa trên so khớp cấu trúc văn bản: Đơn vị ban hành (Header), Nơi nhận (Kính gửi / To), Thể thức & Nội dung.
+ * Dựa trên so khớp cấu trúc văn bản: Số ký hiệu (có NB), Đơn vị ban hành (Header), Nơi nhận (Kính gửi / To), Thể thức & Nội dung.
  */
 export function classifyDocumentDirection(
   text: string,
   partnerName?: string,
   headerText?: string,
-  config?: CompanyProfileConfig
+  config?: CompanyProfileConfig,
+  referenceNumber?: string
 ): DirectionClassificationResult {
   const comp = config || getCompanyConfig()
   const lowerText = text.toLowerCase()
   const lowerHeader = (headerText || extractHeaderSection(text)).toLowerCase()
   const lowerPartner = (partnerName || '').toLowerCase()
+  const refNum = (referenceNumber || '').toUpperCase()
 
-  // 1. Kiểm tra xem Đơn vị ban hành (Header) có phải là Công ty mình hay không
+  // 1. DẤU HIỆU ĐẶC BIỆT: Số ký hiệu có chứa mã "NB" (VD: 08/QĐ-NB-DAS/2026, 12/TB-NB-VP, 01/CV-NB-DAS)
+  if (refNum.includes('-NB-') || refNum.includes('/NB-') || refNum.includes('-NB/') || refNum.includes('/NB/') || refNum.includes('QĐ-NB') || refNum.includes('TB-NB') || refNum.includes('TTr-NB') || refNum.includes('CV-NB') || refNum.endsWith('-NB') || refNum.endsWith('/NB')) {
+    return {
+      direction: 'internal',
+      confidence: 0.99,
+      rationale: `Số ký hiệu văn bản [${refNum}] có chứa mã định danh nội bộ [NB].`
+    }
+  }
+
+  // 2. Kiểm tra xem Đơn vị ban hành (Header) có phải là Công ty mình hay không
   const isCompanyInHeader = comp.aliases.some(alias => lowerHeader.includes(alias.toLowerCase())) ||
                             (comp.companyName && lowerHeader.includes(comp.companyName.toLowerCase())) ||
                             comp.aliases.some(alias => lowerPartner.includes(alias.toLowerCase()))
 
-  // 2. Trích xuất Nơi nhận (Kính gửi / To)
+  // 3. Trích xuất Nơi nhận (Kính gửi / To) và Khối Nơi nhận cuối trang
   const recipientMatch = text.match(/(?:Kính\s*gửi|K[ií]nh\s*g[ửu]i|To|Gửi)\s*[:.:]?\s*([^\n\r;]{3,200})/i)
   const recipientText = recipientMatch ? recipientMatch[1].toLowerCase() : ''
 
-  // 3. Kiểm tra nơi nhận là Nội bộ công ty
   const isRecipientInternal = comp.internalKeywords.some(kw => recipientText.includes(kw.toLowerCase())) ||
                               recipientText.includes('các phòng') || recipientText.includes('toàn thể') ||
                               recipientText.includes('cán bộ') || recipientText.includes('nhân viên') ||
                               recipientText.includes('cbcnv') || recipientText.includes('chi nhánh') ||
-                              recipientText.includes('người lao động') || recipientText.includes('đơn vị trực thuộc')
+                              recipientText.includes('người lao động') || recipientText.includes('đơn vị trực thuộc') ||
+                              lowerText.includes('nơi nhận:\n- toàn thể') || lowerText.includes('nơi nhận:\n- các phòng') ||
+                              lowerText.includes('toàn thể cbcnv')
 
-  // 4. Kiểm tra tiêu đề / nội dung văn bản mang tính nội bộ
-  const isInternalDocumentType = /(?:quyết định\s*(?:bổ nhiệm|thành lập|ban hành quy chế|khen thưởng|kỷ luật|phân công|điều động)|quy chế\s*nội bộ|nội quy\s*(?:lao động|cơ quan)|thông báo\s*nội bộ|tờ trình\s*(?:đề xuất|xin kinh phí|mua sắm)|hướng dẫn\s*nội bộ|lịch trực\s*(?:tết|lễ)|nghỉ lễ|biên bản\s*(?:họp|nghiệm thu nội bộ))/i.test(lowerText)
+  // 4. Kiểm tra tiêu đề / thể loại văn bản mang tính nội bộ
+  const isInternalDocumentType = /(?:quyết định\s*(?:nội bộ|bổ nhiệm|thành lập|ban hành quy chế|khen thưởng|kỷ luật|phân công|điều động)|quy chế\s*nội bộ|nội quy\s*(?:lao động|cơ quan)|thông báo\s*nội bộ|tờ trình\s*(?:nội bộ|đề xuất|xin kinh phí|mua sắm)|hướng dẫn\s*nội bộ|lịch trực\s*(?:tết|lễ)|nghỉ lễ|biên bản\s*(?:họp|nghiệm thu nội bộ)|nội bộ)/i.test(lowerText)
 
   // TH 1: CÔNG VĂN NỘI BỘ (INTERNAL)
-  if ((isCompanyInHeader && isRecipientInternal) || isInternalDocumentType) {
+  if (isCompanyInHeader && (isRecipientInternal || isInternalDocumentType)) {
     return {
       direction: 'internal',
-      confidence: 0.95,
+      confidence: 0.98,
       rationale: isRecipientInternal
-        ? `Đơn vị ban hành là nội bộ công ty và nơi nhận là [${recipientMatch?.[1]?.trim() || 'Nội bộ công ty'}].`
-        : 'Văn bản thuộc thể loại Quyết định / Quy chế / Thông báo nội bộ công ty.'
+        ? `Đơn vị ban hành là Công ty [${comp.shortName}] và nơi nhận là nội bộ [${recipientMatch?.[1]?.trim() || 'Các phòng ban / Cán bộ nhân viên'}].`
+        : `Văn bản thuộc thể loại Quyết định / Quy chế / Thông báo nội bộ Công ty [${comp.shortName}].`
+    }
+  }
+
+  if (isInternalDocumentType && isRecipientInternal) {
+    return {
+      direction: 'internal',
+      confidence: 0.96,
+      rationale: 'Văn bản lưu hành nội bộ giữa các đơn vị và nhân viên công ty.'
     }
   }
 
@@ -216,7 +236,7 @@ export function parseOcrDocumentMetadata(doc: {
   const docType = extractDocumentType(fullText)
 
   // 7. Tự động Phân loại Thể loại công văn: Đến (incoming) / Đi (outgoing) / Nội bộ (internal)
-  const directionClass = classifyDocumentDirection(fullText, partner, headerText)
+  const directionClass = classifyDocumentDirection(fullText, partner, headerText, undefined, refNum)
 
   // 8. Tóm tắt nội dung
   const summaryLines = [
@@ -566,7 +586,7 @@ function normalizeRefNumber(raw: string): string {
 // TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU
 // ============================================================================
 function extractTitle(text: string, existingTitle?: string): string {
-  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
+  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*TỔNG GIÁM ĐỐC|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
 
   // Mẫu 1: "Về việc: ..." hoặc "Về thời gian / công tác / kế hoạch / hướng dẫn..."
   const vePattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC|Về|VỀ|Ve|VE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
