@@ -50,11 +50,6 @@ export const AutoEmailScanner = () => {
               continue
             }
 
-            const currentYear = new Date().getFullYear()
-            const currentSeq = existingLogs.length + newLogs.length + 1
-            const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
-            const internalDocNum = `CV-DEN-${currentYear}-${String(currentSeq).padStart(minDigits, '0')}`
-
             const hasPdfAttachment = Boolean(
               item.attachment && (item.attachment.toLowerCase().endsWith('.pdf') || item.hasPdf)
             )
@@ -67,7 +62,30 @@ export const AutoEmailScanner = () => {
               const issuedDate = item.extractedDate || new Date().toISOString().split('T')[0]
               const attachmentFile = item.attachment || 'VanBan_DinhKem.pdf'
 
-              const docNumDisplay = partnerRefNum ? `${internalDocNum} (Ref: ${partnerRefNum})` : internalDocNum
+              let assignedDocNum = 'CV-DEN-2026-AUTO'
+
+              // Lưu công văn vào cơ sở dữ liệu với tự động cấp số thứ tự liên tục chính xác
+              try {
+                const createRes = await documentApi.create({
+                  documentNumber: '', // Tự động sinh số kế tiếp chính xác
+                  referenceNumber: partnerRefNum,
+                  title: title,
+                  direction: 'incoming',
+                  issuedDate: issuedDate,
+                  partnerName: partnerName !== 'Chưa xác định' ? partnerName : undefined,
+                  senderEmail: item.sender,
+                  fileUrl: item.fileUrl || '',
+                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
+                })
+
+                if (createRes?.data?.documentNumber) {
+                  assignedDocNum = createRes.data.documentNumber
+                }
+              } catch (err) {
+                console.error('Error auto-creating document from email:', err)
+              }
+
+              const docNumDisplay = partnerRefNum ? `${assignedDocNum} (Ref: ${partnerRefNum})` : assignedDocNum
 
               const logEntry = {
                 id: `log-${Date.now()}-${i}`,
@@ -85,23 +103,6 @@ export const AutoEmailScanner = () => {
               newLogs.push(logEntry)
               processedIds.push(mailKey)
               newlyCreatedDocs++
-
-              // Lưu công văn vào cơ sở dữ liệu với file PDF thật
-              try {
-                await documentApi.create({
-                  documentNumber: internalDocNum,
-                  referenceNumber: partnerRefNum,
-                  title: title,
-                  direction: 'incoming',
-                  issuedDate: issuedDate,
-                  partnerName: partnerName !== 'Chưa xác định' ? partnerName : undefined,
-                  senderEmail: item.sender,
-                  fileUrl: item.fileUrl || '',
-                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
-                })
-              } catch (err) {
-                console.error('Error auto-creating document from email:', err)
-              }
             } else {
               const logEntry = {
                 id: `log-${Date.now()}-${i}`,

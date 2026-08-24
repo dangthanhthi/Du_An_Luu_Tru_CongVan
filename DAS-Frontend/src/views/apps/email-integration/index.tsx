@@ -152,11 +152,6 @@ const EmailIntegrationView = () => {
             continue
           }
 
-          const currentYear = new Date().getFullYear()
-          const currentSeq = logs.length + newLogs.length + 1
-          const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
-          const internalDocNum = `CV-DEN-${currentYear}-${String(currentSeq).padStart(minDigits, '0')}`
-
           // Kiểm tra xem email có tệp đính kèm PDF hợp lệ hay không
           const hasPdfAttachment = Boolean(
             item.attachment && (item.attachment.toLowerCase().endsWith('.pdf') || item.hasPdf)
@@ -176,25 +171,12 @@ const EmailIntegrationView = () => {
             const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
             const issuedDate = item.extractedDate || new Date().toLocaleDateString('vi-VN')
 
-            const logEntry = {
-              id: `log-${Date.now()}-${i}`,
-              timestamp: new Date().toLocaleString('vi-VN'),
-              sender: item.sender,
-              subject: title,
-              attachment: item.attachment || 'VanBan_DinhKem.pdf',
-              hasPdf: true,
-              docNumber: partnerRefNum ? `${internalDocNum} (Ref: ${partnerRefNum})` : internalDocNum,
-              status: 'success',
-              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : `Đã bóc tách AI OCR: ${partnerRefNum || 'N/A'} - ${partnerName}`
-            }
-            newLogs.push(logEntry)
-            processedIds.push(mailKey)
-            autoCreatedCount++
+            let assignedDocNum = 'CV-DEN-2026-AUTO'
 
-            // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế và file PDF thật
+            // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế và tự động cấp số thứ tự liên tục chính xác
             try {
-              await documentApi.create({
-                documentNumber: internalDocNum,
+              const createRes = await documentApi.create({
+                documentNumber: '', // Tự động sinh số kế tiếp chuẩn xác
                 referenceNumber: partnerRefNum,
                 title: title,
                 direction: 'incoming',
@@ -204,7 +186,26 @@ const EmailIntegrationView = () => {
                 fileUrl: item.fileUrl || '',
                 summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
               })
+
+              if (createRes?.data?.documentNumber) {
+                assignedDocNum = createRes.data.documentNumber
+              }
             } catch {}
+
+            const logEntry = {
+              id: `log-${Date.now()}-${i}`,
+              timestamp: new Date().toLocaleString('vi-VN'),
+              sender: item.sender,
+              subject: title,
+              attachment: item.attachment || 'VanBan_DinhKem.pdf',
+              hasPdf: true,
+              docNumber: partnerRefNum ? `${assignedDocNum} (Ref: ${partnerRefNum})` : assignedDocNum,
+              status: 'success',
+              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : `Đã bóc tách AI OCR: ${partnerRefNum || 'N/A'} - ${partnerName}`
+            }
+            newLogs.push(logEntry)
+            processedIds.push(mailKey)
+            autoCreatedCount++
           } else {
             // KHÔNG CÓ TỆP PDF: Yêu cầu Thư ký xác nhận lại trước khi tạo công văn
             const logEntry = {

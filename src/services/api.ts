@@ -206,6 +206,77 @@ const INITIAL_PARTNERS = [
 ]
 
 // Storage helpers with Auto-Sanitization & Standardization
+const sanitizeDocuments = (docs: any[]): any[] => {
+  const year = new Date().getFullYear()
+  const groups: Record<string, any[]> = { incoming: [], outgoing: [], internal: [] }
+
+  // 1. Lọc bỏ các tài liệu rác hoặc không hợp lệ
+  const filtered = docs.filter(d => {
+    const num = d.documentNumber || ''
+    const partner = (d.partnerName || '').toLowerCase()
+    const title = (d.title || '').toLowerCase()
+
+    // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
+    if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
+      return false
+    }
+    // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
+    if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
+      return false
+    }
+    return true
+  })
+
+  filtered.forEach(d => {
+    const dir = d.direction || 'incoming'
+    if (!groups[dir]) groups[dir] = []
+    groups[dir].push(d)
+  })
+
+  const result: any[] = []
+
+  // 2. Chuẩn hóa và sắp xếp lại chuỗi số thứ tự liên tục cho từng thể loại (incoming, outgoing, internal)
+  ;(['incoming', 'outgoing', 'internal'] as const).forEach(dir => {
+    const prefix = dir === 'incoming' ? `CV-DEN-${year}` : dir === 'outgoing' ? `CV-DI-${year}` : `CV-NB-${year}`
+    const list = groups[dir] || []
+
+    const usedSeqs = new Set<number>()
+    const itemsToAssign: any[] = []
+
+    // Lượt 1: Giữ các số thứ tự chuẩn đã có trong phạm vi hợp lý
+    list.forEach(d => {
+      const num = d.documentNumber || ''
+      const m = num.match(new RegExp(`^${prefix}-(\\d+)$`))
+      const seq = m ? parseInt(m[1], 10) : null
+
+      if (seq !== null && seq <= list.length && !usedSeqs.has(seq)) {
+        usedSeqs.add(seq)
+      } else {
+        itemsToAssign.push(d)
+      }
+    })
+
+    // Lượt 2: Tự động lấp đầy số thứ tự còn thiếu cho các item bị nhảy cóc (như 0030)
+    let nextAvailable = 1
+    itemsToAssign.forEach(d => {
+      while (usedSeqs.has(nextAvailable)) {
+        nextAvailable++
+      }
+      usedSeqs.add(nextAvailable)
+      const oldNum = d.documentNumber || ''
+      const newNum = `${prefix}-${String(nextAvailable).padStart(4, '0')}`
+      d.documentNumber = newNum
+      if (!d.referenceNumber && oldNum && oldNum !== newNum && !oldNum.startsWith(prefix)) {
+        d.referenceNumber = oldNum
+      }
+    })
+
+    result.push(...list)
+  })
+
+  return result
+}
+
 const getStoredDocuments = (): any[] => {
   if (typeof window === 'undefined') return INITIAL_DOCUMENTS
   try {
@@ -213,40 +284,7 @@ const getStoredDocuments = (): any[] => {
     if (raw) {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Tự động chuẩn hóa: Đảm bảo số công văn chính là số công ty CV-DEN / CV-DI / CV-NB và số đối tác là referenceNumber
-        let incomingCount = 0
-        const cleanDocs = parsed
-          .filter(d => {
-            const num = d.documentNumber || ''
-            const partner = (d.partnerName || '').toLowerCase()
-            const title = (d.title || '').toLowerCase()
-
-            // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
-            if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
-              return false
-            }
-            // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
-            if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
-              return false
-            }
-            return true
-          })
-          .map(d => {
-            const num = d.documentNumber || ''
-            const dir = d.direction || 'incoming'
-            // Nếu documentNumber là số ký hiệu đối tác (không theo format CV-DEN-, CV-DI-, CV-NB-):
-            if (!num.startsWith('CV-DEN-') && !num.startsWith('CV-DI-') && !num.startsWith('CV-NB-')) {
-              incomingCount++
-              const autoNum = `CV-DEN-2026-${String(10 + incomingCount).padStart(4, '0')}`
-              return {
-                ...d,
-                documentNumber: autoNum,
-                referenceNumber: d.referenceNumber || num
-              }
-            }
-            return d
-          })
-
+        const cleanDocs = sanitizeDocuments(parsed)
         if (cleanDocs.length > 0) {
           localStorage.setItem('das_documents_store', JSON.stringify(cleanDocs))
           return cleanDocs
@@ -437,15 +475,20 @@ export const documentApi = {
     // Xác định tiền tố theo chuẩn mã công văn của công ty
     const prefix = dir === 'incoming' ? `CV-DEN-${year}` : dir === 'outgoing' ? `CV-DI-${year}` : `CV-NB-${year}`
 
-    // Tìm số thứ tự kế tiếp
+    // Tìm số thứ tự kế tiếp chuẩn xác không bị nhảy cóc
     const samePrefixDocs = docs.filter(d => d.documentNumber && d.documentNumber.startsWith(prefix))
     let maxSeq = 0
     for (const d of samePrefixDocs) {
       const match = d.documentNumber.match(new RegExp(`^${prefix}-(\\d+)$`))
       if (match) {
         const n = parseInt(match[1], 10)
-        if (n > maxSeq) maxSeq = n
+        if (n > maxSeq && n <= samePrefixDocs.length + 5) {
+          maxSeq = n
+        }
       }
+    }
+    if (maxSeq === 0) {
+      maxSeq = samePrefixDocs.length
     }
     const nextSeqStr = String(maxSeq + 1).padStart(4, '0')
     const autoDocNumber = `${prefix}-${nextSeqStr}`
@@ -454,24 +497,29 @@ export const documentApi = {
     let internalDocNum = autoDocNumber
     let partnerRef = data.referenceNumber || ''
 
-    if (data.documentNumber && (data.documentNumber.startsWith('CV-DEN-') || data.documentNumber.startsWith('CV-DI-') || data.documentNumber.startsWith('CV-NB-'))) {
-      internalDocNum = data.documentNumber
-    } else if (data.documentNumber) {
+    if (data.documentNumber && data.documentNumber.startsWith(prefix)) {
+      const requestedSeq = parseInt(data.documentNumber.replace(`${prefix}-`, ''), 10)
+      if (!isNaN(requestedSeq) && requestedSeq <= samePrefixDocs.length + 2) {
+        internalDocNum = data.documentNumber
+      } else {
+        internalDocNum = autoDocNumber
+      }
+    } else if (data.documentNumber && !data.documentNumber.startsWith('CV-')) {
       if (!partnerRef) partnerRef = data.documentNumber
       internalDocNum = autoDocNumber
     }
 
     const newDoc = {
-      id: `doc-${Date.now()}`,
+      id: `doc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       documentNumber: internalDocNum,
       referenceNumber: partnerRef,
-      title: data.title,
+      title: data.title || 'Công văn mới',
       direction: dir,
       issuedDate: data.issuedDate || new Date().toLocaleDateString('vi-VN'),
       partnerName: data.partnerName || 'Chưa xác định',
       senderEmail: data.senderEmail || '',
       fileUrl: data.fileUrl || '',
-      status: 'pending',
+      status: data.status || 'pending',
       summary: data.summary || '',
       fileIds: data.fileIds || []
     }
