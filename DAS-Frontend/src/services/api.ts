@@ -569,10 +569,12 @@ export const fileApi = {
 
 // OCR API
 export const ocrApi = {
-  analyze: async (fileId: string) => {
+  analyze: async (fileId: string, senderEmail?: string) => {
+    const body: Record<string, string> = { fileId }
+    if (senderEmail) body.senderEmail = senderEmail
     const res = await apiFetch(API_URLS.ocr, '/api/ai-ocr/analyze', {
       method: 'POST',
-      body: JSON.stringify({ fileId }),
+      body: JSON.stringify(body),
     })
     return res.json()
   },

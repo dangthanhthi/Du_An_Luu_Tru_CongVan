@@ -163,16 +163,15 @@ const EmailIntegrationView = () => {
           )
 
           if (hasPdfAttachment) {
-            // CÓ TỆP PDF: Tự động bóc tách AI OCR và đưa thẳng vào danh sách Công Văn Đến
+            // CÓ TỆP PDF: Bóc tách AI OCR thực tế và đưa vào danh sách Công Văn Đến
             const partnerRefNum = item.extractedRefNumber || 
               (item.subject?.match(/(?:Số|No|Ref)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)?.[1] || 
                item.subject?.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)?.[1] || 
-               '896/VNPT-IT/2026')
+               '')
 
             const partnerName = item.extractedPartner || 
-              (item.sender?.includes('vnpt') ? 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)' : 
-               item.sender?.includes('moet') ? 'Bộ Giáo dục và Đào tạo' : 
-               'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)')
+              item.sender?.split('@')[1]?.split('.')[0]?.toUpperCase() || 
+              'Chưa xác định'
 
             const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
             const issuedDate = item.extractedDate || new Date().toLocaleDateString('vi-VN')
@@ -182,11 +181,11 @@ const EmailIntegrationView = () => {
               timestamp: new Date().toLocaleString('vi-VN'),
               sender: item.sender,
               subject: title,
-              attachment: item.attachment || 'CV_896_VNPT_IT.pdf',
+              attachment: item.attachment || 'VanBan_DinhKem.pdf',
               hasPdf: true,
-              docNumber: `${internalDocNum} (Ref: ${partnerRefNum})`,
+              docNumber: partnerRefNum ? `${internalDocNum} (Ref: ${partnerRefNum})` : internalDocNum,
               status: 'success',
-              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : `Đã bóc tách AI OCR: ${partnerRefNum} - ${partnerName}`
+              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : `Đã bóc tách AI OCR: ${partnerRefNum || 'N/A'} - ${partnerName}`
             }
             newLogs.push(logEntry)
             processedIds.push(mailKey)
@@ -203,7 +202,7 @@ const EmailIntegrationView = () => {
                 partnerName: partnerName,
                 senderEmail: item.sender,
                 fileUrl: item.fileUrl || '',
-                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
+                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
               })
             } catch {}
           } else {
@@ -280,6 +279,62 @@ const EmailIntegrationView = () => {
       })
     } finally {
       setIsScanning(false)
+    }
+  }
+
+  // Xác nhận tiếp nhận email không có PDF thành công văn (Thư ký duyệt thủ công)
+  const handleConfirmEmailToIntake = async (logId: string) => {
+    const logIndex = logs.findIndex(l => l.id === logId)
+    if (logIndex === -1) return
+
+    const log = logs[logIndex]
+    const rawItem = log.rawItem || {}
+
+    const currentYear = new Date().getFullYear()
+    const currentSeq = logs.filter(l => l.status === 'success').length + 1
+    const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
+    const internalDocNum = `CV-DEN-${currentYear}-${String(currentSeq).padStart(minDigits, '0')}`
+
+    try {
+      await documentApi.create({
+        documentNumber: internalDocNum,
+        referenceNumber: rawItem.extractedRefNumber || '',
+        title: log.subject || rawItem.subject || 'Công văn tiếp nhận từ Email',
+        direction: 'incoming',
+        issuedDate: rawItem.extractedDate || new Date().toLocaleDateString('vi-VN'),
+        partnerName: rawItem.extractedPartner || rawItem.sender?.split('@')[1]?.split('.')[0]?.toUpperCase() || 'Chưa xác định',
+        senderEmail: log.sender,
+        fileUrl: '',
+        summary: `Văn bản tiếp nhận thủ công từ email: ${log.sender}.\n• Trích yếu: ${log.subject}\n• Ghi chú: Email không có tệp PDF đính kèm, đã được Thư ký xác nhận tiếp nhận.`
+      })
+
+      // Cập nhật status trong logs
+      const updatedLogs = [...logs]
+      updatedLogs[logIndex] = {
+        ...log,
+        status: 'success',
+        docNumber: internalDocNum,
+        message: isEn ? 'Manually confirmed & registered by secretary.' : `Đã xác nhận tiếp nhận thủ công: ${internalDocNum}`
+      }
+      setLogs(updatedLogs)
+      localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
+
+      setNotification({
+        type: 'success',
+        message: isEn
+          ? `Document ${internalDocNum} created successfully from email.`
+          : `Đã tạo công văn ${internalDocNum} từ email thành công.`
+      })
+
+      // Thông báo cho các component khác cập nhật danh sách
+      window.dispatchEvent(new Event('das_documents_updated'))
+    } catch (err: any) {
+      setNotification({
+        type: 'error',
+        message: isEn
+          ? 'Failed to create document from email.'
+          : `Lỗi khi tạo công văn: ${err.message || 'Không rõ nguyên nhân'}`
+      })
     }
   }
 

@@ -30,6 +30,7 @@ export async function POST(req: Request) {
 
     let extractedRawText = ''
     let ocrEngineUsed = 'unknown'
+    let tesseractConfidence = -1 // -1 = chưa có score thực từ Tesseract
 
     // BƯỚC 1: XỬ LÝ TỆP PDF
     if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
@@ -67,6 +68,8 @@ export async function POST(req: Request) {
         if (data?.text && data.text.trim().length > 0) {
           extractedRawText = data.text.trim()
           ocrEngineUsed = 'tesseract-ai-neural'
+          // Lưu confidence score thực từ Tesseract engine
+          tesseractConfidence = typeof data.confidence === 'number' ? data.confidence / 100 : 0.85
         }
       } catch (ocrErr: any) {
         console.error('Tesseract recognition warning:', ocrErr.message)
@@ -81,11 +84,17 @@ export async function POST(req: Request) {
       pdfText: extractedRawText
     })
 
-    // Xác định độ tin cậy thực tế dựa trên khối lượng văn bản bóc tách được
+    // Xác định độ tin cậy: ưu tiên score thực từ Tesseract, fallback heuristic cho pdf-parse
     let calculatedConfidence = 0.85
-    if (extractedRawText.length > 200) calculatedConfidence = 0.97
-    else if (extractedRawText.length > 50) calculatedConfidence = 0.92
-    else if (extractedRawText.length > 0) calculatedConfidence = 0.88
+    if (tesseractConfidence >= 0) {
+      // Dùng confidence score thực tế từ Tesseract AI engine
+      calculatedConfidence = Math.max(0.1, Math.min(1.0, tesseractConfidence))
+    } else if (ocrEngineUsed === 'digital-pdf-parser') {
+      // PDF điện tử: độ tin cậy cao vì text được nhúng sẵn
+      calculatedConfidence = extractedRawText.length > 200 ? 0.98 : 0.95
+    } else {
+      calculatedConfidence = extractedRawText.length > 0 ? 0.88 : 0.5
+    }
 
     return NextResponse.json({
       success: true,

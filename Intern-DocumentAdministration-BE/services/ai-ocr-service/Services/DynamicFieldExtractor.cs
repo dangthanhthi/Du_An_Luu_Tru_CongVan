@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -27,23 +27,33 @@ namespace AiOcrService.Services
                 .Where(r => r.RuleType.Equals("ReferenceNumber", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(r => r.Priority);
 
+            var refCandidates = new System.Collections.Generic.List<(string Value, int Priority)>();
             foreach (var rule in refRules)
             {
                 try
                 {
-                    var match = Regex.Match(extractedText, rule.Pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                    var match = Regex.Match(extractedText, rule.Pattern, 
+                        RegexOptions.IgnoreCase | RegexOptions.Multiline,
+                        TimeSpan.FromSeconds(2));
                     if (match.Success)
                     {
                         var val = (match.Groups.Count > 1 ? match.Groups[1].Value : match.Value).Trim();
                         val = val.TrimEnd('.', ',', ';', ':', '-', ' ');
                         if (val.Length >= 2 && !val.Equals("ngay", StringComparison.OrdinalIgnoreCase))
                         {
-                            result.ReferenceNumber = val;
-                            break;
+                            refCandidates.Add((val, rule.Priority));
                         }
                     }
                 }
                 catch { }
+            }
+            if (refCandidates.Count > 0)
+            {
+                // Pick highest priority (lowest number), then longest value
+                result.ReferenceNumber = refCandidates
+                    .OrderBy(c => c.Priority)
+                    .ThenByDescending(c => c.Value.Length)
+                    .First().Value;
             }
 
             // 2. BÓC TÁCH TRÍCH YẾU / TIÊU ĐỀ (Subject)
@@ -51,11 +61,14 @@ namespace AiOcrService.Services
                 .Where(r => r.RuleType.Equals("Subject", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(r => r.Priority);
 
+            var subjectCandidates = new System.Collections.Generic.List<(string Value, int Priority)>();
             foreach (var rule in subjectRules)
             {
                 try
                 {
-                    var match = Regex.Match(extractedText, rule.Pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                    var match = Regex.Match(extractedText, rule.Pattern, 
+                        RegexOptions.IgnoreCase | RegexOptions.Multiline,
+                        TimeSpan.FromSeconds(2));
                     if (match.Success)
                     {
                         var val = (match.Groups.Count > 1 ? match.Groups[1].Value : match.Value).Trim();
@@ -64,12 +77,18 @@ namespace AiOcrService.Services
                         val = Regex.Replace(val, @"\s+", " ");
                         if (val.Length >= 5)
                         {
-                            result.Subject = val;
-                            break;
+                            subjectCandidates.Add((val, rule.Priority));
                         }
                     }
                 }
                 catch { }
+            }
+            if (subjectCandidates.Count > 0)
+            {
+                result.Subject = subjectCandidates
+                    .OrderBy(c => c.Priority)
+                    .ThenByDescending(c => c.Value.Length)
+                    .First().Value;
             }
 
             // 3. BÓC TÁCH NGÀY BAN HÀNH (DocumentDate)

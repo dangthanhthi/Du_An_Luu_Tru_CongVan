@@ -72,10 +72,10 @@ export function parseOcrDocumentMetadata(doc: {
 // TRÍCH XUẤT SỐ KÝ HIỆU
 // ============================================================================
 function extractReferenceNumber(text: string, existingRef?: string): string {
-  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — cho phép khoảng trắng OCR quanh /
+  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé)
   const prefixPatterns = [
-    /(?:Số|So|No|Ref|Ký hiệu|Số hiệu)\s*[:.]\s*(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*\/\s*\d{4})?)/i,
-    /(?:Số|So)\s+(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*)/i,
+    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]\s*(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*\/\s*\d{4})?)/i,
+    /(?:Số|Sô|Sổ|So)[\s]+(\d{1,5}\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*\/\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*)/i,
   ]
 
   for (const pattern of prefixPatterns) {
@@ -192,6 +192,7 @@ function extractPartnerName(text: string, existingPartner?: string): string {
 
   // Nhận diện qua mã viết tắt trong số hiệu (VD: 689/SKHCN → Sở Khoa học và Công nghệ)
   const refOrgMap: Record<string, string> = {
+    // === Bộ cấp Trung ương ===
     'BGDDT': 'Bộ Giáo dục và Đào tạo',
     'BGDĐT': 'Bộ Giáo dục và Đào tạo',
     'BYT': 'Bộ Y tế',
@@ -204,15 +205,51 @@ function extractPartnerName(text: string, existingPartner?: string): string {
     'BGTVT': 'Bộ Giao thông Vận tải',
     'BCT': 'Bộ Công Thương',
     'BNV': 'Bộ Nội vụ',
+    'BQP': 'Bộ Quốc phòng',
+    'BNG': 'Bộ Ngoại giao',
+    'BTP': 'Bộ Tư pháp',
+    'BNNPTNT': 'Bộ Nông nghiệp và Phát triển Nông thôn',
+    'BLDTBXH': 'Bộ Lao động - Thương binh và Xã hội',
+    'BVHTTDL': 'Bộ Văn hóa, Thể thao và Du lịch',
+    'BKHDT': 'Bộ Kế hoạch và Đầu tư',
+    // === Cơ quan ngang Bộ ===
+    'NHNN': 'Ngân hàng Nhà nước Việt Nam',
+    'TTCP': 'Thanh tra Chính phủ',
+    'VPCP': 'Văn phòng Chính phủ',
+    'UBDT': 'Ủy ban Dân tộc',
+    // === Ủy ban Nhân dân ===
     'UBND': 'Ủy ban Nhân dân',
+    // === Sở ban ngành địa phương ===
     'SKHCN': 'Sở Khoa học và Công nghệ',
     'SGDDT': 'Sở Giáo dục và Đào tạo',
     'SYT': 'Sở Y tế',
     'STC': 'Sở Tài chính',
     'STNMT': 'Sở Tài nguyên và Môi trường',
     'STTTT': 'Sở Thông tin và Truyền thông',
+    'SXD': 'Sở Xây dựng',
+    'SGTVT': 'Sở Giao thông Vận tải',
+    'SCT': 'Sở Công Thương',
+    'SNV': 'Sở Nội vụ',
+    'STP': 'Sở Tư pháp',
+    'SKHDT': 'Sở Kế hoạch và Đầu tư',
+    'SLDTBXH': 'Sở Lao động - Thương binh và Xã hội',
+    'SVHTTDL': 'Sở Văn hóa, Thể thao và Du lịch',
+    'SNN': 'Sở Nông nghiệp và Phát triển Nông thôn',
+    'SCA': 'Sở Công an',
+    // === Tập đoàn / Doanh nghiệp nhà nước ===
     'VNPT': 'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)',
+    'EVN': 'Tập đoàn Điện lực Việt Nam (EVN)',
+    'PVN': 'Tập đoàn Dầu khí Quốc gia Việt Nam',
+    'VIETTEL': 'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel)',
+    'VNA': 'Tổng Công ty Hàng không Việt Nam',
+    'VNR': 'Tổng Công ty Đường sắt Việt Nam',
+    // === Doanh nghiệp tư nhân lớn ===
     'FPT': 'Công ty Cổ phần FPT',
+    'VCB': 'Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)',
+    'VTB': 'Ngân hàng TMCP Công Thương Việt Nam (VietinBank)',
+    'BIDV': 'Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)',
+    'ACB': 'Ngân hàng TMCP Á Châu (ACB)',
+    'MBB': 'Ngân hàng TMCP Quân đội (MB Bank)',
   }
 
   // Tìm mã viết tắt trong số hiệu
@@ -235,14 +272,25 @@ function extractPartnerName(text: string, existingPartner?: string): string {
 // ============================================================================
 function extractIssuedDate(text: string, existingDate?: string): string {
   // Mẫu 1: "ngày 05 tháng 08 năm 2026" hoặc "ngay 5 thang 8 nam 2026"
-  const fullDateMatch = text.match(/ngày\s*(\d{1,2})\s*tháng\s*(\d{1,2})\s*năm\s*(\d{4})/i)
-    || text.match(/ngay\s*(\d{1,2})\s*thang\s*(\d{1,2})\s*nam\s*(\d{4})/i)
+  // Bao gồm lỗi OCR: "ngày" → "ngay", "tháng" → "thang"/"thảng", "năm" → "nam"/"nám"
+  const fullDateMatch = text.match(/ng[àáaă]y\s*(\d{1,2})\s*th[áàa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i)
   if (fullDateMatch) {
     return formatDate(fullDateMatch[1], fullDateMatch[2], fullDateMatch[3])
   }
 
+  // Mẫu 1b: OCR spacing: "ngày 0 5 tháng 0 8 năm 2 0 2 6"
+  const spacedDateMatch = text.match(/ng[àáaă]y\s*(\d\s*\d?)\s*th[áàa]ng\s*(\d\s*\d?)\s*n[ăa]m\s*(\d\s*\d\s*\d\s*\d)/i)
+  if (spacedDateMatch) {
+    const day = spacedDateMatch[1].replace(/\s/g, '')
+    const month = spacedDateMatch[2].replace(/\s/g, '')
+    const year = spacedDateMatch[3].replace(/\s/g, '')
+    if (parseInt(day) >= 1 && parseInt(day) <= 31 && parseInt(month) >= 1 && parseInt(month) <= 12) {
+      return formatDate(day, month, year)
+    }
+  }
+
   // Mẫu 2: "Hà Nội, ngày 05/08/2026" hoặc "TP.HCM, ngày 5/8/2026"
-  const locationDateMatch = text.match(/,\s*ngày\s*(\d{1,2})\s*[/\-]\s*(\d{1,2})\s*[/\-]\s*(\d{4})/i)
+  const locationDateMatch = text.match(/,\s*ng[àáaă]y\s*(\d{1,2})\s*[/\-]\s*(\d{1,2})\s*[/\-]\s*(\d{4})/i)
   if (locationDateMatch) {
     return formatDate(locationDateMatch[1], locationDateMatch[2], locationDateMatch[3])
   }
@@ -281,20 +329,20 @@ function formatDate(day: string, month: string, year: string): string {
 // TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU
 // ============================================================================
 function extractTitle(text: string, existingTitle?: string): string {
-  // Mẫu 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (cho phép không có dấu :)
-  const vvMatch = text.match(/(?:V\/v|V\/V|v\/v)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|$)/is)
+  // Mẫu 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (cho phép không có dấu : và lỗi OCR như V/ v, V\v, V.v, Vv)
+  const vvMatch = text.match(/(?:V[\/\\]v|V[\/\\]V|v[\/\\]v|V\s*[\/\\]\s*v|V\s*[\/\\]\s*V|V\.v|Vv)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|\n\s*K[ií]nh|$)/is)
   if (vvMatch?.[1]) {
     return cleanTitle(vvMatch[1])
   }
 
-  // Mẫu 2: "Về việc: ..."
-  const veViecMatch = text.match(/(?:Về việc|VỀ VIỆC)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|$)/is)
+  // Mẫu 2: "Về việc: ..." (kể cả không dấu do OCR)
+  const veViecMatch = text.match(/(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|\n\s*K[ií]nh|$)/is)
   if (veViecMatch?.[1]) {
     return cleanTitle(veViecMatch[1])
   }
 
-  // Mẫu 3: "Trích yếu: ..."
-  const trichYeuMatch = text.match(/(?:Trích yếu|TRÍCH YẾU)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|$)/is)
+  // Mẫu 3: "Trích yếu: ..." (kể cả không dấu do OCR)
+  const trichYeuMatch = text.match(/(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|$)/is)
   if (trichYeuMatch?.[1]) {
     return cleanTitle(trichYeuMatch[1])
   }

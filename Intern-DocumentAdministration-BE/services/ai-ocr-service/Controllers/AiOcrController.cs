@@ -1,4 +1,4 @@
-﻿using AiOcrService.DTOs;
+using AiOcrService.DTOs;
 using AiOcrService.Models;
 using AiOcrService.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +15,10 @@ namespace AiOcrService.Controllers
     [Route("api/ai-ocr")]
     public class AiOcrController : ControllerBase
     {
+        private static List<PartnerDto>? _cachedPartners;
+        private static DateTime _partnerCacheExpiry = DateTime.MinValue;
+        private static readonly TimeSpan _partnerCacheTtl = TimeSpan.FromMinutes(5);
+
         private readonly IOcrEngine _ocrEngine;
         private readonly IPartnerMatcher _partnerMatcher;
         private readonly IOcrRuleService _ruleService;
@@ -80,43 +84,56 @@ namespace AiOcrService.Controllers
                 var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText);
 
                 // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
-                var partnerServiceUrl = Environment.GetEnvironmentVariable("Services__PartnerService") 
-                                     ?? Environment.GetEnvironmentVariable("PARTNER_SERVICE_URL") 
-                                     ?? "http://localhost:5003";
                 var partners = new List<PartnerDto>();
 
-                try
+                if (_cachedPartners != null && DateTime.UtcNow < _partnerCacheExpiry)
                 {
-                    var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000");
-                    if (partnerResponse.IsSuccessStatusCode)
+                    partners = _cachedPartners;
+                }
+                else
+                {
+                    var partnerServiceUrl = Environment.GetEnvironmentVariable("Services__PartnerService") 
+                                         ?? Environment.GetEnvironmentVariable("PARTNER_SERVICE_URL") 
+                                         ?? "http://localhost:5003";
+
+                    try
                     {
-                        var jsonString = await partnerResponse.Content.ReadAsStringAsync();
-                        using var doc = JsonDocument.Parse(jsonString);
-                        var root = doc.RootElement;
-
-                        if (root.TryGetProperty("data", out var dataElem))
+                        var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000");
+                        if (partnerResponse.IsSuccessStatusCode)
                         {
-                            JsonElement itemsArray = default;
-                            if (dataElem.ValueKind == JsonValueKind.Array)
-                            {
-                                itemsArray = dataElem;
-                            }
-                            else if (dataElem.ValueKind == JsonValueKind.Object && dataElem.TryGetProperty("items", out var itemsProp) && itemsProp.ValueKind == JsonValueKind.Array)
-                            {
-                                itemsArray = itemsProp;
-                            }
+                            var jsonString = await partnerResponse.Content.ReadAsStringAsync();
+                            using var doc = JsonDocument.Parse(jsonString);
+                            var root = doc.RootElement;
 
-                            if (itemsArray.ValueKind == JsonValueKind.Array)
+                            if (root.TryGetProperty("data", out var dataElem))
                             {
-                                var parsedList = JsonSerializer.Deserialize<List<PartnerDto>>(itemsArray.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                                if (parsedList != null) partners = parsedList;
+                                JsonElement itemsArray = default;
+                                if (dataElem.ValueKind == JsonValueKind.Array)
+                                {
+                                    itemsArray = dataElem;
+                                }
+                                else if (dataElem.ValueKind == JsonValueKind.Object && dataElem.TryGetProperty("items", out var itemsProp) && itemsProp.ValueKind == JsonValueKind.Array)
+                                {
+                                    itemsArray = itemsProp;
+                                }
+
+                                if (itemsArray.ValueKind == JsonValueKind.Array)
+                                {
+                                    var parsedList = JsonSerializer.Deserialize<List<PartnerDto>>(itemsArray.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                                    if (parsedList != null) 
+                                    {
+                                        partners = parsedList;
+                                        _cachedPartners = partners;
+                                        _partnerCacheExpiry = DateTime.UtcNow.Add(_partnerCacheTtl);
+                                    }
+                                }
                             }
                         }
                     }
-                }
-                catch
-                {
-                    // Nếu gặp lỗi khi gọi PartnerService, vẫn tiếp tục trả về chuỗi text và các trường đã bóc tách
+                    catch
+                    {
+                        // Nếu gặp lỗi khi gọi PartnerService, vẫn tiếp tục trả về chuỗi text và các trường đã bóc tách
+                    }
                 }
 
                 var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, request.SenderEmail);

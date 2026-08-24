@@ -80,18 +80,50 @@ function extractRealPdfBase64(rawEmail: string): { base64Data: string; filename:
   return null
 }
 
-// Trích xuất văn bản thực tế từ PDF bằng thư viện pdf-parse (100% Local)
+// Trích xuất văn bản thực tế từ PDF — Hybrid OCR Engine
+// Bước 1: Thử pdf-parse (siêu tốc, cho PDF điện tử có lớp text)
+// Bước 2: Nếu pdf-parse trả < 30 ký tự → PDF scan ảnh → chạy Tesseract AI (vie+eng)
 async function extractTextFromPdfBase64(base64Data: string): Promise<string> {
   try {
     const raw = base64Data.replace(/^data:application\/pdf;base64,/, '')
     const buffer = Buffer.from(raw, 'base64')
-    const { PDFParse } = await import('pdf-parse')
-    const parser = new PDFParse({ data: buffer })
-    const result = await parser.getText()
-    await parser.destroy()
-    return result?.text || ''
+
+    // BƯỚC 1: Thử bóc tách lớp text kỹ thuật số bằng pdf-parse
+    let digitalText = ''
+    try {
+      const { PDFParse } = await import('pdf-parse')
+      const parser = new PDFParse({ data: buffer })
+      const result = await parser.getText()
+      await parser.destroy()
+      digitalText = result?.text?.trim() || ''
+    } catch (pdfErr: any) {
+      console.warn('pdf-parse notice:', pdfErr.message)
+    }
+
+    // Nếu pdf-parse trích xuất đủ text → PDF điện tử, trả về ngay
+    if (digitalText.length >= 30) {
+      return digitalText
+    }
+
+    // BƯỚC 2: PDF scan ảnh (< 30 ký tự) → Chạy Tesseract AI OCR thực tế
+    console.log(`[Hybrid OCR] pdf-parse chỉ trích được ${digitalText.length} ký tự → chạy Tesseract AI...`)
+    try {
+      const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))
+      const { data } = await Tesseract.recognize(buffer, 'vie+eng', {
+        logger: () => {} // Suppress verbose progress logs
+      })
+      if (data?.text && data.text.trim().length > 0) {
+        console.log(`[Hybrid OCR] Tesseract AI nhận diện được ${data.text.trim().length} ký tự`)
+        return data.text.trim()
+      }
+    } catch (ocrErr: any) {
+      console.warn('Tesseract AI fallback notice:', ocrErr.message)
+    }
+
+    // Trả về kết quả pdf-parse dù ngắn (tốt hơn rỗng)
+    return digitalText
   } catch (err) {
-    console.error('Error parsing PDF text with pdf-parse:', err)
+    console.error('Error in Hybrid OCR extraction:', err)
     return ''
   }
 }

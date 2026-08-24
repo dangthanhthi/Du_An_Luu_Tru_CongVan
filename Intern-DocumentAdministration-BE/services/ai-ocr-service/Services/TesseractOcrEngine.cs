@@ -44,17 +44,25 @@ namespace AiOcrService.Services
                 var vieTrainedData = Path.Combine(_tessDataPath, "vie.traineddata");
                 var engTrainedData = Path.Combine(_tessDataPath, "eng.traineddata");
                 
-                string language = "vie";
-                if (!File.Exists(vieTrainedData))
+                string language;
+                bool hasVie = File.Exists(vieTrainedData);
+                bool hasEng = File.Exists(engTrainedData);
+
+                if (hasVie && hasEng)
                 {
-                    if (File.Exists(engTrainedData))
-                    {
-                        language = "eng";
-                    }
-                    else
-                    {
-                        throw new Exception($"[Warning]: Thư mục Tessdata '{_tessDataPath}' chưa có file 'vie.traineddata'.");
-                    }
+                    language = "vie+eng";
+                }
+                else if (hasVie)
+                {
+                    language = "vie";
+                }
+                else if (hasEng)
+                {
+                    language = "eng";
+                }
+                else
+                {
+                    throw new Exception($"[Warning]: Thư mục Tessdata '{_tessDataPath}' chưa có file 'vie.traineddata'.");
                 }
 
                 if (pdfStream.CanSeek)
@@ -73,8 +81,11 @@ namespace AiOcrService.Services
 
                 using var engine = new TesseractEngine(_tessDataPath, language, EngineMode.Default);
 
+                int pageIndex = 0;
                 foreach (var image in images)
                 {
+                    pageIndex++;
+                    if (pageIndex > 20) break;
                     image.Format = MagickFormat.Png;
                     image.Deskew(new Percentage(40));
                     image.Despeckle();
