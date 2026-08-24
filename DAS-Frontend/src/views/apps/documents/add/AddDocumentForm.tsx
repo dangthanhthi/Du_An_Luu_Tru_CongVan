@@ -56,138 +56,72 @@ const AddDocumentForm = () => {
     setOcrLoading(true)
     setAlertInfo(null)
 
-    let isProcessed = false
-
-    // 1. Thử gọi Backend Microservice qua API Gateway
     try {
-      const uploadRes = await fileApi.upload(selectedFile)
-      const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
+      // 1. Quét trực tiếp qua Next.js AI OCR Engine (sử dụng unpdf + Tesseract Neural + Semantic Parser)
+      const localFormData = new FormData()
+      localFormData.append('file', selectedFile)
 
-      if (fileId) {
-        setFormData(prev => ({ ...prev, fileIds: [fileId] }))
-        const ocrRes = await ocrApi.analyze(fileId)
+      const localRes = await fetch('/api/ocr/analyze', {
+        method: 'POST',
+        body: localFormData
+      })
 
-        if (ocrRes?.success && ocrRes?.data) {
-          const {
-            extractedText,
-            extractedReferenceNumber,
-            extractedSubject,
-            extractedDateString,
-            extractedSigner,
-            extractedDocumentType,
-            matchedPartnerId,
-            confidence
-          } = ocrRes.data
+      const localData = await localRes.json()
 
-          // Sử dụng bộ bóc tách ngữ nghĩa semantic parser để đảm bảo thông tin chuẩn xác và không lẫn footer
-          const semantic = parseOcrDocumentMetadata({ pdfText: extractedText })
+      if (localData.success && localData.data) {
+        const {
+          extractedText,
+          extractedReferenceNumber,
+          extractedSubject,
+          extractedDateString,
+          matchedPartnerName,
+          extractedSigner,
+          extractedSignerPosition,
+          extractedDocumentType,
+          confidence
+        } = localData.data
 
-          const finalRef = extractedReferenceNumber || semantic.referenceNumber || ''
-          const finalTitle = semantic.title !== 'Văn bản tiếp nhận' ? semantic.title : (extractedSubject || '')
-          const finalDate = extractedDateString || semantic.issuedDate || ''
-          let finalPartner = semantic.partnerName !== 'Chưa xác định' ? semantic.partnerName : ''
-          const finalSigner = extractedSigner || semantic.signerName || ''
-          const finalPosition = semantic.signerPosition || ''
-          const finalDocType = extractedDocumentType || semantic.documentType || 'Công văn đến'
+        setOcrResult({ text: extractedText, confidence })
 
-          setOcrResult({ text: extractedText, confidence, matchedPartnerId })
+        setFormData(prev => ({
+          ...prev,
+          documentNumber: extractedReferenceNumber || prev.documentNumber || '',
+          title: extractedSubject || prev.title || '',
+          partnerName: matchedPartnerName || prev.partnerName || '',
+          issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
+          summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary,
+          fileIds: prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()]
+        }))
 
-          if (matchedPartnerId && !finalPartner) {
-            try {
-              const partnerDetail = await partnerApi.getById(matchedPartnerId)
-              const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
-              if (name) finalPartner = name
-            } catch { }
+        // Tải tệp lên backend storage nếu có kết nối
+        fileApi.upload(selectedFile).then(uploadRes => {
+          const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
+          if (fileId) {
+            setFormData(prev => ({ ...prev, fileIds: [fileId] }))
           }
+        }).catch(() => {})
 
-          setFormData(prev => ({
-            ...prev,
-            documentNumber: finalRef || prev.documentNumber || '',
-            title: finalTitle || prev.title || '',
-            partnerName: finalPartner || prev.partnerName || '',
-            partnerId: matchedPartnerId || prev.partnerId || '',
-            issuedDate: finalDate ? convertDateToISO(finalDate) : prev.issuedDate,
-            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
-          }))
+        const infoLines = []
+        if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
+        if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
+        if (extractedSigner) infoLines.push(`Người ký: ${extractedSignerPosition ? `${extractedSignerPosition} ` : ''}${extractedSigner}`)
+        if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 50)}...`)
 
-          const infoLines = []
-          if (finalRef) infoLines.push(`Số hiệu: ${finalRef}`)
-          if (finalPartner) infoLines.push(`Đơn vị: ${finalPartner}`)
-          if (finalSigner) infoLines.push(`Người ký: ${finalPosition ? `${finalPosition} ` : ''}${finalSigner}`)
-          if (finalTitle) infoLines.push(`Trích yếu: ${finalTitle.substring(0, 50)}...`)
-
-          setAlertInfo({
-            type: 'success',
-            message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Trích xuất ${(extractedText || '').length} ký tự.`}`
-          })
-          isProcessed = true
-        }
-      }
-    } catch {
-      // Backend microservice offline -> Chuyển sang Local Next.js Engine
-    }
-
-    // 2. Fallback sang Local Next.js Engine (Đọc nội dung PDF thực bằng pdf-parse)
-    if (!isProcessed) {
-      try {
-        const localFormData = new FormData()
-        localFormData.append('file', selectedFile)
-
-        const localRes = await fetch('/api/ocr/analyze', {
-          method: 'POST',
-          body: localFormData
-        })
-
-        const localData = await localRes.json()
-
-        if (localData.success && localData.data) {
-          const {
-            extractedText,
-            extractedReferenceNumber,
-            extractedSubject,
-            extractedDateString,
-            matchedPartnerName,
-            extractedSigner,
-            extractedSignerPosition,
-            extractedDocumentType,
-            confidence
-          } = localData.data
-
-          setOcrResult({ text: extractedText, confidence })
-
-          setFormData(prev => ({
-            ...prev,
-            documentNumber: extractedReferenceNumber || prev.documentNumber || '',
-            title: extractedSubject || prev.title || '',
-            partnerName: matchedPartnerName || prev.partnerName || '',
-            issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
-            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary,
-            fileIds: prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()]
-          }))
-
-          const infoLines = []
-          if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
-          if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
-          if (extractedSigner) infoLines.push(`Người ký: ${extractedSignerPosition ? `${extractedSignerPosition} ` : ''}${extractedSigner}`)
-          if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 50)}...`)
-
-          setAlertInfo({
-            type: 'success',
-            message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Đã bóc tách nội dung từ ${selectedFile.name}.`}`
-          })
-          isProcessed = true
-        } else {
-          throw new Error(localData.message || 'Lỗi bóc tách PDF')
-        }
-      } catch (err: any) {
         setAlertInfo({
-          type: 'error',
-          message: `Lỗi xử lý file: ${err.message || 'Không thể bóc tách nội dung.'}. Vui lòng nhập thông tin thủ công.`
+          type: 'success',
+          message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Đã bóc tách nội dung từ ${selectedFile.name}.`}`
         })
+      } else {
+        throw new Error(localData.message || 'Lỗi bóc tách PDF')
       }
+    } catch (err: any) {
+      setAlertInfo({
+        type: 'error',
+        message: `Lỗi xử lý file: ${err.message || 'Không thể bóc tách nội dung.'}. Vui lòng nhập thông tin thủ công.`
+      })
+    } finally {
+      setOcrLoading(false)
     }
-
-    setOcrLoading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
