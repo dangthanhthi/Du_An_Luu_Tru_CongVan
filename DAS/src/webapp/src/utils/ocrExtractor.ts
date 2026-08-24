@@ -12,6 +12,151 @@
  * 100% local — không dùng bất kỳ API đám mây nào.
  */
 
+export interface CompanyProfileConfig {
+  companyName: string
+  shortName: string
+  taxCode?: string
+  aliases: string[]
+  internalKeywords: string[]
+  outgoingKeywords: string[]
+}
+
+export const DEFAULT_COMPANY_CONFIG: CompanyProfileConfig = {
+  companyName: 'Công ty Cổ phần Quản trị Dữ liệu & Văn thư Số DAS',
+  shortName: 'DAS',
+  taxCode: '0109988776',
+  aliases: [
+    'DAS', 'DAS Corp', 'DAS Group', 'DAS JSC', 'Công ty DAS',
+    'Trung tâm Lưu trữ DAS', 'Văn phòng DAS', 'Công ty Cổ phần DAS',
+    'Ban Giám Đốc DAS', 'Hội đồng Quản trị DAS'
+  ],
+  internalKeywords: [
+    'nội bộ', 'toàn thể cán bộ', 'toàn thể nhân viên', 'toàn thể cbcnv', 'các phòng ban',
+    'các đơn vị trực thuộc', 'chi nhánh', 'người lao động', 'quy chế nội bộ', 'nội quy lao động',
+    'kế hoạch nội bộ', 'thông báo nội bộ', 'quyết định bổ nhiệm', 'quyết định thành lập',
+    'tờ trình đề xuất', 'biên bản cuộc họp', 'hướng dẫn nội bộ', 'chỉ tiêu nội bộ',
+    'phòng tài chính', 'phòng kỹ thuật', 'phòng kinh doanh', 'phòng nhân sự'
+  ],
+  outgoingKeywords: [
+    'kính gửi quý', 'kính gửi ông', 'kính gửi bà', 'kính gửi công ty', 'kính gửi sở',
+    'kính gửi bộ', 'kính gửi ủy ban', 'kính gửi ngân hàng', 'kính gửi tập đoàn',
+    'đề xuất hợp tác', 'báo giá dịch vụ', 'phúc đáp công văn', 'yêu cầu báo giá',
+    'báo cáo gửi'
+  ]
+}
+
+export function getCompanyConfig(): CompanyProfileConfig {
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('das_company_profile')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed?.companyName) {
+          return {
+            ...DEFAULT_COMPANY_CONFIG,
+            ...parsed,
+            aliases: Array.isArray(parsed.aliases) && parsed.aliases.length > 0 ? parsed.aliases : DEFAULT_COMPANY_CONFIG.aliases,
+            internalKeywords: Array.isArray(parsed.internalKeywords) && parsed.internalKeywords.length > 0 ? parsed.internalKeywords : DEFAULT_COMPANY_CONFIG.internalKeywords,
+            outgoingKeywords: Array.isArray(parsed.outgoingKeywords) && parsed.outgoingKeywords.length > 0 ? parsed.outgoingKeywords : DEFAULT_COMPANY_CONFIG.outgoingKeywords
+          }
+        }
+      }
+    } catch {}
+  }
+  return DEFAULT_COMPANY_CONFIG
+}
+
+export function saveCompanyConfig(config: Partial<CompanyProfileConfig>): CompanyProfileConfig {
+  if (typeof window !== 'undefined') {
+    try {
+      const current = getCompanyConfig()
+      const updated: CompanyProfileConfig = {
+        ...current,
+        ...config,
+        aliases: config.aliases || current.aliases,
+        internalKeywords: config.internalKeywords || current.internalKeywords,
+        outgoingKeywords: config.outgoingKeywords || current.outgoingKeywords
+      }
+      localStorage.setItem('das_company_profile', JSON.stringify(updated))
+      return updated
+    } catch {}
+  }
+  return DEFAULT_COMPANY_CONFIG
+}
+
+export type DocumentDirection = 'incoming' | 'outgoing' | 'internal'
+
+export interface DirectionClassificationResult {
+  direction: DocumentDirection
+  confidence: number
+  rationale: string
+}
+
+/**
+ * Phân loại thông minh thể loại công văn: Đến (incoming), Đi (outgoing), hoặc Nội bộ (internal)
+ * Dựa trên so khớp cấu trúc văn bản: Đơn vị ban hành (Header), Nơi nhận (Kính gửi / To), Thể thức & Nội dung.
+ */
+export function classifyDocumentDirection(
+  text: string,
+  partnerName?: string,
+  headerText?: string,
+  config?: CompanyProfileConfig
+): DirectionClassificationResult {
+  const comp = config || getCompanyConfig()
+  const lowerText = text.toLowerCase()
+  const lowerHeader = (headerText || extractHeaderSection(text)).toLowerCase()
+  const lowerPartner = (partnerName || '').toLowerCase()
+
+  // 1. Kiểm tra xem Đơn vị ban hành (Header) có phải là Công ty mình hay không
+  const isCompanyInHeader = comp.aliases.some(alias => lowerHeader.includes(alias.toLowerCase())) ||
+                            (comp.companyName && lowerHeader.includes(comp.companyName.toLowerCase())) ||
+                            comp.aliases.some(alias => lowerPartner.includes(alias.toLowerCase()))
+
+  // 2. Trích xuất Nơi nhận (Kính gửi / To)
+  const recipientMatch = text.match(/(?:Kính\s*gửi|K[ií]nh\s*g[ửu]i|To|Gửi)\s*[:.:]?\s*([^\n\r;]{3,200})/i)
+  const recipientText = recipientMatch ? recipientMatch[1].toLowerCase() : ''
+
+  // 3. Kiểm tra nơi nhận là Nội bộ công ty
+  const isRecipientInternal = comp.internalKeywords.some(kw => recipientText.includes(kw.toLowerCase())) ||
+                              recipientText.includes('các phòng') || recipientText.includes('toàn thể') ||
+                              recipientText.includes('cán bộ') || recipientText.includes('nhân viên') ||
+                              recipientText.includes('cbcnv') || recipientText.includes('chi nhánh') ||
+                              recipientText.includes('người lao động') || recipientText.includes('đơn vị trực thuộc')
+
+  // 4. Kiểm tra tiêu đề / nội dung văn bản mang tính nội bộ
+  const isInternalDocumentType = /(?:quyết định\s*(?:bổ nhiệm|thành lập|ban hành quy chế|khen thưởng|kỷ luật|phân công|điều động)|quy chế\s*nội bộ|nội quy\s*(?:lao động|cơ quan)|thông báo\s*nội bộ|tờ trình\s*(?:đề xuất|xin kinh phí|mua sắm)|hướng dẫn\s*nội bộ|lịch trực\s*(?:tết|lễ)|nghỉ lễ|biên bản\s*(?:họp|nghiệm thu nội bộ))/i.test(lowerText)
+
+  // TH 1: CÔNG VĂN NỘI BỘ (INTERNAL)
+  if ((isCompanyInHeader && isRecipientInternal) || isInternalDocumentType) {
+    return {
+      direction: 'internal',
+      confidence: 0.95,
+      rationale: isRecipientInternal
+        ? `Đơn vị ban hành là nội bộ công ty và nơi nhận là [${recipientMatch?.[1]?.trim() || 'Nội bộ công ty'}].`
+        : 'Văn bản thuộc thể loại Quyết định / Quy chế / Thông báo nội bộ công ty.'
+    }
+  }
+
+  // TH 2: CÔNG VĂN ĐI (OUTGOING)
+  // Đơn vị ban hành là Công ty mình VÀ gửi cho đối tác / cơ quan bên ngoài
+  const isRecipientExternal = Boolean(recipientText && !isRecipientInternal && recipientText.length > 3)
+  if (isCompanyInHeader && (isRecipientExternal || !isRecipientInternal)) {
+    return {
+      direction: 'outgoing',
+      confidence: 0.92,
+      rationale: `Đơn vị phát hành là Công ty [${comp.shortName}] và gửi đến đối tác bên ngoài [${recipientMatch?.[1]?.trim() || 'Đối tác'}].`
+    }
+  }
+
+  // TH 3: CÔNG VĂN ĐẾN (INCOMING)
+  // Đơn vị ban hành là cơ quan / đối tác bên ngoài gửi đến
+  return {
+    direction: 'incoming',
+    confidence: 0.95,
+    rationale: `Đơn vị ban hành là đối tác bên ngoài [${partnerName || 'Cơ quan bên ngoài'}].`
+  }
+}
+
 export interface ExtractedMetadata {
   referenceNumber: string
   partnerName: string
@@ -20,6 +165,8 @@ export interface ExtractedMetadata {
   signerName?: string
   signerPosition?: string
   documentType?: string
+  direction?: DocumentDirection
+  directionRationale?: string
   summary: string
 }
 
@@ -29,6 +176,7 @@ export interface ExtractedMetadata {
  * 2. Khối Số ký hiệu & Ngày tháng (Anchor Metadata Block)
  * 3. Khối Thể thức & Trích yếu văn bản (Title & Subject Block)
  * 4. Khối Người ký & Chức danh ban hành (Signer & Position Block)
+ * 5. Tự động xác định Thể loại: Đến (incoming), Đi (outgoing), Nội bộ (internal)
  */
 export function parseOcrDocumentMetadata(doc: {
   title?: string
@@ -67,12 +215,15 @@ export function parseOcrDocumentMetadata(doc: {
   // 6. Xác định Thể thức văn bản
   const docType = extractDocumentType(fullText)
 
-  // 7. Tóm tắt nội dung
+  // 7. Tự động Phân loại Thể loại công văn: Đến (incoming) / Đi (outgoing) / Nội bộ (internal)
+  const directionClass = classifyDocumentDirection(fullText, partner, headerText)
+
+  // 8. Tóm tắt nội dung
   const summaryLines = [
     pdfContent ? 'Văn bản được bóc tách AI OCR từ file PDF.' : 'Văn bản tiếp nhận từ hòm thư điện tử.',
     `• Đơn vị ban hành: ${partner}`,
     `• Số ký hiệu: ${refNum || 'Chưa xác định'}`,
-    `• Thể loại: ${docType}`,
+    `• Thể loại: ${directionClass.direction === 'incoming' ? 'Công văn đến' : directionClass.direction === 'outgoing' ? 'Công văn đi' : 'Công văn nội bộ'} (${docType})`,
     `• Ngày ban hành: ${date || 'Chưa xác định'}`,
     `• Trích yếu: ${title}`
   ]
@@ -88,6 +239,8 @@ export function parseOcrDocumentMetadata(doc: {
     signerName: signer.name,
     signerPosition: signer.position,
     documentType: docType,
+    direction: directionClass.direction,
+    directionRationale: directionClass.rationale,
     summary: summaryLines.join('\n')
   }
 }

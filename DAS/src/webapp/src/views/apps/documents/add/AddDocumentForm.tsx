@@ -15,6 +15,11 @@ import Alert from '@mui/material/Alert'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Tooltip from '@mui/material/Tooltip'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -22,7 +27,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import type { Locale } from '@configs/i18n'
 import { documentApi, fileApi, ocrApi, partnerApi } from '@/services/api'
 import { useAppDictionary } from '@/hooks/useDictionary'
-import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
+import { getCompanyConfig, saveCompanyConfig, type CompanyProfileConfig, parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 const AddDocumentForm = () => {
   const router = useRouter()
@@ -43,9 +48,22 @@ const AddDocumentForm = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [ocrLoading, setOcrLoading] = useState(false)
-  const [ocrResult, setOcrResult] = useState<{ text?: string; confidence?: number; matchedPartnerId?: string } | null>(null)
+  const [ocrResult, setOcrResult] = useState<{ text?: string; confidence?: number; direction?: string; rationale?: string; matchedPartnerId?: string } | null>(null)
   const [submitLoading, setSubmitLoading] = useState(false)
   const [alertInfo, setAlertInfo] = useState<{ type: 'success' | 'error' | 'warning'; message: string } | null>(null)
+
+  // Company Settings Modal State
+  const [openCompanyModal, setOpenCompanyModal] = useState(false)
+  const [companyForm, setCompanyForm] = useState<CompanyProfileConfig>(() => getCompanyConfig())
+
+  const handleSaveCompanyConfig = () => {
+    saveCompanyConfig(companyForm)
+    setOpenCompanyModal(false)
+    setAlertInfo({
+      type: 'success',
+      message: `Đã lưu thông tin công ty [${companyForm.companyName}]! Hệ thống AI OCR sẽ dựa vào tên này để tự động phân định Công văn đi, đến và nội bộ.`
+    })
+  }
 
   // Handle OCR Scan — Kết hợp Backend AI-OCR Engine và Local Next.js PDF Engine
   const handleOcrScan = async () => {
@@ -79,15 +97,25 @@ const AddDocumentForm = () => {
           extractedSigner,
           extractedSignerPosition,
           extractedDocumentType,
+          extractedDirection,
+          directionRationale,
           confidence
         } = localData.data
 
-        setOcrResult({ text: extractedText, confidence })
+        const finalDir = extractedDirection || 'incoming'
+
+        setOcrResult({
+          text: extractedText,
+          confidence,
+          direction: finalDir,
+          rationale: directionRationale
+        })
 
         setFormData(prev => ({
           ...prev,
           referenceNumber: extractedReferenceNumber || '',
           title: extractedSubject || '',
+          direction: finalDir,
           partnerName: matchedPartnerName || '',
           issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
           summary: extractedText ? extractedText.trim().substring(0, 2000) : '',
@@ -102,7 +130,9 @@ const AddDocumentForm = () => {
           }
         }).catch(() => {})
 
+        const dirLabel = finalDir === 'internal' ? 'Công văn nội bộ' : finalDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'
         const infoLines = []
+        infoLines.push(`Thể loại: ${dirLabel}`)
         if (extractedReferenceNumber) infoLines.push(`Số đối tác: ${extractedReferenceNumber}`)
         if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
         if (extractedSigner) infoLines.push(`Người ký: ${extractedSignerPosition ? `${extractedSignerPosition} ` : ''}${extractedSigner}`)
@@ -110,7 +140,7 @@ const AddDocumentForm = () => {
 
         setAlertInfo({
           type: 'success',
-          message: `Quét AI OCR thành công! ${infoLines.length > 0 ? infoLines.join(' • ') : `Đã bóc tách nội dung từ ${selectedFile.name}.`}`
+          message: `Quét AI OCR thành công! ${infoLines.join(' • ')}`
         })
       } else {
         throw new Error(localData.message || 'Lỗi bóc tách PDF')
@@ -181,44 +211,142 @@ const AddDocumentForm = () => {
             {t.documents.ocrSectionDesc}
           </Typography>
 
-          <div className='flex flex-wrap items-center gap-4'>
-            <input
-              type='file'
-              accept='.pdf,.png,.jpg,.jpeg,.tiff'
-              id='ocr-upload-file'
-              className='hidden'
-              onChange={e => {
-                if (e.target.files && e.target.files[0]) {
-                  setSelectedFile(e.target.files[0])
-                }
-              }}
-            />
-            <label htmlFor='ocr-upload-file'>
-              <Button variant='outlined' component='span' startIcon={<i className='tabler-upload' />}>
-                {selectedFile ? selectedFile.name : t.documents.chooseFile}
+          <div className='flex flex-wrap items-center justify-between gap-4'>
+            <div className='flex flex-wrap items-center gap-4'>
+              <input
+                type='file'
+                accept='.pdf,.png,.jpg,.jpeg,.tiff'
+                id='ocr-upload-file'
+                className='hidden'
+                onChange={e => {
+                  if (e.target.files && e.target.files[0]) {
+                    setSelectedFile(e.target.files[0])
+                  }
+                }}
+              />
+              <label htmlFor='ocr-upload-file'>
+                <Button variant='outlined' component='span' startIcon={<i className='tabler-upload' />}>
+                  {selectedFile ? selectedFile.name : t.documents.chooseFile}
+                </Button>
+              </label>
+
+              <Button
+                variant='contained'
+                color='primary'
+                disabled={!selectedFile || ocrLoading}
+                onClick={handleOcrScan}
+                startIcon={ocrLoading ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-scan' />}
+              >
+                {ocrLoading ? t.documents.scanningBtn : t.documents.scanBtn}
               </Button>
-            </label>
+
+              {ocrResult && ocrResult.confidence && (
+                <Chip
+                  label={`${t.documents.confidenceBadge}: ${(ocrResult.confidence * 100).toFixed(0)}%`}
+                  color={ocrResult.confidence >= 0.95 ? 'success' : 'primary'}
+                  variant='tonal'
+                  icon={<i className='tabler-check' />}
+                />
+              )}
+
+              {ocrResult && ocrResult.direction && (
+                <Chip
+                  label={`Loại: ${ocrResult.direction === 'internal' ? 'Công văn nội bộ' : ocrResult.direction === 'outgoing' ? 'Công văn đi' : 'Công văn đến'}`}
+                  color={ocrResult.direction === 'internal' ? 'info' : ocrResult.direction === 'outgoing' ? 'success' : 'primary'}
+                  variant='tonal'
+                  icon={<i className={ocrResult.direction === 'internal' ? 'tabler-file-text' : ocrResult.direction === 'outgoing' ? 'tabler-arrow-up-right' : 'tabler-arrow-down-left'} />}
+                />
+              )}
+            </div>
 
             <Button
-              variant='contained'
-              color='primary'
-              disabled={!selectedFile || ocrLoading}
-              onClick={handleOcrScan}
-              startIcon={ocrLoading ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-scan' />}
+              variant='tonal'
+              color='secondary'
+              size='small'
+              startIcon={<i className='tabler-building-cog' />}
+              onClick={() => setOpenCompanyModal(true)}
             >
-              {ocrLoading ? t.documents.scanningBtn : t.documents.scanBtn}
+              Cấu hình Tên Công Ty ({companyForm.shortName || 'DAS'})
             </Button>
-
-            {ocrResult && ocrResult.confidence && (
-              <Chip
-                label={`${t.documents.confidenceBadge}: ${(ocrResult.confidence * 100).toFixed(0)}%`}
-                color={ocrResult.confidence >= 0.95 ? 'success' : 'primary'}
-                variant='tonal'
-                icon={<i className='tabler-check' />}
-              />
-            )}
           </div>
         </div>
+
+        {/* Dialog Cài Đặt Tên Công Ty & Quy Tắc Nhận Diện */}
+        <Dialog open={openCompanyModal} onClose={() => setOpenCompanyModal(false)} maxWidth='sm' fullWidth>
+          <DialogTitle className='flex items-center gap-2'>
+            <i className='tabler-building-cog text-2xl text-primary' />
+            Cấu hình Thông tin Công Ty & Nhận diện Văn bản
+          </DialogTitle>
+          <DialogContent className='pt-4'>
+            <Typography variant='body2' color='text.secondary' className='mbe-4'>
+              Hệ thống AI OCR sử dụng Tên công ty và các Tên viết tắt bên dưới để tự động phân định văn bản:
+              <br />
+              • <b>Công văn đến:</b> Cơ quan bên ngoài gửi đến công ty.
+              <br />
+              • <b>Công văn đi:</b> Công ty phát hành gửi cho đối tác/cơ quan bên ngoài.
+              <br />
+              • <b>Công văn nội bộ:</b> Công ty phát hành gửi cho các phòng ban, chi nhánh hoặc cán bộ nhân viên nội bộ.
+            </Typography>
+
+            <Grid container spacing={4}>
+              <Grid size={{ xs: 12 }}>
+                <CustomTextField
+                  fullWidth
+                  label='Tên đầy đủ của Công ty / Đơn vị'
+                  value={companyForm.companyName}
+                  onChange={e => setCompanyForm({ ...companyForm, companyName: e.target.value })}
+                  placeholder='VD: Công ty Cổ phần Quản trị Dữ liệu & Văn thư Số DAS'
+                  required
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <CustomTextField
+                  fullWidth
+                  label='Tên viết tắt chính'
+                  value={companyForm.shortName}
+                  onChange={e => setCompanyForm({ ...companyForm, shortName: e.target.value })}
+                  placeholder='VD: DAS'
+                  required
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <CustomTextField
+                  fullWidth
+                  label='Mã số thuế'
+                  value={companyForm.taxCode || ''}
+                  onChange={e => setCompanyForm({ ...companyForm, taxCode: e.target.value })}
+                  placeholder='VD: 0109988776'
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12 }}>
+                <CustomTextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  label='Các tên viết tắt / Ký hiệu nhận diện (phân cách bằng dấu phẩy)'
+                  value={companyForm.aliases.join(', ')}
+                  onChange={e => setCompanyForm({
+                    ...companyForm,
+                    aliases: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                  })}
+                  placeholder='VD: DAS, DAS Corp, DAS Group, Ban Giám Đốc DAS, Văn phòng DAS'
+                  helperText='Bất kỳ văn bản nào có đơn vị phát hành chứa các tên này sẽ được nhận diện là do công ty ban hành'
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions className='p-4 pt-0'>
+            <Button variant='tonal' color='secondary' onClick={() => setOpenCompanyModal(false)}>
+              Đóng
+            </Button>
+            <Button variant='contained' color='primary' onClick={handleSaveCompanyConfig} startIcon={<i className='tabler-check' />}>
+              Lưu Cấu Hình
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={5}>
