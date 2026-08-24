@@ -44,15 +44,19 @@ export function parseOcrDocumentMetadata(doc: {
   const pdfContent = doc.pdfText || ''
   const emailMeta = `${doc.title || ''} ${doc.summary || ''} ${doc.attachmentName || ''} ${doc.documentNumber || ''}`
   const fullText = pdfContent ? `${pdfContent}\n${emailMeta}` : emailMeta
+  const fileName = doc.attachmentName || ''
 
-  // 1. Bóc tách Số ký hiệu
-  const refNum = extractReferenceNumber(fullText, doc.referenceNumber)
+  // 0. Tách riêng khối Header (Tiêu ngữ & Thông tin ban hành đầu trang)
+  const headerText = extractHeaderSection(fullText)
 
-  // 2. Bóc tách Cơ quan / Đơn vị ban hành
-  const partner = extractPartnerName(fullText, doc.partnerName)
+  // 1. Bóc tách Số ký hiệu (Ưu tiên tuyệt đối khối Header)
+  const refNum = extractReferenceNumber(fullText, doc.referenceNumber, fileName, headerText)
 
-  // 3. Bóc tách Ngày ban hành
-  const date = extractIssuedDate(fullText, doc.issuedDate)
+  // 2. Bóc tách Cơ quan / Đơn vị ban hành (Ưu tiên khối Header)
+  const partner = extractPartnerName(fullText, doc.partnerName, headerText)
+
+  // 3. Bóc tách Ngày ban hành (Ưu tiên khối Header, chặn triệt để ngày trong phần Căn cứ)
+  const date = extractIssuedDate(fullText, doc.issuedDate, fileName, headerText)
 
   // 4. Bóc tách Tiêu đề / Trích yếu
   const title = extractTitle(fullText, doc.title)
@@ -60,7 +64,7 @@ export function parseOcrDocumentMetadata(doc: {
   // 5. Bóc tách Người ký & Chức danh
   const signer = extractSignerInfo(fullText)
 
-  // 6. Xác định Thể thức văn bản (Quyết định / Thông báo / Giấy mời / Công văn)
+  // 6. Xác định Thể thức văn bản
   const docType = extractDocumentType(fullText)
 
   // 7. Tóm tắt nội dung
@@ -89,34 +93,69 @@ export function parseOcrDocumentMetadata(doc: {
 }
 
 // ============================================================================
+// TRÍCH XUẤT KHỐI TIÊU NGỮ / HEADER (TRƯỚC KÍNH GỬI / CĂN CỨ)
+// ============================================================================
+function extractHeaderSection(text: string): string {
+  const cutoffMatch = text.match(/(?:\n\s*Kính gửi|\n\s*K[ií]nh g[ửu]i|\n\s*Căn cứ|\n\s*C[aă]n c[ứu]|\n\s*Điều \d|\n\s*QUYẾT ĐỊNH|\n\s*THÔNG BÁO\s*\n\s*Về việc|\n\s*GIẤY MỜI\s*\n)/i)
+  if (cutoffMatch && cutoffMatch.index !== undefined && cutoffMatch.index > 50) {
+    return text.substring(0, cutoffMatch.index)
+  }
+  return text.substring(0, Math.min(text.length, 1500))
+}
+
+// ============================================================================
 // TRÍCH XUẤT SỐ KÝ HIỆU
 // ============================================================================
-function extractReferenceNumber(text: string, existingRef?: string): string {
-  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé), dấu / \ | và mã quốc tế (SEV-2026/0815/DAS)
-  const prefixPatterns = [
+function extractReferenceNumber(text: string, existingRef?: string, fileName?: string, headerText?: string): string {
+  const header = headerText || extractHeaderSection(text)
+
+  // ƯU TIÊN 1: Tìm Số ký hiệu chính thức trong khối HEADER
+  const headerPrefixPatterns = [
+    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*(\d*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
     /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
-    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*(\d{1,5}\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*[\/\\|]\s*\d{4})?)/i,
-    /(?:Số|Sô|Sổ|So)[\s]+([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
+    /(?:Số|Sô|Sổ|So)[\s]+(\d*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
   ]
 
-  for (const pattern of prefixPatterns) {
-    const match = text.match(pattern)
+  for (const pattern of headerPrefixPatterns) {
+    const match = header.match(pattern)
+    if (match) {
+      let num = (match[1] || '').trim()
+      let suffix = (match[2] || '').replace(/\s*[\/\\|]\s*/g, '/').trim()
+      
+      // Nếu số bị thiếu trong lớp văn bản (VD: "Số: /SGDĐT-TCCB"), tìm số đầu tên file (VD: "1678vb-...")
+      if (!num && fileName) {
+        const fileNumMatch = fileName.match(/^(\d{1,6})/i)
+        if (fileNumMatch) {
+          num = fileNumMatch[1]
+        }
+      }
+
+      const fullRef = num ? `${num}/${suffix}` : `/${suffix}`
+      if (isValidRefNumber(fullRef)) return normalizeRefNumber(fullRef)
+    }
+  }
+
+  // ƯU TIÊN 2: Số hiệu đứng độc lập trong khối HEADER
+  const headerStandalonePatterns = [
+    /\b(\d{1,5}[\/\\|][A-ZĐ][A-ZĐa-zÀ-ỹ0-9\-_]{1,20}(?:[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:[\/\\|]\d{4})?)\b/i,
+    /\b([A-ZĐ]{2,8}-\d{1,5}[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]{2,20})\b/i,
+  ]
+
+  for (const pattern of headerStandalonePatterns) {
+    const match = header.match(pattern)
     if (match?.[1]) {
       const cleaned = normalizeRefNumber(match[1])
       if (isValidRefNumber(cleaned)) return cleaned
     }
   }
 
-  // Mẫu 2: Số hiệu đứng độc lập (VD: 689/SKHCN-QLKH hoặc CV-145/ABC)
-  const standalonePatterns = [
-    /\b(\d{1,5}[\/\\|][A-ZĐ][A-ZĐa-zÀ-ỹ0-9\-_]{1,20}(?:[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:[\/\\|]\d{4})?)\b/i,
-    /\b([A-ZĐ]{2,8}-\d{1,5}[\/\\|][A-ZĐa-zÀ-ỹ0-9\-_]{2,20})\b/i,
-  ]
-
-  for (const pattern of standalonePatterns) {
-    const match = text.match(pattern)
+  // ƯU TIÊN 3: Tìm trong toàn bộ văn bản nhưng LOẠI TRỪ phần "Căn cứ..." (để không lấy nhầm căn cứ pháp lý)
+  const nonCitationText = text.replace(/(?:Căn cứ|C[aă]n c[ứu]|Theo|Tại)\s+(?:Quyết định|Nghị định|Thông tư|Luật|Công văn|Văn bản)[\s\S]*?(?=\n\s*\n|$)/gi, '')
+  
+  for (const pattern of headerPrefixPatterns) {
+    const match = nonCitationText.match(pattern)
     if (match?.[1]) {
-      const cleaned = normalizeRefNumber(match[1])
+      const cleaned = normalizeRefNumber(match[0].replace(/^(?:Số|Sô|Sổ|So|No|Ref)[\s]*[:.]?\s*/i, ''))
       if (isValidRefNumber(cleaned)) return cleaned
     }
   }
@@ -130,26 +169,21 @@ function extractReferenceNumber(text: string, existingRef?: string): string {
   return ''
 }
 
-function normalizeRefNumber(raw: string): string {
-  // Chuẩn hóa: thay thế dấu gạch chéo ngược \, gạch đứng | và khoảng trắng quanh chúng thành / chuẩn
-  return raw.replace(/\s*[\/\\|]\s*/g, '/').trim()
-}
-
 function isValidRefNumber(ref: string): boolean {
   if (!ref || ref.length < 3) return false
   if (!ref.includes('/')) return false
-  // Loại bỏ các chuỗi không phải số hiệu
   const upper = ref.toUpperCase()
   if (upper.includes('EMAIL') || upper.includes('GMAIL') || upper.includes('HTTP')) return false
-  if (ref === '689/S') return false  // Trường hợp bị cắt cụt
+  if (ref === '689/S') return false
   return true
 }
 
 // ============================================================================
 // TRÍCH XUẤT CƠ QUAN / ĐƠN VỊ BAN HÀNH
-// Sử dụng ngữ pháp cấu trúc tiếng Việt thay vì if/else cứng
 // ============================================================================
-function extractPartnerName(text: string, existingPartner?: string): string {
+function extractPartnerName(text: string, existingPartner?: string, headerText?: string): string {
+  const header = headerText || extractHeaderSection(text)
+
   // Các mẫu ngữ pháp nhận diện tổ chức tiếng Việt (ưu tiên theo thứ tự)
   const orgPatterns: Array<{ pattern: RegExp; priority: number }> = [
     // Cơ quan cấp bộ
@@ -179,16 +213,14 @@ function extractPartnerName(text: string, existingPartner?: string): string {
     { pattern: /(?:^|\n)\s*((?:Ngân hàng|NH)\s+[^\r\n]{2,80})/i, priority: 10 },
   ]
 
-  // Thử khớp theo thứ tự ưu tiên
+  // Thử khớp trong Header
   const candidates: Array<{ name: string; priority: number; position: number }> = []
 
   for (const { pattern, priority } of orgPatterns) {
-    const match = text.match(pattern)
+    const match = header.match(pattern) || text.match(pattern)
     if (match?.[1]) {
       let name = match[1].trim()
-      // Giới hạn chiều dài hợp lý
       if (name.length >= 5 && name.length <= 80 && !name.includes('\n')) {
-        // Loại bỏ ký tự thừa ở cuối
         name = name.replace(/[.,;:\s]+$/, '').trim()
         candidates.push({
           name,
@@ -201,33 +233,23 @@ function extractPartnerName(text: string, existingPartner?: string): string {
 
   if (candidates.length > 0) {
     // Nếu có cả Sở và UBND ở phần đầu văn bản (header), kết hợp Sở + Địa phương
-    const headerCandidates = candidates.filter(c => c.position < text.length * 0.35)
-    const soCandidate = headerCandidates.find(c => /^S[Ởở]\s+/i.test(c.name))
-    const ubndCandidate = headerCandidates.find(c => /(?:Ủy ban nhân dân|UBND|ỦY BAN NHÂN DÂN)/i.test(c.name))
+    const soCandidate = candidates.find(c => /^S[Ởở]\s+/i.test(c.name))
+    const ubndCandidate = candidates.find(c => /(?:Ủy ban nhân dân|UBND|ỦY BAN NHÂN DÂN)/i.test(c.name))
 
     if (soCandidate) {
-      if (ubndCandidate) {
-        // Trích xuất tên địa phương từ UBND (VD: THÀNH PHỐ ĐÀ NẴNG, TỈNH QUẢNG NINH)
-        const locationMatch = ubndCandidate.name.match(/(?:THÀNH PHỐ|Thành phố|TỈNH|Tỉnh|TP|TX|HUYỆN|Huyện)\s+[A-ZÀ-Ỹa-zà-ỹ\s]+/i)
-        if (locationMatch && !soCandidate.name.toLowerCase().includes(locationMatch[0].toLowerCase())) {
-          return `${soCandidate.name} ${locationMatch[0]}`.trim()
-        }
+      // Tìm địa phương trong header (VD: THÀNH PHỐ HỒ CHÍ MINH, TỈNH BÌNH DƯƠNG)
+      const locMatch = header.match(/(?:THÀNH PHỐ|Thành phố|TỈNH|Tỉnh|TP|TX|HUYỆN|Huyện)\s+([A-ZÀ-Ỹa-zà-ỹ\s]+?)(?=\s+Độc lập|\s+ngày|\n|$)/i)
+      if (locMatch && !soCandidate.name.toLowerCase().includes(locMatch[0].toLowerCase())) {
+        return `${soCandidate.name} ${locMatch[0]}`.trim()
       }
       return soCandidate.name
     }
 
-    // Ưu tiên theo vị trí trong văn bản (đầu trang = cơ quan ban hành)
-    candidates.sort((a, b) => {
-      const aIsHeader = a.position < text.length * 0.35
-      const bIsHeader = b.position < text.length * 0.35
-      if (aIsHeader && !bIsHeader) return -1
-      if (!aIsHeader && bIsHeader) return 1
-      return a.priority - b.priority
-    })
+    candidates.sort((a, b) => a.priority - b.priority)
     return candidates[0].name
   }
 
-  // Nhận diện qua mã viết tắt trong số hiệu (VD: 689/SKHCN → Sở Khoa học và Công nghệ)
+  // Nhận diện qua mã viết tắt trong số hiệu (VD: 689/SKHCN → Sở Khoa học và Công nghệ, 1678/SGDĐT → Sở Giáo dục và Đào tạo)
   const refOrgMap: Record<string, string> = {
     // === Bộ cấp Trung ương ===
     'BGDDT': 'Bộ Giáo dục và Đào tạo',
@@ -259,6 +281,7 @@ function extractPartnerName(text: string, existingPartner?: string): string {
     // === Sở ban ngành địa phương ===
     'SKHCN': 'Sở Khoa học và Công nghệ',
     'SGDDT': 'Sở Giáo dục và Đào tạo',
+    'SGDĐT': 'Sở Giáo dục và Đào tạo',
     'SYT': 'Sở Y tế',
     'STC': 'Sở Tài chính',
     'STNMT': 'Sở Tài nguyên và Môi trường',
@@ -289,14 +312,13 @@ function extractPartnerName(text: string, existingPartner?: string): string {
     'MBB': 'Ngân hàng TMCP Quân đội (MB Bank)',
   }
 
-  // Tìm mã viết tắt trong số hiệu
-  const refMatch = text.match(/\d+\/([A-ZĐ]{2,12})(?:[-\/]|$)/i)
+  // Tìm mã viết tắt trong số hiệu ở header
+  const refMatch = header.match(/(?:[-\/]|^|\s)([A-ZĐ]{2,12})(?:[-\/]|$)/i) || text.match(/\d+\/([A-ZĐ]{2,12})(?:[-\/]|$)/i)
   if (refMatch?.[1]) {
     const code = refMatch[1].toUpperCase()
     if (refOrgMap[code]) return refOrgMap[code]
   }
 
-  // Fallback: dùng giá trị có sẵn nếu hợp lệ
   if (existingPartner && existingPartner.length >= 3 && !existingPartner.includes('@')) {
     return existingPartner
   }
@@ -305,18 +327,19 @@ function extractPartnerName(text: string, existingPartner?: string): string {
 }
 
 // ============================================================================
-// TRÍCH XUẤT NGÀY BAN HÀNH
+// TRÍCH XUẤT NGÀY BAN HÀNH (CHỈ LẤY TRONG HEADER, CHẶN TRIỆT ĐỂ PHẦN CĂN CỨ)
 // ============================================================================
-function extractIssuedDate(text: string, existingDate?: string): string {
-  // Mẫu 1: "ngày 05 tháng 08 năm 2026" hoặc "ngay 5 thang 8 nam 2026"
-  // Bao gồm lỗi OCR: "ngày" → "ngay", "tháng" → "thang"/"thảng", "năm" → "nam"/"nám"
-  const fullDateMatch = text.match(/ng[àáaă]y\s*(\d{1,2})\s*th[áàa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i)
+function extractIssuedDate(text: string, existingDate?: string, fileName?: string, headerText?: string): string {
+  const header = headerText || extractHeaderSection(text)
+
+  // 1. Tìm ngày đầy đủ trong khối HEADER: "ngày 22 tháng 8 năm 2025"
+  const fullDateMatch = header.match(/ng[àáaă]y\s*(\d{1,2})\s*th[áàa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i)
   if (fullDateMatch) {
     return formatDate(fullDateMatch[1], fullDateMatch[2], fullDateMatch[3])
   }
 
-  // Mẫu 1b: OCR spacing: "ngày 0 5 tháng 0 8 năm 2 0 2 6"
-  const spacedDateMatch = text.match(/ng[àáaă]y\s*(\d\s*\d?)\s*th[áàa]ng\s*(\d\s*\d?)\s*n[ăa]m\s*(\d\s*\d\s*\d\s*\d)/i)
+  // 1b: Spaced OCR trong HEADER: "ngày 0 5 tháng 0 8 năm 2 0 2 6"
+  const spacedDateMatch = header.match(/ng[àáaă]y\s*(\d\s*\d?)\s*th[áàa]ng\s*(\d\s*\d?)\s*n[ăa]m\s*(\d\s*\d\s*\d\s*\d)/i)
   if (spacedDateMatch) {
     const day = spacedDateMatch[1].replace(/\s/g, '')
     const month = spacedDateMatch[2].replace(/\s/g, '')
@@ -326,14 +349,14 @@ function extractIssuedDate(text: string, existingDate?: string): string {
     }
   }
 
-  // Mẫu 2: "Hà Nội, ngày 05/08/2026" hoặc "TP.HCM, ngày 5/8/2026"
-  const locationDateMatch = text.match(/,\s*ng[àáaă]y\s*(\d{1,2})\s*[/\-]\s*(\d{1,2})\s*[/\-]\s*(\d{4})/i)
+  // 1c: "TP.HCM, ngày 05/08/2026" trong HEADER
+  const locationDateMatch = header.match(/,\s*ng[àáaă]y\s*(\d{1,2})\s*[/\-]\s*(\d{1,2})\s*[/\-]\s*(\d{4})/i)
   if (locationDateMatch) {
     return formatDate(locationDateMatch[1], locationDateMatch[2], locationDateMatch[3])
   }
 
-  // Mẫu 3: "DD/MM/YYYY" hoặc "DD-MM-YYYY" đứng độc lập
-  const shortDateMatch = text.match(/\b(\d{1,2})\s*[/\-.]\s*(\d{1,2})\s*[/\-.]\s*(\d{4})\b/)
+  // 1d: DD/MM/YYYY độc lập trong HEADER
+  const shortDateMatch = header.match(/\b(\d{1,2})\s*[/\-.]\s*(\d{1,2})\s*[/\-.]\s*(\d{4})\b/)
   if (shortDateMatch) {
     const d = parseInt(shortDateMatch[1])
     const m = parseInt(shortDateMatch[2])
@@ -342,10 +365,30 @@ function extractIssuedDate(text: string, existingDate?: string): string {
     }
   }
 
-  // Mẫu 4: "Date: 2026-08-15" (ISO format)
-  const isoDateMatch = text.match(/(?:Date|Ngày)\s*[:.]\s*(\d{4})-(\d{1,2})-(\d{1,2})/i)
+  // 1e: Nếu trong Header có năm (VD: "ngày tháng năm 2025") và tên file có chứa ngày tháng (VD: "2282025" -> 22/08/2025)
+  if (fileName) {
+    const fileDateMatch = fileName.match(/(\d{1,2})(\d{1,2})(20\d{2})/)
+    if (fileDateMatch) {
+      const d = parseInt(fileDateMatch[1])
+      const m = parseInt(fileDateMatch[2])
+      const y = fileDateMatch[3]
+      if (d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+        return formatDate(String(d), String(m), y)
+      }
+    }
+  }
+
+  // 1f: "Date: 2026-08-15" (ISO format) trong HEADER
+  const isoDateMatch = header.match(/(?:Date|Ngày)\s*[:.]\s*(\d{4})-(\d{1,2})-(\d{1,2})/i) || text.match(/(?:Date|Ngày)\s*[:.]\s*(\d{4})-(\d{1,2})-(\d{1,2})/i)
   if (isoDateMatch) {
     return formatDate(isoDateMatch[3], isoDateMatch[2], isoDateMatch[1])
+  }
+
+  // 2. Tìm trong phần không phải trích dẫn căn cứ
+  const nonCitationText = text.replace(/(?:Căn cứ|C[aă]n c[ứu]|Theo|Tại)\s+(?:Quyết định|Nghị định|Thông tư|Luật|Công văn|Văn bản)[\s\S]*?(?=\n\s*\n|$)/gi, '')
+  const nonCitationDateMatch = nonCitationText.match(/ng[àáaă]y\s*(\d{1,2})\s*th[áàa]ng\s*(\d{1,2})\s*n[ăa]m\s*(\d{4})/i)
+  if (nonCitationDateMatch) {
+    return formatDate(nonCitationDateMatch[1], nonCitationDateMatch[2], nonCitationDateMatch[3])
   }
 
   // Fallback: dùng giá trị có sẵn
@@ -360,6 +403,10 @@ function formatDate(day: string, month: string, year: string): string {
   const d = day.padStart(2, '0')
   const m = month.padStart(2, '0')
   return `${d}/${m}/${year}`
+}
+
+function normalizeRefNumber(raw: string): string {
+  return raw.replace(/\s*[\/\\|]\s*/g, '/').replace(/^\/+/, '').replace(/\/+$/, '').trim()
 }
 
 // ============================================================================
