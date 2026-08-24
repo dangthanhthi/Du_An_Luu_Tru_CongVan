@@ -72,10 +72,11 @@ export function parseOcrDocumentMetadata(doc: {
 // TRÍCH XUẤT SỐ KÝ HIỆU
 // ============================================================================
 function extractReferenceNumber(text: string, existingRef?: string): string {
-  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé) và dấu / \ |
+  // Mẫu 1: Sau từ khóa "Số:", "Số :", "No:", "Ref:" — bao gồm lỗi OCR (Sô, Sổ, So, Sé), dấu / \ | và mã quốc tế (SEV-2026/0815/DAS)
   const prefixPatterns = [
+    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
     /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*(\d{1,5}\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*(?:\s*[\/\\|]\s*\d{4})?)/i,
-    /(?:Số|Sô|Sổ|So)[\s]+(\d{1,5}\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-zÀ-ỹ0-9\-_]+)*)/i,
+    /(?:Số|Sô|Sổ|So)[\s]+([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
   ]
 
   for (const pattern of prefixPatterns) {
@@ -347,6 +348,18 @@ function extractTitle(text: string, existingTitle?: string): string {
   const trichYeuMatch = text.match(/(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|$)/is)
   if (trichYeuMatch?.[1]) {
     return cleanTitle(trichYeuMatch[1])
+  }
+
+  // Mẫu 4: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
+  const regardingMatch = text.match(/(?:Regarding|regarding|Re|RE)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*To:|\n\s*Kính|$)/is)
+  if (regardingMatch?.[1]) {
+    return cleanTitle(regardingMatch[1])
+  }
+
+  // Mẫu 5: "Subject: ..." (Công văn quốc tế)
+  const subjectMatch = text.match(/(?:Subject|SUBJECT)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*To:|\n\s*Kính|$)/is)
+  if (subjectMatch?.[1]) {
+    return cleanTitle(subjectMatch[1])
   }
 
   // Mẫu 4: Tiêu đề email đã loại bỏ [tag] và Fwd/Re
