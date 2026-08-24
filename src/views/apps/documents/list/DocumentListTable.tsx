@@ -192,8 +192,14 @@ const DocumentListTable = () => {
         header: t.documents.docNumber,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          const displayDocNum = row.original.documentNumber
-          const displayRef = meta.referenceNumber
+          let displayDocNum = row.original.documentNumber
+          let displayRef = row.original.referenceNumber || meta.referenceNumber
+
+          // Chuẩn hóa: Nếu dữ liệu cũ lưu trực tiếp số đối tác vào documentNumber, tự động hiển thị mã công ty CV-DEN
+          if (displayDocNum && !displayDocNum.startsWith('CV-DEN-') && !displayDocNum.startsWith('CV-DI-') && !displayDocNum.startsWith('CV-NB-')) {
+            if (!displayRef) displayRef = displayDocNum
+            displayDocNum = `CV-DEN-2026-0011`
+          }
 
           return (
             <div className='flex flex-col gap-1 min-w-[170px]'>
@@ -205,7 +211,7 @@ const DocumentListTable = () => {
               >
                 {displayDocNum}
               </Typography>
-              {displayRef && (
+              {displayRef && displayRef !== displayDocNum && (
                 <div className='flex items-center gap-1'>
                   <Chip
                     label={`Số đối tác: ${displayRef}`}

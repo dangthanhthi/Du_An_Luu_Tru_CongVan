@@ -213,22 +213,39 @@ const getStoredDocuments = (): any[] => {
     if (raw) {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Tự động làm sạch: Lọc bỏ các email rác/không có tệp PDF/mã số sai định dạng cũ
-        const cleanDocs = parsed.filter(d => {
-          const num = d.documentNumber || ''
-          const partner = (d.partnerName || '').toLowerCase()
-          const title = (d.title || '').toLowerCase()
+        // Tự động chuẩn hóa: Đảm bảo số công văn chính là số công ty CV-DEN / CV-DI / CV-NB và số đối tác là referenceNumber
+        let incomingCount = 0
+        const cleanDocs = parsed
+          .filter(d => {
+            const num = d.documentNumber || ''
+            const partner = (d.partnerName || '').toLowerCase()
+            const title = (d.title || '').toLowerCase()
 
-          // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
-          if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
-            return false
-          }
-          // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
-          if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
-            return false
-          }
-          return true
-        })
+            // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
+            if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
+              return false
+            }
+            // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
+            if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
+              return false
+            }
+            return true
+          })
+          .map(d => {
+            const num = d.documentNumber || ''
+            const dir = d.direction || 'incoming'
+            // Nếu documentNumber là số ký hiệu đối tác (không theo format CV-DEN-, CV-DI-, CV-NB-):
+            if (!num.startsWith('CV-DEN-') && !num.startsWith('CV-DI-') && !num.startsWith('CV-NB-')) {
+              incomingCount++
+              const autoNum = `CV-DEN-2026-${String(10 + incomingCount).padStart(4, '0')}`
+              return {
+                ...d,
+                documentNumber: autoNum,
+                referenceNumber: d.referenceNumber || num
+              }
+            }
+            return d
+          })
 
         if (cleanDocs.length > 0) {
           localStorage.setItem('das_documents_store', JSON.stringify(cleanDocs))
@@ -413,12 +430,43 @@ export const documentApi = {
     return { success: !!found, data: found || null }
   },
   create: async (data: any) => {
+    const docs = getStoredDocuments()
+    const dir = data.direction || 'incoming'
+    const year = new Date().getFullYear()
+
+    // Xác định tiền tố theo chuẩn mã công văn của công ty
+    const prefix = dir === 'incoming' ? `CV-DEN-${year}` : dir === 'outgoing' ? `CV-DI-${year}` : `CV-NB-${year}`
+
+    // Tìm số thứ tự kế tiếp
+    const samePrefixDocs = docs.filter(d => d.documentNumber && d.documentNumber.startsWith(prefix))
+    let maxSeq = 0
+    for (const d of samePrefixDocs) {
+      const match = d.documentNumber.match(new RegExp(`^${prefix}-(\\d+)$`))
+      if (match) {
+        const n = parseInt(match[1], 10)
+        if (n > maxSeq) maxSeq = n
+      }
+    }
+    const nextSeqStr = String(maxSeq + 1).padStart(4, '0')
+    const autoDocNumber = `${prefix}-${nextSeqStr}`
+
+    // Phân biệt Số nội bộ công ty và Số ký hiệu đối tác
+    let internalDocNum = autoDocNumber
+    let partnerRef = data.referenceNumber || ''
+
+    if (data.documentNumber && (data.documentNumber.startsWith('CV-DEN-') || data.documentNumber.startsWith('CV-DI-') || data.documentNumber.startsWith('CV-NB-'))) {
+      internalDocNum = data.documentNumber
+    } else if (data.documentNumber) {
+      if (!partnerRef) partnerRef = data.documentNumber
+      internalDocNum = autoDocNumber
+    }
+
     const newDoc = {
       id: `doc-${Date.now()}`,
-      documentNumber: data.documentNumber,
-      referenceNumber: data.referenceNumber || '',
+      documentNumber: internalDocNum,
+      referenceNumber: partnerRef,
       title: data.title,
-      direction: data.direction || 'incoming',
+      direction: dir,
       issuedDate: data.issuedDate || new Date().toLocaleDateString('vi-VN'),
       partnerName: data.partnerName || 'Chưa xác định',
       senderEmail: data.senderEmail || '',
@@ -427,14 +475,14 @@ export const documentApi = {
       summary: data.summary || '',
       fileIds: data.fileIds || []
     }
-    const docs = getStoredDocuments()
+
     const updated = [newDoc, ...docs]
     setStoredDocuments(updated)
 
     try {
       await apiFetch(API_URLS.document, '/api/documents', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(newDoc),
       })
     } catch {}
 

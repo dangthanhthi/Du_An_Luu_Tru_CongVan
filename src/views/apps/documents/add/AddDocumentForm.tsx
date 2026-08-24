@@ -31,6 +31,7 @@ const AddDocumentForm = () => {
 
   const [formData, setFormData] = useState({
     documentNumber: '',
+    referenceNumber: '',
     title: '',
     direction: 'incoming',
     issuedDate: new Date().toISOString().split('T')[0],
@@ -85,7 +86,7 @@ const AddDocumentForm = () => {
 
         setFormData(prev => ({
           ...prev,
-          documentNumber: extractedReferenceNumber || '',
+          referenceNumber: extractedReferenceNumber || '',
           title: extractedSubject || '',
           partnerName: matchedPartnerName || '',
           issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
@@ -102,7 +103,7 @@ const AddDocumentForm = () => {
         }).catch(() => {})
 
         const infoLines = []
-        if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
+        if (extractedReferenceNumber) infoLines.push(`Số đối tác: ${extractedReferenceNumber}`)
         if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
         if (extractedSigner) infoLines.push(`Người ký: ${extractedSignerPosition ? `${extractedSignerPosition} ` : ''}${extractedSigner}`)
         if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 50)}...`)
@@ -132,6 +133,7 @@ const AddDocumentForm = () => {
     try {
       const payload = {
         documentNumber: formData.documentNumber,
+        referenceNumber: formData.referenceNumber,
         title: formData.title,
         direction: formData.direction,
         issuedDate: formData.issuedDate,
@@ -220,18 +222,29 @@ const AddDocumentForm = () => {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={5}>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <CustomTextField
                 fullWidth
-                label={`${t.documents.docNumber} *`}
-                placeholder='VD: 128/QĐ-BGDĐT'
+                label='Số nội bộ công ty'
+                placeholder='Tự động sinh (VD: CV-DEN-2026-0011)'
+                helperText='Để trống nếu muốn hệ thống tự động cấp số theo chuẩn'
                 value={formData.documentNumber}
                 onChange={e => setFormData({ ...formData, documentNumber: e.target.value })}
-                required
               />
             </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <CustomTextField
+                fullWidth
+                label='Số ký hiệu cơ quan / đối tác (OCR)'
+                placeholder='VD: 2258/SGDĐT-VP'
+                helperText='Số ký hiệu ban hành trên văn bản gốc'
+                value={formData.referenceNumber}
+                onChange={e => setFormData({ ...formData, referenceNumber: e.target.value })}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
               <CustomTextField
                 fullWidth
                 select
@@ -242,6 +255,7 @@ const AddDocumentForm = () => {
               >
                 <MenuItem value='incoming'>{t.documents.incoming}</MenuItem>
                 <MenuItem value='outgoing'>{t.documents.outgoing}</MenuItem>
+                <MenuItem value='internal'>{t.documents.internal || 'Công văn nội bộ'}</MenuItem>
               </CustomTextField>
             </Grid>
 
@@ -249,7 +263,7 @@ const AddDocumentForm = () => {
               <CustomTextField
                 fullWidth
                 label={`${t.documents.title} *`}
-                placeholder='VD: Về việc hướng dẫn triển khai nhiệm vụ năm học mới'
+                placeholder='VD: Về thời gian học tập đối với trẻ mầm non và học sinh trên địa bàn Thành phố'
                 value={formData.title}
                 onChange={e => setFormData({ ...formData, title: e.target.value })}
                 required
@@ -272,7 +286,7 @@ const AddDocumentForm = () => {
               <CustomTextField
                 fullWidth
                 label={t.documents.partner}
-                placeholder='VD: Bộ Giáo dục và Đào tạo'
+                placeholder='VD: SỞ GIÁO DỤC VÀ ĐÀO TẠO THÀNH PHỐ HỒ CHÍ MINH'
                 value={formData.partnerName}
                 onChange={e => setFormData({ ...formData, partnerName: e.target.value })}
               />
