@@ -136,11 +136,11 @@ function extractPartnerName(text: string, existingPartner?: string): string {
     { pattern: /(?:^|\n)\s*(BỘ\s+[A-ZÀ-Ỹ\s]+?)(?=\r?\n|$)/m, priority: 1 },
     { pattern: /(?:^|\n)\s*(Bộ\s+(?:Giáo dục|Y tế|Công an|Quốc phòng|Tài chính|Ngoại giao|Tư pháp|Xây dựng|Giao thông|Nông nghiệp|Công Thương|Lao động|Văn hóa|Thông tin|Khoa học|Tài nguyên|Nội vụ|Kế hoạch)[^\r\n]*)/i, priority: 2 },
     
+    // Sở ban ngành (Đơn vị ban hành trực tiếp)
+    { pattern: /(?:^|\n)\s*(SỞ\s+[^\r\n]{2,80}|Sở\s+[^\r\n]{2,80})/i, priority: 2.5 },
+
     // UBND (Ủy ban nhân dân các cấp)
     { pattern: /(?:^|\n)\s*((?:Ủy ban nhân dân|UBND|ỦY BAN NHÂN DÂN)\s+[^\r\n]{2,80})/i, priority: 3 },
-    
-    // Sở ban ngành
-    { pattern: /(?:^|\n)\s*(Sở\s+[^\r\n]{2,80})/i, priority: 4 },
     
     // Tập đoàn / Tổng công ty
     { pattern: /(?:^|\n)\s*((?:Tập đoàn|TẬP ĐOÀN)\s+[^\r\n]{2,80})/i, priority: 5 },
@@ -180,14 +180,28 @@ function extractPartnerName(text: string, existingPartner?: string): string {
   }
 
   if (candidates.length > 0) {
-    // Ưu tiên: khớp ở phần đầu văn bản (header) có priority cao hơn
+    // Nếu có cả Sở và UBND ở phần đầu văn bản (header), kết hợp Sở + Địa phương
+    const headerCandidates = candidates.filter(c => c.position < text.length * 0.35)
+    const soCandidate = headerCandidates.find(c => /^S[Ởở]\s+/i.test(c.name))
+    const ubndCandidate = headerCandidates.find(c => /(?:Ủy ban nhân dân|UBND|ỦY BAN NHÂN DÂN)/i.test(c.name))
+
+    if (soCandidate) {
+      if (ubndCandidate) {
+        // Trích xuất tên địa phương từ UBND (VD: THÀNH PHỐ ĐÀ NẴNG, TỈNH QUẢNG NINH)
+        const locationMatch = ubndCandidate.name.match(/(?:THÀNH PHỐ|Thành phố|TỈNH|Tỉnh|TP|TX|HUYỆN|Huyện)\s+[A-ZÀ-Ỹa-zà-ỹ\s]+/i)
+        if (locationMatch && !soCandidate.name.toLowerCase().includes(locationMatch[0].toLowerCase())) {
+          return `${soCandidate.name} ${locationMatch[0]}`.trim()
+        }
+      }
+      return soCandidate.name
+    }
+
+    // Ưu tiên theo vị trí trong văn bản (đầu trang = cơ quan ban hành)
     candidates.sort((a, b) => {
-      // Ưu tiên theo vị trí trong văn bản (đầu trang = cơ quan ban hành)
-      const aIsHeader = a.position < text.length * 0.3
-      const bIsHeader = b.position < text.length * 0.3
+      const aIsHeader = a.position < text.length * 0.35
+      const bIsHeader = b.position < text.length * 0.35
       if (aIsHeader && !bIsHeader) return -1
       if (!aIsHeader && bIsHeader) return 1
-      // Cùng vùng: ưu tiên theo priority
       return a.priority - b.priority
     })
     return candidates[0].name
@@ -334,56 +348,62 @@ function formatDate(day: string, month: string, year: string): string {
 function extractTitle(text: string, existingTitle?: string): string {
   const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
 
-  // Mẫu 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (cho phép không có dấu : và lỗi OCR như V/ v, V\v, V.v, Vv)
-  const vvPattern = new RegExp(`(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|V\\.v|Vv)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
-  const vvMatch = text.match(vvPattern)
-  if (vvMatch?.[1]) {
-    return cleanTitle(vvMatch[1])
-  }
-
-  // Mẫu 2: "Về việc: ..." (kể cả không dấu do OCR)
-  const veViecPattern = new RegExp(`(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  // Mẫu 1: "Về việc: ..." (kể cả không dấu do OCR) - Ưu tiên hàng đầu
+  const veViecPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
   const veViecMatch = text.match(veViecPattern)
   if (veViecMatch?.[1]) {
-    return cleanTitle(veViecMatch[1])
+    const cleaned = cleanTitle(veViecMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
+  }
+
+  // Mẫu 2: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (yêu cầu ranh giới từ để không nhầm đuôi email .gov.vn)
+  const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const vvMatch = text.match(vvPattern)
+  if (vvMatch?.[1]) {
+    const cleaned = cleanTitle(vvMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
   }
 
   // Mẫu 3: "Trích yếu: ..." (kể cả không dấu do OCR)
-  const trichYeuPattern = new RegExp(`(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
   const trichYeuMatch = text.match(trichYeuPattern)
   if (trichYeuMatch?.[1]) {
-    return cleanTitle(trichYeuMatch[1])
+    const cleaned = cleanTitle(trichYeuMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 4: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
-  const regardingPattern = new RegExp(`(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
-  const regardingMatch = text.match(regardingPattern)
-  if (regardingMatch?.[1]) {
-    return cleanTitle(regardingMatch[1])
-  }
-
-  // Mẫu 5: "Subject: ..." (Công văn quốc tế)
-  const subjectPattern = new RegExp(`(?:Subject|SUBJECT)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
-  const subjectMatch = text.match(subjectPattern)
-  if (subjectMatch?.[1]) {
-    return cleanTitle(subjectMatch[1])
-  }
-
-  // Mẫu 6: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
-  const docTypeHeaderPattern = new RegExp(`(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,300}?)${boundary}`, 'is')
+  // Mẫu 4: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
+  const docTypeHeaderPattern = new RegExp(`(?:^|\\n)\\s*(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,300}?)${boundary}`, 'is')
   const docTypeHeaderMatch = text.match(docTypeHeaderPattern)
   if (docTypeHeaderMatch?.[1]) {
-    return cleanTitle(docTypeHeaderMatch[1])
+    const cleaned = cleanTitle(docTypeHeaderMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 4: Tiêu đề email đã loại bỏ [tag] và Fwd/Re
+  // Mẫu 5: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
+  const regardingPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const regardingMatch = text.match(regardingPattern)
+  if (regardingMatch?.[1]) {
+    const cleaned = cleanTitle(regardingMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
+  }
+
+  // Mẫu 6: "Subject: ..." (Công văn quốc tế)
+  const subjectPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Subject|SUBJECT)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const subjectMatch = text.match(subjectPattern)
+  if (subjectMatch?.[1]) {
+    const cleaned = cleanTitle(subjectMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
+  }
+
+  // Mẫu 7: Tiêu đề email đã loại bỏ [tag] và Fwd/Re
   if (existingTitle) {
     let cleaned = existingTitle
       .replace(/^\[.*?\]\s*/i, '')
       .replace(/^(?:fwd|re|fw):\s*/i, '')
       .trim()
 
-    if (cleaned.length >= 5) return cleaned
+    if (isValidTitle(cleaned)) return cleaned
   }
 
   return 'Văn bản tiếp nhận'
@@ -392,7 +412,18 @@ function extractTitle(text: string, existingTitle?: string): string {
 function cleanTitle(raw: string): string {
   return raw
     .replace(/\s+/g, ' ')   // Nối khoảng trắng/xuống dòng
+    .replace(/^(?:Về việc|VỀ VIỆC|Ve viec|V[\/\\]v|V\.v|Trích yếu|TRÍCH YẾU|Regarding|Subject)\s*[:.:]?\s*/i, '') // Loại bỏ prefix trùng lặp
     .replace(/[.,;:\s]+$/, '') // Xóa dấu câu cuối
     .trim()
     .substring(0, 200) // Giới hạn chiều dài
+}
+
+function isValidTitle(title: string): boolean {
+  if (!title || title.length < 5) return false
+  const lower = title.toLowerCase()
+  // Loại bỏ các dòng footer, metadata, URL, thông tin liên hệ
+  if (lower.includes('file:///') || lower.includes('http://') || lower.includes('https://')) return false
+  if (lower.includes('email:') || lower.includes('điện thoại:') || lower.includes('mã số thuế:')) return false
+  if (lower.includes('.gov.vn') || lower.includes('@')) return false
+  return true
 }
