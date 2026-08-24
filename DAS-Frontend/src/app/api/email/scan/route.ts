@@ -190,10 +190,10 @@ async function parseEmailBody(rawEmail: string, mailId?: string) {
   })
 
   return {
-    id: mailId || messageId || `mail-${Date.now()}-${Math.random()}`,
-    messageId: messageId || `msg-${Date.now()}-${Math.random()}`,
+    id: mailId || messageId || `mail-${Date.now()}`,
+    messageId: messageId || `msg-${Date.now()}`,
     subject: meta.title || subject || 'Công văn tiếp nhận từ hòm thư điện tử',
-    sender: cleanFrom || 'vanthu.coquan@domain.gov.vn',
+    sender: cleanFrom || 'Chưa xác định',
     date: date || new Date().toISOString(),
     attachment: realPdf?.filename || (hasRealPdf ? 'VanBan_DinhKem.pdf' : ''),
     hasPdf: hasRealPdf,

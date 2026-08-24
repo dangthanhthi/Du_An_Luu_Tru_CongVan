@@ -37,7 +37,7 @@ const DEFAULT_EMAIL_SETTINGS = {
   host: 'imap.gmail.com',
   port: 993,
   useSsl: true,
-  email: 'thivc888@gmail.com',
+  email: '',
   appPassword: '',
   autoScan: true,
   intervalMinutes: 5,

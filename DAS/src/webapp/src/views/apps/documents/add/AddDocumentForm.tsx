@@ -194,14 +194,15 @@ const AddDocumentForm = () => {
         fileIds: formData.fileIds
       }
 
-      try {
-        await documentApi.create(payload)
-      } catch {}
-
-      setAlertInfo({ type: 'success', message: 'Lưu công văn thành công! Đang chuyển hướng...' })
-      setTimeout(() => {
-        router.push(getLocalizedUrl('/apps/documents/list', locale as Locale))
-      }, 1000)
+      const res = await documentApi.create(payload)
+      if (res?.success) {
+        setAlertInfo({ type: 'success', message: 'Lưu công văn thành công! Đang chuyển hướng...' })
+        setTimeout(() => {
+          router.push(getLocalizedUrl('/apps/documents/list', locale as Locale))
+        }, 1000)
+      } else {
+        throw new Error(res?.message || 'Không thể tạo công văn vào hệ thống.')
+      }
     } catch (err: any) {
       setAlertInfo({ type: 'error', message: err.message || 'Lỗi khi lưu công văn.' })
       setSubmitLoading(false)

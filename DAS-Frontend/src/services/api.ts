@@ -410,7 +410,7 @@ export const documentApi = {
     } catch {}
     const docs = getStoredDocuments()
     const found = docs.find(d => String(d.id) === String(id))
-    return { success: !!found, data: found || docs[0] }
+    return { success: !!found, data: found || null }
   },
   create: async (data: any) => {
     const newDoc = {
@@ -495,12 +495,12 @@ export const partnerApi = {
     } catch {}
     const partners = getStoredPartners()
     const found = partners.find(p => String(p.id) === String(id))
-    return { success: !!found, data: found || partners[0] }
+    return { success: !!found, data: found || null }
   },
   create: async (data: any) => {
     const newPartner = {
       id: `p-${Date.now()}`,
-      code: data.code || `P-${Math.floor(100 + Math.random() * 900)}`,
+      code: data.code || `P-${Date.now().toString().slice(-4)}`,
       fullName: data.fullName,
       shortName: data.shortName || data.fullName,
       taxCode: data.taxCode || '',
