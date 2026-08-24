@@ -588,15 +588,7 @@ function normalizeRefNumber(raw: string): string {
 function extractTitle(text: string, existingTitle?: string): string {
   const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*TỔNG GIÁM ĐỐC|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
 
-  // Mẫu 1: "Về việc: ..." hoặc "Về thời gian / công tác / kế hoạch / hướng dẫn..."
-  const vePattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC|Về|VỀ|Ve|VE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
-  const veMatch = text.match(vePattern)
-  if (veMatch?.[1]) {
-    const cleaned = cleanTitle(veMatch[1])
-    if (isValidTitle(cleaned)) return cleaned
-  }
-
-  // Mẫu 2: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (yêu cầu ranh giới từ để không nhầm đuôi email .gov.vn)
+  // Ưu tiên 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (Quy chuẩn phổ biến nhất trong công văn VN)
   const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const vvMatch = text.match(vvPattern)
   if (vvMatch?.[1]) {
@@ -604,7 +596,15 @@ function extractTitle(text: string, existingTitle?: string): string {
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 3: "Trích yếu: ..." (kể cả không dấu do OCR)
+  // Ưu tiên 2: "Về việc: ..." hoặc "VỀ VIỆC: ..."
+  const veViecPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const veViecMatch = text.match(veViecPattern)
+  if (veViecMatch?.[1]) {
+    const cleaned = cleanTitle(veViecMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
+  }
+
+  // Ưu tiên 3: "Trích yếu: ..." (kể cả không dấu do OCR)
   const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const trichYeuMatch = text.match(trichYeuPattern)
   if (trichYeuMatch?.[1]) {
@@ -612,7 +612,15 @@ function extractTitle(text: string, existingTitle?: string): string {
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 4: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
+  // Ưu tiên 4: "Về: ..." ở đầu dòng (Tránh khớp nhầm từ 'về' trong giữa câu)
+  const veDauDongPattern = new RegExp(`(?:^|\\n)\\s*(?:Về|VỀ|Ve|VE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const veDauDongMatch = text.match(veDauDongPattern)
+  if (veDauDongMatch?.[1]) {
+    const cleaned = cleanTitle(veDauDongMatch[1])
+    if (isValidTitle(cleaned)) return cleaned
+  }
+
+  // Ưu tiên 5: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
   const docTypeHeaderPattern = new RegExp(`(?:^|\\n)\\s*(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,350}?)${boundary}`, 'is')
   const docTypeHeaderMatch = text.match(docTypeHeaderPattern)
   if (docTypeHeaderMatch?.[1]) {
@@ -620,7 +628,7 @@ function extractTitle(text: string, existingTitle?: string): string {
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 5: Vị trí thực tế trong văn bản hành chính Việt Nam (khối văn bản nằm giữa Số/Ngày và Kính gửi)
+  // Ưu tiên 6: Vị trí thực tế trong văn bản hành chính Việt Nam (khối văn bản nằm giữa Số/Ngày và Kính gửi)
   const posMatch = text.match(/(?:Số:[^\n]*\n|năm\s*\d{4}[^\n]*\n)([\s\S]*?)(?=\n\s*Kính\s*gửi|\n\s*K[ií]nh\s*g[ửu]i|\n\s*Căn\s*cứ|\n\s*C[aă]n\s*c[ứu])/i)
   if (posMatch?.[1]) {
     const posCandidate = posMatch[1].trim()
@@ -630,7 +638,7 @@ function extractTitle(text: string, existingTitle?: string): string {
     }
   }
 
-  // Mẫu 6: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
+  // Ưu tiên 7: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
   const regardingPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const regardingMatch = text.match(regardingPattern)
   if (regardingMatch?.[1]) {
