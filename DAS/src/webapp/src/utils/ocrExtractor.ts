@@ -122,9 +122,9 @@ function extractReferenceNumber(text: string, existingRef?: string, fileName?: s
       let num = (match[1] || '').trim()
       let suffix = (match[2] || '').replace(/\s*[\/\\|]\s*/g, '/').trim()
       
-      // Nếu số bị thiếu trong lớp văn bản (VD: "Số: /SGDĐT-TCCB"), tìm số đầu tên file (VD: "1678vb-...")
+      // Nếu số bị thiếu trong lớp văn bản (VD: "Số: /SGDĐT-VP"), tìm số trong tên file (VD: "vpdt-den-570-..." hoặc "1678vb-...")
       if (!num && fileName) {
-        const fileNumMatch = fileName.match(/^(\d{1,6})/i)
+        const fileNumMatch = fileName.match(/(?:^|[^\d])(\d{2,6})(?:[^\d]|$)/i)
         if (fileNumMatch) {
           num = fileNumMatch[1]
         }
@@ -406,25 +406,25 @@ function formatDate(day: string, month: string, year: string): string {
 }
 
 function normalizeRefNumber(raw: string): string {
-  return raw.replace(/\s*[\/\\|]\s*/g, '/').replace(/^\/+/, '').replace(/\/+$/, '').trim()
+  return raw.replace(/\s*[\/\\|]\s*/g, '/').replace(/\/+$/, '').trim()
 }
 
 // ============================================================================
 // TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU
 // ============================================================================
 function extractTitle(text: string, existingTitle?: string): string {
-  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
+  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
 
-  // Mẫu 1: "Về việc: ..." (kể cả không dấu do OCR) - Ưu tiên hàng đầu
-  const veViecPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
-  const veViecMatch = text.match(veViecPattern)
-  if (veViecMatch?.[1]) {
-    const cleaned = cleanTitle(veViecMatch[1])
+  // Mẫu 1: "Về việc: ..." hoặc "Về thời gian / công tác / kế hoạch / hướng dẫn..."
+  const vePattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC|Về|VỀ|Ve|VE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const veMatch = text.match(vePattern)
+  if (veMatch?.[1]) {
+    const cleaned = cleanTitle(veMatch[1])
     if (isValidTitle(cleaned)) return cleaned
   }
 
   // Mẫu 2: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (yêu cầu ranh giới từ để không nhầm đuôi email .gov.vn)
-  const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const vvMatch = text.match(vvPattern)
   if (vvMatch?.[1]) {
     const cleaned = cleanTitle(vvMatch[1])
@@ -432,7 +432,7 @@ function extractTitle(text: string, existingTitle?: string): string {
   }
 
   // Mẫu 3: "Trích yếu: ..." (kể cả không dấu do OCR)
-  const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const trichYeuMatch = text.match(trichYeuPattern)
   if (trichYeuMatch?.[1]) {
     const cleaned = cleanTitle(trichYeuMatch[1])
@@ -440,30 +440,40 @@ function extractTitle(text: string, existingTitle?: string): string {
   }
 
   // Mẫu 4: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
-  const docTypeHeaderPattern = new RegExp(`(?:^|\\n)\\s*(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,300}?)${boundary}`, 'is')
+  const docTypeHeaderPattern = new RegExp(`(?:^|\\n)\\s*(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,350}?)${boundary}`, 'is')
   const docTypeHeaderMatch = text.match(docTypeHeaderPattern)
   if (docTypeHeaderMatch?.[1]) {
     const cleaned = cleanTitle(docTypeHeaderMatch[1])
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 5: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
-  const regardingPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  // Mẫu 5: Vị trí thực tế trong văn bản hành chính Việt Nam (khối văn bản nằm giữa Số/Ngày và Kính gửi)
+  const posMatch = text.match(/(?:Số:[^\n]*\n|năm\s*\d{4}[^\n]*\n)([\s\S]*?)(?=\n\s*Kính\s*gửi|\n\s*K[ií]nh\s*g[ửu]i|\n\s*Căn\s*cứ|\n\s*C[aă]n\s*c[ứu])/i)
+  if (posMatch?.[1]) {
+    const posCandidate = posMatch[1].trim()
+    if (posCandidate.length >= 10 && !posCandidate.toLowerCase().includes('độc lập')) {
+      const cleaned = cleanTitle(posCandidate)
+      if (isValidTitle(cleaned)) return cleaned
+    }
+  }
+
+  // Mẫu 6: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
+  const regardingPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const regardingMatch = text.match(regardingPattern)
   if (regardingMatch?.[1]) {
     const cleaned = cleanTitle(regardingMatch[1])
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 6: "Subject: ..." (Công văn quốc tế)
-  const subjectPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Subject|SUBJECT)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  // Mẫu 7: "Subject: ..." (Công văn quốc tế)
+  const subjectPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Subject|SUBJECT)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
   const subjectMatch = text.match(subjectPattern)
   if (subjectMatch?.[1]) {
     const cleaned = cleanTitle(subjectMatch[1])
     if (isValidTitle(cleaned)) return cleaned
   }
 
-  // Mẫu 7: Tiêu đề email đã loại bỏ [tag] và Fwd/Re
+  // Mẫu 8: Tiêu đề email đã loại bỏ [tag] và Fwd/Re
   if (existingTitle) {
     let cleaned = existingTitle
       .replace(/^\[.*?\]\s*/i, '')
@@ -479,10 +489,10 @@ function extractTitle(text: string, existingTitle?: string): string {
 function cleanTitle(raw: string): string {
   return raw
     .replace(/\s+/g, ' ')   // Nối khoảng trắng/xuống dòng
-    .replace(/^(?:Về việc|VỀ VIỆC|Ve viec|V[\/\\]v|V\.v|Trích yếu|TRÍCH YẾU|Regarding|Subject)\s*[:.:]?\s*/i, '') // Loại bỏ prefix trùng lặp
+    .replace(/^(?:Về việc|VỀ VIỆC|Ve viec|V[\/\\]v|V\.v|Về|VỀ|Ve|VE|Trích yếu|TRÍCH YẾU|Regarding|Subject)\s*[:.:]?\s*/i, '') // Loại bỏ prefix trùng lặp
     .replace(/[.,;:\s]+$/, '') // Xóa dấu câu cuối
     .trim()
-    .substring(0, 200) // Giới hạn chiều dài
+    .substring(0, 250) // Giới hạn chiều dài
 }
 
 function isValidTitle(title: string): boolean {

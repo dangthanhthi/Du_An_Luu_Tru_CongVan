@@ -85,11 +85,11 @@ const AddDocumentForm = () => {
 
         setFormData(prev => ({
           ...prev,
-          documentNumber: extractedReferenceNumber || prev.documentNumber || '',
-          title: extractedSubject || prev.title || '',
-          partnerName: matchedPartnerName || prev.partnerName || '',
+          documentNumber: extractedReferenceNumber || '',
+          title: extractedSubject || '',
+          partnerName: matchedPartnerName || '',
           issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
-          summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary,
+          summary: extractedText ? extractedText.trim().substring(0, 2000) : '',
           fileIds: prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()]
         }))
 
