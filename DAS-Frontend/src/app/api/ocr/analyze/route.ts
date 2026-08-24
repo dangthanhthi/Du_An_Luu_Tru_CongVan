@@ -173,8 +173,10 @@ export async function POST(req: Request) {
         extractedReferenceNumber: meta.referenceNumber,
         extractedSubject: meta.title !== 'Văn bản tiếp nhận' ? meta.title : '',
         extractedDateString: meta.issuedDate,
-        extractedDocumentType: 'Công văn đến',
+        extractedDocumentType: meta.documentType || 'Công văn đến',
         matchedPartnerName: meta.partnerName !== 'Chưa xác định' ? meta.partnerName : '',
+        extractedSigner: meta.signerName || '',
+        extractedSignerPosition: meta.signerPosition || '',
         confidence: calculatedConfidence,
         engine: ocrEngineUsed,
         charCount: extractedRawText.length

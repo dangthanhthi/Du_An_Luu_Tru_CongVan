@@ -17,13 +17,18 @@ export interface ExtractedMetadata {
   partnerName: string
   title: string
   issuedDate: string
+  signerName?: string
+  signerPosition?: string
+  documentType?: string
   summary: string
 }
 
 /**
- * Phân tích text trích xuất từ PDF/email để bóc tách metadata công văn.
- * Ưu tiên sử dụng `pdfText` (nội dung thực bên trong PDF) nếu có.
- * Fallback sang metadata email (title, summary) nếu không có pdfText.
+ * Phân tích text trích xuất từ PDF/email theo mô hình nhận diện cấu trúc ngữ nghĩa văn bản:
+ * 1. Khối Tiêu ngữ & Đơn vị ban hành (Header Block)
+ * 2. Khối Số ký hiệu & Ngày tháng (Anchor Metadata Block)
+ * 3. Khối Thể thức & Trích yếu văn bản (Title & Subject Block)
+ * 4. Khối Người ký & Chức danh ban hành (Signer & Position Block)
  */
 export function parseOcrDocumentMetadata(doc: {
   title?: string
@@ -34,37 +39,52 @@ export function parseOcrDocumentMetadata(doc: {
   documentNumber?: string
   senderEmail?: string
   attachmentName?: string
-  pdfText?: string  // NEW: Nội dung text thực trích xuất từ bên trong file PDF
+  pdfText?: string
 }): ExtractedMetadata {
-
-  // Ưu tiên nội dung PDF thực, fallback sang metadata email
   const pdfContent = doc.pdfText || ''
   const emailMeta = `${doc.title || ''} ${doc.summary || ''} ${doc.attachmentName || ''} ${doc.documentNumber || ''}`
   const fullText = pdfContent ? `${pdfContent}\n${emailMeta}` : emailMeta
 
-  // === 1. TRÍCH XUẤT SỐ KÝ HIỆU (REFERENCE NUMBER) ===
+  // 1. Bóc tách Số ký hiệu
   const refNum = extractReferenceNumber(fullText, doc.referenceNumber)
 
-  // === 2. TRÍCH XUẤT CƠ QUAN / ĐƠN VỊ BAN HÀNH ===
+  // 2. Bóc tách Cơ quan / Đơn vị ban hành
   const partner = extractPartnerName(fullText, doc.partnerName)
 
-  // === 3. TRÍCH XUẤT NGÀY BAN HÀNH ===
+  // 3. Bóc tách Ngày ban hành
   const date = extractIssuedDate(fullText, doc.issuedDate)
 
-  // === 4. TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU ===
+  // 4. Bóc tách Tiêu đề / Trích yếu
   const title = extractTitle(fullText, doc.title)
 
-  // === 5. TÓM TẮT ===
-  const summaryText = pdfContent
-    ? `Văn bản được bóc tách AI OCR từ file PDF.\n• Đơn vị ban hành: ${partner}\n• Số ký hiệu: ${refNum || 'Chưa xác định'}\n• Ngày ban hành: ${date || 'Chưa xác định'}\n• Trích yếu: ${title}`
-    : `Văn bản tiếp nhận từ hòm thư điện tử.\n• Đơn vị ban hành: ${partner}\n• Số ký hiệu: ${refNum || 'Chưa xác định'}\n• Ngày ban hành: ${date || 'Chưa xác định'}\n• Trích yếu: ${title}`
+  // 5. Bóc tách Người ký & Chức danh
+  const signer = extractSignerInfo(fullText)
+
+  // 6. Xác định Thể thức văn bản (Quyết định / Thông báo / Giấy mời / Công văn)
+  const docType = extractDocumentType(fullText)
+
+  // 7. Tóm tắt nội dung
+  const summaryLines = [
+    pdfContent ? 'Văn bản được bóc tách AI OCR từ file PDF.' : 'Văn bản tiếp nhận từ hòm thư điện tử.',
+    `• Đơn vị ban hành: ${partner}`,
+    `• Số ký hiệu: ${refNum || 'Chưa xác định'}`,
+    `• Thể loại: ${docType}`,
+    `• Ngày ban hành: ${date || 'Chưa xác định'}`,
+    `• Trích yếu: ${title}`
+  ]
+  if (signer.name) {
+    summaryLines.push(`• Người ký: ${signer.position ? `${signer.position} ` : ''}${signer.name}`)
+  }
 
   return {
     referenceNumber: refNum || '',
     partnerName: partner,
     title: title,
     issuedDate: date,
-    summary: summaryText
+    signerName: signer.name,
+    signerPosition: signer.position,
+    documentType: docType,
+    summary: summaryLines.join('\n')
   }
 }
 
@@ -426,4 +446,46 @@ function isValidTitle(title: string): boolean {
   if (lower.includes('email:') || lower.includes('điện thoại:') || lower.includes('mã số thuế:')) return false
   if (lower.includes('.gov.vn') || lower.includes('@')) return false
   return true
+}
+
+// ============================================================================
+// TRÍCH XUẤT NGƯỜI KÝ & CHỨC DANH
+// ============================================================================
+function extractSignerInfo(text: string): { name: string; position: string } {
+  // Tìm khối chữ ký ở phần cuối văn bản
+  const signerBlockMatch = text.match(/(?:TM\.|KT\.|TL\.)?\s*(CHỦ TỊCH|PHÓ CHỦ TỊCH|GIÁM ĐỐC|PHÓ GIÁM ĐỐC|BỘ TRƯỞNG|THỨ TRƯỞNG|HIỆU TRƯỞNG|PHÓ HIỆU TRƯỞNG|TỔNG GIÁM ĐỐC|PHÓ TỔNG GIÁM ĐỐC|TRƯỞNG PHÒNG)[\s\S]{0,120}?\n\s*([A-ZÀ-Ỹ][a-zà-ỹ]+(?:\s+[A-ZÀ-Ỹ][a-zà-ỹ]+){1,4})(?:\s*$|\n)/)
+  if (signerBlockMatch) {
+    return {
+      position: signerBlockMatch[1].trim(),
+      name: signerBlockMatch[2].trim()
+    }
+  }
+
+  // Mẫu chữ ký số điện tử (VD: "Cơ quan: Trần Sỹ Thanh" hoặc "Người ký: ...")
+  const digitalSignerMatch = text.match(/(?:Cơ quan|Người ký|Ký bởi|Signed by)\s*:\s*([A-ZÀ-Ỹ][a-zà-ỹ]+(?:\s+[A-ZÀ-Ỹ][a-zà-ỹ]+){1,4})/i)
+  if (digitalSignerMatch) {
+    return {
+      position: '',
+      name: digitalSignerMatch[1].trim()
+    }
+  }
+
+  return { name: '', position: '' }
+}
+
+// ============================================================================
+// XÁC ĐỊNH THỂ THỨC VĂN BẢN
+// ============================================================================
+function extractDocumentType(text: string): string {
+  const upper = text.toUpperCase()
+  if (upper.includes('QUYẾT ĐỊNH') || upper.includes('QUYET DINH')) return 'Quyết định'
+  if (upper.includes('THÔNG BÁO') || upper.includes('THONG BAO')) return 'Thông báo'
+  if (upper.includes('GIẤY MỜI') || upper.includes('GIAY MOI')) return 'Giấy mời'
+  if (upper.includes('TỜ TRÌNH') || upper.includes('TO TRINH')) return 'Tờ trình'
+  if (upper.includes('CHỈ THỊ') || upper.includes('CHI THI')) return 'Chỉ thị'
+  if (upper.includes('KẾ HOẠCH') || upper.includes('KE HOACH')) return 'Kế hoạch'
+  if (upper.includes('BÁO CÁO') || upper.includes('BAO CAO')) return 'Báo cáo'
+  if (upper.includes('HỢP ĐỒNG') || upper.includes('HOP DONG')) return 'Hợp đồng'
+  if (upper.includes('BIÊN BẢN') || upper.includes('BIEN BAN')) return 'Biên bản'
+  return 'Công văn đến'
 }

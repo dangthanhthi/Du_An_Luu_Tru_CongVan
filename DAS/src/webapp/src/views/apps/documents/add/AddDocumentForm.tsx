@@ -138,6 +138,9 @@ const AddDocumentForm = () => {
             extractedSubject,
             extractedDateString,
             matchedPartnerName,
+            extractedSigner,
+            extractedSignerPosition,
+            extractedDocumentType,
             confidence
           } = localData.data
 
@@ -156,6 +159,7 @@ const AddDocumentForm = () => {
           const infoLines = []
           if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
           if (matchedPartnerName) infoLines.push(`Đơn vị: ${matchedPartnerName}`)
+          if (extractedSigner) infoLines.push(`Người ký: ${extractedSignerPosition ? `${extractedSignerPosition} ` : ''}${extractedSigner}`)
           if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 50)}...`)
 
           setAlertInfo({
