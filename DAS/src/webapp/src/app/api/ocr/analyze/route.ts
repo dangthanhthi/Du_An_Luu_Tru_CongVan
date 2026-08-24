@@ -68,14 +68,83 @@ export async function POST(req: Request) {
 
     // BƯỚC 1: XỬ LÝ TỆP PDF
     if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
-      // 1.1 Thử bóc tách lớp văn bản kỹ thuật số bằng unpdf (Zero-Worker, hoàn toàn tương thích Next.js & Serverless)
+      // 1.1 Bóc tách lớp văn bản kỹ thuật số đa tầng kết hợp giải mã luồng toán tử đồ họa (Type3 Glyphs & Stamped Overlays)
       try {
-        const { extractText } = await import('unpdf')
-        const { text } = await extractText(new Uint8Array(buffer))
-        const joinedText = Array.isArray(text) ? text.join('\n') : (text || '')
+        const { getDocumentProxy } = await import('unpdf')
+        const doc = await getDocumentProxy(new Uint8Array(buffer))
+        const pageTexts: string[] = []
 
-        if (joinedText.trim().length >= 30) {
-          extractedRawText = joinedText.trim()
+        for (let p = 1; p <= doc.numPages; p++) {
+          const page = await doc.getPage(p)
+          const textContent = await page.getTextContent()
+
+          let baseText = ''
+          for (let i = 0; i < textContent.items.length; i++) {
+            const it: any = textContent.items[i]
+            if (it.str === '' && it.hasEOL) {
+              baseText += '\n'
+            } else {
+              baseText += it.str
+              if (it.hasEOL) baseText += '\n'
+            }
+          }
+
+          // Giải mã luồng toán tử đồ họa để lấy chính xác các số con dấu/ngày ban hành được đóng dấu đè
+          try {
+            const ops = await page.getOperatorList()
+            const allTokens: string[] = []
+
+            for (let i = 0; i < ops.fnArray.length; i++) {
+              if (ops.fnArray[i] === 44 && Array.isArray(ops.argsArray[i])) {
+                const glyphs = ops.argsArray[i][0]
+                if (Array.isArray(glyphs)) {
+                  const str = glyphs.map((g: any) => (g && g.unicode ? g.unicode : '')).join('').trim()
+                  if (str) {
+                    allTokens.push(str)
+                  }
+                }
+              }
+            }
+
+            if (p === 1) {
+              let refIdx = -1
+              for (let i = allTokens.length - 1; i >= Math.max(0, allTokens.length - 35); i--) {
+                if (/^\d{3,5}$/.test(allTokens[i]) && !allTokens[i].startsWith('19') && !allTokens[i].startsWith('20')) {
+                  refIdx = i
+                  break
+                }
+              }
+
+              if (refIdx !== -1) {
+                const stampedRef = allTokens[refIdx]
+                const stampedDay = allTokens[refIdx + 1] && /^\d{1,2}$/.test(allTokens[refIdx + 1]) ? allTokens[refIdx + 1] : null
+                const stampedMonth = allTokens[refIdx + 2] && /^\d{1,2}$/.test(allTokens[refIdx + 2]) ? allTokens[refIdx + 2] : null
+
+                if (stampedRef) {
+                  baseText = baseText.replace(/Số:[\s]*(\/?[\s]*[A-ZĐa-z0-9\-_]+(?:\s*[\/\-]\s*[A-ZĐa-z0-9\-_]+)*)/i, (m, code) => {
+                    const cleanCode = code.replace(/\s+/g, '').replace(/^\/+/, '')
+                    return 'Số: ' + stampedRef + '/' + cleanCode
+                  })
+                }
+
+                if (stampedDay) {
+                  baseText = baseText.replace(/ng[àáaă]y[\s]*(?:th[áàa]ng[\s]*)?(\d{1,2})?[\s]*n[ăa]m[\s]*(\d{4})/i, (m, oldM, year) => {
+                    const mStr = stampedMonth || oldM || '9'
+                    return 'ngày ' + stampedDay + ' tháng ' + mStr + ' năm ' + year
+                  })
+                }
+              }
+            }
+          } catch (opErr: any) {
+            console.warn('[OCR] Operator list decode notice:', opErr.message)
+          }
+
+          pageTexts.push(baseText)
+        }
+
+        const combinedText = pageTexts.join('\n\n')
+        if (combinedText.trim().length >= 30) {
+          extractedRawText = combinedText.trim()
           ocrEngineUsed = 'digital-pdf-parser'
         }
       } catch (err: any) {

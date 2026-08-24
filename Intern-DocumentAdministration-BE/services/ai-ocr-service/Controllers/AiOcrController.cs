@@ -166,6 +166,52 @@ namespace AiOcrService.Controllers
             }
         }
 
+        /// <summary>
+        /// Phân tích trực tiếp tệp văn bản qua multipart form-data bằng ImageMagick Rasterizer + Tesseract AI Engine
+        /// </summary>
+        [HttpPost("analyze-file")]
+        public async Task<IActionResult> AnalyzeUploadedFile([FromForm] Microsoft.AspNetCore.Http.IFormFile file, [FromForm] string? senderEmail = null)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { success = false, message = "File tải lên không hợp lệ." });
+            }
+
+            try
+            {
+                using var pdfStream = file.OpenReadStream();
+                var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
+                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText);
+
+                var partners = _cachedPartners ?? new List<PartnerDto>();
+                var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, senderEmail);
+                var finalRefNumber = extractedFields.ReferenceNumber ?? _partnerMatcher.ExtractReferenceNumber(extractedText);
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        extractedText = extractedText,
+                        extractedReferenceNumber = finalRefNumber,
+                        extractedSubject = extractedFields.Subject,
+                        extractedDate = extractedFields.DocumentDate,
+                        extractedDateString = extractedFields.DocumentDateString,
+                        extractedSigner = extractedFields.Signer,
+                        extractedDocumentType = extractedFields.DocumentType,
+                        matchedPartnerId = matchResult.PartnerId,
+                        confidence = matchResult.Confidence,
+                        matchMethod = matchResult.MatchMethod
+                    },
+                    message = "Nhận dạng quang học tài liệu trực tiếp thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         // =========================================================================
         // RESTful API QUẢN TRỊ QUY TẮC NHẬN DIỆN ĐỘNG DÀNH CHO ADMIN / FRONTEND
         // =========================================================================
