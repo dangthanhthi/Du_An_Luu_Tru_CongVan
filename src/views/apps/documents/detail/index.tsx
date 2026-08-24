@@ -124,12 +124,12 @@ const DocumentDetail = ({ id }: { id: string }) => {
                 title={
                   <div className='flex flex-col gap-1'>
                     <Typography variant='h5' className='font-bold'>
-                      {doc.title || `${t.documents.docNumber}: ${doc.documentNumber}`}
+                      {displayTitle || doc.title || `${t.documents.docNumber}: ${doc.documentNumber}`}
                     </Typography>
                     <div className='flex flex-wrap items-center gap-3 mbs-1'>
                       <Chip
-                        label={`Số đến nội bộ: ${doc.documentNumber || 'CV-DEN-2026-0001'}`}
-                        color='primary'
+                        label={`${doc.direction === 'internal' ? 'Số nội bộ' : doc.direction === 'outgoing' ? 'Số đi nội bộ' : 'Số đến nội bộ'}: ${doc.documentNumber || 'CV-DEN-2026-0001'}`}
+                        color={doc.direction === 'internal' ? 'info' : doc.direction === 'outgoing' ? 'success' : 'primary'}
                         size='small'
                         variant='filled'
                       />

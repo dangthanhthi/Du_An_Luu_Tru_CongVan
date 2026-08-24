@@ -244,7 +244,9 @@ async function parseEmailBody(rawEmail: string, mailId?: string) {
     extractedRefNumber: meta.referenceNumber,
     extractedPartner: meta.partnerName,
     extractedTitle: meta.title,
-    extractedDate: meta.issuedDate
+    extractedDate: meta.issuedDate,
+    extractedDirection: meta.direction || 'incoming',
+    directionRationale: meta.directionRationale || ''
   }
 }
 

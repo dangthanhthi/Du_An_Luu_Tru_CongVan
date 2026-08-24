@@ -210,24 +210,58 @@ const sanitizeDocuments = (docs: any[]): any[] => {
   const year = new Date().getFullYear()
   const groups: Record<string, any[]> = { incoming: [], outgoing: [], internal: [] }
 
-  // 1. Lọc bỏ các tài liệu rác hoặc không hợp lệ
-  const filtered = docs.filter(d => {
-    const num = d.documentNumber || ''
-    const partner = (d.partnerName || '').toLowerCase()
-    const title = (d.title || '').toLowerCase()
+  // 1. Lọc bỏ các tài liệu rác hoặc không hợp lệ và tự động chữa lỗi trường dữ liệu
+  const cleaned = docs
+    .filter(d => {
+      const num = d.documentNumber || ''
+      const partner = (d.partnerName || '').toLowerCase()
+      const title = (d.title || '').toLowerCase()
 
-    // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
-    if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
-      return false
-    }
-    // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
-    if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
-      return false
-    }
-    return true
-  })
+      // Loại bỏ các email rác/spam không có PDF từ Instagram, marketing
+      if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
+        return false
+      }
+      // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
+      if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
+        return false
+      }
+      return true
+    })
+    .map(d => {
+      let ref = d.referenceNumber || ''
+      let dir = d.direction || 'incoming'
+      let title = d.title || ''
 
-  filtered.forEach(d => {
+      // Tự động phân định lại thể loại văn bản nếu số ký hiệu hoặc trích yếu chứa mã NB / Nội bộ
+      if (
+        ref.includes('-NB-') || ref.includes('/NB-') || ref.includes('-NB/') || ref.includes('/NB/') ||
+        ref.includes('QĐ-NB') || ref.includes('TB-NB') || ref.includes('TTr-NB') || ref.includes('CV-NB') ||
+        title.toLowerCase().includes('thông báo nội bộ') || title.toLowerCase().includes('quyết định nội bộ') ||
+        title.toLowerCase().includes('quy chế nội bộ')
+      ) {
+        dir = 'internal'
+      }
+
+      // Sửa lỗi tiêu đề cũ bị bóc tách sai đoạn "Văn phòng Công ty. Yêu cầu..."
+      if (title.includes('Văn phòng Công ty. Yêu cầu') || title.includes('Văn phòng Công ty')) {
+        if (ref.includes('15/TB-NB-DAS') || (d.summary || '').includes('quy trình số hóa')) {
+          title = 'Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR'
+        }
+      }
+
+      // Dọn dẹp phần đuôi • Tệp đính kèm: ... trong tiêu đề nếu có
+      if (title.includes('• Tệp đính kèm:')) {
+        title = title.split('• Tệp đính kèm:')[0].trim()
+      }
+
+      return {
+        ...d,
+        direction: dir,
+        title: title
+      }
+    })
+
+  cleaned.forEach(d => {
     const dir = d.direction || 'incoming'
     if (!groups[dir]) groups[dir] = []
     groups[dir].push(d)
@@ -256,7 +290,7 @@ const sanitizeDocuments = (docs: any[]): any[] => {
       }
     })
 
-    // Lượt 2: Tự động lấp đầy số thứ tự còn thiếu cho các item bị nhảy cóc (như 0030)
+    // Lượt 2: Tự động lấp đầy số thứ tự còn thiếu cho các item bị nhảy cóc (như 0030, 0130)
     let nextAvailable = 1
     itemsToAssign.forEach(d => {
       while (usedSeqs.has(nextAvailable)) {

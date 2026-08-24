@@ -175,16 +175,17 @@ const EmailIntegrationView = () => {
 
             // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế và tự động cấp số thứ tự liên tục chính xác
             try {
+              const docDir = item.extractedDirection || 'incoming'
               const createRes = await documentApi.create({
                 documentNumber: '', // Tự động sinh số kế tiếp chuẩn xác
                 referenceNumber: partnerRefNum,
                 title: title,
-                direction: 'incoming',
+                direction: docDir,
                 issuedDate: issuedDate,
                 partnerName: partnerName,
                 senderEmail: item.sender,
                 fileUrl: item.fileUrl || '',
-                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
+                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Thể loại: ${docDir === 'internal' ? 'Công văn nội bộ' : docDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
               })
 
               if (createRes?.data?.documentNumber) {

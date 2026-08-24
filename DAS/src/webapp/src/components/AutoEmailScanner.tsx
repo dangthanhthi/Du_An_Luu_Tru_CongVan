@@ -66,16 +66,17 @@ export const AutoEmailScanner = () => {
 
               // Lưu công văn vào cơ sở dữ liệu với tự động cấp số thứ tự liên tục chính xác
               try {
+                const docDir = item.extractedDirection || 'incoming'
                 const createRes = await documentApi.create({
                   documentNumber: '', // Tự động sinh số kế tiếp chính xác
                   referenceNumber: partnerRefNum,
                   title: title,
-                  direction: 'incoming',
+                  direction: docDir,
                   issuedDate: issuedDate,
                   partnerName: partnerName !== 'Chưa xác định' ? partnerName : undefined,
                   senderEmail: item.sender,
                   fileUrl: item.fileUrl || '',
-                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
+                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Thể loại: ${docDir === 'internal' ? 'Công văn nội bộ' : docDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
                 })
 
                 if (createRes?.data?.documentNumber) {
