@@ -22,6 +22,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import type { Locale } from '@configs/i18n'
 import { documentApi, fileApi, ocrApi, partnerApi } from '@/services/api'
 import { useAppDictionary } from '@/hooks/useDictionary'
+import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 const AddDocumentForm = () => {
   const router = useRouter()
@@ -78,34 +79,42 @@ const AddDocumentForm = () => {
             confidence
           } = ocrRes.data
 
+          // Sử dụng bộ bóc tách ngữ nghĩa semantic parser để đảm bảo thông tin chuẩn xác và không lẫn footer
+          const semantic = parseOcrDocumentMetadata({ pdfText: extractedText })
+
+          const finalRef = extractedReferenceNumber || semantic.referenceNumber || ''
+          const finalTitle = semantic.title !== 'Văn bản tiếp nhận' ? semantic.title : (extractedSubject || '')
+          const finalDate = extractedDateString || semantic.issuedDate || ''
+          let finalPartner = semantic.partnerName !== 'Chưa xác định' ? semantic.partnerName : ''
+          const finalSigner = extractedSigner || semantic.signerName || ''
+          const finalPosition = semantic.signerPosition || ''
+          const finalDocType = extractedDocumentType || semantic.documentType || 'Công văn đến'
+
           setOcrResult({ text: extractedText, confidence, matchedPartnerId })
 
-          setFormData(prev => ({
-            ...prev,
-            documentNumber: extractedReferenceNumber || prev.documentNumber || '',
-            title: extractedSubject || prev.title || '',
-            issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
-            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
-          }))
-
-          if (matchedPartnerId) {
+          if (matchedPartnerId && !finalPartner) {
             try {
               const partnerDetail = await partnerApi.getById(matchedPartnerId)
               const name = partnerDetail?.data?.fullName || partnerDetail?.fullName
-              if (name) {
-                setFormData(prev => ({ ...prev, partnerId: matchedPartnerId, partnerName: name }))
-              }
-            } catch {
-              setFormData(prev => ({ ...prev, partnerId: matchedPartnerId }))
-            }
+              if (name) finalPartner = name
+            } catch { }
           }
 
+          setFormData(prev => ({
+            ...prev,
+            documentNumber: finalRef || prev.documentNumber || '',
+            title: finalTitle || prev.title || '',
+            partnerName: finalPartner || prev.partnerName || '',
+            partnerId: matchedPartnerId || prev.partnerId || '',
+            issuedDate: finalDate ? convertDateToISO(finalDate) : prev.issuedDate,
+            summary: extractedText ? extractedText.trim().substring(0, 2000) : prev.summary
+          }))
+
           const infoLines = []
-          if (extractedReferenceNumber) infoLines.push(`Số hiệu: ${extractedReferenceNumber}`)
-          if (extractedSubject) infoLines.push(`Trích yếu: ${extractedSubject.substring(0, 60)}...`)
-          if (extractedDocumentType) infoLines.push(`Loại: ${extractedDocumentType}`)
-          if (extractedSigner) infoLines.push(`Người ký: ${extractedSigner}`)
-          if (confidence) infoLines.push(`Độ tin cậy: ${(confidence * 100).toFixed(0)}%`)
+          if (finalRef) infoLines.push(`Số hiệu: ${finalRef}`)
+          if (finalPartner) infoLines.push(`Đơn vị: ${finalPartner}`)
+          if (finalSigner) infoLines.push(`Người ký: ${finalPosition ? `${finalPosition} ` : ''}${finalSigner}`)
+          if (finalTitle) infoLines.push(`Trích yếu: ${finalTitle.substring(0, 50)}...`)
 
           setAlertInfo({
             type: 'success',

@@ -76,7 +76,10 @@ namespace AiOcrService.Services
                         val = val.TrimEnd('.', ',', ';', ':', '-', ' ');
                         // Bỏ các ký tự xuống dòng nếu trích yếu trải dài
                         val = Regex.Replace(val, @"\s+", " ");
-                        if (val.Length >= 5)
+                        // Loại bỏ prefix thừa
+                        val = Regex.Replace(val, @"^(?:Về việc|VỀ VIỆC|Ve viec|V[\/\\]v|V\.v|Trích yếu|TRÍCH YẾU|Regarding|Subject)\s*[:.:]?\s*", "", RegexOptions.IgnoreCase).Trim();
+
+                        if (IsValidSubject(val))
                         {
                             subjectCandidates.Add((val, rule.Priority));
                         }
@@ -180,6 +183,16 @@ namespace AiOcrService.Services
             }
 
             return result;
+        }
+
+        private static bool IsValidSubject(string? val)
+        {
+            if (string.IsNullOrWhiteSpace(val) || val.Length < 5) return false;
+            var lower = val.ToLowerInvariant();
+            if (lower.Contains("file:///") || lower.Contains("http://") || lower.Contains("https://")) return false;
+            if (lower.Contains("email:") || lower.Contains("điện thoại:") || lower.Contains("mã số thuế:")) return false;
+            if (lower.Contains(".gov.vn") || lower.Contains("@")) return false;
+            return true;
         }
     }
 }
