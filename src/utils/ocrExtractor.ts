@@ -332,34 +332,48 @@ function formatDate(day: string, month: string, year: string): string {
 // TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU
 // ============================================================================
 function extractTitle(text: string, existingTitle?: string): string {
+  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
+
   // Mẫu 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (cho phép không có dấu : và lỗi OCR như V/ v, V\v, V.v, Vv)
-  const vvMatch = text.match(/(?:V[\/\\]v|V[\/\\]V|v[\/\\]v|V\s*[\/\\]\s*v|V\s*[\/\\]\s*V|V\.v|Vv)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|\n\s*K[ií]nh|$)/is)
+  const vvPattern = new RegExp(`(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|V\\.v|Vv)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const vvMatch = text.match(vvPattern)
   if (vvMatch?.[1]) {
     return cleanTitle(vvMatch[1])
   }
 
   // Mẫu 2: "Về việc: ..." (kể cả không dấu do OCR)
-  const veViecMatch = text.match(/(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*Kính|\n\s*K[ií]nh|$)/is)
+  const veViecPattern = new RegExp(`(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const veViecMatch = text.match(veViecPattern)
   if (veViecMatch?.[1]) {
     return cleanTitle(veViecMatch[1])
   }
 
   // Mẫu 3: "Trích yếu: ..." (kể cả không dấu do OCR)
-  const trichYeuMatch = text.match(/(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|$)/is)
+  const trichYeuPattern = new RegExp(`(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const trichYeuMatch = text.match(trichYeuPattern)
   if (trichYeuMatch?.[1]) {
     return cleanTitle(trichYeuMatch[1])
   }
 
   // Mẫu 4: "Regarding: ..." hoặc "Re: ..." (Công văn song ngữ / Quốc tế)
-  const regardingMatch = text.match(/(?:Regarding|regarding|Re|RE)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*To:|\n\s*Kính|$)/is)
+  const regardingPattern = new RegExp(`(?:Regarding|regarding|Re|RE)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const regardingMatch = text.match(regardingPattern)
   if (regardingMatch?.[1]) {
     return cleanTitle(regardingMatch[1])
   }
 
   // Mẫu 5: "Subject: ..." (Công văn quốc tế)
-  const subjectMatch = text.match(/(?:Subject|SUBJECT)\s*[:.:]?\s*(.{5,300}?)(?=\n\s*\n|\n\s*To:|\n\s*Kính|$)/is)
+  const subjectPattern = new RegExp(`(?:Subject|SUBJECT)\\s*[:.:]?\\s*(.{5,300}?)${boundary}`, 'is')
+  const subjectMatch = text.match(subjectPattern)
   if (subjectMatch?.[1]) {
     return cleanTitle(subjectMatch[1])
+  }
+
+  // Mẫu 6: Giấy mời / Giấy triệu tập / Thông báo / Tờ trình / Quyết định theo sau bởi tiêu đề trực tiếp
+  const docTypeHeaderPattern = new RegExp(`(?:GIẤY MỜI|GIẤY TRIỆU TẬP|THÔNG BÁO|QUYẾT ĐỊNH|TỜ TRÌNH|CHỈ THỊ)\\s*\\n\\s*(.{5,300}?)${boundary}`, 'is')
+  const docTypeHeaderMatch = text.match(docTypeHeaderPattern)
+  if (docTypeHeaderMatch?.[1]) {
+    return cleanTitle(docTypeHeaderMatch[1])
   }
 
   // Mẫu 4: Tiêu đề email đã loại bỏ [tag] và Fwd/Re

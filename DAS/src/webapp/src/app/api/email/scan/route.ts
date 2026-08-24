@@ -117,16 +117,15 @@ async function extractTextFromPdfBase64(base64Data: string): Promise<string> {
     const raw = base64Data.replace(/^data:application\/pdf;base64,/, '')
     const buffer = Buffer.from(raw, 'base64')
 
-    // BƯỚC 1: Thử bóc tách lớp text kỹ thuật số bằng pdf-parse
+    // BƯỚC 1: Thử bóc tách lớp text kỹ thuật số bằng unpdf (Zero-Worker, hoàn toàn tương thích Next.js & Serverless)
     let digitalText = ''
     try {
-      const { PDFParse } = await import('pdf-parse')
-      const parser = new PDFParse({ data: buffer })
-      const result = await parser.getText()
-      await parser.destroy()
-      digitalText = result?.text?.trim() || ''
+      const { extractText } = await import('unpdf')
+      const { text } = await extractText(new Uint8Array(buffer))
+      const joinedText = Array.isArray(text) ? text.join('\n') : (text || '')
+      digitalText = joinedText.trim()
     } catch (pdfErr: any) {
-      console.warn('[Email Scan] pdf-parse notice:', pdfErr.message)
+      console.warn('[Email Scan] unpdf extraction notice:', pdfErr.message)
     }
 
     // Nếu pdf-parse trích xuất đủ text (PDF điện tử) → trả về ngay

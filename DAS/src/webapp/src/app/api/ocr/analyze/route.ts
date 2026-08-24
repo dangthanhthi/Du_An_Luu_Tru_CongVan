@@ -68,15 +68,14 @@ export async function POST(req: Request) {
 
     // BƯỚC 1: XỬ LÝ TỆP PDF
     if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
-      // 1.1 Thử bóc tách lớp văn bản kỹ thuật số bằng pdf-parse
+      // 1.1 Thử bóc tách lớp văn bản kỹ thuật số bằng unpdf (Zero-Worker, hoàn toàn tương thích Next.js & Serverless)
       try {
-        const { PDFParse } = await import('pdf-parse')
-        const parser = new PDFParse({ data: buffer })
-        const result = await parser.getText()
-        await parser.destroy()
+        const { extractText } = await import('unpdf')
+        const { text } = await extractText(new Uint8Array(buffer))
+        const joinedText = Array.isArray(text) ? text.join('\n') : (text || '')
 
-        if (result?.text && result.text.trim().length >= 30) {
-          extractedRawText = result.text.trim()
+        if (joinedText.trim().length >= 30) {
+          extractedRawText = joinedText.trim()
           ocrEngineUsed = 'digital-pdf-parser'
         }
       } catch (err: any) {
