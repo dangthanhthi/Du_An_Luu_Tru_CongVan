@@ -72,27 +72,18 @@ namespace AiOcrService.Services
                 new()
                 {
                     RuleType = "Subject",
-                    Name = "Tiếng Việt - Về việc đầy đủ",
-                    Pattern = @"(?:^|\n|[\s(])(?:Về việc|Ve viec|VỀ VIỆC)[:.]?\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Căn cứ|Điều \d|Nơi nhận|\n)|$))",
+                    Name = "Tiếng Việt - V/v và các biến thể OCR (VIv, Vlv, V/v, Về việc)",
+                    Pattern = @"(?:^|\n|[\s(])(?:\bV[\/\\]v|\bV[\/\\]V|\bv[\/\\]v|\bVIv\b|\bVlv\b|\bV1v\b|\bV\|v\b|\bV\.v\b|\bVv\b|Về việc|Ve viec|VỀ VIỆC)[:.:-]?\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Kinh|Xét\s*đề\s*nghị|X6t|Căn cứ|C[aă]n|Điều \d|CON-G|CỔNG|Nơi nhận|Ndi|\n\s*\n)|$))",
                     Priority = 1,
                     IsActive = true,
-                    Description = "Bóc tách trích yếu theo mẫu 'Về việc: Phối hợp số hóa...'"
-                },
-                new()
-                {
-                    RuleType = "Subject",
-                    Name = "Tiếng Việt - V/v (Về việc viết tắt)",
-                    Pattern = @"(?:^|\n|[\s(])(?:\bV\/v|\bV\/V|\bv\/v|\bV\.v\b|\bVv\b)[:.]?\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Căn cứ|Điều \d|Nơi nhận|\n)|$))",
-                    Priority = 2,
-                    IsActive = true,
-                    Description = "Bóc tách trích yếu theo mẫu 'V/v: Hướng dẫn công tác tuyển sinh...'"
+                    Description = "Bóc tách trích yếu theo mẫu 'V/v: Hướng dẫn...', 'VIv thu hut dau tu...'"
                 },
                 new()
                 {
                     RuleType = "Subject",
                     Name = "Tiếng Việt - Trích yếu",
-                    Pattern = @"(?:^|\n|[\s(])(?:Trích yếu|Trich yeu|TRÍCH YẾU)[:.]?\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Căn cứ|Điều \d|Nơi nhận|\n)|$))",
-                    Priority = 3,
+                    Pattern = @"(?:^|\n|[\s(])(?:Trích yếu|Trich yeu|TRÍCH YẾU)[:.:-]?\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Kinh|Xét|Căn cứ|C[aă]n|Điều \d|Nơi nhận|Ndi|\n\s*\n)|$))",
+                    Priority = 2,
                     IsActive = true,
                     Description = "Bóc tách trích yếu theo mẫu văn thư 'Trích yếu: ...'"
                 },
@@ -100,8 +91,8 @@ namespace AiOcrService.Services
                 {
                     RuleType = "Subject",
                     Name = "Tiêu đề theo thể thức văn bản (Thông báo, Quyết định, Giấy mời)",
-                    Pattern = @"(?:^|\n)\s*(?:THÔNG BÁO|QUYẾT ĐỊNH|GIẤY MỜI|TỜ TRÌNH|CHỈ THỊ)\s*\n\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Căn cứ|Điều \d|Nơi nhận|\n)|$))",
-                    Priority = 4,
+                    Pattern = @"(?:^|\n)\s*(?:THÔNG BÁO|QUYẾT ĐỊNH|GIẤY MỜI|TỜ TRÌNH|CHỈ THỊ)\s*\n\s*([\s\S]{5,500}?(?=\n\s*(?:Kính|K[ií]nh|Kinh|Xét|Căn cứ|Điều \d|Nơi nhận|\n\s*\n)|$))",
+                    Priority = 3,
                     IsActive = true,
                     Description = "Bóc tách tiêu đề trực tiếp dưới tên loại văn bản"
                 },
@@ -110,7 +101,7 @@ namespace AiOcrService.Services
                     RuleType = "Subject",
                     Name = "Tiếng Anh - Regarding / Re:",
                     Pattern = @"(?:^|\n|[\s(])(?:Regarding|regarding|\bRe\b|\bRE\b)[:.]?\s*([\s\S]{5,500}?(?=\n\s*(?:To:|Dear|\n)|$))",
-                    Priority = 5,
+                    Priority = 4,
                     IsActive = true,
                     Description = "Bóc tách trích yếu công văn quốc tế 'Regarding: Cooperation on digital...'"
                 },
@@ -119,7 +110,7 @@ namespace AiOcrService.Services
                     RuleType = "Subject",
                     Name = "Tiếng Anh - Subject:",
                     Pattern = @"(?:^|\n|[\s(])(?:Subject|SUBJECT)[:.]?\s*([\s\S]{5,500}?(?=\n\s*(?:To:|Dear|\n)|$))",
-                    Priority = 6,
+                    Priority = 5,
                     IsActive = true,
                     Description = "Bóc tách trích yếu công văn theo nhãn 'Subject: ...'"
                 },
@@ -130,17 +121,17 @@ namespace AiOcrService.Services
                 new()
                 {
                     RuleType = "ReferenceNumber",
-                    Name = "Chuẩn Nghị định 30 (Số: .../...-...)",
-                    Pattern = @"(?:Số|So|No|Số/No|Số\s*\/\s*No)\s*[:.]\s*([0-9A-ZĐa-z\/\-_]{2,40})",
+                    Name = "Chuẩn Nghị định 30 & Hỗ trợ số viết tay / OCR nhiễu",
+                    Pattern = @"(?:Số|Sô|Sổ|Sé|So|S6|86|8ô|8o|No|Ref|Ký\s*hiệu|Số\s*hiệu)\s*[:.]?\s*([0-9A-Za-z\s,\[\]\(\)\{\}\-]*\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)",
                     Priority = 1,
                     IsActive = true,
-                    Description = "Bóc tách số công văn dạng 'Số: 128/BGDĐT-GDĐH', 'Số: 45/UBND-VX'"
+                    Description = "Bóc tách số công văn dạng 'Số: 128/BGDĐT-GDĐH', '86: 1128 /TTg-ĐMDN', 'Số: 45/UBND-VX'"
                 },
                 new()
                 {
                     RuleType = "ReferenceNumber",
                     Name = "Số công văn không dấu hai chấm",
-                    Pattern = @"\b(?:Số|So)\s+([0-9]+\s*\/\s*[A-Z0-9Đa-z\-_]+(?:\s*\/\s*[A-Z0-9Đa-z\-_]+)*)",
+                    Pattern = @"\b(?:Số|So|S6|86)\s+([0-9A-Za-z\s,\[\]\-]+\s*[\/\\|]\s*[A-Z0-9Đa-z\-_]+(?:\s*[\/\\|]\s*[A-Z0-9Đa-z\-_]+)*)",
                     Priority = 2,
                     IsActive = true,
                     Description = "Bóc tách số công văn dạng 'Số 789/FPT-CNTT'"

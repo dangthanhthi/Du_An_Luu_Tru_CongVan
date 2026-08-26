@@ -226,8 +226,8 @@ export function parseOcrDocumentMetadata(doc: {
   // 3. Bóc tách Ngày ban hành (Ưu tiên khối Header, chặn triệt để ngày trong phần Căn cứ)
   const date = extractIssuedDate(fullText, doc.issuedDate, fileName, headerText)
 
-  // 4. Bóc tách Tiêu đề / Trích yếu
-  const title = extractTitle(fullText, doc.title)
+  // 4. Bóc tách Tiêu đề / Trích yếu (Ưu tiên khối Header Trang 1)
+  const title = extractTitle(fullText, doc.title, headerText)
 
   // 5. Bóc tách Người ký & Chức danh
   const signer = extractSignerInfo(fullText)
@@ -266,45 +266,63 @@ export function parseOcrDocumentMetadata(doc: {
 }
 
 // ============================================================================
-// TRÍCH XUẤT KHỐI TIÊU NGỮ / HEADER (TRƯỚC KÍNH GỬI / CĂN CỨ)
+// TRÍCH XUẤT KHỐI TIÊU NGỮ / HEADER (TRƯỚC KÍNH GỬI / CĂN CỨ / XÉT ĐỀ NGHỊ)
 // ============================================================================
 function extractHeaderSection(text: string): string {
-  const cutoffMatch = text.match(/(?:\n\s*Kính gửi|\n\s*K[ií]nh g[ửu]i|\n\s*Căn cứ|\n\s*C[aă]n c[ứu]|\n\s*Điều \d|\n\s*QUYẾT ĐỊNH|\n\s*THÔNG BÁO\s*\n\s*Về việc|\n\s*GIẤY MỜI\s*\n)/i)
+  // Chỉ lấy ở phần đầu văn bản (Trang 1, trước khi vào nội dung chi tiết hoặc nơi nhận)
+  const cutoffMatch = text.match(/(?:\n\s*Kính\s*gửi|\n\s*K[ií]nh\s*g[ửu]i|\n\s*Kinh\s*gui|\n\s*Xét\s*đề\s*nghị|\n\s*X6t\s*dS\s*nghi|\n\s*Căn\s*cứ|\n\s*C[aă]n\s*c[ứu]|\n\s*Điều \d|\n\s*QUYẾT\s*ĐỊNH|\n\s*THÔNG\s*BÁO\s*\n\s*Về\s*việc|\n\s*GIẤY\s*MỜI\s*\n|\n\s*Nơi\s*nhận|\n\s*Ndi\s*nh\{in)/i)
   if (cutoffMatch && cutoffMatch.index !== undefined && cutoffMatch.index > 50) {
     return text.substring(0, cutoffMatch.index)
   }
-  return text.substring(0, Math.min(text.length, 1500))
+  return text.substring(0, Math.min(text.length, 1800))
 }
 
 // ============================================================================
-// TRÍCH XUẤT SỐ KÝ HIỆU
+// TRÍCH XUẤT SỐ KÝ HIỆU (HỖ TRỢ SỐ VIẾT TAY & SCAN MỜ)
 // ============================================================================
 function extractReferenceNumber(text: string, existingRef?: string, fileName?: string, headerText?: string): string {
   const header = headerText || extractHeaderSection(text)
 
-  // ƯU TIÊN 1: Tìm Số ký hiệu chính thức trong khối HEADER
+  // ƯU TIÊN 1: Tìm Số ký hiệu chính thức trong khối HEADER trang 1
+  // Hỗ trợ các biến thể OCR của chữ "Số": Số, Sô, Sổ, Sé, So, S6, 86, 8ô, 8o, No, Ref
+  // Hỗ trợ số viết tay có khoảng trắng, dấu phẩy, ngoặc do OCR nhiễu (VD: "86: 11,[,8 /TTg-BMDN", "Số: 1128 /TTg-ĐMDN")
   const headerPrefixPatterns = [
-    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*(\d*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
-    /(?:Số|Sô|Sổ|Sé|So|No|Ref|Ký hiệu|Số hiệu|Ky hiêu)[\s]*[:.]?\s*([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
-    /(?:Số|Sô|Sổ|So)[\s]+(\d*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
+    /(?:Số|Sô|Sổ|Sé|So|S6|86|8ô|8o|No|Ref|Ký\s*hiệu|Số\s*hiệu)[\s]*[:.]?\s*([0-9A-Za-z\s,\[\]\(\)\{\}\-]*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
+    /(?:Số|Sô|Sổ|Sé|So|S6|86|8ô|8o|No|Ref|Ký\s*hiệu|Số\s*hiệu)[\s]*[:.]?\s*([A-ZĐa-z0-9\-_]{2,30}(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)+)/i,
+    /(?:Số|Sô|Sổ|So|S6|86)[\s]+([0-9A-Za-z\s,\[\]\-]*)\s*[\/\\|]\s*([A-ZĐa-z0-9\-_]+(?:\s*[\/\\|]\s*[A-ZĐa-z0-9\-_]+)*)/i,
   ]
 
   for (const pattern of headerPrefixPatterns) {
     const match = header.match(pattern)
     if (match) {
-      let num = (match[1] || '').trim()
+      let rawDigits = (match[1] || '').replace(/[^0-9]/g, '').trim()
       let suffix = (match[2] || '').replace(/\s*[\/\\|]\s*/g, '/').trim()
       
-      // Nếu số bị thiếu trong lớp văn bản (VD: "Số: /SGDĐT-VP"), tìm số trong tên file (VD: "vpdt-den-570-..." hoặc "1678vb-...")
-      if (!num && fileName) {
+      // Sửa các lỗi OCR phổ biến trong mã cơ quan hành chính
+      suffix = suffix.replace(/BMDN/i, 'ĐMDN')
+                     .replace(/BGDDT/i, 'BGDĐT')
+                     .replace(/SGDDT/i, 'SGDĐT')
+                     .replace(/KHCN/i, 'KHCN')
+                     .replace(/UBND/i, 'UBND')
+
+      // Nếu số viết tay bị OCR mờ, dính ký tự lạ hoặc trống (VD: "86: 11,[,8 /TTg-BMDN" hoặc "Số: /SGDĐT-VP")
+      // Tự động đối chiếu với tên tệp (VD: "1128-ttg-dmdn.signed.pdf" -> lấy số "1128")
+      if (fileName) {
         const fileNumMatch = fileName.match(/(?:^|[^\d])(\d{2,6})(?:[^\d]|$)/i)
         if (fileNumMatch) {
-          num = fileNumMatch[1]
+          const fileNum = fileNumMatch[1]
+          if (!rawDigits || rawDigits.length < fileNum.length || fileNum.includes(rawDigits) || rawDigits.length < 2) {
+            rawDigits = fileNum
+          }
         }
       }
 
-      const fullRef = num ? `${num}/${suffix}` : `/${suffix}`
-      if (isValidRefNumber(fullRef)) return normalizeRefNumber(fullRef)
+      if (rawDigits && suffix) {
+        const fullRef = `${rawDigits}/${suffix}`
+        if (isValidRefNumber(fullRef)) return normalizeRefNumber(fullRef)
+      } else if (suffix && isValidRefNumber(`/${suffix}`)) {
+        return normalizeRefNumber(`/${suffix}`)
+      }
     }
   }
 
@@ -322,14 +340,19 @@ function extractReferenceNumber(text: string, existingRef?: string, fileName?: s
     }
   }
 
-  // ƯU TIÊN 3: Tìm trong toàn bộ văn bản nhưng LOẠI TRỪ phần "Căn cứ..." (để không lấy nhầm căn cứ pháp lý)
-  const nonCitationText = text.replace(/(?:Căn cứ|C[aă]n c[ứu]|Theo|Tại)\s+(?:Quyết định|Nghị định|Thông tư|Luật|Công văn|Văn bản)[\s\S]*?(?=\n\s*\n|$)/gi, '')
+  // ƯU TIÊN 3: Tìm trong phần không phải trích dẫn (nhưng CHỈ trong 3000 ký tự đầu tiên, tránh thân bài/footer)
+  const earlyText = text.substring(0, Math.min(text.length, 3000))
+  const nonCitationText = earlyText.replace(/(?:Xét đề nghị|X6t dS nghi|Căn cứ|C[aă]n c[ứu]|Theo|Tại)\s+(?:Quyết định|Nghị định|Thông tư|Luật|Công văn|Văn bản)[\s\S]*?(?=\n\s*\n|$)/gi, '')
   
   for (const pattern of headerPrefixPatterns) {
     const match = nonCitationText.match(pattern)
-    if (match?.[1]) {
-      const cleaned = normalizeRefNumber(match[0].replace(/^(?:Số|Sô|Sổ|So|No|Ref)[\s]*[:.]?\s*/i, ''))
-      if (isValidRefNumber(cleaned)) return cleaned
+    if (match?.[1] && match?.[2]) {
+      let num = (match[1] || '').replace(/[^0-9]/g, '').trim()
+      let suffix = (match[2] || '').replace(/\s*[\/\\|]\s*/g, '/').trim()
+      if (num && suffix) {
+        const full = `${num}/${suffix}`
+        if (isValidRefNumber(full)) return normalizeRefNumber(full)
+      }
     }
   }
 
@@ -347,7 +370,7 @@ function isValidRefNumber(ref: string): boolean {
   if (!ref.includes('/')) return false
   const upper = ref.toUpperCase()
   if (upper.includes('EMAIL') || upper.includes('GMAIL') || upper.includes('HTTP')) return false
-  if (ref === '689/S') return false
+  if (ref === '689/S' || ref === '2b/VT') return false
   return true
 }
 
@@ -356,6 +379,20 @@ function isValidRefNumber(ref: string): boolean {
 // ============================================================================
 function extractPartnerName(text: string, existingPartner?: string, headerText?: string): string {
   const header = headerText || extractHeaderSection(text)
+
+  // 1. Nhận diện các cơ quan cấp Trung ương / Chính phủ / Quốc hội
+  if (/(?:THỦ TƯỚNG CHÍNH PHỦ|THU TUONG CHINH PHU|THỦ TƯỚNG|THU TUONG)/i.test(header) || /(?:[-\/]|^|\s)TTg(?:[-\/]|$)/i.test(header)) {
+    return 'Thủ tướng Chính phủ'
+  }
+  if (/(?:VĂN PHÒNG CHÍNH PHỦ|VAN PHONG CHINH PHU)/i.test(header) || /(?:[-\/]|^|\s)VPCP(?:[-\/]|$)/i.test(header)) {
+    return 'Văn phòng Chính phủ'
+  }
+  if (/(?:CHÍNH PHỦ|CHINH PHU)/i.test(header) && !header.includes('CỘNG HÒA')) {
+    return 'Chính phủ'
+  }
+  if (/(?:QUỐC HỘI|QUOC HOI)/i.test(header)) {
+    return 'Quốc hội'
+  }
 
   // Các mẫu ngữ pháp nhận diện tổ chức tiếng Việt (ưu tiên theo thứ tự)
   const orgPatterns: Array<{ pattern: RegExp; priority: number }> = [
@@ -424,6 +461,9 @@ function extractPartnerName(text: string, existingPartner?: string, headerText?:
 
   // Nhận diện qua mã viết tắt trong số hiệu (VD: 689/SKHCN → Sở Khoa học và Công nghệ, 1678/SGDĐT → Sở Giáo dục và Đào tạo)
   const refOrgMap: Record<string, string> = {
+    'TTG': 'Thủ tướng Chính phủ',
+    'CP': 'Chính phủ',
+    'VPCP': 'Văn phòng Chính phủ',
     // === Bộ cấp Trung ương ===
     'BGDDT': 'Bộ Giáo dục và Đào tạo',
     'BGDĐT': 'Bộ Giáo dục và Đào tạo',
@@ -447,7 +487,6 @@ function extractPartnerName(text: string, existingPartner?: string, headerText?:
     // === Cơ quan ngang Bộ ===
     'NHNN': 'Ngân hàng Nhà nước Việt Nam',
     'TTCP': 'Thanh tra Chính phủ',
-    'VPCP': 'Văn phòng Chính phủ',
     'UBDT': 'Ủy ban Dân tộc',
     // === Ủy ban Nhân dân ===
     'UBND': 'Ủy ban Nhân dân',
@@ -583,38 +622,97 @@ function normalizeRefNumber(raw: string): string {
 }
 
 // ============================================================================
-// TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU
+// CHUẨN HÓA DẤU TIẾNG VIỆT CHO TRÍCH YẾU SCAN OCR
 // ============================================================================
-function extractTitle(text: string, existingTitle?: string): string {
-  const boundary = '(?=\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*TỔNG GIÁM ĐỐC|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Điều \\d|$)'
+function normalizeVietnameseOcrTitle(raw: string): string {
+  let text = raw
+    .replace(/\r?\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^[:.:,\-\s]+/, '')
+    .replace(/[.,;:\-\s]+$/, '')
+    .trim()
 
-  // Ưu tiên 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." (Quy chuẩn phổ biến nhất trong công văn VN)
-  const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
-  const vvMatch = text.match(vvPattern)
+  const wordReplacements: Array<[RegExp, string]> = [
+    [/\bthu\s*hut\b/gi, 'thu hút'],
+    [/\bd[AÀa]u\s*tu\b/gi, 'đầu tư'],
+    [/\bkh[CƠơ6][\w\~'\?]*\s*nghi[~eê]p\b/gi, 'khởi nghiệp'],
+    [/\bkh[oô]i\s*nghi[eê]p\b/gi, 'khởi nghiệp'],
+    [/\bd6i\s*m6['\?]?i\b/gi, 'đổi mới'],
+    [/\bd[oô]i\s*m[oơ]i\b/gi, 'đổi mới'],
+    [/\bsang\s*t[~aã]o\b/gi, 'sáng tạo'],
+    [/\btil\s*cae\s*ngu[6oô]n\b/gi, 'từ các nguồn'],
+    [/\btu\s*cac\s*nguon\b/gi, 'từ các nguồn'],
+    [/\btrong\s*va\s*ngoai\s*nu6['\?]?c\b/gi, 'trong và ngoài nước'],
+    [/\btrong\s*va\s*ngoai\s*nuoc\b/gi, 'trong và ngoài nước'],
+    [/\btri[eê]n\s*khai\b/gi, 'triển khai'],
+    [/\bap\s*d[uụ]ng\b/gi, 'áp dụng'],
+    [/\bquy\s*trinh\b/gi, 'quy trình'],
+    [/\bs[oố]\s*h[oó]a\b/gi, 'số hóa'],
+    [/\bti[eê]p\s*nh[aậ]n\b/gi, 'tiếp nhận'],
+    [/\bvan\s*b[aả]n\b/gi, 'văn bản'],
+    [/\bt[uự]\s*d[oộ]ng\b/gi, 'tự động'],
+    [/\bqua\s*h[eệ]\s*th[oố]ng\b/gi, 'qua hệ thống'],
+    [/\bh[uư][oớ]ng\s*d[aẫ]n\b/gi, 'hướng dẫn'],
+    [/\bth[oô]ng\s*b[aá]o\b/gi, 'thông báo'],
+    [/\bquy[eê]t\s*d[iị]nh\b/gi, 'quyết định'],
+    [/\bph[eê]\s*duy[eệ]t\b/gi, 'phê duyệt'],
+    [/\bke\s*hoach\b/gi, 'kế hoạch'],
+    [/\bk[eế]\s*ho[aạ]ch\b/gi, 'kế hoạch'],
+    [/\bto\s*chuc\b/gi, 'tổ chức'],
+    [/\bt[oổ]\s*ch[uứ]c\b/gi, 'tổ chức'],
+    [/\bthuc\s*hien\b/gi, 'thực hiện'],
+    [/\bth[uự]c\s*hi[eệ]n\b/gi, 'thực hiện']
+  ]
+
+  for (const [pattern, replacement] of wordReplacements) {
+    text = text.replace(pattern, replacement)
+  }
+
+  if (text.length > 0) {
+    text = text.charAt(0).toUpperCase() + text.slice(1)
+  }
+
+  return text
+}
+
+// ============================================================================
+// TRÍCH XUẤT TIÊU ĐỀ / TRÍCH YẾU (CHỈ TÌM TRONG KHỐI HEADER TRANG 1)
+// ============================================================================
+function extractTitle(text: string, existingTitle?: string, headerText?: string): string {
+  // BẮT BUỘC: Chỉ tìm trích yếu trong Trang 1 / Header Section, tuyệt đối không tìm ở Footer / Nơi nhận
+  const searchArea = headerText || extractHeaderSection(text)
+  const boundary = '(?=\\n\\s*\\n\\s*\\n|\\n\\s*CHỦ TỊCH|\\n\\s*THỦ TƯỚNG|\\n\\s*BỘ TRƯỞNG|\\n\\s*TỔNG GIÁM ĐỐC|\\n\\s*GIÁM ĐỐC|\\n\\s*HIỆU TRƯỞNG|\\n\\s*Xét\\s*đề\\s*nghị|\\n\\s*X6t\\s*dS\\s*nghi|\\n\\s*Căn cứ|\\n\\s*C[aă]n c[ứu]|\\n\\s*QUYẾT ĐỊNH|\\n\\s*Kính|\\n\\s*K[ií]nh|\\n\\s*Kinh|\\n\\s*CON-G\\s*TH|\\n\\s*CỔNG\\s*THÔNG\\s*TIN|\\n\\s*To:|\\n\\s*Nơi nhận|\\n\\s*Ndi\\s*nh|\\n\\s*Điều \\d|$)'
+
+  // Ưu tiên 1: "V/v: Hướng dẫn..." hoặc "V/v Triển khai..." hoặc biến thể OCR "VIv", "Vlv", "V1v", "V|v", "V\\v"
+  const vvPattern = new RegExp(`(?:^|\\n|[\\s(])(?:V[\\/\\\\]v|V[\\/\\\\]V|v[\\/\\\\]v|VIv|Vlv|V1v|V\\|v|V\\\\v|V\\s*[\\/\\\\]\\s*v|V\\s*[\\/\\\\]\\s*V|\\bV\\.v\\b|\\bVv\\b)\\s*[:.:-]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const vvMatch = searchArea.match(vvPattern)
   if (vvMatch?.[1]) {
-    const cleaned = cleanTitle(vvMatch[1])
-    if (isValidTitle(cleaned)) return cleaned
+    let clean = vvMatch[1].split(/(?:CỔNG THÔNG TIN|CON-G TH|ĐẾN Giờ|Kính gửi|Kinh gui)/i)[0].trim()
+    const cleaned = cleanTitle(clean)
+    if (isValidTitle(cleaned)) return normalizeVietnameseOcrTitle(cleaned)
   }
 
   // Ưu tiên 2: "Về việc: ..." hoặc "VỀ VIỆC: ..."
-  const veViecPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
-  const veViecMatch = text.match(veViecPattern)
+  const veViecPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Về việc|VỀ VIỆC|Ve viec|VE VIEC)\\s*[:.:-]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const veViecMatch = searchArea.match(veViecPattern)
   if (veViecMatch?.[1]) {
-    const cleaned = cleanTitle(veViecMatch[1])
-    if (isValidTitle(cleaned)) return cleaned
+    let clean = veViecMatch[1].split(/(?:CỔNG THÔNG TIN|CON-G TH|ĐẾN Giờ|Kính gửi|Kinh gui)/i)[0].trim()
+    const cleaned = cleanTitle(clean)
+    if (isValidTitle(cleaned)) return normalizeVietnameseOcrTitle(cleaned)
   }
 
   // Ưu tiên 3: "Trích yếu: ..." (kể cả không dấu do OCR)
-  const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
-  const trichYeuMatch = text.match(trichYeuPattern)
+  const trichYeuPattern = new RegExp(`(?:^|\\n|[\\s(])(?:Trích yếu|TRÍCH YẾU|Trich yeu|TRICH YEU)\\s*[:.:-]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const trichYeuMatch = searchArea.match(trichYeuPattern)
   if (trichYeuMatch?.[1]) {
-    const cleaned = cleanTitle(trichYeuMatch[1])
-    if (isValidTitle(cleaned)) return cleaned
+    let clean = trichYeuMatch[1].split(/(?:CỔNG THÔNG TIN|CON-G TH|ĐẾN Giờ|Kính gửi|Kinh gui)/i)[0].trim()
+    const cleaned = cleanTitle(clean)
+    if (isValidTitle(cleaned)) return normalizeVietnameseOcrTitle(cleaned)
   }
 
-  // Ưu tiên 4: "Về: ..." ở đầu dòng (Tránh khớp nhầm từ 'về' trong giữa câu)
-  const veDauDongPattern = new RegExp(`(?:^|\\n)\\s*(?:Về|VỀ|Ve|VE)\\s*[:.:]?\\s*(.{5,350}?)${boundary}`, 'is')
-  const veDauDongMatch = text.match(veDauDongPattern)
+  // Ưu tiên 4: "Về: ..." ở đầu dòng
+  const veDauDongPattern = new RegExp(`(?:^|\\n)\\s*(?:Về|VỀ|Ve|VE)\\s*[:.:-]?\\s*(.{5,350}?)${boundary}`, 'is')
+  const veDauDongMatch = searchArea.match(veDauDongPattern)
   if (veDauDongMatch?.[1]) {
     const cleaned = cleanTitle(veDauDongMatch[1])
     if (isValidTitle(cleaned)) return cleaned
