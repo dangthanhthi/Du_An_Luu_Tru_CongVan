@@ -19,36 +19,46 @@ const DocumentByStatus = () => {
   const theme = useTheme()
   const { t } = useAppDictionary()
 
+  const isDark = theme.palette.mode === 'dark'
+  const textSecondary = isDark ? '#a1a0b5' : '#6f6b7d'
+  const textPrimary = isDark ? '#cfd3ec' : '#2f2b3d'
+
   const options: any = {
     chart: {
-      parentHeightOffset: 0
+      parentHeightOffset: 0,
+      sparkline: { enabled: false }
     },
     labels: t.charts.statusLabels,
-    colors: [
-      theme.palette.success.main,
-      theme.palette.warning.main,
-      theme.palette.info.main,
-      theme.palette.error.main
-    ],
+    colors: ['#28c76f', '#ff9f43', '#00bad1', '#ea5455'],
+    stroke: {
+      width: 0,
+      show: false
+    },
     plotOptions: {
       pie: {
         donut: {
+          size: '72%',
           labels: {
             show: true,
             name: {
-              fontSize: '1.5rem'
+              fontSize: '1.2rem',
+              color: textSecondary,
+              offsetY: -10
             },
             value: {
-              fontSize: '1rem',
-              color: theme.palette.text.secondary,
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              color: textPrimary,
+              offsetY: 10,
               formatter: (val: string) => `${val}`
             },
             total: {
               show: true,
-              fontSize: '1.5rem',
+              fontSize: '1rem',
+              fontWeight: 500,
               label: t.charts.total,
-              color: theme.palette.text.primary,
-              formatter: () => '1430'
+              color: textSecondary,
+              formatter: () => '1,430'
             }
           }
         }
@@ -57,12 +67,9 @@ const DocumentByStatus = () => {
     dataLabels: {
       enabled: false
     },
-    stroke: {
-      show: false
-    },
     legend: {
       position: 'bottom',
-      labels: { colors: theme.palette.text.secondary },
+      labels: { colors: textSecondary },
       markers: {
         radius: 12
       }

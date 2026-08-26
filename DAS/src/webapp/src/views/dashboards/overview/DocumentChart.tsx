@@ -19,6 +19,11 @@ const DocumentChart = () => {
   const theme = useTheme()
   const { t } = useAppDictionary()
 
+  const isDark = theme.palette.mode === 'dark'
+  const textDisabled = isDark ? '#7d8299' : '#a8aaae'
+  const textSecondary = isDark ? '#a1a0b5' : '#6f6b7d'
+  const borderColor = isDark ? '#3b3f5c' : '#dbdade'
+
   const options: any = {
     chart: {
       parentHeightOffset: 0,
@@ -33,29 +38,29 @@ const DocumentChart = () => {
     xaxis: {
       categories: t.charts.months,
       labels: {
-        style: { colors: theme.palette.text.disabled }
+        style: { colors: textDisabled }
       },
       axisBorder: { show: false },
       axisTicks: { show: false }
     },
     yaxis: {
       labels: {
-        style: { colors: theme.palette.text.disabled }
+        style: { colors: textDisabled }
       }
     },
-    colors: [theme.palette.primary.main, theme.palette.success.main],
+    colors: ['#7367f0', '#28c76f'],
     dataLabels: { enabled: false },
     legend: {
       position: 'top',
       horizontalAlign: 'left',
-      labels: { colors: theme.palette.text.secondary },
+      labels: { colors: textSecondary },
       markers: {
         radius: 12
       }
     },
     stroke: { show: false },
     grid: {
-      borderColor: theme.palette.divider,
+      borderColor: borderColor,
       xaxis: {
         lines: { show: false }
       }
