@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import tls from 'node:tls'
+import fs from 'node:fs'
+import path from 'node:path'
+import crypto from 'node:crypto'
 import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
 
 function decodeMimeHeader(headerStr: string): string {
@@ -21,57 +24,99 @@ function decodeMimeHeader(headerStr: string): string {
   })
 }
 
-// Bóc tách Base64 của tệp PDF THẬT từ raw RFC 822 email
+// Bóc tách Base64 của tệp PDF THẬT từ raw RFC 822 email (Xử lý toàn diện mọi cấu trúc email phức tạp)
 function extractRealPdfBase64(rawEmail: string): { base64Data: string; filename: string } | null {
   try {
-    // 1. Tìm boundary và các part trong multipart email
-    const lines = rawEmail.split(/\r?\n/)
-    let inPdfPart = false
-    let isBase64Encoding = false
-    let currentFileName = ''
-    let base64Buffer = ''
+    const boundaryMatches = [...rawEmail.matchAll(/boundary="?([^"\r\n;]+)"?/gi)]
+    const boundaries = boundaryMatches.map(m => m[1].trim()).filter(Boolean)
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
+    let parts: string[] = []
+    if (boundaries.length > 0) {
+      parts = [rawEmail]
+      for (const b of boundaries) {
+        const escaped = b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const newParts: string[] = []
+        for (const p of parts) {
+          const sub = p.split(new RegExp(`--${escaped}(?:--)?`))
+          newParts.push(...sub)
+        }
+        parts = newParts
+      }
+    } else {
+      parts = rawEmail.split(/\r?\n\r?\n/)
+    }
 
-      if (line.toLowerCase().includes('content-type: application/pdf') || line.toLowerCase().includes('.pdf')) {
-        inPdfPart = true
+    for (const part of parts) {
+      const headerEndIdx = part.search(/\r?\n\r?\n/)
+      if (headerEndIdx === -1) continue
+
+      const partHeader = part.substring(0, headerEndIdx)
+      const partBody = part.substring(headerEndIdx)
+      const lowerHeader = partHeader.toLowerCase()
+
+      const isPdfMime = lowerHeader.includes('application/pdf') || lowerHeader.includes('application/x-pdf') || lowerHeader.includes('application/octet-stream')
+      const hasPdfExt = lowerHeader.includes('.pdf')
+
+      let filename = 'VanBan_DinhKem.pdf'
+      const fnMatch = partHeader.match(/(?:filename\*?|name\*?)=["']?(?:UTF-8''|utf-8'')?([^"';\r\n]+)["']?/i)
+      if (fnMatch && fnMatch[1]) {
+        filename = decodeMimeHeader(fnMatch[1]).trim()
       }
 
-      if (inPdfPart) {
-        if (line.toLowerCase().includes('content-transfer-encoding: base64')) {
-          isBase64Encoding = true
+      const cleanBase64 = partBody.replace(/[^A-Za-z0-9+/=]/g, '')
+      if (cleanBase64.length >= 100) {
+        let isRealPdf = false
+        let finalBase64 = cleanBase64
+
+        const jvIdx = cleanBase64.indexOf('JVBERi')
+        if (jvIdx !== -1) {
+          isRealPdf = true
+          if (jvIdx > 0 && jvIdx < 120) {
+            finalBase64 = cleanBase64.substring(jvIdx)
+          }
+        } else {
+          try {
+            const headBuf = Buffer.from(cleanBase64.substring(0, 4000), 'base64')
+            if (headBuf.includes('%PDF-')) {
+              isRealPdf = true
+            }
+          } catch {}
         }
 
-        if (line.toLowerCase().includes('filename=') || line.toLowerCase().includes('name=')) {
-          const match = line.match(/(?:filename|name)=["']?([^"';\r\n]+)["']?/i)
-          if (match && match[1]) {
-            currentFileName = decodeMimeHeader(match[1]).trim()
+        if (isRealPdf || ((isPdfMime || hasPdfExt) && cleanBase64.length >= 200)) {
+          if (!filename.toLowerCase().endsWith('.pdf')) {
+            filename += '.pdf'
           }
-        }
-
-        // Dòng trống đầu tiên báo hiệu kết thúc header của part và bắt đầu nội dung base64
-        if (line === '' && isBase64Encoding) {
-          // Thu thập các dòng base64 tiếp theo cho đến khi gặp boundary tiếp theo
-          for (let j = i + 1; j < lines.length; j++) {
-            const contentLine = lines[j].trim()
-            if (contentLine.startsWith('--')) {
-              // Gặp boundary kết thúc part
-              break
-            }
-            if (/^[A-Za-z0-9+/=]+$/.test(contentLine)) {
-              base64Buffer += contentLine
-            }
+          return {
+            filename,
+            base64Data: `data:application/pdf;base64,${finalBase64}`
           }
-          break
         }
       }
     }
 
-    if (base64Buffer.length > 500) {
-      return {
-        base64Data: `data:application/pdf;base64,${base64Buffer}`,
-        filename: currentFileName || 'VanBan_DinhKem_Tu_Email.pdf'
+    // Fallback toàn diện: Quét trực tiếp chuỗi base64 có magic byte JVBERi trong toàn bộ email
+    const jvberiIdx = rawEmail.indexOf('JVBERi')
+    if (jvberiIdx !== -1) {
+      const remaining = rawEmail.substring(jvberiIdx)
+      const match = remaining.match(/^[A-Za-z0-9+/=\r\n\s]+/)
+      if (match) {
+        const cleanBase64 = match[0].replace(/[^A-Za-z0-9+/=]/g, '')
+        if (cleanBase64.length >= 100) {
+          let filename = 'VanBan_DinhKem.pdf'
+          const before = rawEmail.substring(Math.max(0, jvberiIdx - 500), jvberiIdx)
+          const fnMatch = before.match(/(?:filename\*?|name\*?)=["']?(?:UTF-8''|utf-8'')?([^"';\r\n]+)["']?/i)
+          if (fnMatch && fnMatch[1]) {
+            filename = decodeMimeHeader(fnMatch[1]).trim()
+          }
+          if (!filename.toLowerCase().endsWith('.pdf')) {
+            filename += '.pdf'
+          }
+          return {
+            filename,
+            base64Data: `data:application/pdf;base64,${cleanBase64}`
+          }
+        }
       }
     }
   } catch (err) {
@@ -215,13 +260,100 @@ async function parseEmailBody(rawEmail: string, mailId?: string) {
   const realPdf = extractRealPdfBase64(rawEmail)
   const hasRealPdf = Boolean(realPdf && realPdf.base64Data)
 
-  // 2. Trích xuất văn bản THẬT từ nội dung bên trong PDF (Local PDF Text Parser)
+  // 2. Trích xuất thông tin OCR chuyên sâu từ AI-OCR Service (C# Tesseract 5 + Docnet + DynamicFieldExtractor)
+  let ocrData: any = null
   let pdfText = ''
+  let persistedFileUrl = ''
+
   if (hasRealPdf && realPdf?.base64Data) {
-    pdfText = await extractTextFromPdfBase64(realPdf.base64Data)
+    try {
+      const base64Str = realPdf.base64Data.replace(/^data:application\/pdf;base64,/, '')
+      const pdfBuffer = Buffer.from(base64Str, 'base64')
+
+      // Lưu trữ tệp PDF vật lý vào public/uploads để phục vụ xem trước và tải về ngay lập tức
+      try {
+        const fileId = crypto.randomUUID()
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true })
+        }
+        fs.writeFileSync(path.join(uploadsDir, `${fileId}.pdf`), pdfBuffer)
+        fs.writeFileSync(path.join(uploadsDir, fileId), pdfBuffer)
+        if (realPdf.filename) {
+          try {
+            fs.writeFileSync(path.join(uploadsDir, realPdf.filename), pdfBuffer)
+          } catch {}
+        }
+        persistedFileUrl = `/api/files/${fileId}`
+
+        // Đồng bộ FilesService ngầm không chặn
+        const beFormData = new FormData()
+        const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+        beFormData.append('file', blob, realPdf.filename || 'attachment.pdf')
+        fetch('http://localhost:5004/api/files/upload', {
+          method: 'POST',
+          body: beFormData,
+          signal: AbortSignal.timeout(4000)
+        }).catch(() => {})
+      } catch (saveErr) {
+        console.warn('[Email Scan] Error persisting PDF file locally:', saveErr)
+      }
+
+      const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+      const formData = new FormData()
+      formData.append('file', blob, realPdf.filename || 'attachment.pdf')
+      if (cleanFrom) {
+        formData.append('senderEmail', cleanFrom)
+      }
+
+      const ocrRes = await fetch('http://localhost:5006/api/ai-ocr/analyze-file', {
+        method: 'POST',
+        body: formData,
+        signal: AbortSignal.timeout(30000)
+      })
+
+      if (ocrRes.ok) {
+        const json = await ocrRes.json()
+        if (json?.data) {
+          ocrData = json.data
+          pdfText = json.data.extractedText || ''
+        }
+      }
+    } catch (err: any) {
+      console.warn('[Email Scan] ai-ocr-service error or timeout:', err.message)
+    }
+
+    // Fallback: Local extractor nếu backend OCR tạm thời bận
+    if (!pdfText) {
+      pdfText = await extractTextFromPdfBase64(realPdf.base64Data)
+    }
   }
 
-  // 3. Bóc tách thông tin động từ AI OCR Universal Extractor (Ưu tiên nội dung PDF thực tế)
+  // Nếu email KHÔNG CÓ tệp PDF thực tế (ví dụ: email thông báo mạng xã hội, tin tức, spam):
+  // Tuyệt đối không tạo tệp ảo, không sinh URL giả và không gán tên tệp PDF
+  if (!hasRealPdf) {
+    return {
+      id: mailId || messageId || `mail-${Date.now()}`,
+      messageId: messageId || `msg-${Date.now()}`,
+      subject: subject || 'Email thông báo',
+      sender: cleanFrom || 'Chưa xác định',
+      date: date || new Date().toISOString(),
+      attachment: '',
+      hasPdf: false,
+      fileUrl: '',
+      pdfExtractedLength: 0,
+      extractedRefNumber: '',
+      extractedPartner: '',
+      extractedTitle: subject || 'Email thông báo',
+      extractedDate: '',
+      extractedDocumentType: 'Email',
+      extractedDirection: 'incoming',
+      directionRationale: 'Email thông thường không có tệp PDF đính kèm.',
+      ocrEngine: 'none'
+    }
+  }
+
+  // 3. Bóc tách thông tin động từ AI OCR Universal Extractor cho tệp PDF THẬT
   const meta = parseOcrDocumentMetadata({
     title: subject,
     summary: bodyContent,
@@ -230,23 +362,43 @@ async function parseEmailBody(rawEmail: string, mailId?: string) {
     pdfText: pdfText
   })
 
+  const finalRefNumber = ocrData?.extractedReferenceNumber || meta.referenceNumber
+  const finalPartner = ocrData?.extractedPartnerName || meta.partnerName
+  const finalTitle = ocrData?.extractedSubject || meta.title || subject || 'Công văn tiếp nhận từ hòm thư điện tử'
+  const finalDate = ocrData?.extractedDateString || meta.issuedDate
+  const finalDocType = ocrData?.extractedDocumentType || meta.documentType
+  // Xác định thể loại văn bản (incoming / outgoing / internal)
+  let docDirection = meta.direction || 'incoming'
+  const combinedContext = `${subject} ${bodyContent} ${realPdf?.filename || ''}`.toLowerCase()
+  if (
+    combinedContext.includes('noi bo') ||
+    combinedContext.includes('nội bộ') ||
+    combinedContext.includes('cong van noi bo') ||
+    combinedContext.includes('công văn nội bộ')
+  ) {
+    docDirection = 'internal'
+  }
+
   return {
     id: mailId || messageId || `mail-${Date.now()}`,
     messageId: messageId || `msg-${Date.now()}`,
-    subject: meta.title || subject || 'Công văn tiếp nhận từ hòm thư điện tử',
+    subject: finalTitle,
     sender: cleanFrom || 'Chưa xác định',
     date: date || new Date().toISOString(),
-    attachment: realPdf?.filename || (hasRealPdf ? 'VanBan_DinhKem.pdf' : ''),
-    hasPdf: hasRealPdf,
-    fileUrl: realPdf?.base64Data || '', // Base64 của PDF THẬT 100%
+    attachment: realPdf?.filename || 'VanBan_DinhKem.pdf',
+    hasPdf: true,
+    hasRealPdf: true,
+    fileUrl: persistedFileUrl || '',
     pdfExtractedLength: pdfText.length,
-    // Dynamic Extracted OCR Fields (Từ nội dung PDF thực)
-    extractedRefNumber: meta.referenceNumber,
-    extractedPartner: meta.partnerName,
-    extractedTitle: meta.title,
-    extractedDate: meta.issuedDate,
-    extractedDirection: meta.direction || 'incoming',
-    directionRationale: meta.directionRationale || ''
+    // Dynamic Extracted OCR Fields (Từ nội dung PDF thực tế)
+    extractedRefNumber: finalRefNumber,
+    extractedPartner: finalPartner,
+    extractedTitle: finalTitle,
+    extractedDate: finalDate,
+    extractedDocumentType: finalDocType,
+    extractedDirection: docDirection,
+    directionRationale: meta.directionRationale || '',
+    ocrEngine: ocrData ? 'native-csharp-tesseract5' : 'fallback-local'
   }
 }
 
@@ -270,15 +422,18 @@ export async function POST(req: Request) {
         // Connected to IMAP
       })
 
-      socket.setTimeout(25000)
+      // Đặt timeout 120s cho socket IMAP
+      socket.setTimeout(120000)
 
       let step = 0
       let buffer = ''
       let targetIds: string[] = []
       let currentFetchIndex = 0
-      const fetchedMails: any[] = []
+      const rawEmailList: { id: string; buffer: string }[] = []
 
       socket.on('data', async data => {
+        // Làm mới timeout mỗi khi có dữ liệu truyền đến
+        socket.setTimeout(120000)
         buffer += data.toString()
 
         if (step === 0 && buffer.includes('* OK')) {
@@ -306,6 +461,23 @@ export async function POST(req: Request) {
           buffer = ''
 
           if (ids.length === 0) {
+            // Nếu không có email chưa đọc nào (do người dùng đã mở xem trước trên Gmail hoặc do hệ thống quét ngầm),
+            // Tự động tìm các email mới nhất trong Hộp thư đến (SEARCH ALL) để không bỏ sót công văn
+            step = 35
+            socket.write(`A035 SEARCH ALL\r\n`)
+          } else {
+            // Lấy 5 email chưa đọc mới nhất để quét
+            targetIds = ids.slice(-5)
+            step = 4
+            currentFetchIndex = 0
+            fetchNextEmail()
+          }
+        } else if (step === 35 && buffer.includes('A035 OK')) {
+          const searchLine = buffer.split('\n').find(l => l.startsWith('* SEARCH')) || ''
+          const ids = searchLine.replace('* SEARCH', '').trim().split(/\s+/).filter(Boolean)
+          buffer = ''
+
+          if (ids.length === 0) {
             resolved = true
             socket.write(`A99 LOGOUT\r\n`)
             socket.end()
@@ -313,10 +485,11 @@ export async function POST(req: Request) {
               success: true,
               scannedCount: 0,
               items: [],
-              message: 'Hộp thư đến không có email mới chưa đọc nào.'
+              message: 'Hộp thư đến trống (không có email nào).'
             }))
           } else {
-            targetIds = ids.slice(-10)
+            // Lấy 5 email mới nhất trong Hộp thư đến
+            targetIds = ids.slice(-5)
             step = 4
             currentFetchIndex = 0
             fetchNextEmail()
@@ -325,8 +498,9 @@ export async function POST(req: Request) {
           const tag = `F0${currentFetchIndex}`
           if (buffer.includes(`${tag} OK`)) {
             const currentId = targetIds[currentFetchIndex]
-            const parsed = await parseEmailBody(buffer, currentId)
-            fetchedMails.push(parsed)
+            
+            // Lưu buffer vào danh sách tải về (tách rời khỏi khâu chạy OCR để không giữ socket IMAP)
+            rawEmailList.push({ id: currentId, buffer: buffer })
             buffer = ''
 
             // Đánh dấu email đã đọc (\Seen)
@@ -337,16 +511,36 @@ export async function POST(req: Request) {
             if (currentFetchIndex < targetIds.length) {
               fetchNextEmail()
             } else {
-              resolved = true
+              // Tải IMAP hoàn tất! Đóng kết nối an toàn ngay lập tức:
               socket.write(`A99 LOGOUT\r\n`)
               socket.end()
 
-              resolve(NextResponse.json({
-                success: true,
-                scannedCount: fetchedMails.length,
-                items: fetchedMails,
-                message: `Quét thành công! Đã phát hiện và đọc nội dung PDF từ ${fetchedMails.length} email mới.`
-              }))
+              // BƯỚC 2: Bóc tách AI-OCR sau khi đã ngắt socket IMAP -> KHÔNG BAO GIỜ BỊ HẾT THỜI GIAN KẾT NỐI
+              try {
+                const fetchedMails: any[] = []
+                for (const item of rawEmailList) {
+                  const parsed = await parseEmailBody(item.buffer, item.id)
+                  fetchedMails.push(parsed)
+                }
+
+                if (!resolved) {
+                  resolved = true
+                  resolve(NextResponse.json({
+                    success: true,
+                    scannedCount: fetchedMails.length,
+                    items: fetchedMails,
+                    message: `Quét thành công! Đã phát hiện và đọc nội dung PDF từ ${fetchedMails.length} email mới.`
+                  }))
+                }
+              } catch (parseErr: any) {
+                if (!resolved) {
+                  resolved = true
+                  resolve(NextResponse.json({
+                    success: false,
+                    message: `Lỗi xử lý nội dung email: ${parseErr.message}`
+                  }, { status: 500 }))
+                }
+              }
             }
           }
         }

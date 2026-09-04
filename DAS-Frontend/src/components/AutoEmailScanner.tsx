@@ -6,15 +6,18 @@ import { useEffect, useRef } from 'react'
 // Third-party Imports
 import { toast } from 'react-toastify'
 
-// API Imports
-import { documentApi } from '@/services/api'
-
 export const AutoEmailScanner = () => {
   const isScanningRef = useRef(false)
 
   useEffect(() => {
+    let intervalTimer: NodeJS.Timeout | null = null
+    let initialTimer: NodeJS.Timeout | null = null
+
     const runScan = async () => {
-      if (isScanningRef.current) return
+      if (isScanningRef.current) {
+        console.log('[AutoEmailScanner] ⏳ Quét đang diễn ra, bỏ qua chu kỳ này...')
+        return
+      }
 
       try {
         const savedSettings = localStorage.getItem('das_email_settings')
@@ -22,153 +25,189 @@ export const AutoEmailScanner = () => {
 
         const settings = JSON.parse(savedSettings)
         if (settings.autoScan === false || !settings.email || !settings.appPassword) {
+          console.log('[AutoEmailScanner] ⏸️ Tự động quét tạm dừng: Chưa cấu hình Email hoặc App Password.')
           return
         }
 
         isScanningRef.current = true
+        console.log(`[AutoEmailScanner] 🔄 [${new Date().toLocaleTimeString('vi-VN')}] Bắt đầu tự động quét Gmail (${settings.email})...`)
 
         const res = await fetch('/api/email/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(settings)
+          body: JSON.stringify(settings),
+          signal: AbortSignal.timeout(45000)
         })
 
         const data = await res.json()
+        const scanTimestamp = new Date().toISOString()
+        localStorage.setItem('das_email_last_scan_time', scanTimestamp)
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('das_email_scan_completed', { detail: { timestamp: scanTimestamp, data } }))
+        }
+
+        console.log(`[AutoEmailScanner] ✅ [${new Date().toLocaleTimeString('vi-VN')}] Quét hoàn tất: ${data.items?.length || 0} email mới`)
 
         if (data.success && data.items && data.items.length > 0) {
           const rawLogs = localStorage.getItem('das_email_logs')
           const existingLogs: any[] = rawLogs ? JSON.parse(rawLogs) : []
           const processedIds: string[] = JSON.parse(localStorage.getItem('das_processed_email_ids') || '[]')
           const newLogs: any[] = []
-          let newlyCreatedDocs = 0
+          let currentLogs = [...existingLogs]
 
           for (let i = 0; i < data.items.length; i++) {
             const item = data.items[i]
             const mailKey = item.messageId || `${item.sender}_${item.subject}_${item.date}`
 
-            if (processedIds.includes(mailKey)) {
+            const senderLower = (item.sender || '').toLowerCase()
+            const isSocialOrSpam = /facebookmail\.com|youtube\.com|shopee\.|tiktok\.com|instagram\.com|linkedin\.com|twitter\.com|x\.com|pinterest\.com/i.test(senderLower)
+
+            const hasPdfAttachment = Boolean(
+              !isSocialOrSpam &&
+              (item.hasRealPdf === true || item.hasPdf === true) &&
+              item.attachment &&
+              typeof item.attachment === 'string' &&
+              item.attachment.toLowerCase().endsWith('.pdf') &&
+              !item.attachment.toLowerCase().includes('không có') &&
+              !item.attachment.toLowerCase().includes('no pdf')
+            )
+
+            const partnerRefNum = item.extractedRefNumber || ''
+            const partnerName = item.extractedPartner || 'Chưa xác định'
+            const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
+            const attachmentFile = hasPdfAttachment ? item.attachment : 'Không có tệp PDF'
+
+            const existingIdx = currentLogs.findIndex(
+              l => (l.messageId && item.messageId && l.messageId === item.messageId) ||
+                   (l.id === item.id) ||
+                   (l.sender === item.sender && l.subject === title)
+            )
+
+            if (existingIdx !== -1) {
+              if (hasPdfAttachment && (!currentLogs[existingIdx].hasPdf || currentLogs[existingIdx].status === 'no_pdf')) {
+                currentLogs[existingIdx] = {
+                  ...currentLogs[existingIdx],
+                  attachment: attachmentFile,
+                  hasPdf: true,
+                  docNumber: 'Chờ phân loại & tiếp nhận',
+                  status: 'pending_intake',
+                  rawItem: {
+                    ...item,
+                    hasPdf: true,
+                    hasRealPdf: true,
+                    fileUrl: item.fileUrl && !item.fileUrl.startsWith('data:') ? item.fileUrl : currentLogs[existingIdx]?.rawItem?.fileUrl || ''
+                  },
+                  message: partnerRefNum ? `AI OCR bóc tách: ${partnerRefNum} - ${partnerName}` : `AI OCR bóc tách: ${partnerName}`
+                }
+                newLogs.push(currentLogs[existingIdx])
+              }
               continue
             }
 
-            const hasPdfAttachment = Boolean(
-              item.attachment && (item.attachment.toLowerCase().endsWith('.pdf') || item.hasPdf)
-            )
-
-            if (hasPdfAttachment) {
-              // Bóc tách thông tin chính xác từ OCR nội dung PDF thực tế
-              const partnerRefNum = item.extractedRefNumber || ''
-              const partnerName = item.extractedPartner || 'Chưa xác định'
-              const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
-              const issuedDate = item.extractedDate || new Date().toISOString().split('T')[0]
-              const attachmentFile = item.attachment || 'VanBan_DinhKem.pdf'
-
-              let assignedDocNum = 'CV-DEN-2026-AUTO'
-
-              // Lưu công văn vào cơ sở dữ liệu với tự động cấp số thứ tự liên tục chính xác
-              try {
-                const docDir = item.extractedDirection || 'incoming'
-                const createRes = await documentApi.create({
-                  documentNumber: '', // Tự động sinh số kế tiếp chính xác
-                  referenceNumber: partnerRefNum,
-                  title: title,
-                  direction: docDir,
-                  issuedDate: issuedDate,
-                  partnerName: partnerName !== 'Chưa xác định' ? partnerName : undefined,
-                  senderEmail: item.sender,
-                  fileUrl: item.fileUrl || '',
-                  summary: `Văn bản tiếp nhận tự động từ hòm thư: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Thể loại: ${docDir === 'internal' ? 'Công văn nội bộ' : docDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${attachmentFile}`
-                })
-
-                if (createRes?.data?.documentNumber) {
-                  assignedDocNum = createRes.data.documentNumber
-                }
-              } catch (err) {
-                console.error('Error auto-creating document from email:', err)
-              }
-
-              const docNumDisplay = partnerRefNum ? `${assignedDocNum} (Ref: ${partnerRefNum})` : assignedDocNum
-
-              const logEntry = {
-                id: `log-${Date.now()}-${i}`,
-                timestamp: new Date().toLocaleString('vi-VN'),
-                sender: item.sender,
-                subject: title,
-                attachment: attachmentFile,
-                hasPdf: true,
-                docNumber: docNumDisplay,
-                status: 'success',
-                message: partnerRefNum
-                  ? `Đã tự động bóc tách AI OCR: ${partnerRefNum} - ${partnerName}`
-                  : `Đã tự động bóc tách AI OCR: ${partnerName}`
-              }
-              newLogs.push(logEntry)
-              processedIds.push(mailKey)
-              newlyCreatedDocs++
-            } else {
-              const logEntry = {
-                id: `log-${Date.now()}-${i}`,
-                timestamp: new Date().toLocaleString('vi-VN'),
-                sender: item.sender,
-                subject: item.subject || 'Email trao đổi không đính kèm tệp PDF',
-                attachment: 'Không có tệp PDF',
-                hasPdf: false,
-                rawItem: item,
-                docNumber: 'Chờ xác nhận',
-                status: 'pending_confirmation',
-                message: 'Email không có tệp PDF công văn đính kèm. Cần Thư ký duyệt để tạo công văn thủ công.'
-              }
-              newLogs.push(logEntry)
+            const logEntry = {
+              id: `log-${Date.now()}-${i}`,
+              messageId: item.messageId,
+              timestamp: new Date().toLocaleString('vi-VN'),
+              sender: item.sender,
+              subject: title,
+              attachment: attachmentFile,
+              hasPdf: hasPdfAttachment,
+              rawItem: {
+                ...item,
+                hasPdf: hasPdfAttachment,
+                hasRealPdf: hasPdfAttachment,
+                fileUrl: hasPdfAttachment && item.fileUrl && !item.fileUrl.startsWith('data:') ? item.fileUrl : ''
+              },
+              docNumber: hasPdfAttachment ? 'Chờ phân loại & tiếp nhận' : 'Không có PDF (Bỏ qua)',
+              status: hasPdfAttachment ? 'pending_intake' : 'no_pdf',
+              suggestedType: item.extractedDirection || 'incoming',
+              message: hasPdfAttachment 
+                ? (partnerRefNum ? `AI OCR bóc tách: ${partnerRefNum} - ${partnerName}` : `AI OCR bóc tách: ${partnerName}`)
+                : 'Email thông thường hoặc thông báo tự động, không có tệp PDF công văn đính kèm.'
+            }
+            newLogs.push(logEntry)
+            currentLogs.unshift(logEntry)
+            if (!processedIds.includes(mailKey)) {
               processedIds.push(mailKey)
             }
           }
 
           if (newLogs.length > 0) {
-            const updatedLogs = [...newLogs, ...existingLogs]
-            localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
-            localStorage.setItem('das_processed_email_ids', JSON.stringify(processedIds))
+            const updatedLogs = currentLogs.slice(0, 25)
+            try {
+              localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
+            } catch (storageErr) {
+              console.warn('[AutoEmailScanner] Storage quota reached, saving 10 items:', storageErr)
+              try {
+                localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs.slice(0, 10)))
+              } catch {}
+            }
+            try {
+              localStorage.setItem('das_processed_email_ids', JSON.stringify(processedIds.slice(-50)))
+            } catch {}
 
-            // Phát tín hiệu cập nhật danh sách công văn theo thời gian thực
-            window.dispatchEvent(new Event('das_documents_updated'))
+            // Phát tín hiệu cập nhật danh sách hòm thư tiếp nhận
+            window.dispatchEvent(new Event('das_email_logs_updated'))
 
-            if (newlyCreatedDocs > 0) {
-              toast.success(`📥 Tự động tiếp nhận ${newlyCreatedDocs} công văn mới từ Email!`, {
+            const newPdfCount = newLogs.filter(l => l.hasPdf).length
+            if (newPdfCount > 0) {
+              toast.info(`📥 Hòm thư đã nhận ${newPdfCount} công văn PDF mới! Vui lòng vào phân loại và lưu.`, {
                 position: 'top-right',
-                autoClose: 5000
+                autoClose: 6000
               })
             }
           }
         }
-      } catch (err) {
-        // Imap scan error suppressed in background
+      } catch (err: any) {
+        console.warn('[AutoEmailScanner] Thông báo quét ngầm:', err?.message || err)
       } finally {
         isScanningRef.current = false
       }
     }
 
-    // Đọc khoảng thời gian quét định kỳ (mặc định 1 phút = 60000ms)
-    let intervalMs = 60000
-    try {
-      const saved = localStorage.getItem('das_email_settings')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        const mins = Number(parsed.intervalMinutes) || 1
-        intervalMs = Math.max(1, mins) * 60 * 1000
-      }
-    } catch {}
+    const setupScanner = () => {
+      if (intervalTimer) clearInterval(intervalTimer)
+      if (initialTimer) clearTimeout(initialTimer)
 
-    // Kích hoạt quét ngay lần đầu sau 3 giây tải trang
-    const initialTimer = setTimeout(() => {
-      runScan()
-    }, 3000)
+      let intervalMs = 60000
+      try {
+        const saved = localStorage.getItem('das_email_settings')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          const mins = Number(parsed.intervalMinutes) || 1
+          intervalMs = Math.max(1, mins) * 60 * 1000
+        }
+      } catch {}
 
-    // Thiết lập vòng lặp quét định kỳ tự động
-    const intervalTimer = setInterval(() => {
-      runScan()
-    }, intervalMs)
+      console.log(`[AutoEmailScanner] ⏱️ Thiết lập chu kỳ tự động quét: ${intervalMs / 1000}s`)
+
+      // Kích hoạt quét ngay lần đầu sau 2 giây
+      initialTimer = setTimeout(() => {
+        runScan()
+      }, 2000)
+
+      // Thiết lập vòng lặp quét định kỳ tự động
+      intervalTimer = setInterval(() => {
+        runScan()
+      }, intervalMs)
+    }
+
+    setupScanner()
+
+    const handleSettingsUpdated = () => {
+      console.log('[AutoEmailScanner] 🔄 Nhận tín hiệu cấu hình email mới, nạp lại chu kỳ quét...')
+      setupScanner()
+    }
+
+    window.addEventListener('das_email_settings_updated', handleSettingsUpdated)
+    window.addEventListener('storage', handleSettingsUpdated)
 
     return () => {
-      clearTimeout(initialTimer)
-      clearInterval(intervalTimer)
+      if (initialTimer) clearTimeout(initialTimer)
+      if (intervalTimer) clearInterval(intervalTimer)
+      window.removeEventListener('das_email_settings_updated', handleSettingsUpdated)
+      window.removeEventListener('storage', handleSettingsUpdated)
     }
   }, [])
 

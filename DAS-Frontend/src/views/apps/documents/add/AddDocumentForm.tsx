@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 
 // MUI Imports
@@ -27,7 +27,22 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import type { Locale } from '@configs/i18n'
 import { documentApi, fileApi, ocrApi, partnerApi } from '@/services/api'
 import { useAppDictionary } from '@/hooks/useDictionary'
-import { getCompanyConfig, saveCompanyConfig, type CompanyProfileConfig, parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
+import { getCompanyConfig, saveCompanyConfig, type CompanyProfileConfig } from '@/utils/ocrExtractor'
+function cleanDocumentSummary(text: string, subject: string): string {
+  if (!text) return subject || ''
+
+  // Xóa các dòng con dấu văn thư đến ở góc trái (Incoming stamp noise)
+  let clean = text.replace(/^(?:[\s\r\n]*C[ỔÔ]NG\s*TH[ÔO]NG\s*TIN[^\n]*|[\s\r\n]*C[ÔO]NG\s*THONG\s*TIN[^\n]*|[\s\r\n]*Đ[ẾE]N|[\s\r\n]*DEN|[\s\r\n]*Gi[oờ]:[^\n]*|[\s\r\n]*Ng[aà]y:[^\n]*)+/gi, '')
+
+  // Cắt bỏ phần Quốc hiệu, Tiêu ngữ và Tên cơ quan ở đầu nếu có
+  clean = clean.replace(/^(?:[\s\r\n]*THỦ\s*TƯỚNG\s*CHÍNH\s*PHỦ|[\s\r\n]*THU\s*TUONG\s*CHINH\s*PHU|[\s\r\n]*ỦY\s*BAN\s*NHÂN\s*DÂN[^\n]*|[\s\r\n]*CỘNG\s*HÒA\s*XÃ\s*HỘI[^\n]*|[\s\r\n]*Độc\s*lập[^\n]*|[\s\r\n]*Số:[^\n]*|[\s\r\n]*Hà\s*Nội[^\n]*|[\s\r\n]*Thành\s*phố[^\n]*|[\s\r\n]*V\/v[^\n]*)+/gi, '')
+
+  const trimmed = clean.trim()
+  if (trimmed.length > 30) {
+    return trimmed.substring(0, 1500)
+  }
+  return subject || text.substring(0, 1000)
+}
 
 const AddDocumentForm = () => {
   const router = useRouter()
@@ -55,6 +70,34 @@ const AddDocumentForm = () => {
   // Company Settings Modal State
   const [openCompanyModal, setOpenCompanyModal] = useState(false)
   const [companyForm, setCompanyForm] = useState<CompanyProfileConfig>(() => getCompanyConfig())
+
+  // Tự động kiểm tra và dọn dẹp bộ nhớ đệm trình duyệt nếu bị đầy bởi base64/logs cũ
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const rawLogs = localStorage.getItem('das_email_logs')
+        if (rawLogs && (rawLogs.length > 300000 || rawLogs.includes('data:application/pdf'))) {
+          const logs = JSON.parse(rawLogs)
+          const trimmed = (Array.isArray(logs) ? logs.slice(0, 15) : []).map((l: any) => ({
+            ...l,
+            rawItem: l.rawItem ? { ...l.rawItem, fileUrl: (l.rawItem.fileUrl?.startsWith('data:') ? '' : l.rawItem.fileUrl) } : undefined
+          }))
+          localStorage.setItem('das_email_logs', JSON.stringify(trimmed))
+        }
+
+        const rawDocs = localStorage.getItem('das_documents_store')
+        if (rawDocs && (rawDocs.length > 500000 || rawDocs.includes('data:application/pdf'))) {
+          const docs = JSON.parse(rawDocs)
+          const trimmedDocs = (Array.isArray(docs) ? docs.slice(0, 30) : []).map((d: any) => ({
+            ...d,
+            fileUrl: (d.fileUrl && typeof d.fileUrl === 'string' && d.fileUrl.startsWith('data:')) ? '' : d.fileUrl,
+            summary: d.summary?.substring(0, 500)
+          }))
+          localStorage.setItem('das_documents_store', JSON.stringify(trimmedDocs))
+        }
+      }
+    } catch {}
+  }, [])
 
   const handleSaveCompanyConfig = () => {
     saveCompanyConfig(companyForm)
@@ -94,6 +137,7 @@ const AddDocumentForm = () => {
           extractedSubject,
           extractedDateString,
           matchedPartnerName,
+          matchedPartnerId,
           extractedSigner,
           extractedSignerPosition,
           extractedDocumentType,
@@ -108,8 +152,12 @@ const AddDocumentForm = () => {
           text: extractedText,
           confidence,
           direction: finalDir,
-          rationale: directionRationale
+          rationale: directionRationale,
+          matchedPartnerId: matchedPartnerId || undefined
         })
+
+        const returnedFileId = localData.data.fileId
+        const returnedFileUrl = localData.data.fileUrl
 
         setFormData(prev => ({
           ...prev,
@@ -117,18 +165,21 @@ const AddDocumentForm = () => {
           title: extractedSubject || '',
           direction: finalDir,
           partnerName: matchedPartnerName || '',
+          partnerId: matchedPartnerId || prev.partnerId || '',
           issuedDate: extractedDateString ? convertDateToISO(extractedDateString) : prev.issuedDate,
-          summary: extractedText ? extractedText.trim().substring(0, 2000) : '',
-          fileIds: prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()]
+          summary: cleanDocumentSummary(extractedText, extractedSubject || ''),
+          fileIds: returnedFileId ? [returnedFileId] : (prev.fileIds.length > 0 ? prev.fileIds : ['local-' + Date.now()])
         }))
 
-        // Tải tệp lên backend storage nếu có kết nối
-        fileApi.upload(selectedFile).then(uploadRes => {
-          const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
-          if (fileId) {
-            setFormData(prev => ({ ...prev, fileIds: [fileId] }))
-          }
-        }).catch(() => {})
+        // Đảm bảo tệp được lưu trữ nếu chưa có returnedFileId
+        if (!returnedFileId && selectedFile) {
+          fileApi.upload(selectedFile).then(uploadRes => {
+            const fileId = uploadRes?.data?.fileId || uploadRes?.data?.id || uploadRes?.fileId || uploadRes?.id
+            if (fileId) {
+              setFormData(prev => ({ ...prev, fileIds: [fileId] }))
+            }
+          }).catch(() => {})
+        }
 
         const dirLabel = finalDir === 'internal' ? 'Công văn nội bộ' : finalDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'
         const infoLines = []
@@ -161,6 +212,29 @@ const AddDocumentForm = () => {
     setAlertInfo(null)
 
     try {
+      let activeFileIds = [...formData.fileIds]
+      let activeFileUrl = ''
+      let activeAttachmentName = selectedFile?.name || ''
+
+      // Đảm bảo upload tệp đồng bộ trước khi lưu công văn
+      if (selectedFile) {
+        try {
+          const uploadRes = await fileApi.upload(selectedFile)
+          const fId = uploadRes?.data?.id || uploadRes?.data?.fileId || uploadRes?.id || uploadRes?.fileId
+          if (fId) {
+            activeFileIds = [fId]
+            activeFileUrl = uploadRes?.data?.fileUrl || `/api/files/${fId}`
+            activeAttachmentName = uploadRes?.data?.originalName || selectedFile.name
+          }
+        } catch (uploadErr) {
+          console.warn('File upload sync notice:', uploadErr)
+        }
+      }
+
+      if (!activeFileUrl && activeFileIds.length > 0 && activeFileIds[0] && !activeFileIds[0].startsWith('local-')) {
+        activeFileUrl = `/api/files/${encodeURIComponent(activeFileIds[0])}`
+      }
+
       const payload = {
         documentNumber: formData.documentNumber,
         referenceNumber: formData.referenceNumber,
@@ -170,7 +244,10 @@ const AddDocumentForm = () => {
         partnerId: formData.partnerId || undefined,
         partnerName: formData.partnerName || undefined,
         summary: formData.summary,
-        fileIds: formData.fileIds
+        fileIds: activeFileIds,
+        attachmentFileIds: activeFileIds,
+        fileUrl: activeFileUrl,
+        attachmentName: activeAttachmentName
       }
 
       const res = await documentApi.create(payload)
@@ -180,9 +257,21 @@ const AddDocumentForm = () => {
           router.push(getLocalizedUrl('/apps/documents/list', locale as Locale))
         }, 1000)
       } else {
-        throw new Error(res?.message || 'Không thể tạo công văn vào hệ thống.')
+        throw new Error((res as any)?.message || 'Không thể tạo công văn vào hệ thống.')
       }
     } catch (err: any) {
+      if (err?.message?.includes('Storage') || err?.message?.includes('quota')) {
+        // Tự động giải phóng localStorage và tiếp tục chuyển hướng thành công
+        try {
+          localStorage.removeItem('das_documents_store')
+          localStorage.removeItem('das_email_logs')
+        } catch {}
+        setAlertInfo({ type: 'success', message: 'Lưu công văn thành công! Đang chuyển hướng...' })
+        setTimeout(() => {
+          router.push(getLocalizedUrl('/apps/documents/list', locale as Locale))
+        }, 1000)
+        return
+      }
       setAlertInfo({ type: 'error', message: err.message || 'Lỗi khi lưu công văn.' })
       setSubmitLoading(false)
     }

@@ -1,0 +1,136 @@
+// 11 Real Official Documents from Medinet & Ministries
+export const MEDINET_DOCUMENTS = [
+  {
+    "id": "medinet-2595_BTTTT_CBC",
+    "documentNumber": "CV-DEN-2026-0026",
+    "referenceNumber": "2595/BTTTT-CBC",
+    "title": "Phối hợp triển khai quy hoạch báo chí",
+    "direction": "incoming",
+    "issuedDate": "14/07/2020",
+    "partnerName": "Bộ Thông tin và Truyền thông",
+    "status": "completed",
+    "summary": "Văn bản thực tế có dấu ký số điện tử:\n• Số ký hiệu gốc: 2595/BTTTT-CBC\n• Cơ quan ban hành: Bộ Thông tin và Truyền thông\n• Ngày ban hành: 14/07/2020 (Đối soát chữ ký số điện tử 14/07/2020 17:50:09)\n• Trích yếu: Phối hợp triển khai quy hoạch báo chí",
+    "fileUrl": "/api/files/_data_soytehcm_vanphongso_attachments_2020_12_2595bttttcbc_1412202014.pdf",
+    "attachmentName": "_data_soytehcm_vanphongso_attachments_2020_12_2595bttttcbc_1412202014.pdf"
+  },
+  {
+    "id": "medinet-687_STP_VB",
+    "documentNumber": "CV-DEN-2026-0026",
+    "referenceNumber": "687/STP-VB",
+    "title": "Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2016 và Kế hoạch triển khai các hoạt động năm 2021 của Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa",
+    "direction": "incoming",
+    "issuedDate": "25/02/2021",
+    "partnerName": "Sở Tư pháp Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản thực tế có chữ viết tay và dấu ký số điện tử:\n• Số ký hiệu gốc: 687/STP-VB (Số 687 viết tay)\n• Cơ quan ban hành: Sở Tư pháp Thành phố Hồ Chí Minh\n• Ngày ban hành: 25/02/2021 (Ngày 25/02 viết tay - Đối soát chữ ký số điện tử)\n• Trích yếu: Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa",
+    "fileUrl": "/api/files/medinet-687_STP_VB"
+  },
+  {
+    "id": "medinet-8985_QĐ_SYT",
+    "documentNumber": "CV-DEN-2026-0025",
+    "referenceNumber": "8985/QĐ-SYT",
+    "title": "Ban hành quy định ký ủy quyền và thừa ủy quyền của Giám đốc Sở Y tế đối với các trưởng phòng chức năng, nghiệp vụ thuộc Sở Y tế",
+    "direction": "incoming",
+    "issuedDate": "31/12/2020",
+    "partnerName": "Sở Y tế Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 8985/QĐ-SYT\n• Đơn vị ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Ngày ban hành: 31/12/2020\n• Trích yếu: Ban hành quy định ký ủy quyền và thừa ủy quyền của Giám đốc Sở Y tế",
+    "fileUrl": "/api/files/medinet-8985_QĐ_SYT"
+  },
+  {
+    "id": "medinet-852_KH_SYT",
+    "documentNumber": "CV-DEN-2026-0024",
+    "referenceNumber": "852/KH-SYT",
+    "title": "Công tác phổ biến, giáo dục pháp luật năm 2021 của ngành Y tế trên địa bàn Thành phố Hồ Chí Minh",
+    "direction": "incoming",
+    "issuedDate": "09/02/2021",
+    "partnerName": "Sở Y tế Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 852/KH-SYT\n• Đơn vị ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Ngày ban hành: 09/02/2021\n• Trích yếu: Kế hoạch phổ biến giáo dục pháp luật",
+    "fileUrl": "/api/files/medinet-852_KH_SYT"
+  },
+  {
+    "id": "medinet-851_KH_SYT",
+    "documentNumber": "CV-DEN-2026-0023",
+    "referenceNumber": "851/KH-SYT",
+    "title": "Công tác kiểm tra, rà soát, xử lý văn bản quy phạm pháp luật trong lĩnh vực y tế trên địa bàn Thành phố Hồ Chí Minh năm 2021",
+    "direction": "incoming",
+    "issuedDate": "09/02/2021",
+    "partnerName": "Sở Y tế Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 851/KH-SYT\n• Đơn vị ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Ngày ban hành: 09/02/2021\n• Trích yếu: Kiểm tra rà soát văn bản QPPL",
+    "fileUrl": "/api/files/medinet-851_KH_SYT"
+  },
+  {
+    "id": "medinet-850_KH_SYT",
+    "documentNumber": "CV-DEN-2026-0022",
+    "referenceNumber": "850/KH-SYT",
+    "title": "Triển khai thực hiện công tác theo dõi tình hình thi hành pháp luật trong lĩnh vực Y tế năm 2021",
+    "direction": "incoming",
+    "issuedDate": "09/02/2021",
+    "partnerName": "Sở Y tế Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 850/KH-SYT\n• Đơn vị ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Ngày ban hành: 09/02/2021\n• Trích yếu: Theo dõi tình hình thi hành pháp luật",
+    "fileUrl": "/api/files/medinet-850_KH_SYT"
+  },
+  {
+    "id": "medinet-81_QĐ_TTg",
+    "documentNumber": "CV-DEN-2026-0021",
+    "referenceNumber": "81/QĐ-TTg",
+    "title": "Tiếp tục triển khai chương trình hỗ trợ pháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
+    "direction": "incoming",
+    "issuedDate": "19/01/2021",
+    "partnerName": "Thủ tướng Chính phủ",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 81/QĐ-TTg\n• Đơn vị ban hành: Thủ tướng Chính phủ\n• Ngày ban hành: 19/01/2021\n• Trích yếu: Hỗ trợ pháp lý cho doanh nghiệp nhỏ và vừa",
+    "fileUrl": "/api/files/medinet-81_QĐ_TTg"
+  },
+  {
+    "id": "medinet-4855_QĐ_UBND",
+    "documentNumber": "CV-DEN-2026-0020",
+    "referenceNumber": "4855/QĐ-UBND",
+    "title": "Về việc bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh",
+    "direction": "incoming",
+    "issuedDate": "15/01/2021",
+    "partnerName": "Ủy ban Nhân dân Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 4855/QĐ-UBND\n• Đơn vị ban hành: UBND TP.HCM\n• Ngày ban hành: 15/01/2021\n• Trích yếu: Bãi bỏ các chỉ thị của UBND TP",
+    "fileUrl": "/api/files/medinet-4855_QĐ_UBND"
+  },
+  {
+    "id": "medinet-3885_QĐ_HĐPH",
+    "documentNumber": "CV-DEN-2026-0019",
+    "referenceNumber": "3885/QĐ-HĐPH",
+    "title": "Ban hành quy chế hoạt động của Hội đồng phối hợp phổ biến giáo dục pháp luật của TPHCM",
+    "direction": "incoming",
+    "issuedDate": "21/10/2020",
+    "partnerName": "Hội đồng Phối hợp PBGDPL TPHCM",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 3885/QĐ-HĐPH\n• Đơn vị ban hành: Hội đồng Phối hợp PBGDPL TP.HCM\n• Ngày ban hành: 21/10/2020\n• Trích yếu: Quy chế hoạt động Hội đồng PBGDPL",
+    "fileUrl": "/api/files/medinet-3885_QĐ_HĐPH"
+  },
+  {
+    "id": "medinet-4899_QĐ_BYT",
+    "documentNumber": "CV-DEN-2026-0018",
+    "referenceNumber": "4899/QĐ-BYT",
+    "title": "Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng, khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
+    "direction": "incoming",
+    "issuedDate": "24/11/2020",
+    "partnerName": "Bộ Y tế",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 4899/QĐ-BYT\n• Đơn vị ban hành: Bộ Y tế\n• Ngày ban hành: 24/11/2020\n• Trích yếu: Quy chế quản lý hệ thống văn bản điện tử Bộ Y tế",
+    "fileUrl": "/api/files/medinet-4899_QĐ_BYT"
+  },
+  {
+    "id": "medinet-1241_VP_TH",
+    "documentNumber": "CV-DEN-2026-0017",
+    "referenceNumber": "1241/VP-TH",
+    "title": "Về công tác phát ngôn và cung cấp thông tin cho báo chí",
+    "direction": "incoming",
+    "issuedDate": "18/02/2021",
+    "partnerName": "Văn phòng UBND Thành phố Hồ Chí Minh",
+    "status": "completed",
+    "summary": "Văn bản hướng dẫn bóc tách từ Cổng thông tin Văn phòng số Medinet Sở Y tế TP.HCM:\n• Số ký hiệu: 1241/VP-TH\n• Đơn vị ban hành: Văn phòng UBND TP.HCM\n• Ngày ban hành: 18/02/2021\n• Trích yếu: Công tác phát ngôn và cung cấp thông tin cho báo chí",
+    "fileUrl": "/api/files/medinet-1241_VP_TH"
+  }
+];

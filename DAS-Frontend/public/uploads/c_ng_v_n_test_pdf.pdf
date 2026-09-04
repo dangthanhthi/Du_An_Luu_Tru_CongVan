@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fax Document Test 01</title>
+    <style>
+        /* Cấu hình trang cơ bản */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            background-color: #525659;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Định dạng khổ giấy A4 */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm; /* Lề trang */
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            color: #000;
+        }
+
+        /* Ẩn các thành phần không cần thiết khi in ra PDF */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+                display: block;
+            }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                padding: 20mm;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* CSS cho các thành phần của công văn */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .header-left {
+            text-align: center;
+            width: 45%;
+        }
+        .header-right {
+            text-align: center;
+            width: 50%;
+        }
+        .bold { font-weight: bold; }
+        .italic { font-style: italic; }
+        .line-solid {
+            border-top: 1.5px solid black;
+            width: 45%;
+            margin: 5px auto 0 auto;
+        }
+        .line-solid-short {
+            border-top: 1.5px solid black;
+            width: 30%;
+            margin: 5px auto 0 auto;
+        }
+        .date {
+            text-align: right;
+            font-style: italic;
+            margin-top: 15px;
+        }
+        
+        .receiver {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            text-indent: 10mm;
+        }
+
+        .content p {
+            text-align: justify;
+            text-indent: 10mm;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        
+        .contact-info {
+            margin-left: 10mm;
+            line-height: 1.5;
+        }
+        .contact-info p {
+            margin: 5px 0;
+            text-indent: 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .footer-left {
+            width: 50%;
+        }
+        .footer-right {
+            width: 50%;
+            text-align: center;
+        }
+        .signature-space {
+            height: 100px; /* Khoảng trống để ký */
+        }
+
+        /* Style cho nút bấm */
+        .btn-print {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        .btn-print:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nút bấm tạo PDF (Sẽ ẩn đi khi in) -->
+    <button class="btn-print no-print" onclick="generatePDF()">Tải xuống file fax_document_test_01.pdf</button>
+
+    <!-- Khung giấy A4 chứa nội dung công văn -->
+    <div class="page" id="document">
+        
+        <div class="header">
+            <div class="header-left">
+                <div class="bold">CÔNG TY CỔ PHẦN CÔNG NGHỆ BIZTECH</div>
+                <div class="bold line-solid-short"></div>
+                <div style="margin-top: 10px;">Số: 125/CV-BT</div>
+                <div>V/v: Đề xuất cung cấp trang thiết bị IT quý 3/2026</div>
+            </div>
+            <div class="header-right">
+                <div class="bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                <div class="bold">Độc lập - Tự do - Hạnh phúc</div>
+                <div class="bold line-solid"></div>
+            </div>
+        </div>
+
+        <div class="date">
+            TP. Hồ Chí Minh, ngày 20 tháng 07 năm 2026
+        </div>
+
+        <div class="receiver bold">
+            KÍNH GỬI: BAN GIÁM ĐỐC CÔNG TY
+        </div>
+
+        <div class="content">
+            <p>Lời đầu tiên, Công ty Cổ phần Công nghệ Biztech xin gửi lời chào trân trọng đến Quý Công ty.</p>
+            <p>Căn cứ vào nhu cầu mở rộng hạ tầng lưu trữ và máy chủ của Quý Công ty trong năm 2026, chúng tôi xin trân trọng gửi công văn này để đề xuất giải pháp cung cấp hệ thống Server và nâng cấp hệ thống mạng nội bộ.</p>
+            <p>Thông tin chi tiết về thông số kỹ thuật và báo giá đã được chúng tôi gửi kèm theo bộ hồ sơ cứng. Rất mong nhận được sự quan tâm và phản hồi từ Quý Công ty để hai bên có thể tiến tới hợp tác.</p>
+            <p>Mọi chi tiết xin vui lòng liên hệ:</p>
+            
+            <div class="contact-info">
+                <p>- Người liên hệ: Nguyễn Văn A - Trưởng phòng Kinh doanh</p>
+                <p>- Điện thoại: 0909 123 456</p>
+                <p>- Email: contact@biztech.vn</p>
+            </div>
+            
+            <p>Trân trọng kính chào!</p>
+        </div>
+
+        <div class="footer">
+            <div class="footer-left"></div>
+            <div class="footer-right">
+                <div class="bold">ĐẠI DIỆN CÔNG TY CP CÔNG NGHỆ BIZTECH</div>
+                <div class="italic">(Đã ký và đóng dấu)</div>
+                <div class="signature-space"></div>
+                <div class="bold">Giám đốc</div>
+                <div style="margin-top: 5px;" class="bold">Trần Đình B</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function generatePDF() {
+            // Đổi tiêu đề trang tạm thời để khi lưu PDF sẽ lấy tên file này
+            const originalTitle = document.title;
+            document.title = "fax_document_test_01";
+            
+            // Gọi lệnh in của trình duyệt
+            window.print();
+            
+            // Trả lại tiêu đề cũ
+            document.title = originalTitle;
+        }
+    </script>
+</body>
+</html>

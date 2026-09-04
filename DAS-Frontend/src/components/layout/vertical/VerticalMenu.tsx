@@ -109,6 +109,15 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href={`/${locale}/apps/documents/list`} icon={<i className='tabler-files' />}>
               {t.nav.docList || 'Danh Sách Công Văn'}
             </MenuItem>
+            <MenuItem href={`/${locale}/apps/documents/list?type=incoming`} icon={<i className='tabler-arrow-down-left text-info' />}>
+              {t.nav.incomingDocs || 'Công Văn Đến'}
+            </MenuItem>
+            <MenuItem href={`/${locale}/apps/documents/list?type=outgoing`} icon={<i className='tabler-arrow-up-right text-success' />}>
+              {t.nav.outgoingDocs || 'Công Văn Đi'}
+            </MenuItem>
+            <MenuItem href={`/${locale}/apps/documents/list?type=internal`} icon={<i className='tabler-arrows-left-right text-warning' />}>
+              {t.nav.internalDocs || 'Công Văn Nội Bộ'}
+            </MenuItem>
             {(isAdmin || isSecretary) && (
               <MenuItem href={`/${locale}/apps/documents/add`} icon={<i className='tabler-plus' />}>
                 {t.nav.addDoc}

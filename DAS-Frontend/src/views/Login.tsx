@@ -110,6 +110,9 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const params = useParams()
+  const locale = (params?.lang as Locale) || 'vi'
+  const router = useRouter()
 
   const {
     control,

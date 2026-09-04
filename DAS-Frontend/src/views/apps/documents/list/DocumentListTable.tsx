@@ -32,7 +32,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel
 } from '@tanstack/react-table'
-import type { ColumnDef, FilterFn } from '@tanstack/react-table'
+import type { ColumnDef, FilterFn, SortingState } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
@@ -67,6 +67,8 @@ type DocumentTypeWithAction = DocumentType & {
   action?: string
 }
 
+import { MEDINET_DOCUMENTS } from '@/data/medinetDocuments'
+
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
   addMeta({ itemRank })
@@ -74,6 +76,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 const defaultDocuments: DocumentType[] = [
+  ...(MEDINET_DOCUMENTS as DocumentType[]),
   // 1. CÔNG VĂN ĐẾN (INCOMING)
   { id: '1', documentNumber: 'CV-DEN-2026-0001', referenceNumber: '128/BGDĐT-GDĐH', title: 'Quyết định ban hành quy chế đào tạo và lưu trữ văn bản điện tử', direction: 'incoming', issuedDate: '10/08/2026', partnerName: 'Bộ Giáo dục và Đào tạo', status: 'completed', summary: 'Quy định về việc tiếp nhận và xử lý số hóa văn bản hành chính.' },
   { id: '2', documentNumber: 'CV-DEN-2026-0002', referenceNumber: 'HD-89/UBND', title: 'Hướng dẫn chuẩn hóa quy trình lưu trữ hồ sơ điện tử', direction: 'incoming', issuedDate: '12/08/2026', partnerName: 'Ủy ban Nhân dân TP Hà Nội', status: 'processing', summary: 'Tài liệu hướng dẫn chuyên môn cho cán bộ văn thư lưu trữ.' },
@@ -101,9 +104,9 @@ const DocumentListTable = () => {
   
   const searchParams = useSearchParams()
   const router = useRouter()
-  const urlType = searchParams.get('type') as DocumentDirection | null
+  const initialType = (searchParams.get('type') || searchParams.get('direction')) as DocumentDirection | null
   
-  const [direction, setDirection] = useState<DocumentDirection | ''>(urlType || '')
+  const [direction, setDirection] = useState<DocumentDirection | ''>(initialType || '')
   const [globalFilter, setGlobalFilter] = useState('')
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const { lang: locale } = useParams()
@@ -111,12 +114,13 @@ const DocumentListTable = () => {
 
   // Đồng bộ trạng thái Tab khi query parameter trên URL thay đổi
   useEffect(() => {
-    if (urlType === 'incoming' || urlType === 'outgoing' || urlType === 'internal') {
-      setDirection(urlType)
-    } else if (urlType === null) {
+    const currentType = (searchParams.get('type') || searchParams.get('direction')) as DocumentDirection | null
+    if (currentType === 'incoming' || currentType === 'outgoing' || currentType === 'internal') {
+      setDirection(currentType)
+    } else {
       setDirection('')
     }
-  }, [urlType])
+  }, [searchParams])
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     const dir = newValue as DocumentDirection | ''
@@ -186,20 +190,39 @@ const DocumentListTable = () => {
     }
   }, [data])
 
+const sortDocumentNumber = (rowA: any, rowB: any) => {
+  const numA = rowA.original.documentNumber || ''
+  const numB = rowB.original.documentNumber || ''
+  const seqA = parseInt(numA.match(/\d+$/)?.[0] || '0', 10)
+  const seqB = parseInt(numB.match(/\d+$/)?.[0] || '0', 10)
+  if (seqA !== 0 && seqB !== 0) {
+    return seqA - seqB
+  }
+  return numA.localeCompare(numB)
+}
+
+const sortDate = (rowA: any, rowB: any) => {
+  const parseDate = (dStr?: string) => {
+    if (!dStr) return 0
+    const parts = dStr.split(/[\/\-]/)
+    if (parts.length === 3) {
+      if (parts[0].length === 4) return new Date(dStr).getTime()
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])).getTime()
+    }
+    return new Date(dStr).getTime() || 0
+  }
+  return parseDate(rowA.original.issuedDate) - parseDate(rowB.original.issuedDate)
+}
+
   const columns = useMemo<ColumnDef<DocumentTypeWithAction, any>[]>(
     () => [
       columnHelper.accessor('documentNumber', {
         header: t.documents.docNumber,
+        sortingFn: sortDocumentNumber,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          let displayDocNum = row.original.documentNumber
-          let displayRef = row.original.referenceNumber || meta.referenceNumber
-
-          // Chuẩn hóa: Nếu dữ liệu cũ lưu trực tiếp số đối tác vào documentNumber, tự động hiển thị mã công ty CV-DEN
-          if (displayDocNum && !displayDocNum.startsWith('CV-DEN-') && !displayDocNum.startsWith('CV-DI-') && !displayDocNum.startsWith('CV-NB-')) {
-            if (!displayRef) displayRef = displayDocNum
-            displayDocNum = `CV-DEN-2026-0011`
-          }
+          const displayDocNum = row.original.documentNumber || `CV-${row.original.id}`
+          const displayRef = row.original.referenceNumber || meta.referenceNumber
 
           return (
             <div className='flex flex-col gap-1 min-w-[170px]'>
@@ -283,6 +306,7 @@ const DocumentListTable = () => {
       }),
       columnHelper.accessor('issuedDate', {
         header: t.documents.issuedDate,
+        sortingFn: sortDate,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
           return (
@@ -365,6 +389,8 @@ const DocumentListTable = () => {
     })
   }, [data, status, direction, globalFilter])
 
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'documentNumber', desc: true }])
+
   const table = useReactTable({
     data: filteredData,
     columns,
@@ -372,8 +398,10 @@ const DocumentListTable = () => {
       fuzzy: fuzzyFilter
     },
     state: {
-      globalFilter
+      globalFilter,
+      sorting
     },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -507,10 +535,26 @@ const DocumentListTable = () => {
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map(header => (
-                      <th key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      <th
+                        key={header.id}
+                        onClick={header.column.getToggleSortingHandler()}
+                        className={header.column.getCanSort() ? 'cursor-pointer select-none hover:bg-actionHover transition-colors' : ''}
+                      >
+                        <div className='flex items-center gap-2'>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                          {header.column.getCanSort() && (
+                            <span className='inline-flex items-center text-xs'>
+                              {{
+                                asc: <i className='tabler-chevron-up text-sm text-primary font-bold' />,
+                                desc: <i className='tabler-chevron-down text-sm text-primary font-bold' />
+                              }[header.column.getIsSorted() as string] ?? (
+                                <i className='tabler-selector text-sm opacity-40 hover:opacity-100' />
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </th>
                     ))}
                   </tr>
