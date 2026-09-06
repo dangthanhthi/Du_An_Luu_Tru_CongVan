@@ -191,13 +191,6 @@ const DocumentListTable = () => {
   }, [data])
 
 const sortDocumentNumber = (rowA: any, rowB: any) => {
-  const dirA = (rowA.original.direction || rowA.original.docType || 'incoming').toLowerCase()
-  const dirB = (rowB.original.direction || rowB.original.docType || 'incoming').toLowerCase()
-  const dirPriority: Record<string, number> = { incoming: 1, outgoing: 2, internal: 3 }
-  const pA = dirPriority[dirA] || 99
-  const pB = dirPriority[dirB] || 99
-  if (pA !== pB) return pA - pB
-
   const numA = rowA.original.documentNumber || ''
   const numB = rowB.original.documentNumber || ''
   const seqA = parseInt(numA.match(/^(\d+)/)?.[1] || numA.match(/\d+/)?.[0] || '0', 10)
@@ -450,7 +443,7 @@ const sortDate = (rowA: any, rowB: any) => {
     })
   }, [data, status, direction, globalFilter])
 
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'documentNumber', desc: false }])
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'documentNumber', desc: true }])
 
   const table = useReactTable({
     data: filteredData,
