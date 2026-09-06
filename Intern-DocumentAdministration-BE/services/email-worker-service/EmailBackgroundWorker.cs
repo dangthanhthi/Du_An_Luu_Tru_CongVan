@@ -1,48 +1,77 @@
-﻿using EmailWorkerService.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using EmailWorkerService.Data;
+using EmailWorkerService.Services;
+using Microsoft.EntityFrameworkCore;
 
-namespace EmailWorkerService
+namespace EmailWorkerService;
+
+public class EmailBackgroundWorker : BackgroundService
 {
-    public class EmailBackgroundWorker : BackgroundService
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<EmailBackgroundWorker> _logger;
+    private readonly IConfiguration _configuration;
+
+    public EmailBackgroundWorker(
+        IServiceProvider serviceProvider,
+        ILogger<EmailBackgroundWorker> logger,
+        IConfiguration configuration)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<EmailBackgroundWorker> _logger;
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+        _configuration = configuration;
+    }
 
-        public EmailBackgroundWorker(IServiceProvider serviceProvider, ILogger<EmailBackgroundWorker> logger)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Email Background Worker started.");
+
+        while (!stoppingToken.IsCancellationRequested)
         {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
-        }
+            var intervalMinutes = 60;
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            _logger.LogInformation("Email Background Worker khởi động.");
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    // Phải tạo Scope mới vì BackgroundService là Singleton, 
-                    // trong khi EmailProcessor (có thể chứa HttpClient) thường là Scoped.
-                    using (var scope = _serviceProvider.CreateScope())
-                    {
-                        var processor = scope.ServiceProvider.GetRequiredService<IEmailProcessor>();
-                        await processor.ProcessIncomingEmailsAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Lỗi xảy ra trong quá trình chạy tự động quét email.");
-                }
+                using var scope = _serviceProvider.CreateScope();
+                var processor = scope.ServiceProvider.GetRequiredService<IEmailProcessor>();
+                await processor.ProcessIncomingEmailsAsync("Scheduled", stoppingToken);
 
-                // Nghỉ 1 tiếng (3600000 mili-giây) rồi chạy lại[cite: 3]
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                var db = scope.ServiceProvider.GetRequiredService<EmailWorkerDbContext>();
+                var configuredInterval = await db.EmailImapSettings
+                    .AsNoTracking()
+                    .Where(x => x.Id == 1)
+                    .Select(x => (int?)x.AutoScanIntervalMinutes)
+                    .FirstOrDefaultAsync(stoppingToken);
+
+                intervalMinutes = configuredInterval
+                                  ?? ParseIntervalFromConfiguration(_configuration)
+                                  ?? 60;
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Scheduled email scan failed.");
+                intervalMinutes = ParseIntervalFromConfiguration(_configuration) ?? 60;
+            }
+
+            intervalMinutes = Math.Clamp(intervalMinutes, 1, 1440);
+            _logger.LogInformation("Next scheduled email scan in {Minutes} minute(s).", intervalMinutes);
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(intervalMinutes), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
             }
         }
+    }
+
+    private static int? ParseIntervalFromConfiguration(IConfiguration configuration)
+    {
+        var raw = configuration["ImapSettings:AutoScanIntervalMinutes"];
+        return int.TryParse(raw, out var value) ? value : null;
     }
 }

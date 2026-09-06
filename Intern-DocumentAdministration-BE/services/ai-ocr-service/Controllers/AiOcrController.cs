@@ -54,7 +54,6 @@ namespace AiOcrService.Controllers
             {
                 var client = _httpClientFactory.CreateClient();
 
-                // Chuyển tiếp Token xác thực nếu Client có gắn Bearer Token
                 if (Request.Headers.TryGetValue("Authorization", out var authHeader) && !string.IsNullOrWhiteSpace(authHeader))
                 {
                     if (AuthenticationHeaderValue.TryParse(authHeader, out var parsedHeader))
@@ -63,7 +62,6 @@ namespace AiOcrService.Controllers
                     }
                 }
 
-                // TRẠM 1: Lấy file PDF binary từ FileService
                 var fileServiceUrl = Environment.GetEnvironmentVariable("Services__FilesService") 
                                   ?? Environment.GetEnvironmentVariable("FILE_SERVICE_URL") 
                                   ?? "http://localhost:5004";
@@ -75,71 +73,44 @@ namespace AiOcrService.Controllers
                     return NotFound(new { success = false, message = $"Không thể tải file từ FileService (Status: {fileResponse.StatusCode})." });
                 }
 
-                using var pdfStream = await fileResponse.Content.ReadAsStreamAsync();
+                var pdfBytes = await fileResponse.Content.ReadAsByteArrayAsync();
+                using var pdfStream = new MemoryStream(pdfBytes);
 
-                // TRẠM 2: Trích xuất chữ bằng Tesseract / OCR Engine
                 var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
 
-                // TRẠM 3: Bóc tách động các trường nghiệp vụ (Số hiệu, Trích yếu, Ngày, Người ký, Loại văn bản) qua Rule Engine
-                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText);
+                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText, request.FileName, pdfBytes);
 
                 // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
-                var partners = new List<PartnerDto>();
-
-                if (_cachedPartners != null && DateTime.UtcNow < _partnerCacheExpiry)
-                {
-                    partners = _cachedPartners;
-                }
-                else
-                {
-                    var partnerServiceUrl = Environment.GetEnvironmentVariable("Services__PartnerService") 
-                                         ?? Environment.GetEnvironmentVariable("PARTNER_SERVICE_URL") 
-                                         ?? "http://localhost:5003";
-
-                    try
-                    {
-                        var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000");
-                        if (partnerResponse.IsSuccessStatusCode)
-                        {
-                            var jsonString = await partnerResponse.Content.ReadAsStringAsync();
-                            using var doc = JsonDocument.Parse(jsonString);
-                            var root = doc.RootElement;
-
-                            if (root.TryGetProperty("data", out var dataElem))
-                            {
-                                JsonElement itemsArray = default;
-                                if (dataElem.ValueKind == JsonValueKind.Array)
-                                {
-                                    itemsArray = dataElem;
-                                }
-                                else if (dataElem.ValueKind == JsonValueKind.Object && dataElem.TryGetProperty("items", out var itemsProp) && itemsProp.ValueKind == JsonValueKind.Array)
-                                {
-                                    itemsArray = itemsProp;
-                                }
-
-                                if (itemsArray.ValueKind == JsonValueKind.Array)
-                                {
-                                    var parsedList = JsonSerializer.Deserialize<List<PartnerDto>>(itemsArray.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                                    if (parsedList != null) 
-                                    {
-                                        partners = parsedList;
-                                        _cachedPartners = partners;
-                                        _partnerCacheExpiry = DateTime.UtcNow.Add(_partnerCacheTtl);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Nếu gặp lỗi khi gọi PartnerService, vẫn tiếp tục trả về chuỗi text và các trường đã bóc tách
-                    }
-                }
+                // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
+                var partners = await EnsurePartnersCachedAsync(client);
 
                 var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, request.SenderEmail);
+
+                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName))
+                {
+                    var headerPartner = partners.FirstOrDefault(p =>
+                        p.FullName.Equals(extractedFields.PartnerName, StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrWhiteSpace(p.ShortName) && extractedFields.PartnerName.Contains(p.ShortName, StringComparison.OrdinalIgnoreCase)));
+                    if (headerPartner != null)
+                    {
+                        matchResult.PartnerId = headerPartner.Id;
+                        matchResult.Confidence = 0.99;
+                        matchResult.MatchMethod = "HeaderAgencyMatch";
+                    }
+                }
+
+                var finalPartnerName = extractedFields.PartnerName;
+                if (matchResult.PartnerId != null)
+                {
+                    var matchedPartner = partners.FirstOrDefault(p => p.Id == matchResult.PartnerId);
+                    if (matchedPartner != null)
+                    {
+                        finalPartnerName = matchedPartner.FullName;
+                    }
+                }
+
                 var finalRefNumber = extractedFields.ReferenceNumber ?? _partnerMatcher.ExtractReferenceNumber(extractedText);
 
-                // Trả về kết quả JSON phong phú theo chuẩn API Contract
                 return Ok(new
                 {
                     success = true,
@@ -152,6 +123,7 @@ namespace AiOcrService.Controllers
                         extractedDateString = extractedFields.DocumentDateString,
                         extractedSigner = extractedFields.Signer,
                         extractedDocumentType = extractedFields.DocumentType,
+                        extractedPartnerName = finalPartnerName,
                         matchedPartnerId = matchResult.PartnerId,
                         confidence = matchResult.Confidence,
                         matchMethod = matchResult.MatchMethod
@@ -167,7 +139,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Phân tích trực tiếp tệp văn bản qua multipart form-data bằng ImageMagick Rasterizer + Tesseract AI Engine
         /// </summary>
         [HttpPost("analyze-file")]
         public async Task<IActionResult> AnalyzeUploadedFile([FromForm] Microsoft.AspNetCore.Http.IFormFile file, [FromForm] string? senderEmail = null)
@@ -179,12 +150,41 @@ namespace AiOcrService.Controllers
 
             try
             {
-                using var pdfStream = file.OpenReadStream();
-                var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
-                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText);
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var pdfBytes = ms.ToArray();
+                using var pdfStream = new MemoryStream(pdfBytes);
 
-                var partners = _cachedPartners ?? new List<PartnerDto>();
+                var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
+                var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText, file.FileName, pdfBytes);
+
+                var client = _httpClientFactory.CreateClient();
+                var partners = await EnsurePartnersCachedAsync(client);
                 var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, senderEmail);
+
+                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName))
+                {
+                    var headerPartner = partners.FirstOrDefault(p =>
+                        p.FullName.Equals(extractedFields.PartnerName, StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrWhiteSpace(p.ShortName) && extractedFields.PartnerName.Contains(p.ShortName, StringComparison.OrdinalIgnoreCase)));
+                    if (headerPartner != null)
+                    {
+                        matchResult.PartnerId = headerPartner.Id;
+                        matchResult.Confidence = 0.99;
+                        matchResult.MatchMethod = "HeaderAgencyMatch";
+                    }
+                }
+
+                var finalPartnerName = extractedFields.PartnerName;
+                if (matchResult.PartnerId != null)
+                {
+                    var matchedPartner = partners.FirstOrDefault(p => p.Id == matchResult.PartnerId);
+                    if (matchedPartner != null)
+                    {
+                        finalPartnerName = matchedPartner.FullName;
+                    }
+                }
+
                 var finalRefNumber = extractedFields.ReferenceNumber ?? _partnerMatcher.ExtractReferenceNumber(extractedText);
 
                 return Ok(new
@@ -199,6 +199,7 @@ namespace AiOcrService.Controllers
                         extractedDateString = extractedFields.DocumentDateString,
                         extractedSigner = extractedFields.Signer,
                         extractedDocumentType = extractedFields.DocumentType,
+                        extractedPartnerName = finalPartnerName,
                         matchedPartnerId = matchResult.PartnerId,
                         confidence = matchResult.Confidence,
                         matchMethod = matchResult.MatchMethod
@@ -212,12 +213,7 @@ namespace AiOcrService.Controllers
             }
         }
 
-        // =========================================================================
-        // RESTful API QUẢN TRỊ QUY TẮC NHẬN DIỆN ĐỘNG DÀNH CHO ADMIN / FRONTEND
-        // =========================================================================
-
         /// <summary>
-        /// Lấy danh sách quy tắc nhận diện (hỗ trợ lọc theo ruleType và isActive)
         /// </summary>
         [HttpGet("rules")]
         public async Task<IActionResult> GetRules([FromQuery] string? ruleType = null, [FromQuery] bool? isActive = null)
@@ -234,7 +230,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Lấy chi tiết một quy tắc theo ID
         /// </summary>
         [HttpGet("rules/{id:guid}")]
         public async Task<IActionResult> GetRuleById(Guid id)
@@ -249,7 +244,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Tạo mới một quy tắc nhận diện động (Admin)
         /// </summary>
         [HttpPost("rules")]
         public async Task<IActionResult> CreateRule([FromBody] CreateOcrRuleRequest request)
@@ -270,7 +264,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Cập nhật quy tắc nhận diện (Admin)
         /// </summary>
         [HttpPut("rules/{id:guid}")]
         public async Task<IActionResult> UpdateRule(Guid id, [FromBody] UpdateOcrRuleRequest request)
@@ -291,7 +284,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Xóa một quy tắc nhận diện (Admin)
         /// </summary>
         [HttpDelete("rules/{id:guid}")]
         public async Task<IActionResult> DeleteRule(Guid id)
@@ -312,7 +304,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Khôi phục toàn bộ quy tắc về mặc định chuẩn hành chính
         /// </summary>
         [HttpPost("rules/reset-defaults")]
         public async Task<IActionResult> ResetDefaults()
@@ -328,7 +319,6 @@ namespace AiOcrService.Controllers
         }
 
         /// <summary>
-        /// Thử nghiệm một mẫu Regex pattern trên đoạn văn bản mẫu trước khi lưu
         /// </summary>
         [HttpPost("rules/test")]
         public IActionResult TestPattern([FromBody] TestPatternRequest request)
@@ -342,11 +332,66 @@ namespace AiOcrService.Controllers
                 errors = Array.Empty<string>()
             });
         }
+
+        private async Task<List<PartnerDto>> EnsurePartnersCachedAsync(HttpClient client)
+        {
+            var partners = new List<PartnerDto>();
+
+            if (_cachedPartners != null && DateTime.UtcNow < _partnerCacheExpiry)
+            {
+                return _cachedPartners;
+            }
+
+            var partnerServiceUrl = Environment.GetEnvironmentVariable("Services__PartnerService") 
+                                 ?? Environment.GetEnvironmentVariable("PARTNER_SERVICE_URL") 
+                                 ?? "http://localhost:5003";
+
+            try
+            {
+                var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000");
+                if (partnerResponse.IsSuccessStatusCode)
+                {
+                    var jsonString = await partnerResponse.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(jsonString);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("data", out var dataElem))
+                    {
+                        JsonElement itemsArray = default;
+                        if (dataElem.ValueKind == JsonValueKind.Array)
+                        {
+                            itemsArray = dataElem;
+                        }
+                        else if (dataElem.ValueKind == JsonValueKind.Object && dataElem.TryGetProperty("items", out var itemsProp) && itemsProp.ValueKind == JsonValueKind.Array)
+                        {
+                            itemsArray = itemsProp;
+                        }
+
+                        if (itemsArray.ValueKind == JsonValueKind.Array)
+                        {
+                            var parsedList = JsonSerializer.Deserialize<List<PartnerDto>>(itemsArray.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                            if (parsedList != null) 
+                            {
+                                partners = parsedList;
+                                _cachedPartners = partners;
+                                _partnerCacheExpiry = DateTime.UtcNow.Add(_partnerCacheTtl);
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return partners;
+        }
     }
 
     public class AnalyzeRequest
     {
         public Guid FileId { get; set; }
         public string? SenderEmail { get; set; }
+        public string? FileName { get; set; }
     }
 }

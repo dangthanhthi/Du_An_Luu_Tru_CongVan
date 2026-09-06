@@ -1,0 +1,212 @@
+[
+  {
+    "Id": "UC-AUTH-001",
+    "Category": "Auth & Security",
+    "Description": "SQL Injection trên Login username (' OR '1'='1)",
+    "ExpectedStatus": "401",
+    "ActualStatus": "HTTP 401",
+    "DurationMs": 51,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-002",
+    "Category": "Auth & Security",
+    "Description": "JWT Signature Tampering (Sửa chữ ký token)",
+    "ExpectedStatus": "401",
+    "ActualStatus": "HTTP 401",
+    "DurationMs": 10,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-003",
+    "Category": "Auth & Security",
+    "Description": "JWT Token trống / Header Authorization rỗng",
+    "ExpectedStatus": "401",
+    "ActualStatus": "HTTP 401",
+    "DurationMs": 7,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-006",
+    "Category": "Auth & Security",
+    "Description": "Employee tạo User mới (Bị chặn 403 Forbidden)",
+    "ExpectedStatus": "403",
+    "ActualStatus": "HTTP 403",
+    "DurationMs": 5,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-009",
+    "Category": "Auth & Security",
+    "Description": "Tạo User với Username vượt 500 ký tự",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 11,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-010",
+    "Category": "Auth & Security",
+    "Description": "Tạo User với Email sai định dạng RFC",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 5,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-AUTH-011",
+    "Category": "Auth & Security",
+    "Description": "Tạo User với Mật khẩu rỗng / khoảng trắng",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 8,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-001",
+    "Category": "Document & NĐ30",
+    "Description": "Tạo Công văn đến với Tiêu đề rỗng / khoảng trắng",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 90,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-002",
+    "Category": "Document & NĐ30",
+    "Description": "Sửa nội dung Công văn khi đã Ban hành (Distributed)",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 8,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-003",
+    "Category": "Document & NĐ30",
+    "Description": "Chuyển trạng thái lùi từ Distributed về Draft",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 8,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-004",
+    "Category": "Document & NĐ30",
+    "Description": "Xóa công văn đã Ban hành (Distributed)",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 11,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-009",
+    "Category": "Document & NĐ30",
+    "Description": "Phân quyền phòng ban với danh sách rỗng []",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 8,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-DOC-011",
+    "Category": "Document & NĐ30",
+    "Description": "Phân trang an toàn khi truyền PageSize = 1,000,000",
+    "ExpectedStatus": "200",
+    "ActualStatus": "200 OK",
+    "DurationMs": 35,
+    "Status": "PASS",
+    "Message": "{\"success\":true,\"data\":{\"items\":[\"@{id=bc0e1468-9c87-44b1-8fb8-f28d4d07ff94; documentNumber=0108/2026; docType=INCOMING;..."
+  },
+  {
+    "Id": "UC-FILE-001",
+    "Category": "Files & Storage",
+    "Description": "Tải lên tệp tin rỗng 0-byte (Zero-byte upload)",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 63,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-FILE-005",
+    "Category": "Files & Storage",
+    "Description": "Tải về tệp tin không tồn tại trong CSDL",
+    "ExpectedStatus": "404",
+    "ActualStatus": "HTTP 404",
+    "DurationMs": 11,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-FILE-006",
+    "Category": "Files & Storage",
+    "Description": "Lấy thông tin metadata file không tồn tại",
+    "ExpectedStatus": "404",
+    "ActualStatus": "HTTP 404",
+    "DurationMs": 9,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-NOTIF-001",
+    "Category": "Notification",
+    "Description": "Gửi thông báo thiếu cả Email và UserId",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 41,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-NOTIF-006",
+    "Category": "Notification",
+    "Description": "Xóa thông báo không tồn tại trong CSDL",
+    "ExpectedStatus": "404",
+    "ActualStatus": "HTTP 404",
+    "DurationMs": 333,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-PTN-002",
+    "Category": "Partners",
+    "Description": "Tạo đối tác trùng lặp ShortName đã có trong CSDL",
+    "ExpectedStatus": "400",
+    "ActualStatus": "HTTP 400",
+    "DurationMs": 12,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-PTN-008",
+    "Category": "Partners",
+    "Description": "Employee cố tình tạo đối tác (Bị chặn 403)",
+    "ExpectedStatus": "403",
+    "ActualStatus": "HTTP 403",
+    "DurationMs": 7,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  },
+  {
+    "Id": "UC-GW-004",
+    "Category": "Gateway",
+    "Description": "Gọi route không tồn tại qua Gateway (8080)",
+    "ExpectedStatus": "404",
+    "ActualStatus": "HTTP 404",
+    "DurationMs": 10,
+    "Status": "PASS",
+    "Message": "Method invocation failed because [System.Net.Http.HttpResponseMessage] does not contain a method named 'GetResponseStrea..."
+  }
+]

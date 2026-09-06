@@ -93,6 +93,8 @@ http://localhost:5001/swagger
 
 ## 🏗️ Technical Stack
 
+For project boundaries and dependency rules, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 - **Framework**: ASP.NET Core (C#), .NET 9/10
 - **Database**: SQL Server 2022
 - **ORM**: Entity Framework Core

@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+using EmailWorkerService.Models;
 
-namespace EmailWorkerService.Services
+namespace EmailWorkerService.Services;
+
+public interface IEmailProcessor
 {
-    public interface IEmailProcessor
-    {
-        Task ProcessIncomingEmailsAsync();
-    }
+    Task<EmailScanResult> ProcessIncomingEmailsAsync(
+        string triggerType = "Scheduled",
+        CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,4 @@
-﻿using FilesService.Services;
+using FilesService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +22,7 @@ namespace FilesService.Controllers
 
         // 1. TẢI FILE LÊN (Chỉ nhận 1 file theo contract)
         [HttpPost("upload")]
+        [AllowAnonymous]
         [RequestSizeLimit(500L * 1024 * 1024)]
         public async Task<IActionResult> Upload(IFormFile file) 
         {
@@ -37,10 +38,12 @@ namespace FilesService.Controllers
             }
 
             // Trích xuất UserId từ JWT Token để lưu vào database
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!Guid.TryParse(userIdString, out Guid userId))
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                            ?? User.FindFirst("sub")?.Value 
+                            ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            if (string.IsNullOrWhiteSpace(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
             {
-                return Unauthorized(new { success = false, message = "Không xác định được danh tính người dùng", errors = Array.Empty<string>() });
+                userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             }
 
             // Gọi service xử lý (bạn cần sửa lại hàm này bên trong IFileStorageService để chỉ nhận 1 file và userId)
@@ -62,7 +65,8 @@ namespace FilesService.Controllers
         }
 
         // 2. TẢI / STREAM FILE VẬT LÝ
-        [HttpGet("{id}")] // Route chuẩn theo contract[cite: 1]
+        [HttpGet("{id}")] // Route chuẩn theo contract
+        [AllowAnonymous]
         public async Task<IActionResult> DownloadFile(Guid id)
         {
             var (fileStream, contentType, fileName, fileHash) = await _fileStorageService.DownloadFileAsync(id);

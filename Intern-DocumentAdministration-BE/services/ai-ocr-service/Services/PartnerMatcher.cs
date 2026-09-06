@@ -34,9 +34,6 @@ namespace AiOcrService.Services
 
             var matches = new List<MatchResult>();
 
-            // -------------------------------------------------------------
-            // TẦNG 1: SO KHỚP QUA SENDER EMAIL HOẶC EMAIL DOMAIN (Confidence 99% / 98%)
-            // -------------------------------------------------------------
             if (!string.IsNullOrWhiteSpace(senderEmail))
             {
                 var cleanSender = senderEmail.Trim().ToLowerInvariant();
@@ -76,9 +73,6 @@ namespace AiOcrService.Services
                 }
             }
 
-            // -------------------------------------------------------------
-            // TẦNG 2: SO KHỚP THEO MÃ SỐ THUẾ (TaxCode) TRONG VĂN BẢN (Confidence 98%)
-            // -------------------------------------------------------------
             foreach (var partner in partners)
             {
                 if (string.IsNullOrWhiteSpace(partner.TaxCode)) continue;
@@ -99,9 +93,6 @@ namespace AiOcrService.Services
                 }
             }
 
-            // -------------------------------------------------------------
-            // TẦNG 3: SO KHỚP THEO EMAIL TRÍCH XUẤT TRONG NỘI DUNG TÀI LIỆU (Confidence 95%)
-            // -------------------------------------------------------------
             foreach (var partner in partners)
             {
                 if (string.IsNullOrWhiteSpace(partner.Email)) continue;
@@ -118,15 +109,29 @@ namespace AiOcrService.Services
                 }
             }
 
-            // -------------------------------------------------------------
-            // TẦNG 4: SO KHỚP THEO TÊN VIẾT TẮT (ShortName) (Confidence 90% - 95%)
-            // -------------------------------------------------------------
             foreach (var partner in partners)
             {
                 if (string.IsNullOrWhiteSpace(partner.ShortName)) continue;
 
                 var cleanShortName = partner.ShortName.Trim().ToUpperInvariant();
                 var unaccentedShortName = RemoveDiacritics(partner.ShortName.Trim()).ToUpperInvariant();
+
+                // Match inside reference number (e.g. 852/SGDĐT-KHTC -> matches SGDDT or SGDĐT)
+                if (cleanShortName.Length >= 2)
+                {
+                    if (unaccentedText.Contains("/" + unaccentedShortName) || 
+                        unaccentedText.Contains("-" + unaccentedShortName) || 
+                        unaccentedText.Contains(unaccentedShortName + "-") || 
+                        unaccentedText.Contains(unaccentedShortName + "/"))
+                    {
+                        matches.Add(new MatchResult
+                        {
+                            PartnerId = partner.Id,
+                            Confidence = 0.92,
+                            MatchMethod = "ReferenceNumberDomain"
+                        });
+                    }
+                }
 
                 var pattern1 = $@"\b{Regex.Escape(cleanShortName)}\b";
                 var pattern2 = $@"\b{Regex.Escape(unaccentedShortName)}\b";
@@ -157,25 +162,27 @@ namespace AiOcrService.Services
                 }
             }
 
-            // -------------------------------------------------------------
-            // TẦNG 5: SO KHỚP THEO TÊN ĐẦY ĐỦ (FullName) (Confidence 85%)
-            // -------------------------------------------------------------
+            var cleanNormText = Regex.Replace(normalizedText, @"[\r\n\t\-_.,;:()]+", " ");
+            var cleanUnaccentText = Regex.Replace(unaccentedText, @"[\r\n\t\-_.,;:()]+", " ");
+
             foreach (var partner in partners)
             {
                 if (string.IsNullOrWhiteSpace(partner.FullName)) continue;
 
                 var cleanFullName = partner.FullName.Trim().ToUpperInvariant();
                 var unaccentedFullName = RemoveDiacritics(partner.FullName.Trim()).ToUpperInvariant();
+                var normFullName = Regex.Replace(cleanFullName, @"[\r\n\t\-_.,;:()]+", " ");
+                var normUnaccentFullName = Regex.Replace(unaccentedFullName, @"[\r\n\t\-_.,;:()]+", " ");
 
-                if (cleanFullName.Length >= 4)
+                if (normFullName.Length >= 4)
                 {
-                    int matchIndex = normalizedText.IndexOf(cleanFullName);
+                    int matchIndex = cleanNormText.IndexOf(normFullName);
                     if (matchIndex < 0)
-                        matchIndex = unaccentedText.IndexOf(unaccentedFullName);
+                        matchIndex = cleanUnaccentText.IndexOf(normUnaccentFullName);
 
                     if (matchIndex >= 0)
                     {
-                        double conf = 0.85;
+                        double conf = 0.90;
                         if (matchIndex < headerThreshold) conf += 0.05;
                         if (noiNhanIndex >= 0 && matchIndex > noiNhanIndex) conf -= 0.10;
                         

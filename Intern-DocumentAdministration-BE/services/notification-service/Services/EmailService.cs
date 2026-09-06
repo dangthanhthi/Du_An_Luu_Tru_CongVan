@@ -1,4 +1,4 @@
-﻿using MailKit.Net.Smtp;
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -29,10 +29,16 @@ namespace NotificationService.Services
         {
             try
             {
-                // Thêm chốt chặn null
+                // Thêm chốt chặn null và hỗ trợ môi trường dev/local
                 var username = _config["Smtp:Username"] ?? string.Empty;
                 var password = _config["Smtp:Password"] ?? string.Empty;
                 var host = _config["Smtp:Host"] ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username))
+                {
+                    _logger.LogInformation("SMTP chưa cấu hình: Đã ghi nhận thông báo cục bộ tới {Email} với tiêu đề '{Subject}'", toEmail, subject);
+                    return (true, null);
+                }
 
                 var email = new MimeMessage();
                 email.From.Add(MailboxAddress.Parse(username));

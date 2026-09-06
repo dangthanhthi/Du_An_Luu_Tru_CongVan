@@ -32,12 +32,18 @@ namespace AuthService.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -74,6 +80,8 @@ namespace AuthService.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("RefreshTokens", "auth");
                 });
 
@@ -88,9 +96,12 @@ namespace AuthService.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Roles", "auth");
                 });
@@ -127,11 +138,16 @@ namespace AuthService.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -154,6 +170,27 @@ namespace AuthService.Migrations
                     b.ToTable("UserRoles", "auth");
                 });
 
+            modelBuilder.Entity("RefreshToken", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("User", b =>
+                {
+                    b.HasOne("Department", "Department")
+                        .WithMany("Users")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("UserRole", b =>
                 {
                     b.HasOne("Role", "Role")
@@ -173,8 +210,15 @@ namespace AuthService.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Department", b =>
+                {
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("User", b =>
                 {
+                    b.Navigation("RefreshTokens");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

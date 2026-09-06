@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,8 +10,7 @@ namespace NotificationService.Models
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Required]
-        public Guid RecipientUserId { get; set; }
+        public Guid? RecipientUserId { get; set; }
 
         [Required]
         [MaxLength(200)]

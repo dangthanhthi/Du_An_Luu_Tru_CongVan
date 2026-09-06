@@ -33,6 +33,25 @@ docker-data/
 Thumbs.db
 desktop.ini
 
+## ===== SQLite & Local Uploads =====
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+!services/files-service/Uploads/**
+**/storage/
+.agents/
+scratch/
+test_documents/
+*.ps1
+*.bat
+!START_LOCAL.bat
+!START_LOCAL_SYSTEM.bat
+!CHAY_TOAN_BO_BACKEND.bat
+!RUN_ALL_SERVICES.bat
+!INSTALL_PREREQUISITES.bat
+*.html
+
 ## ===== Logs =====
 *.log
 logs/
@@ -41,16 +60,3 @@ logs/
 *.nupkg
 **/[Pp]ackages/*
 !**/[Pp]ackages/build/
-
-## ===== Local SQLite databases =====
-*.db
-*.db-shm
-*.db-wal
-
-## ===== Reports & Scratch =====
-document_service_report.html
-
-# Local testing uploads and scratch
-**/Uploads/
-scratch/
-

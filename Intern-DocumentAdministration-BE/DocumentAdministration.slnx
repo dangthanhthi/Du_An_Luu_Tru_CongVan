@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Gateway/">
+    <Project Path="gateway/Gateway.csproj" />
+  </Folder>
+  <Folder Name="/Services/Auth/">
+    <Project Path="services/auth-service/AuthService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Document/">
+    <Project Path="services/document-service/DocumentService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Partner/">
+    <Project Path="services/partner-service/PartnerService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Files/">
+    <Project Path="services/files-service/FileService.API.csproj" />
+  </Folder>
+  <Folder Name="/Services/EmailWorker/">
+    <Project Path="services/email-worker-service/EmailWorkerService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Notification/">
+    <Project Path="services/notification-service/NotificationService.csproj" />
+  </Folder>
+</Solution>

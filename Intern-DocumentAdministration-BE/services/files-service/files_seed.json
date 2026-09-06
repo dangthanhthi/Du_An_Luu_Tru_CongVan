@@ -1,0 +1,2432 @@
+[
+  {
+    "Id": "4D9B8C54-116B-457F-BB9D-C81EF693C9C7",
+    "OriginalName": "test.txt",
+    "StoragePath": "Uploads\\b709876f-af24-42f6-83d3-0597b0929a48.txt",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 53,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:27:40.4467775Z"
+  },
+  {
+    "Id": "5BA11900-97AE-4088-952B-F02C20BA0B00",
+    "OriginalName": "test.txt",
+    "StoragePath": "Uploads\\4db25073-46bc-4d4f-8ded-3ac4512ee2ff.txt",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 53,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:31:50.499744Z"
+  },
+  {
+    "Id": "251B4BFE-7A44-4AE6-838B-D32863079D32",
+    "OriginalName": "test_upload.txt",
+    "StoragePath": "Uploads\\15941e9e-aeff-4500-90ca-94ea5ca52eb1.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 20,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.8506689Z"
+  },
+  {
+    "Id": "43ECC7A7-BA6D-4A4C-8AC2-5D2F43488556",
+    "OriginalName": "test_upload_2.pdf",
+    "StoragePath": "Uploads\\7e388d33-518f-4170-a895-e368d01b10b3.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.8931261Z"
+  },
+  {
+    "Id": "310DCC22-F334-4018-A891-480FAAD3D33F",
+    "OriginalName": "gateway_routing_test.txt",
+    "StoragePath": "Uploads\\95d6000c-f8c3-4ebc-919f-b90bed338075.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 28,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.9369096Z"
+  },
+  {
+    "Id": "8894343E-4D6A-4D40-BE94-E7869CF8B8BF",
+    "OriginalName": "concurrent_1.txt",
+    "StoragePath": "Uploads\\6d548aeb-3fb0-425f-b2b7-c4720fd04f24.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.9527855Z"
+  },
+  {
+    "Id": "2F5A32E6-C0D9-4E92-8944-6C5A810F7E1B",
+    "OriginalName": "concurrent_3.txt",
+    "StoragePath": "Uploads\\24d210a7-3032-43c9-9f46-2a4a19bc89a1.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.9569604Z"
+  },
+  {
+    "Id": "79884CAE-9280-434C-A59B-040205D96EBD",
+    "OriginalName": "concurrent_2.txt",
+    "StoragePath": "Uploads\\fad0d31a-e11c-4aaa-8929-e561bd1579e5.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.957032Z"
+  },
+  {
+    "Id": "F259B21E-43A5-42FD-BEEF-29DA97CFDE92",
+    "OriginalName": "báo_cáo (2026).txt",
+    "StoragePath": "Uploads\\f1eb9cc4-ae30-4a57-be81-dabfde480b9f.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 39,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:27.9731106Z"
+  },
+  {
+    "Id": "FC77F6C1-22FD-4BC3-B52C-7620939F45C0",
+    "OriginalName": "large_file_1mb.bin",
+    "StoragePath": "Uploads\\6edfdef2-dd88-4240-84f5-65c52347e568.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 1048576,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:28.0043803Z"
+  },
+  {
+    "Id": "0FA8FC54-3394-4CC8-99E6-59D234960532",
+    "OriginalName": "test_upload.txt",
+    "StoragePath": "Uploads\\a8459014-ecfc-4841-b84e-4b6e69143361.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 20,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.3887979Z"
+  },
+  {
+    "Id": "53FD2EEA-5A64-4C48-8447-EAC01A8CAB44",
+    "OriginalName": "test_upload_2.pdf",
+    "StoragePath": "Uploads\\6b514772-6422-4d41-9387-7ec19c571771.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.4044038Z"
+  },
+  {
+    "Id": "E1F6B7D6-A461-40F3-9FCF-508883CD0947",
+    "OriginalName": "gateway_routing_test.txt",
+    "StoragePath": "Uploads\\d66ce5ff-faf0-4470-b671-88d02207fbfa.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 28,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.4430547Z"
+  },
+  {
+    "Id": "96A13D6A-4626-4589-B6B1-433ED27A13FA",
+    "OriginalName": "concurrent_1.txt",
+    "StoragePath": "Uploads\\0b052e32-7a45-43f8-8d4c-e5b876dd86a7.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.4595013Z"
+  },
+  {
+    "Id": "7384020B-0F40-47A0-9510-8F525BFF8B5D",
+    "OriginalName": "concurrent_2.txt",
+    "StoragePath": "Uploads\\627fd01c-8f00-4b19-aa64-0a08d6b1c123.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.4612973Z"
+  },
+  {
+    "Id": "3ED64A17-BA82-4944-B2CD-290C379D4428",
+    "OriginalName": "concurrent_3.txt",
+    "StoragePath": "Uploads\\790e835e-0b51-47d6-80a0-d1424119ba40.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 17,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.46129Z"
+  },
+  {
+    "Id": "25B13D87-46BE-4AD0-9FBF-A6F4759A83C2",
+    "OriginalName": "báo_cáo (2026).txt",
+    "StoragePath": "Uploads\\f2d327b7-3e02-4047-8651-f33358edcd6e.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 39,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.624261Z"
+  },
+  {
+    "Id": "56B57454-6CC3-457B-B4F5-F92A5904A6B4",
+    "OriginalName": "large_file_1mb.bin",
+    "StoragePath": "Uploads\\5d2aab8f-bbc8-4133-a85c-1ccc04376f93.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 1048576,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:36:55.6436525Z"
+  },
+  {
+    "Id": "13C66E5F-A64A-49F2-9440-2C5D96D76409",
+    "OriginalName": "test_upload.txt",
+    "StoragePath": "Uploads\\5ace2ccd-4ca1-45c6-b905-88181cac320c.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 70,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.067548Z"
+  },
+  {
+    "Id": "C1417E55-1BFB-4A1A-A1D7-9278C1E4A0DA",
+    "OriginalName": "report_2026.pdf",
+    "StoragePath": "Uploads\\408e74b8-b28d-429c-88c9-24f1e7dc44f2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 43,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.0774152Z"
+  },
+  {
+    "Id": "DA3C4EF1-F8E8-4F38-9068-95739F783CB1",
+    "OriginalName": "screenshot.png",
+    "StoragePath": "Uploads\\5af072e5-5c5d-420d-bf37-184896769872.png",
+    "ContentType": "image/png",
+    "SizeBytes": 108,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.0831168Z"
+  },
+  {
+    "Id": "E6502909-2986-4D73-99E7-1F85E94976DE",
+    "OriginalName": "document.docx",
+    "StoragePath": "Uploads\\16bcd730-b635-4bc6-83b5-abb9a178550c.docx",
+    "ContentType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "SizeBytes": 34,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.0896125Z"
+  },
+  {
+    "Id": "D21DD5A4-7B41-4D7F-AD73-F1A69CF8D514",
+    "OriginalName": "tiny.bin",
+    "StoragePath": "Uploads\\63532155-5772-4660-9ba7-4ccb438562f3.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 1,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.0968193Z"
+  },
+  {
+    "Id": "963F6E05-5282-479B-B8A5-2ED42D96A5F6",
+    "OriginalName": "gateway_test.txt",
+    "StoragePath": "Uploads\\ad234346-3bc2-4098-a0d7-497e657103d7.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 45,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.1437499Z"
+  },
+  {
+    "Id": "7D21D619-F604-4E73-BBC1-9524724F7E1B",
+    "OriginalName": "concurrent_2.txt",
+    "StoragePath": "Uploads\\8b407531-ca5a-48ab-8667-e189912bdc7d.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.161935Z"
+  },
+  {
+    "Id": "7966F69F-E695-484C-AC3A-378909096535",
+    "OriginalName": "concurrent_1.txt",
+    "StoragePath": "Uploads\\1c44e64f-1741-4374-8077-0d6e1698f336.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.1641905Z"
+  },
+  {
+    "Id": "B0C1216C-851A-4655-8376-B5179801272E",
+    "OriginalName": "concurrent_4.txt",
+    "StoragePath": "Uploads\\3b82a252-04e7-4a3c-b49a-dcb446845f2a.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.1681565Z"
+  },
+  {
+    "Id": "B31B25D2-E09D-4B75-AA87-130D019EADAF",
+    "OriginalName": "concurrent_5.txt",
+    "StoragePath": "Uploads\\2d6be281-8693-4c47-84bf-6e7b07e765e4.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.1681611Z"
+  },
+  {
+    "Id": "33F4F39F-BA08-4898-802D-EBAF096B3233",
+    "OriginalName": "concurrent_3.txt",
+    "StoragePath": "Uploads\\14537fd4-b55a-4e46-b674-b5d4f5451bc5.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.1683307Z"
+  },
+  {
+    "Id": "AA6037A7-8F93-4C00-A1E0-9F564FBDDA5F",
+    "OriginalName": "báo_cáo_công_văn_(Q2-2026).txt",
+    "StoragePath": "Uploads\\86cbeaaf-33c2-4db7-a470-c6232d305ba4.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 53,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.3525687Z"
+  },
+  {
+    "Id": "2257A0D1-2FDF-49B9-90ED-CC50B7727ED9",
+    "OriginalName": "large_file_2mb.bin",
+    "StoragePath": "Uploads\\35170fc6-8e35-403a-9827-b74baadc2c53.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 2097152,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.3856266Z"
+  },
+  {
+    "Id": "A961B631-5083-4A43-BA83-90A6B1C83A23",
+    "OriginalName": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt",
+    "StoragePath": "Uploads\\f30453fe-f816-4709-bdc4-31ee951230c7.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 18,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:44:38.4231841Z"
+  },
+  {
+    "Id": "5C2F6EBA-67D4-44C6-9B19-E3E503D6B525",
+    "OriginalName": "test_upload.txt",
+    "StoragePath": "Uploads\\5271f86a-9954-44cd-a4d6-e8bfcf14f2fc.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 70,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.6111734Z"
+  },
+  {
+    "Id": "68AD0410-DE2C-404C-971F-C7DFAE6FFE12",
+    "OriginalName": "report_2026.pdf",
+    "StoragePath": "Uploads\\f8903758-6b3a-4f32-91a1-bf3433745d58.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 43,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.6201257Z"
+  },
+  {
+    "Id": "1AE77CA7-5791-451E-9155-8CEE65696DC8",
+    "OriginalName": "screenshot.png",
+    "StoragePath": "Uploads\\e6cb64c1-a084-4e5d-9f36-bfdf3fd3d907.png",
+    "ContentType": "image/png",
+    "SizeBytes": 108,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.625576Z"
+  },
+  {
+    "Id": "177D87A7-DB05-4C24-8A49-7F220352D2D8",
+    "OriginalName": "document.docx",
+    "StoragePath": "Uploads\\4a79598b-4caa-4853-90da-06a37a3c3b9a.docx",
+    "ContentType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "SizeBytes": 34,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.631163Z"
+  },
+  {
+    "Id": "8D3C168F-DCC9-45C3-84B5-F4FDC57A3EA2",
+    "OriginalName": "tiny.bin",
+    "StoragePath": "Uploads\\1189ccc7-69d7-465a-999e-615a2f004209.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 1,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.6381643Z"
+  },
+  {
+    "Id": "AAAA0ADD-0A8B-4B4D-951C-296AF46C5358",
+    "OriginalName": "gateway_test.txt",
+    "StoragePath": "Uploads\\f2c2850c-2df3-4044-8862-ae097e6f0a5f.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 45,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.6973027Z"
+  },
+  {
+    "Id": "2C773FEF-D80F-4562-8698-DAA2C3CCE509",
+    "OriginalName": "concurrent_1.txt",
+    "StoragePath": "Uploads\\174727a4-2031-47ae-9faa-9e5e5b6d3caa.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.721441Z"
+  },
+  {
+    "Id": "B7362E8C-4409-4D8F-8FB8-0940734A1566",
+    "OriginalName": "concurrent_4.txt",
+    "StoragePath": "Uploads\\794f3eee-bc92-4df3-9440-f080f34eb85e.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.7247681Z"
+  },
+  {
+    "Id": "C67E0688-76DD-4061-83C8-A3B1CAC85B1B",
+    "OriginalName": "concurrent_3.txt",
+    "StoragePath": "Uploads\\cfaa1715-ab2e-4069-927d-8d16dc62c717.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.7258793Z"
+  },
+  {
+    "Id": "1526CD4D-B7E2-4018-BC6C-557CD3F65E6D",
+    "OriginalName": "concurrent_5.txt",
+    "StoragePath": "Uploads\\abacfe81-6dc3-4a53-8455-c46b8f0507b3.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.7255495Z"
+  },
+  {
+    "Id": "EF140D2D-3F38-4DF2-9462-E678D1361496",
+    "OriginalName": "concurrent_2.txt",
+    "StoragePath": "Uploads\\c4fccdad-9857-4145-9465-2e8d0076ab62.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 42,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:09.7213551Z"
+  },
+  {
+    "Id": "47261601-7CA0-4550-96D4-E3F4AE707460",
+    "OriginalName": "báo_cáo_công_văn_(Q2-2026).txt",
+    "StoragePath": "Uploads\\196a7418-26d8-470f-b7da-b9fad5f120dc.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 53,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:10.2083958Z"
+  },
+  {
+    "Id": "945E962B-A512-4ADC-837F-CB35232E8F50",
+    "OriginalName": "large_file_2mb.bin",
+    "StoragePath": "Uploads\\13de9775-3ece-4bc9-8a74-b2c5c8ca092a.bin",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 2097152,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:10.2389684Z"
+  },
+  {
+    "Id": "A30508D1-356B-42EC-93A2-C8E0B813499A",
+    "OriginalName": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt",
+    "StoragePath": "Uploads\\745990c1-82d0-4046-ad83-0afbeab64207.txt",
+    "ContentType": "text/plain",
+    "SizeBytes": 18,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T11:45:10.2804286Z"
+  },
+  {
+    "Id": "5E5FF222-BC1C-437E-A866-F48DB6C2BC06",
+    "OriginalName": "dinh_kem_cong_van.pdf",
+    "StoragePath": "Uploads\\818aebf1-edbf-47ad-bde8-b3b14f6c6236.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T12:03:14.0451889Z"
+  },
+  {
+    "Id": "67EB76C2-E0B6-4378-A54F-C2E6D840780A",
+    "OriginalName": "dinh_kem_cong_van.pdf",
+    "StoragePath": "Uploads\\e05c7c57-3226-4551-800b-347e2854c087.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T12:03:45.8892593Z"
+  },
+  {
+    "Id": "6F7E2047-2E67-4D92-949D-24AD70120831",
+    "OriginalName": "dinh_kem_cong_van.pdf",
+    "StoragePath": "Uploads\\a8bd453c-9a7f-404e-b870-e1633404b4ad.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T12:04:44.1552752Z"
+  },
+  {
+    "Id": "90EEC41C-578D-400B-BAAA-87B671E903A4",
+    "OriginalName": "dinh_kem_cong_van.pdf",
+    "StoragePath": "Uploads\\2415e630-20d4-4998-bb7e-f78ad7c2ee12.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 29,
+    "UploadedByUserId": "192C7170-BEBE-406C-94A4-F0BEFCD4B529",
+    "CreatedAt": "2026-08-13T12:05:19.0837651Z"
+  },
+  {
+    "Id": "C6016BD6-20CE-45DF-A6A8-E7D6D30A2225",
+    "OriginalName": "01_Cong_Van_Den_Bo_GDDT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\8902e2e2-fe3c-4b19-a85e-506ca29f895d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:02:02.6183145Z"
+  },
+  {
+    "Id": "7871DF1F-4209-4F48-8B8F-3B60A1C88C7D",
+    "OriginalName": "01_Cong_Van_Den_Bo_GDDT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a0beb249-d631-4d52-99a7-c520e216e39a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:06.6702938Z"
+  },
+  {
+    "Id": "2ED8F6B5-C5CB-4451-8DDA-71BA34439B96",
+    "OriginalName": "01_Cong_Van_Den_Bo_GDDT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\aea26bfe-0c42-48a4-a26c-e1078dce1701.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:45.9688852Z"
+  },
+  {
+    "Id": "123F386B-BA4E-4270-B990-AB9927C552CD",
+    "OriginalName": "02_Quyet_Dinh_UBND_Ha_Noi.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b1da76c5-8e29-44a2-bb20-0afbd051532a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 176548,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:46.7194033Z"
+  },
+  {
+    "Id": "B4F8F12D-2D35-4BC4-8FCF-DD8F7A6E8E06",
+    "OriginalName": "03_Thong_Bao_Tap_Doan_VNPT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7f88b71f-75a5-4972-bb5b-b47d51ebd9aa.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177700,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:46.7800007Z"
+  },
+  {
+    "Id": "322D0EDE-B0B6-4CCA-AC08-AC6EF10E818F",
+    "OriginalName": "02_Quyet_Dinh_UBND_Ha_Noi.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7347c27e-275b-44ff-b526-8241424ecddd.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 176548,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:52.9144513Z"
+  },
+  {
+    "Id": "E948DD58-824A-4A62-8636-AAEB71CE480A",
+    "OriginalName": "03_Thong_Bao_Tap_Doan_VNPT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5c2a5970-adfe-4ded-8ef3-7dbad9defe15.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177700,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:04:52.9713281Z"
+  },
+  {
+    "Id": "8580BE42-D098-492D-ACFB-92C2D17FBCBA",
+    "OriginalName": "01_Cong_Van_Den_Bo_GDDT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b3d60e5c-205e-4a12-aae9-58787b6f19d7.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:39.3761379Z"
+  },
+  {
+    "Id": "4DF59457-B361-4E21-8E3E-9BC4B3B619F9",
+    "OriginalName": "02_Quyet_Dinh_UBND_Ha_Noi.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d7574d03-03b0-4706-bc30-4fb33646daf4.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 176548,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:40.0181025Z"
+  },
+  {
+    "Id": "C09BF76E-FA0E-4421-AFEE-B187B3C0AE6A",
+    "OriginalName": "03_Thong_Bao_Tap_Doan_VNPT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7888f272-a9eb-4d00-9f30-1d6fdf4446f8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177700,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:40.1174226Z"
+  },
+  {
+    "Id": "89012684-C07C-48F9-AEAE-E560A677E84F",
+    "OriginalName": "04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3678ee19-4481-4a8b-b578-43c285b5b051.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177409,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:40.1677267Z"
+  },
+  {
+    "Id": "1F7104D1-4126-49F1-9DCD-9E0879E0A95F",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e854c0dd-8bcc-4531-a8a9-4c0d8abd7950.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:40.2289938Z"
+  },
+  {
+    "Id": "FC34B5F8-90A3-4442-9423-C8CDC348B676",
+    "OriginalName": "05.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\525e1f6c-57f3-4969-856a-cbb07ea38d24.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:05:45.7989409Z"
+  },
+  {
+    "Id": "818AB856-4374-42AA-85E7-80D2B7346AE3",
+    "OriginalName": "01_Cong_Van_Den_Bo_GDDT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7ec30c48-3618-4887-a859-ba81bce04824.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:06:13.5919049Z"
+  },
+  {
+    "Id": "6B45DABF-6F44-4FD1-9AFE-1469C74909C9",
+    "OriginalName": "02_Quyet_Dinh_UBND_Ha_Noi.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b394ad18-6a96-420b-b75c-6303d32c8e0d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 176548,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:06:14.2702795Z"
+  },
+  {
+    "Id": "044659D7-C0A9-438E-8BEE-0E33AB62F469",
+    "OriginalName": "03_Thong_Bao_Tap_Doan_VNPT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d8cfffe0-232f-4990-aef7-fad22f5c77c8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177700,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:06:14.3276966Z"
+  },
+  {
+    "Id": "1CCF18B4-7634-417F-843B-7ED78DFBD6A1",
+    "OriginalName": "04_To_Trinh_Dai_Hoc_Quoc_Gia.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4c8f0294-f1a2-482b-a521-2196cf6756ea.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177409,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:06:14.3797854Z"
+  },
+  {
+    "Id": "8BB276A3-3ECE-40A0-B13F-C99E2A0E6D4F",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b3055690-0c7d-45de-9800-a5d118d42b2b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:06:14.4189907Z"
+  },
+  {
+    "Id": "8A877B34-6901-4BC1-B2EB-45816CC51FF6",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\aaf0272c-358e-48e5-8e6d-063a7f775263.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:09:46.9746335Z"
+  },
+  {
+    "Id": "0BBA3BF1-2E1A-4680-814E-80933EF8BE22",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\282bcaaf-8a50-434d-844d-c816d1b34bbd.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:11:48.2622878Z"
+  },
+  {
+    "Id": "5530CBAE-6F97-4975-B08A-BDF171FB506B",
+    "OriginalName": "vpdt-den-570-cong-van-quy-dinh-gio-hoc_15920259.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\52695e0a-4b11-453f-b06c-e506faac078a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 573000,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:12:04.5763281Z"
+  },
+  {
+    "Id": "AE48F7D7-15CB-4A74-AD45-1B82F689DF3B",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\72f32b8c-07b1-4476-9c8a-4da57b24c563.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:12:30.5916103Z"
+  },
+  {
+    "Id": "31F16DFF-BFDA-47C6-A5DE-8EB2984E35F2",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a8cee6e4-0f6b-4a88-b7ea-6e57b6272cf2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:13:39.5770056Z"
+  },
+  {
+    "Id": "8F34D9E8-D057-43C8-AB8A-387F7A5584AE",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\75094968-0cf9-4cf0-a543-b25a6ee81b37.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:13:51.5512736Z"
+  },
+  {
+    "Id": "626EA2CC-A66F-4DA9-8FCA-55FE8BCD8054",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b955666f-7d9b-40a0-bd72-49e878871540.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:15:28.2322074Z"
+  },
+  {
+    "Id": "9988C031-402E-4EF5-B368-A96193AFAE95",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\6854f8ee-9386-4244-bd96-c158c5e610e8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:17:21.9804064Z"
+  },
+  {
+    "Id": "2EBC66BB-74D0-4922-887A-3D7EC4A49594",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\945aa0aa-218e-48d5-b564-abb7474f57d5.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:22:10.384825Z"
+  },
+  {
+    "Id": "B671735B-3C93-46A8-BE79-400DC5171C87",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a1f6062c-ff91-462e-8763-34d09c55a476.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-27T05:33:54.4670561Z"
+  },
+  {
+    "Id": "8F9E8129-1C3A-45A8-91EB-9DC82FB6BD5C",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b8cae01c-c073-4f1a-a925-57e5e4907238.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-27T06:18:09.1730948Z"
+  },
+  {
+    "Id": "428BF829-5E0F-48DE-A4F8-00534006962D",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f0a0e3ed-b490-41fd-aeeb-91d1faa554f5.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-27T06:40:41.2196217Z"
+  },
+  {
+    "Id": "EF7171D4-A2EC-4640-9286-54225818736A",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\8a1f85cb-fc49-4863-8e08-a0770231aec6.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-27T07:26:54.2601675Z"
+  },
+  {
+    "Id": "04FF6951-D729-4752-AD9B-CB9E3B3284CC",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e546b7fb-7353-4736-9512-222a7488ab32.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:00.1001994Z"
+  },
+  {
+    "Id": "5FFB2391-09CC-44DD-9A7D-F3B4C4CB96DC",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d6164956-90da-436a-80a9-bf26ef049251.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:14.5120247Z"
+  },
+  {
+    "Id": "95ECFC92-C797-4176-B901-2254CE17505B",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\88d48f38-18b8-4e4c-9e59-f1b57c3e6bb2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:27.5646515Z"
+  },
+  {
+    "Id": "84F456C9-F0BA-489A-8E7D-6F300DFB7A67",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\40cab122-1faf-40de-a5e9-aa11c7aa4c8a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:35.7545605Z"
+  },
+  {
+    "Id": "E7999DCF-26E7-47C7-909B-DE26D398142F",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\dede863a-7b30-4c84-b334-83e8c6099c4f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:39.1102435Z"
+  },
+  {
+    "Id": "884C804D-68BF-4292-B803-A873B47F0875",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1845bc5f-fbf1-4d6e-814f-374a8153240a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:40.5286077Z"
+  },
+  {
+    "Id": "83918A52-58D3-49DA-8A64-9D544BE3BDE1",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d0052103-299d-456e-afc6-da1298991551.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:43.033127Z"
+  },
+  {
+    "Id": "EE1B6438-A95F-49AF-B653-9902131CF1A2",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e1920370-f5da-4c59-ad8b-d9986eb7a44b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:47.6381827Z"
+  },
+  {
+    "Id": "48C9300D-7E87-4518-BB2A-63B1BE3E0D18",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ca7c54b5-b7a5-4569-88b1-27ce6c33de80.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:49.6868196Z"
+  },
+  {
+    "Id": "F6D647BC-0B3E-4FD6-9D84-70D34794FA4D",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\73f50155-1308-459f-8fe1-0ff3de1be41f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:51.1936233Z"
+  },
+  {
+    "Id": "F5A68F1E-EC86-4C18-A57B-C5C208864EB9",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\56324e84-8820-4bba-8a31-d7040269e6c4.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T03:58:55.3799561Z"
+  },
+  {
+    "Id": "E4A112D7-C8B2-4E11-B691-10BD616DDCAD",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ead0d2f9-24e4-4d6b-9ddf-4f71ad3acce8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T04:59:58.7226903Z"
+  },
+  {
+    "Id": "0E22A73E-1195-4633-9C71-BE3875B6A40C",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\91d4adc6-707c-408e-8495-31cf7438b0f2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:05.1117581Z"
+  },
+  {
+    "Id": "58491927-9912-4286-933A-A471E3440B81",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\922fad11-867f-4410-bb3e-b41dddc6cd90.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:10.9398323Z"
+  },
+  {
+    "Id": "64DB1214-D42A-4C74-9E8A-606CB4D37AA9",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\cfb69e7f-d8e4-45d9-85b8-8fb19ae5c9e2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:13.4499559Z"
+  },
+  {
+    "Id": "263923E3-FD1C-4E99-9AD2-EC636C337AEA",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b5240ccd-532c-4bcf-8254-0796d3b57256.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:14.6800259Z"
+  },
+  {
+    "Id": "4E4B12FE-8A40-4599-9F46-E2D9C47EC320",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\52e33a1f-8b06-4d17-9e60-eb756fc8bced.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:15.9493346Z"
+  },
+  {
+    "Id": "183F102B-6597-4F66-8AE2-EAC2735137D5",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d209028a-eaf8-4b54-ba88-2598f280d2f9.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:17.0303185Z"
+  },
+  {
+    "Id": "B2A9CB5A-BC85-4807-9158-B3513927984D",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2198bcbf-57f0-4f6c-9e6c-ae7c563cd911.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:18.1430474Z"
+  },
+  {
+    "Id": "4FC60273-A32C-4087-8A3C-3BDFE55FC0F3",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\500efc7d-249e-4d0c-b07a-e417610fea61.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:19.2800727Z"
+  },
+  {
+    "Id": "556F526E-C84A-47F4-B9C2-950D76931942",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f7946176-e351-4c6c-9ae8-8577f9048ba8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:20.3563346Z"
+  },
+  {
+    "Id": "1E231FEB-A711-4A05-975A-E265B1E8904C",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c15f433c-cef5-44d4-8c8e-0abbd33eab9d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:00:21.9488994Z"
+  },
+  {
+    "Id": "8C102100-9CF0-4F52-9219-A8B99B4A5714",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\cf19f17f-8438-4f7c-828c-a7cae141e30b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:31.3095461Z"
+  },
+  {
+    "Id": "F32D79C7-F3BA-4DEB-9352-A8E8A11DF02A",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2f0759b3-7a3d-4e9b-b23a-a56ae2ab6a51.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:38.6321557Z"
+  },
+  {
+    "Id": "9EF2B83B-1034-4B62-B7AB-FE24BC235FD6",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7f4f9875-1a81-4c49-aef8-5400c8e0e75b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:44.9392111Z"
+  },
+  {
+    "Id": "35DCA477-FA6A-4069-89AC-93CBA43084E3",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1e076b71-62d4-4ff1-bff7-df49c3fe9c7f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:47.4982376Z"
+  },
+  {
+    "Id": "349FB009-2CA3-4B02-862D-CC32CDE1152E",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\edcf3457-bf12-48a7-a487-6f5b002faaa7.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:48.8413154Z"
+  },
+  {
+    "Id": "809CC444-9007-4338-86CB-9171CCDD66F2",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\70de9bc2-623e-4b42-aa83-c73a8bdcd6d2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:50.0658423Z"
+  },
+  {
+    "Id": "1DB77A07-7B54-4940-9F6E-5C3D93A16A29",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0ba43aac-b5d5-4f3f-b499-b9f632adb27b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:51.1805881Z"
+  },
+  {
+    "Id": "64E3C5F6-5DD5-4B3B-ADDF-3EB02B0684E4",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\928bba25-24ad-40ec-948f-bde3dcd96d20.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:52.2979613Z"
+  },
+  {
+    "Id": "7974B8CE-B3F4-4232-A180-729CD65FBDCC",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d8ec668a-1a4a-4c6c-9ce4-8f09c8884641.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:53.6069599Z"
+  },
+  {
+    "Id": "BAD60DB0-9059-4BA9-9845-BD19E104C01B",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c27f5883-bf18-4d2f-a9ee-f35a1d741b55.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:54.7063837Z"
+  },
+  {
+    "Id": "3C79BC07-5812-4119-AAF9-15076518C891",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d69287ab-6186-4044-ba58-9f326198c6dd.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:05:56.4543321Z"
+  },
+  {
+    "Id": "5209B1F4-2BFB-4EEF-97A4-1EF49BFACA83",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\939ad9ec-9c67-49f5-ac74-dc77be49208e.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:09:57.7611951Z"
+  },
+  {
+    "Id": "F16906D1-FC75-430A-B3F1-0085C20B222F",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5f33b3d6-59d7-458b-997e-70f5bac8e209.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:03.9910476Z"
+  },
+  {
+    "Id": "32C8C1C9-7828-4FF1-8BE4-76B72706EF9B",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3eee71c7-ac56-4895-a917-1f8f2c7f498b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:09.4670204Z"
+  },
+  {
+    "Id": "EF934250-A40C-4148-9594-6A173AC79FF0",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1207ed41-cd05-4742-82f2-e68c8ac90eb4.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:12.5606722Z"
+  },
+  {
+    "Id": "116DE7AC-1C86-4979-891A-BA79D3A3CC05",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7374e3b6-1e3a-49e2-a620-2fbaeb4029f9.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:13.9703149Z"
+  },
+  {
+    "Id": "25DC430A-81C5-4F93-9A83-BCC1828E3DBA",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3d5e5336-6beb-44c7-ab7d-401c88ce54a5.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:15.3268468Z"
+  },
+  {
+    "Id": "E0DDADCE-EF21-4565-9C4C-BF75B7886C74",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d79272bf-c8cd-4f97-abf3-49398b86810b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:16.6344863Z"
+  },
+  {
+    "Id": "ED02A944-FC64-4E35-BE85-2A641FEF8EED",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3be9516b-46b1-4360-ab32-0ad8358818ef.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:17.784997Z"
+  },
+  {
+    "Id": "C9BA679C-D1D8-4152-8BC7-0D14EA0B9743",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ec2e17e0-ac8f-4ce4-a3ce-2a52a317ce23.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:18.9571243Z"
+  },
+  {
+    "Id": "6C24BAE8-6F68-475C-A46B-CE3E120D3842",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e77a9b92-484b-4f42-8a7e-cc9ee5398666.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:20.2998063Z"
+  },
+  {
+    "Id": "49A5E168-4AB5-4C14-849D-D85A30B5E52F",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c03778ce-7dff-481b-bcc1-120a13696011.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:10:22.3137482Z"
+  },
+  {
+    "Id": "DE94CF2C-3CE1-4C9B-8DFA-7316E2767909",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b0957a71-67b8-48f5-9660-aaa4d6ac0930.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:17.5221078Z"
+  },
+  {
+    "Id": "8C81FE65-1FF5-4838-8BCD-7EC732D12A57",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a78dcb6a-da02-450c-97d1-e8702c5dfdba.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:24.2826515Z"
+  },
+  {
+    "Id": "84861FF9-DA36-47E4-B3A7-F5EDF61F7E17",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1e93b982-c6e9-4816-8d57-8a2cc3c11a88.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:30.2761727Z"
+  },
+  {
+    "Id": "A6F4B48F-29EC-45CE-909C-78C1CD904A8A",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1dbdf665-3874-4d67-b3c5-03d6c0a8175c.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:33.4550961Z"
+  },
+  {
+    "Id": "B9129660-442C-4918-98AB-0CD5ABB215CA",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\be98160c-ce45-4954-97f3-7525b63780e2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:34.6721771Z"
+  },
+  {
+    "Id": "506E83EE-2249-4945-92F1-A6979C3F101F",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5de1ae23-9291-4ede-b796-a306f29ad216.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:36.7710828Z"
+  },
+  {
+    "Id": "36F5ABC1-EF9C-42C3-97C2-1F02E548AE16",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\806fb2a3-b5d5-43c7-85b4-538c1cbdb786.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:37.8653638Z"
+  },
+  {
+    "Id": "A25F6715-DCC3-4205-B11A-356923FF08F8",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a8f844c5-48bb-42ad-9f4b-18f9ab211580.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:38.9698068Z"
+  },
+  {
+    "Id": "76A8A174-EBC8-4D50-A184-F604CB46B9E7",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a52f2168-6787-4506-8a85-5715f9448492.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:40.0481492Z"
+  },
+  {
+    "Id": "0204AD42-25D6-455C-BDE4-3E0F3535C801",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5b12470f-09b9-44a8-8c88-81f8d4a1d1d8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:41.2742358Z"
+  },
+  {
+    "Id": "DCEFFF67-27C4-4858-B519-02D0585E40DD",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d834c8b6-1e55-4da5-957a-b7b9de56ac89.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:22:42.9367272Z"
+  },
+  {
+    "Id": "1F09615B-2032-48C2-96D0-C1EEE4465501",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\760b7d60-8268-4d9b-8680-1e41a3e4f269.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:28:47.0729679Z"
+  },
+  {
+    "Id": "AB6CB7F2-2ED3-4DC3-818A-FF24435138F4",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\6aa046f2-c7ee-426b-a3b9-e4c2528b5865.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:28:54.7062462Z"
+  },
+  {
+    "Id": "7A1B4A9B-9B69-47A8-B7D0-DDB4D08387B4",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b2f0c3fe-d405-494f-95cb-ed6e27b7591d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:00.9762922Z"
+  },
+  {
+    "Id": "E18E9318-70B3-48A6-A95B-AFF50817BCF6",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\46862864-9895-4c1a-af92-812bcfe305fc.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:03.5981286Z"
+  },
+  {
+    "Id": "2D88D341-6972-4AD4-8030-C81309F3AC52",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7ce6fd8f-63cb-4c6d-9298-bd155cea9a47.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:04.935045Z"
+  },
+  {
+    "Id": "1DCC1E68-3915-4AAA-8072-1774294A2336",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f92c73ed-d89b-4234-9c55-b1a0e8fbd43a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:06.1909133Z"
+  },
+  {
+    "Id": "B6D7FB77-C3FA-49F8-AF15-5F8D09AFD8C9",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\6a50bebf-110c-4e64-a2b0-adda2ad83db8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:07.4744038Z"
+  },
+  {
+    "Id": "46420EA1-33A7-4417-A2B2-70E03A91095C",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\eda2efd8-1dee-4ca0-be66-22749e8ad50c.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:08.6468437Z"
+  },
+  {
+    "Id": "8DABFBC9-A82A-4D26-A75E-26650D0D44E8",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\8c8a509b-6268-4f1c-8c72-cc59054b5542.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:09.78774Z"
+  },
+  {
+    "Id": "C8986508-2E06-4E96-A3E1-2AEB4C1265E2",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b084a6eb-556c-493f-b972-0d89a9d98ac6.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:11.0179032Z"
+  },
+  {
+    "Id": "62EE83F8-4503-48DD-A353-E5856DC21227",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\744d6b4c-8d97-4b77-8f0a-821f35392415.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-28T05:29:12.8604355Z"
+  },
+  {
+    "Id": "47ECD8B6-04EB-4AC8-A44D-1085B9B0C4E3",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a16256bc-9a60-4d98-b12d-6dfb960e2854.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:07.0807201Z"
+  },
+  {
+    "Id": "BD4EAE8F-3759-4ABB-BF86-0CAF4B144663",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c1163f41-7878-49ef-bd6e-9c87675bd8ea.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:16.5416894Z"
+  },
+  {
+    "Id": "E8323740-1C86-43C3-A1A4-625479FCCC1D",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\6081b557-f87d-4ba2-9e3b-2f3584f7faa6.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:22.8178847Z"
+  },
+  {
+    "Id": "1BD1262E-240C-4F2C-9531-2EC4FC9A207C",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1ea334be-f8cf-44e4-a64f-e1b300878778.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:25.393058Z"
+  },
+  {
+    "Id": "EF03180F-20DB-49CE-BCAD-6EAAD27A9C00",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5084c2f5-d269-4715-8c7a-a7a1374f7468.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:26.889221Z"
+  },
+  {
+    "Id": "5A98A148-1DD2-4121-AA36-4EF83F19BE93",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f2a3dc5d-ae1d-46e0-932f-9e3f41aeff20.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:28.2297817Z"
+  },
+  {
+    "Id": "904D716C-9F1B-43F5-B89A-EDC91AF7D30F",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\24614257-8d28-495d-832b-182013b272c5.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:29.4272052Z"
+  },
+  {
+    "Id": "9D7A86CE-12AE-4FE6-9D62-01547117171A",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e3920e9e-730f-4d95-9b68-f4f7ca395d52.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:30.6916967Z"
+  },
+  {
+    "Id": "3AD56E7C-D71C-4703-B18E-0FD6D433F218",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\19cbc32f-9a85-4ebd-920c-4729227d71e0.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:31.8155068Z"
+  },
+  {
+    "Id": "2E5C24DB-7CF9-4F38-9ACE-F39F02DE9811",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1c968585-8557-4324-85a7-05d665a0f84d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:44:32.9969279Z"
+  },
+  {
+    "Id": "C7ACE480-1A6D-4682-A815-54572C61B643",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\8985b0b6-1740-4b25-b22a-34bb5b3a715c.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:49:43.0380491Z"
+  },
+  {
+    "Id": "77593C76-A297-42DC-B7EC-0F260270AF0F",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\44773ff2-8d2f-4852-bee9-3362274930c1.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T08:49:49.7900392Z"
+  },
+  {
+    "Id": "DB87641D-509A-453A-B8DF-22B80A7AC1AC",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\9487da96-bb0b-437b-9412-18cc9ab95cff.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:22:43.6475151Z"
+  },
+  {
+    "Id": "12184E33-5180-4655-81DB-AA85A1F7F806",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3c7d18fb-1787-446a-aaad-7a305b565d7b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:22:54.3717595Z"
+  },
+  {
+    "Id": "0B15381D-0058-4E76-8659-B9ED6F0DD4B5",
+    "OriginalName": "Cong_Van_Noi_Bo_DAS_Quyet_Dinh_08_QD_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5bd91dbd-4053-4669-b8f2-64350211b129.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178751,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:22:56.7552785Z"
+  },
+  {
+    "Id": "0FA13201-231A-43C1-95D5-2EA9FBAD6523",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d85d9e14-e108-414b-87f1-b56b1298c33c.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:22:57.980472Z"
+  },
+  {
+    "Id": "FF624ED4-8F8D-4DAC-8AD8-795D802E0521",
+    "OriginalName": "Cong_Van_Den_So_Giao_Duc_852_SGDDT_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4e05f861-fdac-472e-959d-967f37cee1f7.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177222,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:22:59.1865201Z"
+  },
+  {
+    "Id": "BA4952C6-5898-4E2E-980D-75738C86CE7B",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b8f34bfe-273e-449c-a3ac-c704a5bf25fc.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:23:00.2563658Z"
+  },
+  {
+    "Id": "CAF0262D-F490-4A10-9515-A9FE692222AF",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\eeffa9df-9a4c-4aa7-8580-8262336094a7.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:23:01.3013215Z"
+  },
+  {
+    "Id": "4436E982-BDAD-4092-BB52-6F0F2CBBEADE",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\47edfbe7-1203-465e-8090-094e17dd126e.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:23:02.4056737Z"
+  },
+  {
+    "Id": "8DC677A8-3B5E-4AB3-A0D9-7B4B96D8C104",
+    "OriginalName": "Công văn đề xuất triển khai hệ thống lưu trữ điện tử.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\381ad047-d6b7-48a0-ba01-bf7017fdb7bc.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146721,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:23:03.4253835Z"
+  },
+  {
+    "Id": "4A0D9553-C64E-4F05-93F3-9A26A16C13D7",
+    "OriginalName": "05_Giay_Moi_Hoi_Thao_Cong_Nghe_ABC.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\fae38bc7-d0aa-48d3-8a9f-bac324e22b9a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177926,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000008",
+    "CreatedAt": "2026-08-29T13:23:05.0803665Z"
+  },
+  {
+    "Id": "6F517AA6-9628-4913-9DD9-BA74CFD614C3",
+    "OriginalName": "temp_test_doc.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\8eaf7da9-e64b-4030-831c-ab2c68079e53.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 54,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:23:49.0537277Z"
+  },
+  {
+    "Id": "D069B720-BB3B-4F73-8562-2509C1BC91BC",
+    "OriginalName": "temp_test_img.png",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\abeec295-bd49-4991-a95a-0dc228b862e5.png",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 23,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:23:49.0755777Z"
+  },
+  {
+    "Id": "02D0CE5D-AC58-45A2-939A-978D4CE21F22",
+    "OriginalName": "temp_test_doc.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\29b498b7-4522-42e1-aa10-752f9380a9b3.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 54,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:23:52.453564Z"
+  },
+  {
+    "Id": "FEFAFD53-0373-4F1C-849C-874057F2E08F",
+    "OriginalName": "temp_test_doc.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0ffd745c-72b9-41f5-9258-616c2ba20a90.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 54,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:24:22.5485878Z"
+  },
+  {
+    "Id": "D937578A-CD42-41B0-91FD-9C658C4557D9",
+    "OriginalName": "temp_test_img.png",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\02cfd3fe-02e9-4966-a0c6-168124ad9801.png",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 23,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:24:22.5659067Z"
+  },
+  {
+    "Id": "0A37DC4C-6EFE-4C24-A6F4-1566A63E174C",
+    "OriginalName": "temp_test_doc.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1db8f06d-761a-415c-94da-fc6c86d35813.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 54,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-08-29T13:24:25.482501Z"
+  },
+  {
+    "Id": "6386112B-F5CC-477E-935A-D9FBF23DD22F",
+    "OriginalName": "001_Công_Văn_TTg_1046.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0f52ca27-cb10-4b04-9a8f-c17838b52799.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60419,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:28.9288677Z"
+  },
+  {
+    "Id": "BBEED092-C794-4162-8506-C7B92949A311",
+    "OriginalName": "002_Quyết_Định_VPCP_1026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\6a53c40a-f8c6-4aac-b005-98a6209c3a90.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 61464,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:33.4032707Z"
+  },
+  {
+    "Id": "6F3CBBE7-0656-4F6D-AE27-3C8477B34BD5",
+    "OriginalName": "003_Thông_Báo_BGDĐT_515.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2e51fc0e-88f0-49d5-b17f-3318eb67ab88.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60669,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:33.7543027Z"
+  },
+  {
+    "Id": "E5948037-89AD-4E12-B4CA-EE57043D1908",
+    "OriginalName": "004_Tờ_Trình_BKHCN_521.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\9fac2267-3258-45d1-b3b4-dab0d72a6c12.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60980,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:33.8448665Z"
+  },
+  {
+    "Id": "0D811909-D9E9-41E2-9AE7-7B86CBDBDEA9",
+    "OriginalName": "005_Giấy_Mời_BTC_1154.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\47e9d05f-1f53-4535-9867-b0096b6aedc7.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 61433,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.0046464Z"
+  },
+  {
+    "Id": "CBFDC7BE-D2BB-41FB-8954-467D2D623992",
+    "OriginalName": "006_Chỉ_Thị_BCA_1410.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\05abf53f-03d4-43cf-9ceb-141050ddf856.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60557,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.0911721Z"
+  },
+  {
+    "Id": "FF53C0E2-5422-466A-8CE7-9633F4A01794",
+    "OriginalName": "007_Kế_Hoạch_BYT_1422.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3c8f2876-cd08-4ada-b0d7-b9665e07afb7.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60305,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.3760081Z"
+  },
+  {
+    "Id": "117E7C62-B27F-4E33-9966-64C8C36C8D9E",
+    "OriginalName": "008_Báo_Cáo_BTTTT_1033.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0bafe187-461b-4155-b62a-a315722f56a1.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 61392,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.6721884Z"
+  },
+  {
+    "Id": "48BD9BFA-8948-4D8B-B1AF-ED044105B845",
+    "OriginalName": "009_Nghị_Quyết_BTP_1166.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b410b30b-fb85-4e39-a6ea-d57294a9258e.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60873,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.8354277Z"
+  },
+  {
+    "Id": "5CB944E3-1B25-4A03-8AC0-7CA82EA5715E",
+    "OriginalName": "010_Hợp_Đồng_BNNPTNT_1610.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2d24e79b-3edd-4072-9ead-97319f43e2cc.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 60331,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:23:34.8940306Z"
+  },
+  {
+    "Id": "2E40746B-30B9-465B-A6E5-1F06A8BE138E",
+    "OriginalName": "1241vpsigned_23220219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ca1bda4c-db30-4961-8de7-b1f915deebff.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3430,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:33.9916981Z"
+  },
+  {
+    "Id": "54552590-287F-4870-8E03-5C0FDF9BCFE0",
+    "OriginalName": "13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\cf7dec76-c414-41dc-b32c-39326467e4f4.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3489,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.333919Z"
+  },
+  {
+    "Id": "96D0CDBB-7576-4A3D-8D65-C6A856F53B63",
+    "OriginalName": "3885_qd_hdph_21102020.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\bdfad8be-2b70-42a6-bd03-ee7e7873c22f.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3447,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.3860056Z"
+  },
+  {
+    "Id": "BEA65708-104A-4C7C-AA33-0F8796298D0C",
+    "OriginalName": "4855qdsigned_15120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3b637435-320d-4e21-81b4-d6e71823abde.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3389,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.445813Z"
+  },
+  {
+    "Id": "1E2A57D6-9C9F-4AA7-BA5B-AF08D9B6C209",
+    "OriginalName": "81qdttg19012021signed_4320218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\30388a85-e146-4a8f-bf84-a2cf576711b2.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3458,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.5535711Z"
+  },
+  {
+    "Id": "155E50D5-4F7B-4A48-99F9-628D78C0A5CA",
+    "OriginalName": "850-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\aabe1039-dc17-488b-bd87-6f58218e4f3d.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3318,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.6541577Z"
+  },
+  {
+    "Id": "52030A34-9E2E-4227-9018-65032E44A9B2",
+    "OriginalName": "851-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\cf3700f0-fe54-42d9-af4c-b89b8ffeed9d.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3338,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.7076178Z"
+  },
+  {
+    "Id": "3626D721-35B3-4F63-B5AA-06FC7CC7581B",
+    "OriginalName": "852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\be9e39e8-dc8a-4408-aa77-3b36658348e7.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3374,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.7703661Z"
+  },
+  {
+    "Id": "33396E3F-4322-4E59-A596-36E201AA5EC8",
+    "OriginalName": "8985-qd-sytsigned_5120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c7193c44-bd3c-4e0c-9c95-cde7c97f257b.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 3441,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:25:34.8333297Z"
+  },
+  {
+    "Id": "34B5114B-2A3C-42BA-91C5-F37BD4B48EE6",
+    "OriginalName": "1241vpsigned_23220219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4b7f8ed9-cbe6-447b-86ec-6c18e43be8b0.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137411,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.220953Z"
+  },
+  {
+    "Id": "A4B38A2B-4A18-4A8A-80FA-5886E3B8693A",
+    "OriginalName": "13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2752ef9f-504b-4cb9-b610-cb2d1bc4913b.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 136843,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.3188659Z"
+  },
+  {
+    "Id": "9317C635-4017-4DA4-A498-3CB8A55A1CFD",
+    "OriginalName": "3885_qd_hdph_21102020.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\1982b0f3-404a-47dc-bd80-5d27cf566dee.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137291,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.3762508Z"
+  },
+  {
+    "Id": "5FBD98B5-1547-4270-80F0-57B554A2B295",
+    "OriginalName": "4855qdsigned_15120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\e92d4760-24ee-4f34-81fd-fe36169ba5db.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137517,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.4251501Z"
+  },
+  {
+    "Id": "6928A6A3-A015-4CC1-BF50-7A9B3DA101D1",
+    "OriginalName": "81qdttg19012021signed_4320218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5e502d43-79cb-49e2-b2c4-0fc0aff9ae2e.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137742,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.4847964Z"
+  },
+  {
+    "Id": "95FE9FBD-5A9C-48A1-8B64-73A4FCF888D8",
+    "OriginalName": "850-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\eb9de1b0-a449-4e7a-a515-850d5bb00734.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137738,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.6917732Z"
+  },
+  {
+    "Id": "706CEC15-8003-4968-B250-D22D44414A07",
+    "OriginalName": "851-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\22160a4b-7377-4b63-a696-6d4bfb7c1174.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137983,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.7464951Z"
+  },
+  {
+    "Id": "3DFBDAE3-1442-4263-9C7D-FE9A3AA997B5",
+    "OriginalName": "852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2544b0d6-f99a-4fae-ac13-6da018718455.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137641,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.7969859Z"
+  },
+  {
+    "Id": "A5C549A4-E732-4387-A84C-5A2EFCE072E2",
+    "OriginalName": "8985-qd-sytsigned_5120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a9d76e2c-051d-4321-bef8-bf9f6dc3d92f.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 138082,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:02.8550564Z"
+  },
+  {
+    "Id": "452029B1-4E2D-4033-A2EC-F787A4942492",
+    "OriginalName": "1241vpsigned_23220219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\31659746-9d5f-40d2-b3cf-4f2006b240d6.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137411,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.2160458Z"
+  },
+  {
+    "Id": "544A007F-614E-4449-A7DD-12B86F307992",
+    "OriginalName": "13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\71b74e82-df7c-4486-a56d-e19d2742a7ec.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 136843,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.3182424Z"
+  },
+  {
+    "Id": "4B3F3636-51BE-4DFE-8711-3AF96090BD97",
+    "OriginalName": "3885_qd_hdph_21102020.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\45219b7e-4372-4408-bf8f-7c7a8c40a92d.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137291,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.3623427Z"
+  },
+  {
+    "Id": "59A65ED7-2248-4F61-B324-49FCA55FC811",
+    "OriginalName": "4855qdsigned_15120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f0cc7d5e-c5c1-4157-8236-d2dd749def12.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137517,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.4020895Z"
+  },
+  {
+    "Id": "898F19BA-0A1A-4DF4-A304-C9F83D4FD8AB",
+    "OriginalName": "81qdttg19012021signed_4320218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\7d47a9e8-34f6-43f0-912c-398ecec3bcf1.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137742,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.4427267Z"
+  },
+  {
+    "Id": "7CEA27B3-CCFD-4557-897C-3CAA4410A3F9",
+    "OriginalName": "850-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\754f321a-8fdc-4553-8940-4f1466a28edd.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137738,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.4956033Z"
+  },
+  {
+    "Id": "2A11A047-A255-493C-A315-7EC83337CB98",
+    "OriginalName": "851-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\178c783e-c979-45f9-a70e-58940cfd8ed1.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137983,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.5342236Z"
+  },
+  {
+    "Id": "AB89A996-B99C-4CD2-B000-C6CC250BD098",
+    "OriginalName": "852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\05f49764-5a44-4ca4-a82e-78db0ed51695.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 137641,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.5808339Z"
+  },
+  {
+    "Id": "40939CC3-9F18-4613-8292-73B816F46F4A",
+    "OriginalName": "8985-qd-sytsigned_5120218.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0fd965e7-d28d-438d-b304-458a1d6dd9f6.pdf",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 138082,
+    "UploadedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
+    "CreatedAt": "2026-09-03T15:26:31.649903Z"
+  },
+  {
+    "Id": "BFD9EEE1-A1E2-4790-AE2B-2C158439C777",
+    "OriginalName": "media_1788450218960.png",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\14363743-f7c3-41f5-9e28-a496de8a23d6.png",
+    "ContentType": "application/octet-stream",
+    "SizeBytes": 604431,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-03T16:03:15.2607787Z"
+  },
+  {
+    "Id": "5343B81A-DD7C-427B-B7F2-8DBC39F3362A",
+    "OriginalName": "2595bttttcbc.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\bda3ee2a-7df0-4279-85e7-0e4352d39831.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 460550,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T03:36:09.9804836Z"
+  },
+  {
+    "Id": "FDD60B86-22C8-4A70-9AAB-F66B2330CCCF",
+    "OriginalName": "test_auto_upload.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ed6c90b4-cce7-4dea-9e51-07a3d15704d1.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 460550,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T03:40:01.7446134Z"
+  },
+  {
+    "Id": "8A97B985-ABEA-4F62-AFCE-D3DAEE7CB063",
+    "OriginalName": "687_STP_VB_signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\64e251ff-178f-436a-9d44-618578cde1fc.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 101199,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T03:45:25.2289063Z"
+  },
+  {
+    "Id": "70B0E095-2737-49B9-97AB-0806A4B9FFA2",
+    "OriginalName": "test.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\abc561a8-47de-495c-a277-686a7644a1f9.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T04:50:45.2241937Z"
+  },
+  {
+    "Id": "1F2B6C96-C8F2-4E69-AB69-0001E4CC3F10",
+    "OriginalName": "test.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d21dcbf4-8164-449f-a8d3-f4324faa5f50.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T04:50:45.3924394Z"
+  },
+  {
+    "Id": "4F724C26-ABDF-468A-B76B-7F3AEB99C66F",
+    "OriginalName": "test.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\43ebf4c2-c379-4d25-9e14-63f9255066d6.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T04:52:44.3968253Z"
+  },
+  {
+    "Id": "3143076A-86E1-47FC-90A5-9CCE46400326",
+    "OriginalName": "CongVan_63_CV_BCD_Test.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\eb4d21c7-1dcb-4881-bb34-9befffb00724.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:16:02.8807578Z"
+  },
+  {
+    "Id": "76A8D8CD-7FCB-48A7-9CE3-0D30061EEF53",
+    "OriginalName": "63_CV_BCD.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d2a822f0-62c2-40c6-9a0e-a01765f18714.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:16:08.157087Z"
+  },
+  {
+    "Id": "F212C404-982F-4C00-93B9-5CDC31220776",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_3_687stpvbsigned_4320219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2e7a363c-bf00-49cc-a6b7-3159ce38b653.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1263160,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:31:55.0901237Z"
+  },
+  {
+    "Id": "AB7A2C0D-26DD-4BE0-9BE6-83A9482870F8",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_2_852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\748e4e5e-7a83-471c-b04a-4eaa0a1c1c34.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 9485556,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:32:28.4993132Z"
+  },
+  {
+    "Id": "DDB24F4F-A898-4D96-A1B0-9E4E0B38D4C7",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_2_852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\09698a3e-db79-4c0b-abc4-5034d014cc67.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 9485556,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:32:53.400139Z"
+  },
+  {
+    "Id": "B524544D-CCA2-4CDA-9D1F-BD7B123EB99D",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_2_852-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\98443490-21d8-4895-953d-564519c73472.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 9485556,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:40:17.5135976Z"
+  },
+  {
+    "Id": "070CCA92-F202-431C-B294-D65D08BB7151",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_2_850-kh-sytsigned_92202114.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a8374831-ec08-41b3-8165-13108ca31c06.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 3614355,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:44:42.8515008Z"
+  },
+  {
+    "Id": "26FA0015-6A8C-473B-8E5C-AA85CC344DF3",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_4940-SYT-TCKT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\9383c8cc-aebb-4f49-9603-8eacb3f8f01c.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:45:17.4408096Z"
+  },
+  {
+    "Id": "8BD1E9D0-BCD6-4ADD-82F7-7AB2C056AB84",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_4940-SYT-TCKT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\0b231b4e-7712-41a8-8c5c-a71e9662d15d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T08:45:55.1554386Z"
+  },
+  {
+    "Id": "5998FA54-3AFA-4EC2-A59E-42DD45340543",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_4940-SYT-TCKT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\bc656329-c597-46b5-8b7e-917fee64925e.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:00:36.0632186Z"
+  },
+  {
+    "Id": "E11CBC8F-8F50-44EF-A41D-EC61E2C131DF",
+    "OriginalName": "070cca92-f202-431c-b294-d65d08bb7151.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c02cb53c-13d2-41cc-8a24-5571d7fd7b9a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 3614355,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:00:52.8533457Z"
+  },
+  {
+    "Id": "BFBADC64-35F1-4337-82C7-77B747AD038B",
+    "OriginalName": "26fa0015-6a8c-473b-8e5c-aa85cc344df3.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d50e8599-4d43-4d7a-b1ae-5fdb6e4e4c12.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:01:10.2838539Z"
+  },
+  {
+    "Id": "553FD4D2-1745-44D9-971E-38305D308012",
+    "OriginalName": "3143076a-86e1-47fc-90a5-9cce46400326.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\17e51718-08e5-47a1-b567-33c9566fff33.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:01:17.5132666Z"
+  },
+  {
+    "Id": "0EE06C5B-365B-4F7B-9D5B-7B256E07D89F",
+    "OriginalName": "4f724c26-abdf-468a-b76b-7f3aeb99c66f.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\62fdd9c7-a57b-475d-a390-8fbfbd074d4b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 177317,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:01:21.9477029Z"
+  },
+  {
+    "Id": "DAE7A0C4-306C-4F3F-AD55-A9E085CC852E",
+    "OriginalName": "5998fa54-3afa-4ec2-a59e-42dd45340543.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\28b7e240-cb39-4583-bff4-89a098c6fe72.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:01:26.4952379Z"
+  },
+  {
+    "Id": "733BD2B4-B9F7-4D8F-BDC9-F81BCECDC81B",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_1_13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\fe3ef15e-3c67-4178-8c74-ea7569fba8d4.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1925622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:03:05.399987Z"
+  },
+  {
+    "Id": "43444E19-269E-427E-8A4D-5909C1F3E6ED",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_1_13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\86584488-02f9-4b19-b92a-4619990d548a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1925622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:03:27.4270406Z"
+  },
+  {
+    "Id": "F1876B88-EE26-4D05-AB6F-C6D96EF03FF4",
+    "OriginalName": "Thong_Bao_Noi_Bo_Trien_Khai_AI_OCR_15_TB_NB_DAS_2026.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b829ad17-f26a-4156-953c-089d2085b6eb.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 178429,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:04:06.5900225Z"
+  },
+  {
+    "Id": "B754AA99-6296-43C8-9A7D-88F7075A366B",
+    "OriginalName": "1678vb-huong-dan-xet-duyet-pcud228202591_318202515.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ef6201ee-476c-40bc-b064-39457ea6a629.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1501499,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:04:28.6991466Z"
+  },
+  {
+    "Id": "8E33256F-121C-43EB-9A03-95F5B1655F8B",
+    "OriginalName": "c_ng_v_n_test_pdf.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\05a767fd-9e0f-4734-924a-b4e72742b0cb.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 6910,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:04:45.7379951Z"
+  },
+  {
+    "Id": "DD1C3A0A-825F-4858-B1AE-3CBFBB69B8D5",
+    "OriginalName": "vpdt-den-570-cong-van-quy-dinh-gio-hoc_15920259.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f6fc9aa1-4bfe-4078-973a-76338202ee42.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 573000,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:05:02.7670692Z"
+  },
+  {
+    "Id": "BF3146E0-961E-430E-87FD-6AE30D8A893D",
+    "OriginalName": "vpdt-den-570-cong-van-quy-dinh-gio-hoc_15920259.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\9fe6e3b3-c90d-4918-8f16-a37ee3cdc09e.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 573000,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:06:18.3601607Z"
+  },
+  {
+    "Id": "C9163CC9-9D6E-41FD-B7B9-A52708131F67",
+    "OriginalName": "vpdt-den-570-cong-van-quy-dinh-gio-hoc_15920259.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b45361ec-a39a-4f12-a2d7-6cf2a0adcd5f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 573000,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:26:29.9727072Z"
+  },
+  {
+    "Id": "258A9689-39E6-44FD-8694-3E35950F5E4A",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_9_4002khubsigned_-_giai_quyet_tranh_chap_dau_tu_qt_2110202010.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ae9aa4ee-cd3a-42d5-88f4-104aaa179381.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 2007494,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:28:20.1978002Z"
+  },
+  {
+    "Id": "2D0B8E87-4DBE-4E9F-952E-288836C2B0EC",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_4940-SYT-TCKT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\76f299ff-1c46-4d97-a852-d05b77034d6b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:29:00.6959194Z"
+  },
+  {
+    "Id": "DC8C1857-7F22-4A54-835A-1962F90D0F51",
+    "OriginalName": "vpdt-den-570-cong-van-quy-dinh-gio-hoc_15920259.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4c00646b-f5b6-494b-981f-34c810efe282.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 573000,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:29:17.0652549Z"
+  },
+  {
+    "Id": "67C553EA-A800-4F4A-8BB8-25C0183BA4EE",
+    "OriginalName": "69-cvbcd.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\3e9bad87-8afa-45ab-8ef6-78b175bea615.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 242283,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:29:28.0360663Z"
+  },
+  {
+    "Id": "2A4EEB38-7991-49ED-88DB-3CC95BC5A08C",
+    "OriginalName": "Công Văn Sở Khoa Học và Công Nghệ TP Đà Nẵng.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\315e7f9d-46c3-4447-b2bf-ecaf6e178591.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 146622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:29:54.7457253Z"
+  },
+  {
+    "Id": "34968182-147B-4FF9-8D0B-B1F40BDEB318",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_3_687stpvbsigned_4320219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\a0e53346-3ea5-44f1-b4cf-504e0a880a49.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1263160,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:30:04.8194287Z"
+  },
+  {
+    "Id": "15E72535-0817-42FA-8CEA-400B1A523BF7",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_3_687stpvbsigned_4320219.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b6813e39-f5e9-4487-afc7-e180f17e8d29.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1263160,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:30:23.4978769Z"
+  },
+  {
+    "Id": "3413DF48-BC5C-4073-A2A5-930E2CB56EF9",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_1_13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\f48b6788-536c-47a4-aeb9-669cbcea6759.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1925622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:32:28.1859198Z"
+  },
+  {
+    "Id": "662E6B50-9BFB-4E37-9E8B-980E87AF3CD2",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_12_2595bttttcbc_1412202014.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\bbc41421-ebcb-4bd3-aaa3-99e2975c82d8.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 460550,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:33:00.8241452Z"
+  },
+  {
+    "Id": "8F69920B-1E47-4FF6-BBF5-F6009FB48041",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_4940-SYT-TCKT.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\2c8d3123-2b3f-4073-a918-5849e497109a.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 33981,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:37:03.985681Z"
+  },
+  {
+    "Id": "35D2E39F-E729-4E2A-B0F6-C9828CB180B6",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2153-QD-UBND.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4c57e84b-b24a-4386-9861-8ba32d8cc72d.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 6093373,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:39:33.4022775Z"
+  },
+  {
+    "Id": "8D48E437-DD80-4401-8995-1B19C02772C0",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2153-QD-UBND.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\c0c34496-a024-4f02-9346-7900b41d941f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 6093373,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:39:34.5387583Z"
+  },
+  {
+    "Id": "284E6CC7-B1A2-440E-BA36-260DDC4B77AF",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2153-QD-UBND.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b08fa6ea-2903-43b9-88e1-bb8d83d8e5ae.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 6093373,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:43:21.0169377Z"
+  },
+  {
+    "Id": "5A2107D9-5794-49CD-B221-70FC7914F648",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_9_4002khubsigned_-_giai_quyet_tranh_chap_dau_tu_qt_2110202010.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\42ccc026-6955-4459-82fa-2e2d27310fe2.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 2007494,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T09:45:02.3279023Z"
+  },
+  {
+    "Id": "027CADCC-930A-4695-B7E8-295658FF3D2D",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2153-QD-UBND.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\9dc7030b-7c4e-4cd0-9b65-2037c8367856.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 6093373,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:07:51.0010316Z"
+  },
+  {
+    "Id": "4B815DEC-31D6-4BA0-95B9-4348BB4D80C7",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_9_4002khubsigned_-_giai_quyet_tranh_chap_dau_tu_qt_2110202010.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\188cb551-f2a8-4c01-b8b9-10e28bae423b.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 2007494,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:08:14.572367Z"
+  },
+  {
+    "Id": "298B18C3-DA87-4E16-8D1A-E922DDEA28A3",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5a523f5e-d9dd-4ffa-9028-047ca566d1a9.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:08:49.2703431Z"
+  },
+  {
+    "Id": "9C199C51-3953-4B34-AAA3-FDDFFB77ADDF",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ff711c77-93d1-4484-8f73-e152bd40a935.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:09:23.9400038Z"
+  },
+  {
+    "Id": "CD9F3F66-438D-401C-967A-6A3678F5171E",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2021_1_13_du_thao_quy_che_18-11signed_61202115.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\d288c321-9a82-444b-8d91-45b710b05129.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1925622,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:12:26.5836008Z"
+  },
+  {
+    "Id": "5E4AB111-7252-45C1-80A8-379C8DDCE325",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_4_1211qdsigned_15420209.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\cabda722-793f-4a31-80d5-a091ad3f1e01.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 862066,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:12:27.8136851Z"
+  },
+  {
+    "Id": "3EB68411-C697-4F97-BB74-94BD5975A4AD",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_561-syt-vp.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\b0016ffc-cb40-417c-9df0-d745c36d0e39.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 215112,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:12:36.630448Z"
+  },
+  {
+    "Id": "D9FC1882-8C69-4DDA-A725-933A200C94C4",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_4_1211qdsigned_15420209.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\94d99e7a-0077-4b42-879c-90df2154fcdb.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 862066,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:12:40.5507387Z"
+  },
+  {
+    "Id": "978DB20D-860E-41C2-819C-C8D318CA8F05",
+    "OriginalName": "1128-ttg-dmdn.signed.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\ca4947e2-85db-4a9c-89b2-bbfd1602149e.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 405743,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:21:53.928319Z"
+  },
+  {
+    "Id": "E1760434-6606-4F38-8E3E-DD80C9009111",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_2016_561-syt-vp.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\fab5db6b-4ae8-4d2d-9827-8e9e2294b799.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 215112,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:25:03.4628106Z"
+  },
+  {
+    "Id": "2F58A1B9-555F-4503-BE34-32CBFE92E452",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_7109 QD-UBND.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\5f9dccb9-d897-4a4e-8864-cc0ebca4847f.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 8000872,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:25:33.640467Z"
+  },
+  {
+    "Id": "CCC34E8C-80D2-4BC2-B354-DDB76EE9ABC0",
+    "OriginalName": "_data_soytehcm_vanphongso_attachments_2020_9_4002khubsigned_-_giai_quyet_tranh_chap_dau_tu_qt_2110202010.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\de69cc52-d6ad-4225-98ef-0746627c1dab.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 2007494,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:26:00.6682088Z"
+  },
+  {
+    "Id": "D900FA2E-4F7B-4D66-AB8D-30E8EC42D21A",
+    "OriginalName": "_Data_soytehcm_vanphongso_Attachments_File dinh kem_11930-SYT-NVY.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\391ce624-ee30-4de5-9df9-58eecb0fd7dc.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 1284681,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:26:25.8191245Z"
+  },
+  {
+    "Id": "E9DAF620-7A2C-491A-B1EF-8F7C2BB4EDA1",
+    "OriginalName": "02_Quyet_Dinh_UBND_Ha_Noi.pdf",
+    "StoragePath": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\Intern-DocumentAdministration-BE\\services\\files-service\\bin\\Debug\\net10.0\\Uploads\\4420d0e6-93a8-429b-a40b-1698211636b9.pdf",
+    "ContentType": "application/pdf",
+    "SizeBytes": 176548,
+    "UploadedByUserId": "00000000-0000-0000-0000-000000000001",
+    "CreatedAt": "2026-09-04T10:27:33.5588373Z"
+  }
+]

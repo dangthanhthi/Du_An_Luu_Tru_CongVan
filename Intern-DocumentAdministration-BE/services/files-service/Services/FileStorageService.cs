@@ -1,4 +1,4 @@
-﻿using FilesService.Data;
+using FilesService.Data;
 using FilesService.Models.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -16,8 +16,15 @@ namespace FilesService.Services
         public FileStorageService(FileDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
-            // Đọc cấu hình Storage__Path từ biến môi trường (mặc định "/app/storage")
-            _storagePath = configuration["Storage:Path"] ?? "/app/storage";
+            var configPath = configuration["Storage:Path"];
+            if (string.IsNullOrWhiteSpace(configPath) || (!Directory.Exists(configPath) && configPath.StartsWith("/app")))
+            {
+                _storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Uploads");
+            }
+            else
+            {
+                _storagePath = configPath;
+            }
 
             // Tự động tạo thư mục nếu chưa tồn tại trên ổ cứng
             if (!Directory.Exists(_storagePath))

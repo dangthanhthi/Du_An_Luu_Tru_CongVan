@@ -12,11 +12,13 @@ namespace EmailWorkerService.Services.Integration
         string? ExtractedDocumentType,
         Guid? MatchedPartnerId,
         double Confidence,
-        string? MatchMethod
+        string? MatchMethod,
+        string? ExtractedPartnerName = null,
+        string? ExtractedDateString = null
     );
 
     public interface IAiOcrServiceClient
     {
-        Task<OcrAnalyzeResult?> AnalyzeDocumentAsync(Guid fileId, string? senderEmail = null);
+        Task<OcrAnalyzeResult?> AnalyzeDocumentAsync(Guid fileId, string? senderEmail = null, string? fileName = null);
     }
 }

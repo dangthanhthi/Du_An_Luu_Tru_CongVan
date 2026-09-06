@@ -12,19 +12,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 1. Đăng ký DbContext kết nối với SQL Server hoặc SQLite
-var connStr = builder.Configuration.GetConnectionString("Default");
+// 1. Đăng ký DbContext kết nối với SQLite / SQL Server
 builder.Services.AddDbContext<FileDbContext>(options =>
 {
-    if (!string.IsNullOrEmpty(connStr) && connStr.Contains("Data Source=") && connStr.EndsWith(".db"))
+    var conn = builder.Configuration.GetConnectionString("Default");
+    if (!string.IsNullOrEmpty(conn) && (conn.Contains(".db") || (conn.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase) && conn.EndsWith(".db", StringComparison.OrdinalIgnoreCase))))
     {
-        options.UseSqlite(connStr);
+        options.UseSqlite(conn);
+    }
+    else if (!string.IsNullOrEmpty(conn))
+    {
+        options.UseSqlServer(conn, sqlOptions =>
+            sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null));
     }
     else
     {
-        options.UseSqlServer(connStr);
+        options.UseSqlite("Data Source=files_local.db");
     }
-    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 
 // 2. Đăng ký Interface và Implementation cho File Storage Service
@@ -34,8 +38,7 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 var jwtSecret = builder.Configuration["Jwt:Secret"];
 if (string.IsNullOrEmpty(jwtSecret))
 {
-    // Đảm bảo không bị crash nếu chạy local chưa có key
-    jwtSecret = "mot-chuoi-khoa-bi-mat-dai-hon-32-ky-tu-de-test-local-123";
+    jwtSecret = "SuperSecretJwtSigningKeyForDocumentAdmin2026System!";
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -45,38 +48,60 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-            ValidateIssuer = false, // Tạm tắt kiểm tra Issuer/Audience để test dễ dàng hơn
+            ValidateIssuer = false,
             ValidateAudience = false
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
-// Tự động chạy Migration để sinh database SQLite/SQL Server lúc khởi động
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FileDbContext>();
-    if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+    db.Database.EnsureCreated();
+
+    try
     {
-        db.Database.EnsureCreated();
+        if (!await db.Files.AnyAsync())
+        {
+            var seedPath = Path.Combine(AppContext.BaseDirectory, "files_seed.json");
+            if (!File.Exists(seedPath))
+                seedPath = Path.Combine(builder.Environment.ContentRootPath, "files_seed.json");
+
+            if (File.Exists(seedPath))
+            {
+                var json = await File.ReadAllTextAsync(seedPath);
+                var items = System.Text.Json.JsonSerializer.Deserialize<List<FilesService.Models.Entities.FileRecord>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (items != null && items.Count > 0)
+                {
+                    db.Files.AddRange(items);
+                    await db.SaveChangesAsync();
+                }
+            }
+        }
     }
-    else
+    catch (Exception ex)
     {
-        db.Database.Migrate();
+        app.Logger.LogWarning(ex, "Could not auto-seed files.");
     }
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
-// Tạm comment dòng HttpsRedirection vì chạy trong Docker gọi nội bộ thường dùng HTTP (cổng 8080)
-// app.UseHttpsRedirection(); 
-
-// 4. BẮT BUỘC PHẢI CÓ UseAuthentication TRƯỚC UseAuthorization
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
