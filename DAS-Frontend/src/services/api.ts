@@ -221,6 +221,14 @@ const sanitizeDocuments = (docs: any[]): any[] => {
       if (partner.includes('instagram.com') || title.includes('faker') || title.includes('khoảnh khắc')) {
         return false
       }
+      // Loại bỏ các tài liệu test, dummy, kiểm thử, unhappy
+      if (
+        title.includes('test') || title.includes('kiểm thử') || title.includes('unhappy') ||
+        title.includes('dummy') || title.includes('sửa trái phép') || title.includes('concurrent') ||
+        title.includes('seq ') || title === 'công văn tiếp nhận medinet' || title === 'test status flow'
+      ) {
+        return false
+      }
       // Loại bỏ định dạng số ngẫu nhiên cũ không chuẩn (/EMAIL, /GMAIL, /MAIL, /PRIORITY)
       if (num.endsWith('/EMAIL') || num.endsWith('/GMAIL') || num.endsWith('/MAIL') || num.endsWith('/PRIORITY')) {
         return false
