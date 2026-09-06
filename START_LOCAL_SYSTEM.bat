@@ -15,12 +15,21 @@ powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 5001,5002,5003,5
 :: 2. Xac dinh thu muc Backend va Frontend
 set "ROOT_DIR=%~dp0"
 set "BE_DIR=%ROOT_DIR%Intern-DocumentAdministration-BE"
-set "FE_DIR=%ROOT_DIR%DAS-Frontend"
+set "FE_DIR=%ROOT_DIR%Intern-DocumentAdministration-FE-Web"
 
-if not exist "%BE_DIR%" set "BE_DIR=%ROOT_DIR%"
-if not exist "%FE_DIR%" set "FE_DIR=%ROOT_DIR%Intern-DocumentAdministration-FE-Web"
+if not exist "%BE_DIR%" if exist "%ROOT_DIR%services" set "BE_DIR=%ROOT_DIR%"
+if not exist "%FE_DIR%" if exist "%ROOT_DIR%DAS-Frontend" set "FE_DIR=%ROOT_DIR%DAS-Frontend"
 
-:: 3. Build Backend sieu toc 1 lan duy nhat
+:: 3. Kiem tra va cai dat npm dependencies cho Frontend neu can
+if exist "%FE_DIR%" (
+    if not exist "%FE_DIR%\node_modules" (
+        echo [*] Phat hien Frontend chua co thu vien node_modules, dang tu dong cai dat...
+        cd /d "%FE_DIR%"
+        call npm install --legacy-peer-deps
+    )
+)
+
+:: 4. Build Backend sieu toc 1 lan duy nhat
 cd /d "%BE_DIR%"
 echo [*] Dang kiem tra build Backend...
 dotnet build DocumentAdministration.slnx --verbosity quiet -m
