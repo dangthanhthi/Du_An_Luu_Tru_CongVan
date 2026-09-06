@@ -224,57 +224,31 @@ const sortDate = (rowA: any, rowB: any) => {
   const columns = useMemo<ColumnDef<DocumentTypeWithAction, any>[]>(
     () => [
       columnHelper.accessor('documentNumber', {
-        header: t.documents.docNumber,
+        header: t.documents.docNumber || 'Số Văn Bản',
         sortingFn: sortDocumentNumber,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          const dir = (row.original.direction || 'incoming').toLowerCase()
           const docNum = row.original.documentNumber || `CV-${row.original.id}`
           const refNum = row.original.referenceNumber || meta.referenceNumber
 
-          // Đối với công văn đến: Ưu tiên hiển thị Số ký hiệu văn bản chính của đơn vị gửi + Badge Số đến
-          if (dir === 'incoming') {
-            return (
-              <div className='flex flex-col gap-1 min-w-[150px]'>
-                <Typography
-                  component={Link}
-                  href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
-                  color='primary.main'
-                  sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
-                >
-                  {refNum || docNum}
-                </Typography>
-                <div className='flex items-center gap-1'>
-                  <Chip
-                    label={`Số đến: ${docNum}`}
-                    size='small'
-                    variant='tonal'
-                    color='secondary'
-                    sx={{ fontSize: '0.72rem', height: 20 }}
-                  />
-                </div>
-              </div>
-            )
-          }
-
-          // Đối với công văn nội bộ hoặc công văn đi:
+          // Hiển thị số đếm nội bộ (0001/2026, 01/CV-NB-VP...) làm số định danh chính
           return (
-            <div className='flex flex-col gap-1 min-w-[150px]'>
+            <div className='flex flex-col gap-1 min-w-[140px]'>
               <Typography
                 component={Link}
                 href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
                 color='primary.main'
                 sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
               >
-                {refNum || docNum}
+                {docNum}
               </Typography>
               {refNum && refNum !== docNum && (
                 <div className='flex items-center gap-1'>
                   <Chip
-                    label={docNum}
+                    label={`Ký hiệu: ${refNum}`}
                     size='small'
                     variant='tonal'
-                    color='info'
+                    color='secondary'
                     sx={{ fontSize: '0.72rem', height: 20 }}
                   />
                 </div>
