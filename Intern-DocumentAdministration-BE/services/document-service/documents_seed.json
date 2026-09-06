@@ -1,1302 +1,382 @@
-{
-  "counters": [
-    {
-      "DocType": "INCOMING",
-      "Year": 2026,
-      "CurrentValue": 31
-    },
-    {
-      "DocType": "OUTGOING",
-      "Year": 2026,
-      "CurrentValue": 0
-    },
-    {
-      "DocType": "INTERNAL",
-      "Year": 2026,
-      "CurrentValue": 6
-    }
-  ],
-  "documents": [
-    {
-      "Id": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "DocumentNumber": "0001/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Distributed",
-      "Title": "xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
-      "Summary": "Số/Ký hiệu: 689/SKHCN-QLKH",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 09:29:33",
-      "DistributedAt": "2026-08-28 04:53:31.1606917",
-      "CreatedAt": "2026-08-28 04:51:39.9850219",
-      "UpdatedAt": "2026-08-28 04:53:31.1606917",
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "4B7FB3D5-33BD-4042-A169-61362D007D8B",
-      "DocumentNumber": "0002/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
-      "Summary": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 07:24:47",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:28:52.5936352",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "A12F9D3F-5FF8-4EA2-896C-2839B01D50C7",
-      "DocumentNumber": "0003/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thu hút đầu tư khởi nghiệp đổi mới sáng tạo từ các nguồn trong và ngoài nước",
-      "Summary": "Thu hút đầu tư khởi nghiệp đổi mới sáng tạo từ các nguồn trong và ngoài nước",
-      "PartnerId": "B800B6F8-3095-4284-9BFF-9C9FD012463F",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 06:38:21",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:28:59.586665",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "2AFC9542-2BA9-44EE-9062-DE6F34EE5D60",
-      "DocumentNumber": "01/CV-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
-      "Summary": "Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:01.0344773",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "4262F331-5ADF-4F7D-AC5A-DD48BA076E09",
-      "DocumentNumber": "02/QC-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
-      "Summary": "Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:03.634691",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "E6CE2002-216A-44B9-B298-D2ABD03C03AC",
-      "DocumentNumber": "0004/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
-      "Summary": "Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-24 05:39:02",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:06.2293292",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "C3E6515B-B1E3-41D3-86CE-F9DB24FEE3C4",
-      "DocumentNumber": "0005/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
-      "Summary": "Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
-      "PartnerId": "6583F5F4-014B-48E0-B22C-7F78E63048A5",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 15:14:40",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:07.534613",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "96B8D635-CA43-41E4-85EC-5558084E4691",
-      "DocumentNumber": "0006/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công vănđiện tử ứng dụng AI OCR",
-      "Summary": "Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công vănđiện tử ứng dụng AI OCR",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 08:53:12",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:09.8227158",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "A07D8A85-069A-4BA1-A3E6-DD9F38DD55A0",
-      "DocumentNumber": "0007/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Tham dự Hội thảo chuyên đề: \"Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số vàLưu trữ Tài liệu thông minh\"",
-      "Summary": "Tham dự Hội thảo chuyên đề: \"Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số vàLưu trữ Tài liệu thông minh\"",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-20 13:24:34",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-28 05:29:12.8937167",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "9A1B4295-D010-4CB4-AFBD-EBD54D13AC03",
-      "DocumentNumber": "0008/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
-      "Summary": "• Số ký hiệu: 69/CV-BCĐ\r\n• Cơ quan ban hành: Thủ tướng Chính phủ\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 03/06/2025\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 07:24:47",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:14.6552751",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "B59AE047-0185-43D7-999B-B09737FD150E",
-      "DocumentNumber": "0009/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thu hút đầu tư khởi nghiệp đổi mới sáng tạo từ các nguồn trong và ngoài nước",
-      "Summary": "• Số ký hiệu: 1128/TTg-ĐMDN\r\n• Cơ quan ban hành: Bộ Khoa học và Công nghệ\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 31/08/2018\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "B800B6F8-3095-4284-9BFF-9C9FD012463F",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 06:38:21",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:21.5403668",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "417E88EC-8B3E-4B7E-B836-97EDE9E4AE45",
-      "DocumentNumber": "03/CV-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
-      "Summary": "• Số ký hiệu: 15/TB-NB-DAS\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Thông Báo\r\n• Ngày ban hành: 24/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:22.8993435",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "35C8A0CE-4B24-4DC0-8984-9EACBAC8DF4B",
-      "DocumentNumber": "04/QC-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
-      "Summary": "• Số ký hiệu: 08/QĐ-NB-DAS\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Quyết Định\r\n• Ngày ban hành: 24/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:25.4312349",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "33D86456-EB7C-4D5D-A0BD-8D0E6520C85E",
-      "DocumentNumber": "0010/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
-      "Summary": "• Số ký hiệu: 852/SGDĐT-KHTC\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 20/08/2026\r\n• Người ký: Nguyễn Văn Hiếu\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-24 05:39:02",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:28.2631568",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "9D06848A-1CCD-4ED3-BAF2-C39347A48924",
-      "DocumentNumber": "0011/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
-      "Summary": "• Số ký hiệu: 689/SKHCN-QLKH\r\n• Cơ quan ban hành: Sở Khoa học và Công nghệ TP. Đà Nẵng\r\n• Loại văn bản: Thông Báo\r\n• Ngày ban hành: 21/08/2026\r\n• Người ký: THÀNH PHỐ ĐÀ NẴNGSỞ KHOA HỌC VÀ CÔNG NGHỆ\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "6583F5F4-014B-48E0-B22C-7F78E63048A5",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 15:14:40",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:29.4944981",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "7FDF65D8-01EA-46A4-80B4-231C34A32624",
-      "DocumentNumber": "0012/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công vănđiện tử ứng dụng AI OCR",
-      "Summary": "• Số ký hiệu: 896/VNPT-IT\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 22/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨAVIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 08:53:12",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:44:31.8506704",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "82F9BAC8-24C3-422F-A555-51FBA1E967E3",
-      "DocumentNumber": "0013/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
-      "Summary": "• Số ký hiệu: 69/CV-BCĐ\r\n• Cơ quan ban hành: Thủ tướng Chính phủ\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 03/06/2025\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 07:24:47",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 08:49:48.2509894",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "697770E4-E62E-413D-BFB3-CB19C0A4FBCD",
-      "DocumentNumber": "0014/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
-      "Summary": "• Số ký hiệu: 69/CV-BCĐ\r\n• Cơ quan ban hành: Thủ tướng Chính phủ\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 03/06/2025\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 07:24:47",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:22:50.9314126",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "5FA13C15-F586-4897-A535-D37CC0BA5D2E",
-      "DocumentNumber": "0015/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "[Công Văn Đến] V/v Hợp tác triển khai thử nghiệm hệ thống lưu trữ công văn điện tử",
-      "Summary": "• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-27 06:38:21",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:22:52.7769751",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "D082283E-249B-4701-A6C8-22C2737391B3",
-      "DocumentNumber": "05/CV-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
-      "Summary": "• Số ký hiệu: 15/TB-NB-DAS\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Thông Báo\r\n• Ngày ban hành: 24/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:22:54.4881777",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "619D94A8-104B-45A3-8ADC-6E977875008F",
-      "DocumentNumber": "06/QC-NB-VP",
-      "ReferenceNumber": null,
-      "DocType": "INTERNAL",
-      "Status": "Draft",
-      "Title": "Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
-      "Summary": "• Số ký hiệu: 08/QĐ-NB-DAS\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Quyết Định\r\n• Ngày ban hành: 24/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": null,
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:22:56.8055917",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "D348A9E6-FDA4-4F6F-9133-ACFC4561CC21",
-      "DocumentNumber": "0016/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
-      "Summary": "• Số ký hiệu: 852/SGDĐT-KHTC\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 20/08/2026\r\n• Người ký: Nguyễn Văn Hiếu\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-24 05:39:02",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:22:59.2298568",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "1E1D6062-E178-4D7A-867F-EAE23F99CA1A",
-      "DocumentNumber": "0017/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
-      "Summary": "• Số ký hiệu: 689/SKHCN-QLKH\r\n• Cơ quan ban hành: Sở Khoa học và Công nghệ TP. Đà Nẵng\r\n• Loại văn bản: Thông Báo\r\n• Ngày ban hành: 21/08/2026\r\n• Người ký: THÀNH PHỐ ĐÀ NẴNGSỞ KHOA HỌC VÀ CÔNG NGHỆ\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "6583F5F4-014B-48E0-B22C-7F78E63048A5",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 15:14:40",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:23:00.305302",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "A5CCF7DB-784B-4FF6-B6C7-29D0B805E32B",
-      "DocumentNumber": "0018/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công vănđiện tử ứng dụng AI OCR",
-      "Summary": "• Số ký hiệu: 896/VNPT-IT\r\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\r\n• Loại văn bản: Công Văn\r\n• Ngày ban hành: 22/08/2026\r\n• Người ký: CỘNG HÒA XÃ HỘI CHỦ NGHĨAVIỆT NAM\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-22 08:53:12",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:23:02.452912",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "630B58C4-EC68-4AC9-8A58-23051F75A42B",
-      "DocumentNumber": "0019/2026",
-      "ReferenceNumber": null,
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Tham dự Hội thảo chuyên đề: \"Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số vàLưu trữ Tài liệu thông minh\"",
-      "Summary": "• Số ký hiệu: 58/GM-ABCTECH\r\n• Cơ quan ban hành: CÔNG TY CỔ PHẦN CÔNG NGHỆ ABCBAN TỔ CHỨC SỰ KIỆN\r\n• Loại văn bản: Giấy Mời\r\n• Ngày ban hành: 14/08/2026\r\n• Người ký: Minh Tuấn\r\n• Tiếp nhận qua Email: dangthanhthi213@gmail.com",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ReceivedAt": "2026-08-20 13:24:34",
-      "DistributedAt": null,
-      "CreatedAt": "2026-08-29 13:23:05.1159616",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "D85E6A6E-558A-44EC-8B6C-A3E7778D4CE8",
-      "DocumentNumber": "0020/2026",
-      "ReferenceNumber": "1241/VP-TH",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Công văn số 1241/VP-TH",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 1241/VP-TH\n- Đơn vị ban hành: Ủy ban nhân dân Thành phố Hồ Chí Minh\n- Ngày ký: 18/02/2021\n- Người ký:",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-02-18 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.2662865",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "63045D13-29FD-450B-8145-A7FB2C4281D5",
-      "DocumentNumber": "0021/2026",
-      "ReferenceNumber": "4899/QĐ-BYT",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng,khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 4899/QĐ-BYT\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 24/11/2020\n- Người ký: GS.TS Nguyễn Thanh Long",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2020-11-24 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.3467055",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "6038A199-5551-4B14-98C6-CB9B11AB6316",
-      "DocumentNumber": "0022/2026",
-      "ReferenceNumber": "3885/QĐ-HĐPH",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Ban hành quy chế hoạt động của Hội đồngphối hợp phổ biến giáo dục pháp luật của TPHCM",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 3885/QĐ-HĐPH\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 21/10/2020\n- Người ký:",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2020-10-21 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.393139",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "4C645593-7771-4134-B48D-960C5597BE60",
-      "DocumentNumber": "0023/2026",
-      "ReferenceNumber": "4855/QĐ-UBND",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 4855/QĐ-UBND\n- Đơn vị ban hành: Ủy ban nhân dân Thành phố Hồ Chí Minh\n- Ngày ký: 15/01/2021\n- Người ký:",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-01-15 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.4293792",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "7558FFE3-0978-4C99-AB43-F4461FD0D257",
-      "DocumentNumber": "0024/2026",
-      "ReferenceNumber": "81/QĐ-TTg",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Tiếp tục triển khai chương trình hỗ trợpháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 81/QĐ-TTg\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 19/01/2021\n- Người ký: QUYẾT ĐỊNH",
-      "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-01-19 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.4847696",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "744138DC-00B1-42D3-AA18-6E224AE212D9",
-      "DocumentNumber": "0025/2026",
-      "ReferenceNumber": "850/KH-SYT",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Giám đốc PGS.TS.BS Tăng Chí Thượng",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 850/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-02-09 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.5251865",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "037964CD-FEED-4FFF-A57F-1624D8C3D98B",
-      "DocumentNumber": "0026/2026",
-      "ReferenceNumber": "851/KH-SYT",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Công văn số 851/KH-SYT",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 851/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-02-09 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.5691206",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "AD0BE608-F61A-4FAC-8B88-5EDCD0B13D13",
-      "DocumentNumber": "0027/2026",
-      "ReferenceNumber": "852/KH-SYT",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "KẾ HOẠCH Công tác phổ biến, giáo dục pháp luật năm 2021 củangành Y tế trên địa bàn Thành phố Hồ Chí Minh",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 852/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2021-02-09 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.640106",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "BD7FC169-0D05-40E0-98E8-AE9E7B3F9444",
-      "DocumentNumber": "0028/2026",
-      "ReferenceNumber": "8985/QĐ-SYT",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Ký ủy quyền và thừa ủy quyền (TUQ)của Giám đốc Sở Y tế cho Trưởng các phòng chuyên môn, nghiệp vụ thuộc Sở Y tế",
-      "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 8985/QĐ-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 31/12/2020\n- Người ký: Căn cứ Quyết định số",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ReceivedAt": "2020-12-31 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 15:26:31.6758399",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "FB6D071B-D52F-4EC1-AB39-6BA2B4866184",
-      "DocumentNumber": "0029/2026",
-      "ReferenceNumber": "3359/VPCP",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2016 và Kế hoạch triển khai các hoạt động năm 2021 của Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa",
-      "Summary": "• Số ký hiệu gốc: 687/STP-VB\n• Cơ quan ban hành: Sở Tư pháp Thành phố Hồ Chí Minh\n• Ngày văn bản: 25/02/2021\n• Thể loại: Kế Hoạch\n• Trích yếu: Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2016 và Kế hoạch triển khai các hoạt động năm 2021 của Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa\n• Tiếp nhận tự động từ: stp@tphcm.gov.vn (Đã đối soát chữ ký số điện tử Sở Tư pháp TP.HCM)",
-      "PartnerId": "51C37AA6-724F-44D8-806B-B3EDE3D21AE1",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ReceivedAt": "2026-09-03 16:03:21",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-03 16:03:21.5689207",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "54E15010-FF82-490C-9791-65B758A37033",
-      "DocumentNumber": "0030/2026",
-      "ReferenceNumber": "2595/BTTTT-CBC",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Phối hợp triển khai quy hoạch báo chí",
-      "Summary": "Số hiệu: 2595/BTTTT-CBC\nNgày: 14/07/2020\nCơ quan: Bộ Thông tin và Truyền thông",
-      "PartnerId": "11111111-1111-1111-1111-000000000003",
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ReceivedAt": "2020-07-14 00:00:00",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-04 03:36:17.2754892",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    },
-    {
-      "Id": "BE2BC279-75D1-4834-9600-C8931A202889",
-      "DocumentNumber": "0031/2026",
-      "ReferenceNumber": "687/STP-VB",
-      "DocType": "INCOMING",
-      "Status": "Draft",
-      "Title": "Công văn tiếp nhận luồng riêng: Báo cáo công tác tư pháp",
-      "Summary": "Số ký hiệu: 687/STP-VB\nĐơn vị ban hành: Sở Tư pháp TP.HCM\nThể loại: Công văn",
-      "PartnerId": null,
-      "SenderDepartmentId": null,
-      "CreatedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ReceivedAt": "2026-09-04 03:45:27.3377448",
-      "DistributedAt": null,
-      "CreatedAt": "2026-09-04 03:45:27.3377452",
-      "UpdatedAt": null,
-      "IsDeleted": 0,
-      "DeletedAt": null
-    }
-  ],
-  "attachments": [
-    {
-      "Id": "4BF93094-4B64-403A-9426-584A9ABA6D61",
-      "DocumentId": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "FileId": "83918A52-58D3-49DA-8A64-9D544BE3BDE1",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 04:51:39.9850242"
-    },
-    {
-      "Id": "786807D4-0405-4CCD-964D-9F31F52FE4BD",
-      "DocumentId": "4B7FB3D5-33BD-4042-A169-61362D007D8B",
-      "FileId": "1F09615B-2032-48C2-96D0-C1EEE4465501",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:28:52.5936389"
-    },
-    {
-      "Id": "120B168D-FF27-4A68-9535-60A1C698773B",
-      "DocumentId": "A12F9D3F-5FF8-4EA2-896C-2839B01D50C7",
-      "FileId": "AB6CB7F2-2ED3-4DC3-818A-FF24435138F4",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:28:59.5866676"
-    },
-    {
-      "Id": "DC33741A-5249-4FDF-9B25-AAB4A27F917A",
-      "DocumentId": "2AFC9542-2BA9-44EE-9062-DE6F34EE5D60",
-      "FileId": "7A1B4A9B-9B69-47A8-B7D0-DDB4D08387B4",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-28 05:29:01.0344801"
-    },
-    {
-      "Id": "C6132B60-E966-44EA-9189-CA67AB6C8D92",
-      "DocumentId": "4262F331-5ADF-4F7D-AC5A-DD48BA076E09",
-      "FileId": "E18E9318-70B3-48A6-A95B-AFF50817BCF6",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-28 05:29:03.6346935"
-    },
-    {
-      "Id": "E40D7396-00A3-4D35-B3FD-F5734503B497",
-      "DocumentId": "E6CE2002-216A-44B9-B298-D2ABD03C03AC",
-      "FileId": "1DCC1E68-3915-4AAA-8072-1774294A2336",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:29:06.2293315"
-    },
-    {
-      "Id": "4235C95D-ED74-41C6-8EBD-AB7301565BDA",
-      "DocumentId": "C3E6515B-B1E3-41D3-86CE-F9DB24FEE3C4",
-      "FileId": "B6D7FB77-C3FA-49F8-AF15-5F8D09AFD8C9",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:29:07.5346177"
-    },
-    {
-      "Id": "07B869C4-5A2F-49A6-9856-DBC28307C7EF",
-      "DocumentId": "96B8D635-CA43-41E4-85EC-5558084E4691",
-      "FileId": "8DABFBC9-A82A-4D26-A75E-26650D0D44E8",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:29:09.8227191"
-    },
-    {
-      "Id": "B3968F7B-232A-41F3-8500-BB38A7FE859D",
-      "DocumentId": "A07D8A85-069A-4BA1-A3E6-DD9F38DD55A0",
-      "FileId": "62EE83F8-4503-48DD-A353-E5856DC21227",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-28 05:29:12.8937193"
-    },
-    {
-      "Id": "D507FF93-00FB-4CC6-88FF-E855136730F6",
-      "DocumentId": "9A1B4295-D010-4CB4-AFBD-EBD54D13AC03",
-      "FileId": "47ECD8B6-04EB-4AC8-A44D-1085B9B0C4E3",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:44:14.6557595"
-    },
-    {
-      "Id": "FF966419-3397-4D4E-8B54-895FF9B88789",
-      "DocumentId": "B59AE047-0185-43D7-999B-B09737FD150E",
-      "FileId": "BD4EAE8F-3759-4ABB-BF86-0CAF4B144663",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:44:21.5403701"
-    },
-    {
-      "Id": "1870D7E0-ECD8-433E-A08C-5E7CAD672860",
-      "DocumentId": "417E88EC-8B3E-4B7E-B836-97EDE9E4AE45",
-      "FileId": "E8323740-1C86-43C3-A1A4-625479FCCC1D",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-29 08:44:22.8993458"
-    },
-    {
-      "Id": "0B010B85-E0FD-452D-8AFF-C6509DD4CCDF",
-      "DocumentId": "35C8A0CE-4B24-4DC0-8984-9EACBAC8DF4B",
-      "FileId": "1BD1262E-240C-4F2C-9531-2EC4FC9A207C",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-29 08:44:25.4312372"
-    },
-    {
-      "Id": "78A07CC2-8035-4C47-866E-24E919078047",
-      "DocumentId": "33D86456-EB7C-4D5D-A0BD-8D0E6520C85E",
-      "FileId": "5A98A148-1DD2-4121-AA36-4EF83F19BE93",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:44:28.2631592"
-    },
-    {
-      "Id": "E01DE588-CBDF-4803-B8BA-115BBCAE944C",
-      "DocumentId": "9D06848A-1CCD-4ED3-BAF2-C39347A48924",
-      "FileId": "904D716C-9F1B-43F5-B89A-EDC91AF7D30F",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:44:29.4945009"
-    },
-    {
-      "Id": "0DCD681A-7CE5-4302-88E1-B242D657AFF6",
-      "DocumentId": "7FDF65D8-01EA-46A4-80B4-231C34A32624",
-      "FileId": "3AD56E7C-D71C-4703-B18E-0FD6D433F218",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:44:31.8506736"
-    },
-    {
-      "Id": "AC91473C-475D-4F97-A718-D0A0E0548543",
-      "DocumentId": "82F9BAC8-24C3-422F-A555-51FBA1E967E3",
-      "FileId": "C7ACE480-1A6D-4682-A815-54572C61B643",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 08:49:48.2509916"
-    },
-    {
-      "Id": "D43E04E8-96BF-46AD-BAC5-FC64FB1F4782",
-      "DocumentId": "697770E4-E62E-413D-BFB3-CB19C0A4FBCD",
-      "FileId": "DB87641D-509A-453A-B8DF-22B80A7AC1AC",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:22:50.9318489"
-    },
-    {
-      "Id": "7497A827-8B44-402E-80FC-9E2249A17781",
-      "DocumentId": "5FA13C15-F586-4897-A535-D37CC0BA5D2E",
-      "FileId": "77593C76-A297-42DC-B7EC-0F260270AF0F",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:22:52.7769766"
-    },
-    {
-      "Id": "8C807B5E-E4F8-436E-B5C2-0C92FD81F235",
-      "DocumentId": "D082283E-249B-4701-A6C8-22C2737391B3",
-      "FileId": "12184E33-5180-4655-81DB-AA85A1F7F806",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-29 13:22:54.4881801"
-    },
-    {
-      "Id": "1E7A3E68-FCA4-4652-B1FD-8F1BEF6E0DDB",
-      "DocumentId": "619D94A8-104B-45A3-8ADC-6E977875008F",
-      "FileId": "0B15381D-0058-4E76-8659-B9ED6F0DD4B5",
-      "AttachmentType": "Original",
-      "CreatedAt": "2026-08-29 13:22:56.8055933"
-    },
-    {
-      "Id": "36245BA4-2868-4510-9665-DC8743BA3FAE",
-      "DocumentId": "D348A9E6-FDA4-4F6F-9133-ACFC4561CC21",
-      "FileId": "FF624ED4-8F8D-4DAC-8AD8-795D802E0521",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:22:59.2298581"
-    },
-    {
-      "Id": "5D191214-9CFF-404A-957A-B11E4EE72666",
-      "DocumentId": "1E1D6062-E178-4D7A-867F-EAE23F99CA1A",
-      "FileId": "BA4952C6-5898-4E2E-980D-75738C86CE7B",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:23:00.3053036"
-    },
-    {
-      "Id": "5C60D402-D5BD-490F-81CE-A2303561135B",
-      "DocumentId": "A5CCF7DB-784B-4FF6-B6C7-29D0B805E32B",
-      "FileId": "4436E982-BDAD-4092-BB52-6F0F2CBBEADE",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:23:02.4529134"
-    },
-    {
-      "Id": "40C4EB36-2949-4E16-A902-E88E0423233B",
-      "DocumentId": "630B58C4-EC68-4AC9-8A58-23051F75A42B",
-      "FileId": "4A0D9553-C64E-4F05-93F3-9A26A16C13D7",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-08-29 13:23:05.1159643"
-    },
-    {
-      "Id": "D9B3EB0B-803F-4911-92E1-DB9D99681E42",
-      "DocumentId": "D85E6A6E-558A-44EC-8B6C-A3E7778D4CE8",
-      "FileId": "452029B1-4E2D-4033-A2EC-F787A4942492",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.2671155"
-    },
-    {
-      "Id": "2B1A3ADE-5D2A-468A-8F8F-5217FF0E5C3A",
-      "DocumentId": "63045D13-29FD-450B-8145-A7FB2C4281D5",
-      "FileId": "544A007F-614E-4449-A7DD-12B86F307992",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.3467075"
-    },
-    {
-      "Id": "4E4E1AD6-C926-4376-95A7-19872670CBD5",
-      "DocumentId": "6038A199-5551-4B14-98C6-CB9B11AB6316",
-      "FileId": "4B3F3636-51BE-4DFE-8711-3AF96090BD97",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.3931406"
-    },
-    {
-      "Id": "C5E0AF3A-A128-45F9-97C9-BB9011D53CD2",
-      "DocumentId": "4C645593-7771-4134-B48D-960C5597BE60",
-      "FileId": "59A65ED7-2248-4F61-B324-49FCA55FC811",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.4293809"
-    },
-    {
-      "Id": "6807DE27-734E-485F-A97C-4A80AC62D5F3",
-      "DocumentId": "7558FFE3-0978-4C99-AB43-F4461FD0D257",
-      "FileId": "898F19BA-0A1A-4DF4-A304-C9F83D4FD8AB",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.484774"
-    },
-    {
-      "Id": "ADEAF394-3BFE-4025-B3E0-5D998B2569D3",
-      "DocumentId": "744138DC-00B1-42D3-AA18-6E224AE212D9",
-      "FileId": "7CEA27B3-CCFD-4557-897C-3CAA4410A3F9",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.5251884"
-    },
-    {
-      "Id": "583D0770-1B7B-421B-A0F1-3A6F18BAEFBB",
-      "DocumentId": "037964CD-FEED-4FFF-A57F-1624D8C3D98B",
-      "FileId": "2A11A047-A255-493C-A315-7EC83337CB98",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.5691249"
-    },
-    {
-      "Id": "79678957-8CFC-4B31-AC71-CF6DC3461FA3",
-      "DocumentId": "AD0BE608-F61A-4FAC-8B88-5EDCD0B13D13",
-      "FileId": "AB89A996-B99C-4CD2-B000-C6CC250BD098",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.6401081"
-    },
-    {
-      "Id": "8B822E69-DFC9-465F-AD57-66EECA48E182",
-      "DocumentId": "BD7FC169-0D05-40E0-98E8-AE9E7B3F9444",
-      "FileId": "40939CC3-9F18-4613-8292-73B816F46F4A",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 15:26:31.6758427"
-    },
-    {
-      "Id": "5815348E-EF43-4F19-9E66-BB3B071D7F9B",
-      "DocumentId": "FB6D071B-D52F-4EC1-AB39-6BA2B4866184",
-      "FileId": "BFD9EEE1-A1E2-4790-AE2B-2C158439C777",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-03 16:03:21.5689252"
-    },
-    {
-      "Id": "898EB856-B50E-4F7F-A34D-3E734B9176E3",
-      "DocumentId": "54E15010-FF82-490C-9791-65B758A37033",
-      "FileId": "5343B81A-DD7C-427B-B7F2-8DBC39F3362A",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-04 03:36:17.275777"
-    },
-    {
-      "Id": "E288BD3D-D6E5-4745-A908-C412BC992521",
-      "DocumentId": "BE2BC279-75D1-4834-9600-C8931A202889",
-      "FileId": "8A97B985-ABEA-4F62-AFCE-D3DAEE7CB063",
-      "AttachmentType": "Scan",
-      "CreatedAt": "2026-09-04 03:45:27.3377468"
-    }
-  ],
-  "history": [
-    {
-      "Id": "FCF8063D-0117-4BA5-AC95-80B016BD5F4E",
-      "DocumentId": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 04:51:39.9850257",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "4752762F-B9E0-49EE-8D11-84A1679C78DF",
-      "DocumentId": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "OldStatus": "Draft",
-      "NewStatus": "Reviewed",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-08-28 04:53:19.872209",
-      "Note": null
-    },
-    {
-      "Id": "B5112662-7A38-4C31-A574-5FD4BDA4B50B",
-      "DocumentId": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "OldStatus": "Reviewed",
-      "NewStatus": "Distributed",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-08-28 04:53:31.1606917",
-      "Note": null
-    },
-    {
-      "Id": "6DC2B4B4-15FB-44DE-ACEC-550BEED7E80E",
-      "DocumentId": "4B7FB3D5-33BD-4042-A169-61362D007D8B",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:28:52.5936404",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "0D4B7215-EEF4-498D-BC59-89DCC9270CB8",
-      "DocumentId": "A12F9D3F-5FF8-4EA2-896C-2839B01D50C7",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:28:59.5866699",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "E0ED6D44-D8DB-44DC-A5A1-B6CD912EED72",
-      "DocumentId": "2AFC9542-2BA9-44EE-9062-DE6F34EE5D60",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:01.0344829",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "C2B31694-AD19-4A12-8F46-1AE6ACF50C06",
-      "DocumentId": "4262F331-5ADF-4F7D-AC5A-DD48BA076E09",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:03.6346956",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "4A3C91A4-1395-40EA-A28D-418A60B2CFA3",
-      "DocumentId": "E6CE2002-216A-44B9-B298-D2ABD03C03AC",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:06.2293333",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "06B87F70-09FD-487B-86D9-683D74CDA736",
-      "DocumentId": "C3E6515B-B1E3-41D3-86CE-F9DB24FEE3C4",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:07.5346203",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "04BE80B7-5CFB-41D4-910E-B5034A8C14BC",
-      "DocumentId": "96B8D635-CA43-41E4-85EC-5558084E4691",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:09.8227225",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "6D7877CB-B9E5-469E-BFDF-3C83543AA0F2",
-      "DocumentId": "A07D8A85-069A-4BA1-A3E6-DD9F38DD55A0",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-28 05:29:12.8937219",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "0023CD60-7709-48CD-8F58-2D40219BBA81",
-      "DocumentId": "9A1B4295-D010-4CB4-AFBD-EBD54D13AC03",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:14.6558107",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "53E83815-1824-4EA4-837A-A6DD80D4C082",
-      "DocumentId": "B59AE047-0185-43D7-999B-B09737FD150E",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:21.5403724",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "8A17FE16-DF5F-4237-91FD-60BE42F9BA70",
-      "DocumentId": "417E88EC-8B3E-4B7E-B836-97EDE9E4AE45",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:22.8993478",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "DCDCF8D2-2B16-49B2-955A-41C554F2DD6B",
-      "DocumentId": "35C8A0CE-4B24-4DC0-8984-9EACBAC8DF4B",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:25.4312387",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "64F675A2-BB38-4FB4-A5CD-E2B4D81879FF",
-      "DocumentId": "33D86456-EB7C-4D5D-A0BD-8D0E6520C85E",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:28.2631604",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "9F669C61-1562-4904-8625-EC711B0B28BE",
-      "DocumentId": "9D06848A-1CCD-4ED3-BAF2-C39347A48924",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:29.4945018",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "CDC028B5-8323-4E9C-B05D-33CE87ECB1C5",
-      "DocumentId": "7FDF65D8-01EA-46A4-80B4-231C34A32624",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:44:31.8506776",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "AA085CAB-06AE-477E-B74F-E55A908D898E",
-      "DocumentId": "82F9BAC8-24C3-422F-A555-51FBA1E967E3",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 08:49:48.2509925",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "887F5EE3-5AB2-42A6-9732-1C3B8FAFD213",
-      "DocumentId": "697770E4-E62E-413D-BFB3-CB19C0A4FBCD",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:22:50.9321611",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "C4155175-8376-4FB4-90F9-907C1A038E39",
-      "DocumentId": "5FA13C15-F586-4897-A535-D37CC0BA5D2E",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:22:52.7769777",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "24DB5007-FC55-4F10-AD22-9A73CAC90638",
-      "DocumentId": "D082283E-249B-4701-A6C8-22C2737391B3",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:22:54.4881831",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "CF85FC9A-C6AE-4DFD-A6C9-565A340D3F7A",
-      "DocumentId": "619D94A8-104B-45A3-8ADC-6E977875008F",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:22:56.8055944",
-      "Note": "Khởi tạo công văn nội bộ"
-    },
-    {
-      "Id": "9300B6FB-F519-45B0-825F-5FB1598F3A41",
-      "DocumentId": "D348A9E6-FDA4-4F6F-9133-ACFC4561CC21",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:22:59.2298595",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "6E218129-CAB4-44B3-93F3-5757B26F9668",
-      "DocumentId": "1E1D6062-E178-4D7A-867F-EAE23F99CA1A",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:23:00.3053052",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "518D44BB-98FE-489E-AE75-F50C61F3E8B6",
-      "DocumentId": "A5CCF7DB-784B-4FF6-B6C7-29D0B805E32B",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:23:02.4529147",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "F946654C-4350-4FAE-A393-6295D2E31400",
-      "DocumentId": "630B58C4-EC68-4AC9-8A58-23051F75A42B",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "00000000-0000-0000-0000-000000000008",
-      "ChangedAt": "2026-08-29 13:23:05.1159664",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "5561F489-507B-4042-93FE-E6AD6B9535BB",
-      "DocumentId": "D85E6A6E-558A-44EC-8B6C-A3E7778D4CE8",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.2671755",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "0DBC4639-69CD-4C6B-83A4-1C4A9A8C6F0C",
-      "DocumentId": "63045D13-29FD-450B-8145-A7FB2C4281D5",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.3467094",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "A54B80D3-9867-415F-85AB-1EFCAA84DFC3",
-      "DocumentId": "6038A199-5551-4B14-98C6-CB9B11AB6316",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.3931426",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "1605135D-FAA0-4D35-A349-B6E0A5A491F3",
-      "DocumentId": "4C645593-7771-4134-B48D-960C5597BE60",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.4293822",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "F53BB064-35B3-460C-B4DA-DCF894E4AD34",
-      "DocumentId": "7558FFE3-0978-4C99-AB43-F4461FD0D257",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.4847768",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "A52BA10B-934E-4ADB-9DEE-1654FC5CE611",
-      "DocumentId": "744138DC-00B1-42D3-AA18-6E224AE212D9",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.5251908",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "0A5E037C-9A9E-4418-B726-5F9D140E8CC0",
-      "DocumentId": "037964CD-FEED-4FFF-A57F-1624D8C3D98B",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.5691286",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "B579CA42-4426-4C44-A110-8D73ABBF7249",
-      "DocumentId": "AD0BE608-F61A-4FAC-8B88-5EDCD0B13D13",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.6401103",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "A1E7ACCA-F2D4-4F9A-8804-47D95D4BA79B",
-      "DocumentId": "BD7FC169-0D05-40E0-98E8-AE9E7B3F9444",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "6BE389E8-72D0-4709-A382-9E56BD4FC83C",
-      "ChangedAt": "2026-09-03 15:26:31.6758454",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "94B7F8B8-C5FA-4D90-ACF9-4F61AD683B63",
-      "DocumentId": "FB6D071B-D52F-4EC1-AB39-6BA2B4866184",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ChangedAt": "2026-09-03 16:03:21.5689273",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "169652A0-2E98-4949-B238-5067F3BDA609",
-      "DocumentId": "54E15010-FF82-490C-9791-65B758A37033",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ChangedAt": "2026-09-04 03:36:17.275929",
-      "Note": "Khởi tạo công văn đến"
-    },
-    {
-      "Id": "15B428C8-1A7F-4492-B2F6-A446701EE5D0",
-      "DocumentId": "BE2BC279-75D1-4834-9600-C8931A202889",
-      "OldStatus": null,
-      "NewStatus": "Draft",
-      "ChangedByUserId": "11111111-1111-1111-1111-111111111111",
-      "ChangedAt": "2026-09-04 03:45:27.3377478",
-      "Note": "Khởi tạo công văn đến"
-    }
-  ],
-  "access": []
-}
+[
+  {
+    "Id": "5b2bf0c1-9a78-4006-9964-0890395636a4",
+    "DocumentNumber": "0001/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
+    "Summary": "• Số ký hiệu: 689/SKHCN-QLKH\n• Cơ quan ban hành: Sở Khoa học và Công nghệ TP. Đà Nẵng\n• Loại văn bản: Thông Báo\n• Ngày ban hành: 21/08/2026\n• Người ký: Giám đốc Sở KH&CN Đà Nẵng\n• Trích yếu: Xét duyệt hồ sơ đề tài ứng dụng trí tuệ nhân tạo (AI OCR) trong công tác văn thư số năm 2026",
+    "PartnerId": "6583F5F4-014B-48E0-B22C-7F78E63048A5",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-21T08:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "2A4EEB38-7991-49ED-88DB-3CC95BC5A08C",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "92a62e9a-4ab1-486b-8ed9-ded479389462",
+    "DocumentNumber": "0002/2026",
+    "DocType": "INCOMING",
+    "Status": "Reviewed",
+    "Title": "Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
+    "Summary": "• Số ký hiệu: 69/CV-BCĐ\n• Cơ quan ban hành: Ban Chỉ đạo Thực hiện Sắp xếp ĐVHC\n• Loại văn bản: Công Văn\n• Ngày ban hành: 03/06/2025\n• Người ký: Trưởng Ban Chỉ Đạo\n• Trích yếu: Thực hiện phân cấp, phân quyền gắn với việc thực hiện mô hình chính quyền địa phương 02 cấp",
+    "PartnerId": "4A806FE8-94DA-48F4-87F8-AAE88A2ACDAF",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-22T09:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "67C553EA-A800-4F4A-8BB8-25C0183BA4EE",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "96f51242-6082-4c5d-b316-d658b9d5f920",
+    "DocumentNumber": "0003/2026",
+    "DocType": "INCOMING",
+    "Status": "Reviewed",
+    "Title": "Thu hút đầu tư khởi nghiệp đổi mới sáng tạo từ các nguồn trong và ngoài nước",
+    "Summary": "• Số ký hiệu: 1128/TTg-ĐMDN\n• Cơ quan ban hành: Thủ tướng Chính phủ\n• Loại văn bản: Công Văn\n• Ngày ban hành: 31/08/2018\n• Người ký: Thủ tướng Chính phủ\n• Trích yếu: Thu hút đầu tư khởi nghiệp đổi mới sáng tạo từ các nguồn trong và ngoài nước",
+    "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-22T10:15:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "978DB20D-860E-41C2-819C-C8D318CA8F05",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "8e56b4ed-d6c8-4233-b1e8-a7154d4f6bde",
+    "DocumentNumber": "0004/2026",
+    "DocType": "INCOMING",
+    "Status": "Reviewed",
+    "Title": "Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
+    "Summary": "• Số ký hiệu: 852/SGDĐT-KHTC\n• Cơ quan ban hành: Sở Giáo dục và Đào tạo TP.HCM\n• Loại văn bản: Công Văn\n• Ngày ban hành: 20/08/2026\n• Người ký: Nguyễn Văn Hiếu\n• Trích yếu: Phối hợp triển khai thí điểm hệ thống lưu trữ điện tử và chuyển đổi số trường học",
+    "PartnerId": "C4D2024E-3851-43A1-9059-FBCE80967218",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-23T11:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "FF624ED4-8F8D-4DAC-8AD8-795D802E0521",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "90c42bfb-63c8-49b5-9ebe-eeed18fd21a6",
+    "DocumentNumber": "0005/2026",
+    "DocType": "INCOMING",
+    "Status": "Reviewed",
+    "Title": "Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công văn điện tử ứng dụng AI OCR",
+    "Summary": "• Số ký hiệu: 896/VNPT-IT\n• Cơ quan ban hành: Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT)\n• Loại văn bản: Công Văn\n• Ngày ban hành: 22/08/2026\n• Người ký: Tổng Giám Đốc VNPT-IT\n• Trích yếu: Hợp tác triển khai thử nghiệm hệ thống lưu trữ và quản lý công văn điện tử ứng dụng AI OCR",
+    "PartnerId": "9DD9ABE9-109F-4E13-A44D-3AAD7AE17AD4",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-23T14:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "8DC677A8-3B5E-4AB3-A0D9-7B4B96D8C104",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "22a3328a-2e42-4581-aeb3-3268b6299790",
+    "DocumentNumber": "0006/2026",
+    "DocType": "INCOMING",
+    "Status": "Draft",
+    "Title": "Tham dự Hội thảo chuyên đề: \"Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số và Lưu trữ Tài liệu thông minh\"",
+    "Summary": "• Số ký hiệu: 58/GM-ABCTECH\n• Cơ quan ban hành: Công ty Cổ phần Công nghệ ABC\n• Loại văn bản: Giấy Mời\n• Ngày ban hành: 25/08/2026\n• Người ký: Ban Tổ Chức Sự Kiện ABC\n• Trích yếu: Tham dự Hội thảo chuyên đề: \"Ứng dụng Trí tuệ Nhân tạo (AI-OCR) trong Quản trị Văn phòng số và Lưu trữ Tài liệu thông minh\"",
+    "PartnerId": "34829633-1f2c-44e5-883a-40a0dc1b6f08",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-24T08:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "4A0D9553-C64E-4F05-93F3-9A26A16C13D7",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "57f023fb-4020-4b11-bd96-513dc0ae772c",
+    "DocumentNumber": "0007/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "V/v phân công cán bộ tiếp nhận hồ sơ văn bản điện tử và quản lý văn thư liên thông",
+    "Summary": "• Số ký hiệu: 1241/VP-TH\n• Cơ quan ban hành: Văn phòng Ủy ban nhân dân TP.HCM\n• Loại văn bản: Công Văn\n• Ngày ban hành: 15/01/2021\n• Người ký: Chánh Văn phòng UBND TP\n• Trích yếu: V/v phân công cán bộ tiếp nhận hồ sơ văn bản điện tử và quản lý văn thư liên thông",
+    "PartnerId": "ead6a37e-1acb-40e2-abc2-1733a0e35583",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-24T09:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "452029B1-4E2D-4033-A2EC-F787A4942492",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "09c4bc36-19a9-483f-8208-8ce49bd37de6",
+    "DocumentNumber": "0008/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng, khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
+    "Summary": "• Số ký hiệu: 4899/QĐ-BYT\n• Cơ quan ban hành: Bộ Y tế\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 24/11/2020\n• Người ký: GS.TS Nguyễn Thanh Long\n• Trích yếu: Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng, khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
+    "PartnerId": "99C407BD-011E-4DDA-882C-5B589B55495B",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-25T10:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "544A007F-614E-4449-A7DD-12B86F307992",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "04ddcdea-952d-4217-9b6c-eb5355abfafa",
+    "DocumentNumber": "0009/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Ban hành quy chế hoạt động của Hội đồng phối hợp phổ biến giáo dục pháp luật của TPHCM",
+    "Summary": "• Số ký hiệu: 3885/QĐ-HĐPH\n• Cơ quan ban hành: Hội đồng Phối hợp Phổ biến GDPL TPHCM\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 21/10/2020\n• Người ký: Chủ tịch Hội đồng Phối hợp PBGDPL\n• Trích yếu: Ban hành quy chế hoạt động của Hội đồng phối hợp phổ biến giáo dục pháp luật của TPHCM",
+    "PartnerId": "da56ddd2-a9f0-4eb8-a9ea-8579fb4ebe0a",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-25T14:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "4B3F3636-51BE-4DFE-8711-3AF96090BD97",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "996635a3-cffc-48ed-814b-3f5404d89bec",
+    "DocumentNumber": "0010/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh không còn phù hợp",
+    "Summary": "• Số ký hiệu: 4855/QĐ-UBND\n• Cơ quan ban hành: Ủy ban nhân dân Thành phố Hồ Chí Minh\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 15/01/2021\n• Người ký: Chủ tịch UBND TP.HCM\n• Trích yếu: Bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh không còn phù hợp",
+    "PartnerId": "63EA513C-5EF7-4FEC-B601-2A8CE29F3305",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-26T08:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "59A65ED7-2248-4F61-B324-49FCA55FC811",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "e451be32-8a2f-4805-b012-230175880fe8",
+    "DocumentNumber": "0011/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Tiếp tục triển khai chương trình hỗ trợ pháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
+    "Summary": "• Số ký hiệu: 81/QĐ-TTg\n• Cơ quan ban hành: Thủ tướng Chính phủ\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 19/01/2021\n• Người ký: Thủ tướng Chính phủ\n• Trích yếu: Tiếp tục triển khai chương trình hỗ trợ pháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
+    "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-26T11:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "898F19BA-0A1A-4DF4-A304-C9F83D4FD8AB",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "9400dace-d085-4cdf-b3d2-6bd479bb5a84",
+    "DocumentNumber": "0012/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Kế hoạch cải cách hành chính và ứng dụng công nghệ thông tin ngành Y tế năm 2021",
+    "Summary": "• Số ký hiệu: 850/KH-SYT\n• Cơ quan ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Loại văn bản: Kế Hoạch\n• Ngày ban hành: 09/02/2021\n• Người ký: PGS.TS.BS Tăng Chí Thượng\n• Trích yếu: Kế hoạch cải cách hành chính và ứng dụng công nghệ thông tin ngành Y tế năm 2021",
+    "PartnerId": "0CF5A125-AD3B-48F0-B7F7-3A2A51501498",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-27T09:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "7CEA27B3-CCFD-4557-897C-3CAA4410A3F9",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "2be9d22f-54b3-4ab9-af01-f521322539d4",
+    "DocumentNumber": "0013/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Kế hoạch triển khai công tác y tế dự phòng và kiểm soát dịch bệnh năm 2021",
+    "Summary": "• Số ký hiệu: 851/KH-SYT\n• Cơ quan ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Loại văn bản: Kế Hoạch\n• Ngày ban hành: 09/02/2021\n• Người ký: PGS.TS.BS Tăng Chí Thượng\n• Trích yếu: Kế hoạch triển khai công tác y tế dự phòng và kiểm soát dịch bệnh năm 2021",
+    "PartnerId": "0CF5A125-AD3B-48F0-B7F7-3A2A51501498",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-27T10:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "2A11A047-A255-493C-A315-7EC83337CB98",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "21e4e376-e98d-4d46-a13c-5a2202d684e1",
+    "DocumentNumber": "0014/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Kế hoạch Công tác phổ biến, giáo dục pháp luật năm 2021 của ngành Y tế trên địa bàn Thành phố Hồ Chí Minh",
+    "Summary": "• Số ký hiệu: 852/KH-SYT\n• Cơ quan ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Loại văn bản: Kế Hoạch\n• Ngày ban hành: 09/02/2021\n• Người ký: PGS.TS.BS Tăng Chí Thượng\n• Trích yếu: Kế hoạch Công tác phổ biến, giáo dục pháp luật năm 2021 của ngành Y tế trên địa bàn Thành phố Hồ Chí Minh",
+    "PartnerId": "0CF5A125-AD3B-48F0-B7F7-3A2A51501498",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-27T14:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "AB89A996-B99C-4CD2-B000-C6CC250BD098",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "c491db47-413d-4d26-9699-987f20355151",
+    "DocumentNumber": "0015/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Ký ủy quyền và thừa ủy quyền (TUQ) của Giám đốc Sở Y tế cho Trưởng các phòng chuyên môn, nghiệp vụ thuộc Sở Y tế",
+    "Summary": "• Số ký hiệu: 8985/QĐ-SYT\n• Cơ quan ban hành: Sở Y tế Thành phố Hồ Chí Minh\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 31/12/2020\n• Người ký: Giám đốc Sở Y tế\n• Trích yếu: Ký ủy quyền và thừa ủy quyền (TUQ) của Giám đốc Sở Y tế cho Trưởng các phòng chuyên môn, nghiệp vụ thuộc Sở Y tế",
+    "PartnerId": "0CF5A125-AD3B-48F0-B7F7-3A2A51501498",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-28T08:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "40939CC3-9F18-4613-8292-73B816F46F4A",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "b778e508-0049-4213-a9fc-2881354cd6b3",
+    "DocumentNumber": "0016/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2026 và Kế hoạch triển khai các hoạt động năm 2021",
+    "Summary": "• Số ký hiệu: 687/STP-VB\n• Cơ quan ban hành: Sở Tư pháp Thành phố Hồ Chí Minh\n• Loại văn bản: Kế Hoạch\n• Ngày ban hành: 25/02/2021\n• Người ký: Giám đốc Sở Tư pháp\n• Trích yếu: Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2026 và Kế hoạch triển khai các hoạt động năm 2021",
+    "PartnerId": "51C37AA6-724F-44D8-806B-B3EDE3D21AE1",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-28T10:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "BFD9EEE1-A1E2-4790-AE2B-2C158439C777",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "e25f258c-c97d-40fd-899b-a9ce17b0f3e6",
+    "DocumentNumber": "0017/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Phối hợp triển khai quy hoạch phát triển và quản lý báo chí toàn quốc đến năm 2025",
+    "Summary": "• Số ký hiệu: 2595/BTTTT-CBC\n• Cơ quan ban hành: Bộ Thông tin và Truyền thông\n• Loại văn bản: Công Văn\n• Ngày ban hành: 14/07/2020\n• Người ký: Bộ trưởng Bộ TT&TT\n• Trích yếu: Phối hợp triển khai quy hoạch phát triển và quản lý báo chí toàn quốc đến năm 2025",
+    "PartnerId": "2D6966ED-1A76-4ED8-AC8B-EB537D268DB4",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-28T14:30:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "5343B81A-DD7C-427B-B7F2-8DBC39F3362A",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "37699902-4e3a-49c8-b24b-73f3389b0816",
+    "DocumentNumber": "0018/2026",
+    "DocType": "INCOMING",
+    "Status": "Distributed",
+    "Title": "Báo cáo công tác tư pháp và phổ biến giáo dục pháp luật quý I năm 2021",
+    "Summary": "• Số ký hiệu: 687/STP-VB\n• Cơ quan ban hành: Sở Tư pháp Thành phố Hồ Chí Minh\n• Loại văn bản: Công Văn\n• Ngày ban hành: 25/02/2021\n• Người ký: Giám đốc Sở Tư pháp\n• Trích yếu: Báo cáo công tác tư pháp và phổ biến giáo dục pháp luật quý I năm 2021",
+    "PartnerId": "51C37AA6-724F-44D8-806B-B3EDE3D21AE1",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-28T16:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "8A97B985-ABEA-4F62-AFCE-D3DAEE7CB063",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "5606be79-93ae-467a-bb4c-81dae66d601a",
+    "DocumentNumber": "01/CV-NB-VP",
+    "DocType": "INTERNAL",
+    "Status": "Distributed",
+    "Title": "Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
+    "Summary": "• Số ký hiệu: 15/TB-NB-DAS\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\n• Loại văn bản: Thông Báo\n• Ngày ban hành: 24/08/2026\n• Người ký: Tổng Giám Đốc DAS\n• Trích yếu: Triển khai áp dụng quy trình số hóa và tiếp nhận văn bản tự động qua hệ thống AI OCR",
+    "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-24T09:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "F1876B88-EE26-4D05-AB6F-C6D96EF03FF4",
+        "AttachmentType": "Original"
+      }
+    ]
+  },
+  {
+    "Id": "4b70d42b-5b38-494c-bea2-6ec8fa27787d",
+    "DocumentNumber": "02/QC-NB-VP",
+    "DocType": "INTERNAL",
+    "Status": "Distributed",
+    "Title": "Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
+    "Summary": "• Số ký hiệu: 08/QĐ-NB-DAS\n• Cơ quan ban hành: Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS\n• Loại văn bản: Quyết Định\n• Ngày ban hành: 24/08/2026\n• Người ký: Chủ tịch Hội đồng Quản trị DAS\n• Trích yếu: Ban hành Quy chế bảo mật thông tin và quản trị luân chuyển hồ sơ nội bộ năm 2026",
+    "PartnerId": "21826290-6FEE-46E8-ABB2-8C0C0D8261EE",
+    "SenderDepartmentId": null,
+    "CreatedByUserId": "00000000-0000-0000-0000-000000000000",
+    "CreatedAt": "2026-08-24T10:00:00Z",
+    "IsDeleted": false,
+    "Attachments": [
+      {
+        "FileId": "0B15381D-0058-4E76-8659-B9ED6F0DD4B5",
+        "AttachmentType": "Original"
+      }
+    ]
+  }
+]

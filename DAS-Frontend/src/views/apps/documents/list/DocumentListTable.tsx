@@ -191,6 +191,13 @@ const DocumentListTable = () => {
   }, [data])
 
 const sortDocumentNumber = (rowA: any, rowB: any) => {
+  const dirA = (rowA.original.direction || rowA.original.docType || 'incoming').toLowerCase()
+  const dirB = (rowB.original.direction || rowB.original.docType || 'incoming').toLowerCase()
+  const dirPriority: Record<string, number> = { incoming: 1, outgoing: 2, internal: 3 }
+  const pA = dirPriority[dirA] || 99
+  const pB = dirPriority[dirB] || 99
+  if (pA !== pB) return pA - pB
+
   const numA = rowA.original.documentNumber || ''
   const numB = rowB.original.documentNumber || ''
   const seqA = parseInt(numA.match(/^(\d+)/)?.[1] || numA.match(/\d+/)?.[0] || '0', 10)
@@ -225,8 +232,8 @@ const sortDate = (rowA: any, rowB: any) => {
           const docNum = row.original.documentNumber || `CV-${row.original.id}`
           const refNum = row.original.referenceNumber || meta.referenceNumber
 
-          // Đối với công văn đến: Ưu tiên hiển thị Số ký hiệu văn bản chính của đơn vị gửi
-          if (dir === 'incoming' && refNum && refNum !== docNum) {
+          // Đối với công văn đến: Ưu tiên hiển thị Số ký hiệu văn bản chính của đơn vị gửi + Badge Số đến
+          if (dir === 'incoming') {
             return (
               <div className='flex flex-col gap-1 min-w-[150px]'>
                 <Typography
@@ -235,7 +242,7 @@ const sortDate = (rowA: any, rowB: any) => {
                   color='primary.main'
                   sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
                 >
-                  {refNum}
+                  {refNum || docNum}
                 </Typography>
                 <div className='flex items-center gap-1'>
                   <Chip
@@ -250,7 +257,7 @@ const sortDate = (rowA: any, rowB: any) => {
             )
           }
 
-          // Đối với công văn đi, nội bộ hoặc công văn chưa có số đối tác:
+          // Đối với công văn nội bộ hoặc công văn đi:
           return (
             <div className='flex flex-col gap-1 min-w-[150px]'>
               <Typography
@@ -259,8 +266,19 @@ const sortDate = (rowA: any, rowB: any) => {
                 color='primary.main'
                 sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
               >
-                {docNum}
+                {refNum || docNum}
               </Typography>
+              {refNum && refNum !== docNum && (
+                <div className='flex items-center gap-1'>
+                  <Chip
+                    label={docNum}
+                    size='small'
+                    variant='tonal'
+                    color='info'
+                    sx={{ fontSize: '0.72rem', height: 20 }}
+                  />
+                </div>
+              )}
             </div>
           )
         }
@@ -269,18 +287,24 @@ const sortDate = (rowA: any, rowB: any) => {
         header: t.documents.title,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          let title = meta.title || row.original.title || ''
+          let title = row.original.title || meta.title || ''
           
           // Dọn dẹp các tiền tố lặp thừa thãi
           title = title.replace(/^(?:\[[^\]]+\]\s*)+/g, '')
 
           let summary = row.original.summary || ''
           if (
-            summary.includes('Văn bản tiếp nhận từ Văn phòng số') ||
+            summary.includes('Văn bản tiếp nhận từ') ||
             summary.includes('• Số ký hiệu:') ||
-            summary.includes('• Đơn vị ban hành:')
+            summary.includes('• Đơn vị ban hành:') ||
+            summary.includes('• Cơ quan ban hành:')
           ) {
-            summary = ''
+            const trMay = summary.match(/(?:• Trích yếu|Trích yếu):\s*([^\n\r]+)/i)
+            if (trMay && trMay[1] && trMay[1].trim() !== title.trim()) {
+              summary = trMay[1].trim()
+            } else {
+              summary = ''
+            }
           }
 
           return (
@@ -288,7 +312,7 @@ const sortDate = (rowA: any, rowB: any) => {
               <Typography variant='body2' className='font-medium line-clamp-2 text-textPrimary'>
                 {title}
               </Typography>
-              {summary && (
+              {summary && summary !== title && (
                 <Typography variant='caption' color='text.secondary' className='line-clamp-1 mt-0.5'>
                   {summary}
                 </Typography>
@@ -339,7 +363,7 @@ const sortDate = (rowA: any, rowB: any) => {
         sortingFn: sortDate,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          let dateStr = meta.issuedDate || row.original.issuedDate || ''
+          let dateStr = row.original.issuedDate || meta.issuedDate || ''
           
           // Format ISO date strings (e.g. 2026-09-04T03:45:27... or 2020-07-14T00:00:00) to DD/MM/YYYY
           if (dateStr && (dateStr.includes('T') || /^\d{4}-\d{2}-\d{2}/.test(dateStr))) {
@@ -361,11 +385,31 @@ const sortDate = (rowA: any, rowB: any) => {
       }),
       columnHelper.accessor('partnerName', {
         header: t.documents.partner,
-        cell: ({ row }) => (
-          <Typography variant='body2' className='font-medium'>
-            {row.original.partnerName || '—'}
-          </Typography>
-        )
+        cell: ({ row }) => {
+          const meta = parseOcrDocumentMetadata(row.original)
+          let p = row.original.partnerName
+          if (!p || p === 'Cơ quan / Đối tác' || p === '—') {
+            p = meta.partnerName
+          }
+          if (!p || p === 'Cơ quan / Đối tác' || p === '—') {
+            const summary = row.original.summary || ''
+            const match = summary.match(/(?:Cơ quan ban hành|Đơn vị ban hành|Cơ quan|Đơn vị):\s*([^\n\r]+)/i)
+            if (match) p = match[1].trim()
+          }
+          if (!p || p === 'Cơ quan / Đối tác') {
+            const dir = (row.original.direction || '').toLowerCase()
+            if (dir === 'internal') {
+              p = 'Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS'
+            } else {
+              p = '—'
+            }
+          }
+          return (
+            <Typography variant='body2' className='font-medium'>
+              {p}
+            </Typography>
+          )
+        }
       }),
       columnHelper.accessor('status', {
         header: t.documents.status,

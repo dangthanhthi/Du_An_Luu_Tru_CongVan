@@ -702,9 +702,26 @@ export const documentApi = {
             const mapped = rawItems.map((d: any) => {
               const dir = (d.direction || d.docType || 'incoming').toLowerCase()
               const normDir = dir.includes('out') || dir.includes('đi') ? 'outgoing' : dir.includes('inter') || dir.includes('nội') ? 'internal' : 'incoming'
-              const dateStr = (d.summary?.match(/(?:Ngày văn bản|Ngày ban hành):\s*([^\n\r]+)/i)?.[1]) || d.issuedDate || d.receivedAt || (d.createdAt ? new Date(d.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'))
-              const pName = d.partnerName || d.partner?.fullName || d.partner?.shortName || (d.summary?.match(/(?:Cơ quan ban hành|Đơn vị ban hành|Cơ quan):\s*([^\n\r]+)/i)?.[1]) || 'Cơ quan / Đối tác'
-              const refNum = d.referenceNumber || (d.title?.match(/^\[(.*?)\]/)?.[1]) || (d.summary?.match(/(?:Số ký hiệu gốc|Số ký hiệu|Số hiệu):\s*([^\n\r]+)/i)?.[1]) || ''
+              const dateStr = (d.summary?.match(/(?:Ngày văn bản|Ngày ban hành|Ngày ký|Ngày):\s*([^\n\r]+)/i)?.[1]) || d.issuedDate || d.receivedAt || (d.createdAt ? new Date(d.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'))
+              
+              let pName = d.partnerName || d.partner?.fullName || d.partner?.shortName || (d.summary?.match(/(?:Cơ quan ban hành|Đơn vị ban hành|Cơ quan|Đơn vị):\s*([^\n\r]+)/i)?.[1])
+              if (!pName || pName === 'Cơ quan / Đối tác') {
+                if (normDir === 'internal') {
+                  pName = 'Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS'
+                } else if (d.title?.includes('Sở Y tế') || d.summary?.includes('SYT')) {
+                  pName = 'Sở Y tế Thành phố Hồ Chí Minh'
+                } else if (d.title?.includes('Sở Tư pháp') || d.summary?.includes('STP')) {
+                  pName = 'Sở Tư pháp Thành phố Hồ Chí Minh'
+                } else {
+                  pName = ''
+                }
+              }
+
+              let refNum = d.referenceNumber || (d.title?.match(/^\[(.*?)\]/)?.[1]) || (d.summary?.match(/(?:Số ký hiệu gốc|Số ký hiệu|Số hiệu|Số\/Ký hiệu):\s*([^\n\r]+)/i)?.[1]) || ''
+              if (!refNum && normDir === 'internal') {
+                refNum = d.documentNumber
+              }
+
               const firstAttachId = d.attachments?.[0]?.fileId || d.attachmentFileIds?.[0] || d.fileId
               const fUrl = d.fileUrl || (firstAttachId ? `/api/files/${firstAttachId}` : '')
 
