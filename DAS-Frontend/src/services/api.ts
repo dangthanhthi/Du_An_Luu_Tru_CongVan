@@ -740,6 +740,7 @@ export const documentApi = {
             })
             return { success: true, data: mapped, totalCount: data.data.totalCount || mapped.length }
           }
+          return { success: true, data: [], totalCount: 0 }
         }
       }
     } catch {}

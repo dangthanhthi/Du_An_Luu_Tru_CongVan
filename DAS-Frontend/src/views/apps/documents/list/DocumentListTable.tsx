@@ -98,7 +98,7 @@ const defaultDocuments: DocumentType[] = [
 const columnHelper = createColumnHelper<DocumentTypeWithAction>()
 
 const DocumentListTable = () => {
-  const [data, setData] = useState<DocumentType[]>(defaultDocuments)
+  const [data, setData] = useState<DocumentType[]>([])
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<DocumentStatus | ''>('')
   
@@ -158,9 +158,7 @@ const DocumentListTable = () => {
         const res = await documentApi.getList({ pageSize: 100 })
         if (res?.success && res?.data) {
           const items = Array.isArray(res.data) ? res.data : res.data.items || []
-          if (items.length > 0) {
-            setData(items)
-          }
+          setData(items)
         }
       } catch {}
       setLoading(false)
