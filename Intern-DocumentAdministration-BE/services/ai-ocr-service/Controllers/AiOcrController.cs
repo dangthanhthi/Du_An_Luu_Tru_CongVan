@@ -348,7 +348,8 @@ namespace AiOcrService.Controllers
 
             try
             {
-                var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000");
+                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(2));
+                var partnerResponse = await client.GetAsync($"{partnerServiceUrl.TrimEnd('/')}/api/partners?pageSize=1000", cts.Token);
                 if (partnerResponse.IsSuccessStatusCode)
                 {
                     var jsonString = await partnerResponse.Content.ReadAsStringAsync();
