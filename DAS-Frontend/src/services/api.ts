@@ -753,7 +753,58 @@ export const documentApi = {
       decodedId = decodeURIComponent(rawId)
     } catch {}
 
-    // 1. Tìm trong danh sách tài liệu lưu trữ / Medinet
+    // 1. Ưu tiên lấy trực tiếp từ Backend API
+    try {
+      const res = await apiFetch(API_URLS.document, `/api/documents/${encodeURIComponent(decodedId)}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.success && data?.data) {
+          const d = data.data
+          const dir = (d.direction || d.docType || 'incoming').toLowerCase()
+          const normDir = dir.includes('out') || dir.includes('đi') ? 'outgoing' : dir.includes('inter') || dir.includes('nội') ? 'internal' : 'incoming'
+          const dateStr = (d.summary?.match(/(?:Ngày văn bản|Ngày ban hành|Ngày ký|Ngày):\s*([^\n\r]+)/i)?.[1]) || d.issuedDate || d.receivedAt || (d.createdAt ? new Date(d.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'))
+          
+          let pName = d.partnerName || d.partner?.fullName || d.partner?.shortName || (d.summary?.match(/(?:Cơ quan ban hành|Đơn vị ban hành|Cơ quan|Đơn vị):\s*([^\n\r]+)/i)?.[1])
+          if (!pName || pName === 'Cơ quan / Đối tác') {
+            if (normDir === 'internal') {
+              pName = 'Công ty Cổ phần Quản trị Dữ liệu & Văn thư số DAS'
+            } else if (d.title?.includes('Sở Y tế') || d.summary?.includes('SYT')) {
+              pName = 'Sở Y tế Thành phố Hồ Chí Minh'
+            } else if (d.title?.includes('Sở Tư pháp') || d.summary?.includes('STP')) {
+              pName = 'Sở Tư pháp Thành phố Hồ Chí Minh'
+            } else {
+              pName = ''
+            }
+          }
+
+          let refNum = d.referenceNumber || (d.title?.match(/^\[(.*?)\]/)?.[1]) || (d.summary?.match(/(?:Số ký hiệu gốc|Số ký hiệu|Số hiệu|Số\/Ký hiệu):\s*([^\n\r]+)/i)?.[1]) || ''
+          if (!refNum && normDir === 'internal') {
+            refNum = d.documentNumber
+          }
+
+          const firstAttachId = d.attachments?.[0]?.fileId || d.attachmentFileIds?.[0] || d.fileId
+          const fUrl = d.fileUrl || (firstAttachId ? `/api/files/${firstAttachId}` : '')
+
+          return {
+            success: true,
+            data: {
+              ...d,
+              id: String(d.id),
+              documentNumber: d.documentNumber,
+              referenceNumber: refNum,
+              direction: normDir,
+              docType: normDir,
+              issuedDate: dateStr,
+              partnerName: pName,
+              fileUrl: fUrl,
+              status: (d.status || 'pending').toLowerCase()
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // 2. Tìm trong danh sách tài liệu lưu trữ / Medinet fallback
     const docs = getStoredDocuments()
     const found = docs.find(d => 
       String(d.id) === rawId || 
@@ -768,15 +819,6 @@ export const documentApi = {
     if (found) {
       return { success: true, data: found }
     }
-
-    // 2. Tìm qua Backend API nếu là UUID
-    try {
-      const res = await apiFetch(API_URLS.document, `/api/documents/${encodeURIComponent(decodedId)}`)
-      if (res.ok) {
-        const data = await res.json()
-        if (data?.success && data?.data) return data
-      }
-    } catch {}
 
     return { success: false, data: null }
   },
