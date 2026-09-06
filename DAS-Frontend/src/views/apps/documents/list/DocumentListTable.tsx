@@ -193,9 +193,9 @@ const DocumentListTable = () => {
 const sortDocumentNumber = (rowA: any, rowB: any) => {
   const numA = rowA.original.documentNumber || ''
   const numB = rowB.original.documentNumber || ''
-  const seqA = parseInt(numA.match(/\d+$/)?.[0] || '0', 10)
-  const seqB = parseInt(numB.match(/\d+$/)?.[0] || '0', 10)
-  if (seqA !== 0 && seqB !== 0) {
+  const seqA = parseInt(numA.match(/^(\d+)/)?.[1] || numA.match(/\d+/)?.[0] || '0', 10)
+  const seqB = parseInt(numB.match(/^(\d+)/)?.[1] || numB.match(/\d+/)?.[0] || '0', 10)
+  if (seqA !== 0 && seqB !== 0 && seqA !== seqB) {
     return seqA - seqB
   }
   return numA.localeCompare(numB)
@@ -432,7 +432,7 @@ const sortDate = (rowA: any, rowB: any) => {
     })
   }, [data, status, direction, globalFilter])
 
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'documentNumber', desc: true }])
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'documentNumber', desc: false }])
 
   const table = useReactTable({
     data: filteredData,

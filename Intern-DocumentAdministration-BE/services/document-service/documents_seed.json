@@ -3,23 +3,23 @@
     {
       "DocType": "INCOMING",
       "Year": 2026,
-      "CurrentValue": 155
+      "CurrentValue": 31
     },
     {
       "DocType": "OUTGOING",
       "Year": 2026,
-      "CurrentValue": 29
+      "CurrentValue": 0
     },
     {
       "DocType": "INTERNAL",
       "Year": 2026,
-      "CurrentValue": 43
+      "CurrentValue": 6
     }
   ],
   "documents": [
     {
       "Id": "93BFC9DF-E766-4A22-B422-00E3F2CDF193",
-      "DocumentNumber": "CV-DEN-2026-0013",
+      "DocumentNumber": "0001/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Distributed",
@@ -37,7 +37,7 @@
     },
     {
       "Id": "4B7FB3D5-33BD-4042-A169-61362D007D8B",
-      "DocumentNumber": "CV-DEN-2026-0059",
+      "DocumentNumber": "0002/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -55,7 +55,7 @@
     },
     {
       "Id": "A12F9D3F-5FF8-4EA2-896C-2839B01D50C7",
-      "DocumentNumber": "CV-DEN-2026-0060",
+      "DocumentNumber": "0003/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -73,7 +73,7 @@
     },
     {
       "Id": "2AFC9542-2BA9-44EE-9062-DE6F34EE5D60",
-      "DocumentNumber": "CV-NB-2026-0031",
+      "DocumentNumber": "01/CV-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -91,7 +91,7 @@
     },
     {
       "Id": "4262F331-5ADF-4F7D-AC5A-DD48BA076E09",
-      "DocumentNumber": "CV-NB-2026-0032",
+      "DocumentNumber": "02/QC-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -109,7 +109,7 @@
     },
     {
       "Id": "E6CE2002-216A-44B9-B298-D2ABD03C03AC",
-      "DocumentNumber": "CV-DEN-2026-0061",
+      "DocumentNumber": "0004/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -127,7 +127,7 @@
     },
     {
       "Id": "C3E6515B-B1E3-41D3-86CE-F9DB24FEE3C4",
-      "DocumentNumber": "CV-DEN-2026-0062",
+      "DocumentNumber": "0005/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -145,7 +145,7 @@
     },
     {
       "Id": "96B8D635-CA43-41E4-85EC-5558084E4691",
-      "DocumentNumber": "CV-DEN-2026-0063",
+      "DocumentNumber": "0006/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -163,7 +163,7 @@
     },
     {
       "Id": "A07D8A85-069A-4BA1-A3E6-DD9F38DD55A0",
-      "DocumentNumber": "CV-DEN-2026-0064",
+      "DocumentNumber": "0007/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -181,7 +181,7 @@
     },
     {
       "Id": "9A1B4295-D010-4CB4-AFBD-EBD54D13AC03",
-      "DocumentNumber": "0070/2026",
+      "DocumentNumber": "0008/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -199,7 +199,7 @@
     },
     {
       "Id": "B59AE047-0185-43D7-999B-B09737FD150E",
-      "DocumentNumber": "0071/2026",
+      "DocumentNumber": "0009/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -217,7 +217,7 @@
     },
     {
       "Id": "417E88EC-8B3E-4B7E-B836-97EDE9E4AE45",
-      "DocumentNumber": "35/CV-NB-VP",
+      "DocumentNumber": "03/CV-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -235,7 +235,7 @@
     },
     {
       "Id": "35C8A0CE-4B24-4DC0-8984-9EACBAC8DF4B",
-      "DocumentNumber": "36/QC-NB-VP",
+      "DocumentNumber": "04/QC-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -253,7 +253,7 @@
     },
     {
       "Id": "33D86456-EB7C-4D5D-A0BD-8D0E6520C85E",
-      "DocumentNumber": "0072/2026",
+      "DocumentNumber": "0010/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -271,7 +271,7 @@
     },
     {
       "Id": "9D06848A-1CCD-4ED3-BAF2-C39347A48924",
-      "DocumentNumber": "0073/2026",
+      "DocumentNumber": "0011/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -289,7 +289,7 @@
     },
     {
       "Id": "7FDF65D8-01EA-46A4-80B4-231C34A32624",
-      "DocumentNumber": "0074/2026",
+      "DocumentNumber": "0012/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -307,7 +307,7 @@
     },
     {
       "Id": "82F9BAC8-24C3-422F-A555-51FBA1E967E3",
-      "DocumentNumber": "0076/2026",
+      "DocumentNumber": "0013/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -325,7 +325,7 @@
     },
     {
       "Id": "697770E4-E62E-413D-BFB3-CB19C0A4FBCD",
-      "DocumentNumber": "0077/2026",
+      "DocumentNumber": "0014/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -343,7 +343,7 @@
     },
     {
       "Id": "5FA13C15-F586-4897-A535-D37CC0BA5D2E",
-      "DocumentNumber": "0078/2026",
+      "DocumentNumber": "0015/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -361,7 +361,7 @@
     },
     {
       "Id": "D082283E-249B-4701-A6C8-22C2737391B3",
-      "DocumentNumber": "38/CV-NB-VP",
+      "DocumentNumber": "05/CV-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -379,7 +379,7 @@
     },
     {
       "Id": "619D94A8-104B-45A3-8ADC-6E977875008F",
-      "DocumentNumber": "39/QC-NB-VP",
+      "DocumentNumber": "06/QC-NB-VP",
       "ReferenceNumber": null,
       "DocType": "INTERNAL",
       "Status": "Draft",
@@ -397,7 +397,7 @@
     },
     {
       "Id": "D348A9E6-FDA4-4F6F-9133-ACFC4561CC21",
-      "DocumentNumber": "0079/2026",
+      "DocumentNumber": "0016/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -415,7 +415,7 @@
     },
     {
       "Id": "1E1D6062-E178-4D7A-867F-EAE23F99CA1A",
-      "DocumentNumber": "0080/2026",
+      "DocumentNumber": "0017/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -433,7 +433,7 @@
     },
     {
       "Id": "A5CCF7DB-784B-4FF6-B6C7-29D0B805E32B",
-      "DocumentNumber": "0081/2026",
+      "DocumentNumber": "0018/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -451,7 +451,7 @@
     },
     {
       "Id": "630B58C4-EC68-4AC9-8A58-23051F75A42B",
-      "DocumentNumber": "0082/2026",
+      "DocumentNumber": "0019/2026",
       "ReferenceNumber": null,
       "DocType": "INCOMING",
       "Status": "Draft",
@@ -469,11 +469,11 @@
     },
     {
       "Id": "D85E6A6E-558A-44EC-8B6C-A3E7778D4CE8",
-      "DocumentNumber": "0139/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0020/2026",
+      "ReferenceNumber": "1241/VP-TH",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[1241/VP-TH]",
+      "Title": "Công văn số 1241/VP-TH",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 1241/VP-TH\n- Đơn vị ban hành: Ủy ban nhân dân Thành phố Hồ Chí Minh\n- Ngày ký: 18/02/2021\n- Người ký:",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -487,11 +487,11 @@
     },
     {
       "Id": "63045D13-29FD-450B-8145-A7FB2C4281D5",
-      "DocumentNumber": "0140/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0021/2026",
+      "ReferenceNumber": "4899/QĐ-BYT",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[4899/QĐ-BYT] Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng,khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
+      "Title": "Ban hành Quy chế tiếp nhận, xử lý, phát hành và quản lý sử dụng,khai thác Hệ thống Quản lý và điều hành văn bản điện tử Bộ Y tế",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 4899/QĐ-BYT\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 24/11/2020\n- Người ký: GS.TS Nguyễn Thanh Long",
       "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
       "SenderDepartmentId": null,
@@ -505,11 +505,11 @@
     },
     {
       "Id": "6038A199-5551-4B14-98C6-CB9B11AB6316",
-      "DocumentNumber": "0141/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0022/2026",
+      "ReferenceNumber": "3885/QĐ-HĐPH",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[3885/QĐ-HĐPH] Ban hành quy chế hoạt động của Hội đồngphối hợp phổ biến giáo dục pháp luật của TPHCM",
+      "Title": "Ban hành quy chế hoạt động của Hội đồngphối hợp phổ biến giáo dục pháp luật của TPHCM",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 3885/QĐ-HĐPH\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 21/10/2020\n- Người ký:",
       "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
       "SenderDepartmentId": null,
@@ -523,11 +523,11 @@
     },
     {
       "Id": "4C645593-7771-4134-B48D-960C5597BE60",
-      "DocumentNumber": "0142/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0023/2026",
+      "ReferenceNumber": "4855/QĐ-UBND",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[4855/QĐ-UBND] Bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh",
+      "Title": "Bãi bỏ các chỉ thị của Ủy ban nhân dân Thành phố Hồ Chí Minh",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 4855/QĐ-UBND\n- Đơn vị ban hành: Ủy ban nhân dân Thành phố Hồ Chí Minh\n- Ngày ký: 15/01/2021\n- Người ký:",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -541,11 +541,11 @@
     },
     {
       "Id": "7558FFE3-0978-4C99-AB43-F4461FD0D257",
-      "DocumentNumber": "0143/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0024/2026",
+      "ReferenceNumber": "81/QĐ-TTg",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[81/QĐ-TTg] Tiếp tục triển khai chương trình hỗ trợpháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
+      "Title": "Tiếp tục triển khai chương trình hỗ trợpháp lý cho doanh nghiệp nhỏ và vừa năm 2021",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 81/QĐ-TTg\n- Đơn vị ban hành: Thủ tướng Chính phủ\n- Ngày ký: 19/01/2021\n- Người ký: QUYẾT ĐỊNH",
       "PartnerId": "38957B31-DA3C-4DC8-B3DD-8BD4AEFA97AC",
       "SenderDepartmentId": null,
@@ -559,11 +559,11 @@
     },
     {
       "Id": "744138DC-00B1-42D3-AA18-6E224AE212D9",
-      "DocumentNumber": "0144/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0025/2026",
+      "ReferenceNumber": "850/KH-SYT",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[850/KH-SYT] Giám đốc PGS.TS.BS Tăng Chí Thượng",
+      "Title": "Giám đốc PGS.TS.BS Tăng Chí Thượng",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 850/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -577,11 +577,11 @@
     },
     {
       "Id": "037964CD-FEED-4FFF-A57F-1624D8C3D98B",
-      "DocumentNumber": "0145/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0026/2026",
+      "ReferenceNumber": "851/KH-SYT",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[851/KH-SYT]",
+      "Title": "Công văn số 851/KH-SYT",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 851/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -595,11 +595,11 @@
     },
     {
       "Id": "AD0BE608-F61A-4FAC-8B88-5EDCD0B13D13",
-      "DocumentNumber": "0146/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0027/2026",
+      "ReferenceNumber": "852/KH-SYT",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[852/KH-SYT] KẾ HOẠCH Công tác phổ biến, giáo dục pháp luật năm 2021 củangành Y tế trên địa bàn Thành phố Hồ Chí Minh",
+      "Title": "KẾ HOẠCH Công tác phổ biến, giáo dục pháp luật năm 2021 củangành Y tế trên địa bàn Thành phố Hồ Chí Minh",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 852/KH-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 09/02/2021\n- Người ký:",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -613,11 +613,11 @@
     },
     {
       "Id": "BD7FC169-0D05-40E0-98E8-AE9E7B3F9444",
-      "DocumentNumber": "0147/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0028/2026",
+      "ReferenceNumber": "8985/QĐ-SYT",
       "DocType": "INCOMING",
       "Status": "Draft",
-      "Title": "[8985/QĐ-SYT] Ký ủy quyền và thừa ủy quyền (TUQ)của Giám đốc Sở Y tế cho Trưởng các phòng chuyên môn, nghiệp vụ thuộc Sở Y tế",
+      "Title": "Ký ủy quyền và thừa ủy quyền (TUQ)của Giám đốc Sở Y tế cho Trưởng các phòng chuyên môn, nghiệp vụ thuộc Sở Y tế",
       "Summary": "Văn bản tiếp nhận từ Văn phòng số Medinet:\n- Số ký hiệu: 8985/QĐ-SYT\n- Đơn vị ban hành: SỞ Y TẾ THÀNH PHỐ HỒ CHÍ MINH\n- Ngày ký: 31/12/2020\n- Người ký: Căn cứ Quyết định số",
       "PartnerId": null,
       "SenderDepartmentId": null,
@@ -631,8 +631,8 @@
     },
     {
       "Id": "FB6D071B-D52F-4EC1-AB39-6BA2B4866184",
-      "DocumentNumber": "0148/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0029/2026",
+      "ReferenceNumber": "3359/VPCP",
       "DocType": "INCOMING",
       "Status": "Draft",
       "Title": "Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa giai đoạn 2021-2016 và Kế hoạch triển khai các hoạt động năm 2021 của Chương trình hỗ trợ pháp lý liên ngành cho doanh nghiệp nhỏ và vừa",
@@ -649,8 +649,8 @@
     },
     {
       "Id": "54E15010-FF82-490C-9791-65B758A37033",
-      "DocumentNumber": "0149/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0030/2026",
+      "ReferenceNumber": "2595/BTTTT-CBC",
       "DocType": "INCOMING",
       "Status": "Draft",
       "Title": "Phối hợp triển khai quy hoạch báo chí",
@@ -667,8 +667,8 @@
     },
     {
       "Id": "BE2BC279-75D1-4834-9600-C8931A202889",
-      "DocumentNumber": "0152/2026",
-      "ReferenceNumber": null,
+      "DocumentNumber": "0031/2026",
+      "ReferenceNumber": "687/STP-VB",
       "DocType": "INCOMING",
       "Status": "Draft",
       "Title": "Công văn tiếp nhận luồng riêng: Báo cáo công tác tư pháp",
