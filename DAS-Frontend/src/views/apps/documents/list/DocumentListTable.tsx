@@ -221,30 +221,46 @@ const sortDate = (rowA: any, rowB: any) => {
         sortingFn: sortDocumentNumber,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
-          const displayDocNum = row.original.documentNumber || `CV-${row.original.id}`
-          const displayRef = row.original.referenceNumber || meta.referenceNumber
+          const dir = (row.original.direction || 'incoming').toLowerCase()
+          const docNum = row.original.documentNumber || `CV-${row.original.id}`
+          const refNum = row.original.referenceNumber || meta.referenceNumber
 
-          return (
-            <div className='flex flex-col gap-1 min-w-[170px]'>
-              <Typography
-                component={Link}
-                href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
-                color='primary.main'
-                sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
-              >
-                {displayDocNum}
-              </Typography>
-              {displayRef && displayRef !== displayDocNum && (
+          // Đối với công văn đến: Ưu tiên hiển thị Số ký hiệu văn bản chính của đơn vị gửi
+          if (dir === 'incoming' && refNum && refNum !== docNum) {
+            return (
+              <div className='flex flex-col gap-1 min-w-[150px]'>
+                <Typography
+                  component={Link}
+                  href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
+                  color='primary.main'
+                  sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  {refNum}
+                </Typography>
                 <div className='flex items-center gap-1'>
                   <Chip
-                    label={`Số đối tác: ${displayRef}`}
+                    label={`Số đến: ${docNum}`}
                     size='small'
                     variant='tonal'
                     color='secondary'
                     sx={{ fontSize: '0.72rem', height: 20 }}
                   />
                 </div>
-              )}
+              </div>
+            )
+          }
+
+          // Đối với công văn đi, nội bộ hoặc công văn chưa có số đối tác:
+          return (
+            <div className='flex flex-col gap-1 min-w-[150px]'>
+              <Typography
+                component={Link}
+                href={getLocalizedUrl(`/apps/documents/${row.original.id}`, locale as Locale)}
+                color='primary.main'
+                sx={{ fontWeight: 700, fontSize: '0.92rem', '&:hover': { textDecoration: 'underline' } }}
+              >
+                {docNum}
+              </Typography>
             </div>
           )
         }
@@ -253,14 +269,28 @@ const sortDate = (rowA: any, rowB: any) => {
         header: t.documents.title,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
+          let title = meta.title || row.original.title || ''
+          
+          // Dọn dẹp các tiền tố lặp thừa thãi
+          title = title.replace(/^(?:\[[^\]]+\]\s*)+/g, '')
+
+          let summary = row.original.summary || ''
+          if (
+            summary.includes('Văn bản tiếp nhận từ Văn phòng số') ||
+            summary.includes('• Số ký hiệu:') ||
+            summary.includes('• Đơn vị ban hành:')
+          ) {
+            summary = ''
+          }
+
           return (
-            <div className='flex flex-col max-w-[320px]'>
+            <div className='flex flex-col max-w-[340px]'>
               <Typography variant='body2' className='font-medium line-clamp-2 text-textPrimary'>
-                {meta.title || row.original.title}
+                {title}
               </Typography>
-              {row.original.summary && (
-                <Typography variant='caption' color='text.secondary' className='line-clamp-1'>
-                  {row.original.summary}
+              {summary && (
+                <Typography variant='caption' color='text.secondary' className='line-clamp-1 mt-0.5'>
+                  {summary}
                 </Typography>
               )}
             </div>
@@ -309,9 +339,22 @@ const sortDate = (rowA: any, rowB: any) => {
         sortingFn: sortDate,
         cell: ({ row }) => {
           const meta = parseOcrDocumentMetadata(row.original)
+          let dateStr = meta.issuedDate || row.original.issuedDate || ''
+          
+          // Format ISO date strings (e.g. 2026-09-04T03:45:27... or 2020-07-14T00:00:00) to DD/MM/YYYY
+          if (dateStr && (dateStr.includes('T') || /^\d{4}-\d{2}-\d{2}/.test(dateStr))) {
+            const d = new Date(dateStr)
+            if (!isNaN(d.getTime())) {
+              const day = String(d.getDate()).padStart(2, '0')
+              const month = String(d.getMonth() + 1).padStart(2, '0')
+              const year = d.getFullYear()
+              dateStr = `${day}/${month}/${year}`
+            }
+          }
+
           return (
             <Typography variant='body2' color='text.secondary'>
-              {meta.issuedDate || row.original.issuedDate}
+              {dateStr || '—'}
             </Typography>
           )
         }
