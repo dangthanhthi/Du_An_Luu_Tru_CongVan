@@ -60,6 +60,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<InternalServiceTokenProvider>();
+builder.Services.AddSingleton<EmailFieldParser>();
 builder.Services.AddScoped<IEmailProcessor, EmailProcessor>();
 builder.Services.AddHttpClient<IFilesServiceClient, FilesServiceClient>();
 builder.Services.AddHttpClient<IDocumentServiceClient, DocumentServiceClient>();

@@ -24,6 +24,7 @@ public class EmailProcessor : IEmailProcessor
     private readonly IFilesServiceClient _filesServiceClient;
     private readonly IDocumentServiceClient _documentServiceClient;
     private readonly IAiOcrServiceClient _aiOcrServiceClient;
+    private readonly EmailFieldParser _emailFieldParser;
 
     public EmailProcessor(
         ILogger<EmailProcessor> logger,
@@ -31,7 +32,8 @@ public class EmailProcessor : IEmailProcessor
         EmailWorkerDbContext db,
         IFilesServiceClient filesServiceClient,
         IDocumentServiceClient documentServiceClient,
-        IAiOcrServiceClient aiOcrServiceClient)
+        IAiOcrServiceClient aiOcrServiceClient,
+        EmailFieldParser emailFieldParser)
     {
         _logger = logger;
         _configuration = configuration;
@@ -39,6 +41,7 @@ public class EmailProcessor : IEmailProcessor
         _filesServiceClient = filesServiceClient;
         _documentServiceClient = documentServiceClient;
         _aiOcrServiceClient = aiOcrServiceClient;
+        _emailFieldParser = emailFieldParser;
     }
 
     public async Task<EmailScanResult> ProcessIncomingEmailsAsync(
@@ -232,6 +235,25 @@ public class EmailProcessor : IEmailProcessor
                             message.Subject,
                             senderEmail);
 
+                        // ── Dynamic email field parser ──
+                        string? emailBodyText = null;
+                        string? emailBodyHtml = null;
+                        try
+                        {
+                            var bodyExtractor = new BodyTextExtractor();
+                            message.Body?.Accept(bodyExtractor);
+                            emailBodyText = bodyExtractor.PlainText ?? message.TextBody;
+                            emailBodyHtml = bodyExtractor.HtmlText ?? message.HtmlBody;
+                        }
+                        catch { emailBodyText = message.TextBody; emailBodyHtml = message.HtmlBody; }
+
+                        var emailParsed = _emailFieldParser.ParseEmailFields(
+                            emailSubject: message.Subject,
+                            emailBodyText: emailBodyText,
+                            emailBodyHtml: emailBodyHtml,
+                            attachmentFileName: null,
+                            emailSentDate: message.Date.UtcDateTime);
+
                         var pdfAttachments =
                             message.Attachments
                                 .OfType<MimePart>()
@@ -294,6 +316,14 @@ public class EmailProcessor : IEmailProcessor
                                     ? $"email-scan-{Guid.NewGuid():N}.pdf"
                                     : Path.GetFileName(
                                         attachment.FileName);
+
+                            // Re-parse với tên file đính kèm để tăng độ chính xác
+                            var attachParsed = _emailFieldParser.ParseEmailFields(
+                                emailSubject: message.Subject,
+                                emailBodyText: emailBodyText,
+                                emailBodyHtml: emailBodyHtml,
+                                attachmentFileName: safeFileName,
+                                emailSentDate: message.Date.UtcDateTime);
 
                             // 1. Kiểm tra xem tệp/công văn từ email này đã từng được lưu/tiếp nhận vào Database chưa
                             var alreadySavedItem = await _db.EmailScanItemLogs
@@ -668,6 +698,24 @@ public class EmailProcessor : IEmailProcessor
                                         string.IsNullOrWhiteSpace(ocrWarning)
                                             ? "OCR cannot analyze the document. Manual processing is possible."
                                             : $"OCR warning: {ocrWarning}";
+                                }
+
+                                // ── Fallback từ EmailFieldParser nếu OCR không trích xuất được ──
+                                if (string.IsNullOrWhiteSpace(item.ExtractedReferenceNumber) &&
+                                    attachParsed.ReferenceNumberConfidence >= 50)
+                                {
+                                    item.ExtractedReferenceNumber = attachParsed.ReferenceNumber;
+                                    _logger.LogInformation(
+                                        "EmailFieldParser fallback: RefNum={RefNum} (confidence={Conf}) for {FileName}",
+                                        attachParsed.ReferenceNumber,
+                                        attachParsed.ReferenceNumberConfidence,
+                                        safeFileName);
+                                }
+
+                                if (string.IsNullOrWhiteSpace(item.ExtractedSubject) &&
+                                    !string.IsNullOrWhiteSpace(attachParsed.Subject))
+                                {
+                                    item.ExtractedSubject = attachParsed.Subject;
                                 }
 
                                 var textToCheck = ((item.ExtractedSubject ?? "") + " " + (message.Subject ?? "") + " " + (safeFileName ?? "")).ToLowerInvariant();

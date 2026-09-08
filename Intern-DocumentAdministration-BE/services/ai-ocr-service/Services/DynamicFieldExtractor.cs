@@ -48,6 +48,33 @@ namespace AiOcrService.Services
             // Chuyển ký hiệu dagger †, ‡ đứng bất kỳ đâu thành 1
             cleaned = Regex.Replace(cleaned, @"[†‡]", "1");
 
+            // 1b. Extended glyph pairs – bổ sung các trường hợp nhận nhầm chưa xử lý
+            // Cụm 11: ll, II, 1l, l1, !!
+            cleaned = Regex.Replace(cleaned, @"^[lI!][lI!]$", "11");
+            cleaned = Regex.Replace(cleaned, @"^1[lI!]$", "11");
+            cleaned = Regex.Replace(cleaned, @"^[lI!]1$", "11");
+            // Cụm 77: TT, 7T, T7
+            cleaned = Regex.Replace(cleaned, @"^TT$", "77");
+            cleaned = Regex.Replace(cleaned, @"^7T$", "77");
+            cleaned = Regex.Replace(cleaned, @"^T7$", "77");
+            // Cụm 00: OO, oo, 0O
+            cleaned = Regex.Replace(cleaned, @"^[Oo][Oo]$", "00");
+            cleaned = Regex.Replace(cleaned, @"^0[Oo]$", "00");
+            // Số 4 bị nhận là Ч (Cyrillic) hoặc ч
+            cleaned = Regex.Replace(cleaned, @"[Чч]", "4");
+            // Số 9 bị nhận là ʻ ʼ (dấu modifier letter)
+            cleaned = Regex.Replace(cleaned, @"[ʻʼ]", "9");
+            // Số 1 bị nhận là ¡ (inverted exclamation) hoặc ¦ (broken bar)
+            cleaned = Regex.Replace(cleaned, @"[¡¦]", "1");
+            // Số 8 bị nhận là & hoặc ∞
+            cleaned = Regex.Replace(cleaned, @"[&∞]", "8");
+            // Cụm 19: 1q, 1g
+            cleaned = Regex.Replace(cleaned, @"^1[qg]$", "19");
+            // Cụm 29: 2q, 2g
+            cleaned = Regex.Replace(cleaned, @"^2[qg]$", "29");
+            // Cụm 10: 1o, 1O, lo, lO, l0
+            cleaned = Regex.Replace(cleaned, @"^[1l][oO]$", "10");
+
             // 2. Cặp số 02: Trong phông chữ in nghiêng (Times New Roman Italic) theo Nghị định 30/2020/NĐ-CP,
             // số 2 có đầu cong và chân lượn sóng, OCR nhận thành s/S/z/Z/e/E.
             // Quy tắc hành chính: ngày 1-9 bắt buộc có số 0 ở đầu (01..09).
@@ -953,6 +980,52 @@ namespace AiOcrService.Services
             return -1;
         }
 
+        /// <summary>
+        /// Phân tích chuỗi ngày tháng từ vùng header công văn hành chính,
+        /// hỗ trợ chữ số viết tay, ký tự dính nét, và vị trí tháng mờ.
+        /// </summary>
+        private static (int day, int month, int year) ParseHeaderDate(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return (0, 0, 0);
+
+            // Thử parse dạng DD/MM/YYYY hoặc DD.MM.YYYY hoặc DD-MM-YYYY trực tiếp
+            var isoMatch = Regex.Match(text,
+                @"(?<![\d])([0-9]{1,2})[.\/-]([0-9]{1,2})[.\/-]((19|20)[0-9]{2})(?![\d])");
+            if (isoMatch.Success &&
+                int.TryParse(isoMatch.Groups[1].Value, out var isoD) &&
+                int.TryParse(isoMatch.Groups[2].Value, out var isoM) &&
+                int.TryParse(isoMatch.Groups[3].Value, out var isoY) &&
+                isoD >= 1 && isoD <= 31 && isoM >= 1 && isoM <= 12 && isoY >= 1990 && isoY <= 2050)
+            {
+                return (isoD, isoM, isoY);
+            }
+
+            // Parse dạng "ngày X tháng Y năm YYYY" (hỗ trợ OCR chữ viết tay)
+            var headerMatch = Regex.Match(text,
+                @"(?:ngày|ngay)[\s\-\u2013~.]*([^\s\r\n]{1,8})[\s]*(?:tháng|thang|thing|théng|thêng|thg|[.,])[\s]*([^\s\r\n]{1,8})?[\s]*(?:năm|nam)[\s]*((?:19|20)[0-9]{2})",
+                RegexOptions.IgnoreCase);
+
+            if (headerMatch.Success)
+            {
+                var rawD = NormalizeHandwrittenGlyphs(headerMatch.Groups[1].Value);
+                var rawM = headerMatch.Groups[2].Success ? NormalizeHandwrittenGlyphs(headerMatch.Groups[2].Value) : "";
+                var rawY = headerMatch.Groups[3].Value;
+
+                int.TryParse(rawD, out var dayVal);
+                int.TryParse(rawM, out var monthVal);
+                int.TryParse(rawY, out var yearVal);
+
+                // tháng bị OCR đọc thành théng / thêng => tháng 5
+                if (monthVal == 0 && Regex.IsMatch(headerMatch.Value, @"th[éèê]ng", RegexOptions.IgnoreCase))
+                    monthVal = 5;
+
+                if (dayVal >= 1 && dayVal <= 31 && yearVal >= 1990 && yearVal <= 2050)
+                    return (dayVal, monthVal, yearVal);
+            }
+
+            return (0, 0, 0);
+        }
+
         private void ExtractDocumentDate(string headerText, string fullText, string? fileName, int canCuIdx, byte[]? pdfBytes, ExtractedDocumentData result)
         {
             // LỚP 1: Con dấu ký số điện tử trong nội dung (Visual Signature Stamp)
@@ -977,52 +1050,38 @@ namespace AiOcrService.Services
             }
 
             // LỚP 2: Dòng ngày tháng ban hành trên góc phải Header (Administrative Header Date)
-            // Hỗ trợ đầy đủ Unicode, chữ số viết tay và ký tự dính nét:
-            // "Thành phố Ho Chi Minh, ngày-ZÔtháng © năm 2021" -> 25/02/2021
-            // "Hà Nội, ngày 14 tháng 7 năm 2020" -> 14/07/2020
-            // "TP. Hồ Chí Minh, ngày 09 tháng 02 năm 2021" -> 09/02/2021
-            // "ngày 0% tháng 4 năm 2020" -> 07/04/2020
-            // "Hà Nội, ngày [thing T năm 2020" -> 01/07/2020
-            var headerDateMatch = Regex.Match(headerText, 
-                @"(?:ngày|ngay)\s*[-–—~.:]?\s*([^\s\r\nthángthang]{1,8})\s*(?:tháng|thang|thing|théng|thêng|thg|[.,])\s*([^\s\r\nnămnam]{1,8})?\s*(?:năm|nam)\s*((?:19|20)[0-9]{2})", 
-                RegexOptions.IgnoreCase);
+            // Ưu tiên dùng vùng [HEADER_ZONE] nếu multi-pass OCR đã trích xuất
+            string effectiveHeaderText = headerText;
+            var headerZoneTag = Regex.Match(fullText, @"\[HEADER_ZONE\]([\s\S]*?)\[/HEADER_ZONE\]");
+            if (headerZoneTag.Success)
+                effectiveHeaderText = headerZoneTag.Groups[1].Value + "\n" + headerText;
 
-            if (headerDateMatch.Success)
+            var (hDay, hMonth, hYear) = ParseHeaderDate(effectiveHeaderText);
+            if (hYear == 0) (hDay, hMonth, hYear) = ParseHeaderDate(headerText);
+
+            if (hYear >= 1990 && hYear <= 2050 && hDay >= 1 && hDay <= 31)
             {
-                var rawDay = headerDateMatch.Groups[1].Value;
-                var rawMonth = headerDateMatch.Groups[2].Success ? headerDateMatch.Groups[2].Value : "";
-                var rawYear = headerDateMatch.Groups[3].Value;
-
-                var cleanDay = NormalizeHandwrittenGlyphs(rawDay);
-                var cleanMonth = NormalizeHandwrittenGlyphs(rawMonth);
-
-                int d = 0;
-                int.TryParse(cleanDay, out d);
-                int m = 0;
-                int.TryParse(cleanMonth, out m);
-                int y = 0;
-                int.TryParse(rawYear, out y);
-
-                // Nếu tháng bị dính vào chữ "théng" hoặc "thêng" do nét viết tay số 5
-                if (m == 0 && Regex.IsMatch(headerDateMatch.Value, @"th[éèê]ng", RegexOptions.IgnoreCase))
+                // Nếu tháng bị mờ: suy luận từ chữ ký số PDF
+                if (hMonth == 0 && pdfBytes != null)
                 {
-                    m = 5;
+                    var (sigDate2, _) = ExtractPdfSignatureInfo(pdfBytes);
+                    if (sigDate2.HasValue && sigDate2.Value.Year == hYear)
+                        hMonth = sigDate2.Value.Month;
                 }
-
-                // Nếu có ngày và năm hợp lệ nhưng tháng bị trống/mờ, tìm tháng từ văn bản cùng năm ở đoạn đầu
-                if (m == 0 && d >= 1 && d <= 31 && y >= 1990 && y <= 2050)
+                // Nếu vẫn không có tháng: tìm trong body text
+                if (hMonth == 0)
                 {
-                    var bodyMonthMatch = Regex.Match(fullText.Substring(0, Math.Min(fullText.Length, 1500)), $@"(?:ngày|ngay|\b)\s*\d{{1,2}}[\/\-](0?[1-9]|1[0-2])[\/\-]{y}\b", RegexOptions.IgnoreCase);
-                    if (bodyMonthMatch.Success && int.TryParse(bodyMonthMatch.Groups[1].Value, out var inferredMonth))
-                    {
-                        m = inferredMonth;
-                    }
+                    var bodyMonthMatch2 = Regex.Match(
+                        fullText.Substring(0, Math.Min(fullText.Length, 1500)),
+                        $@"(?:ngày|ngay|\b)\s*\d{{1,2}}[\/\-](0?[1-9]|1[0-2])[\/\-]{hYear}\b",
+                        RegexOptions.IgnoreCase);
+                    if (bodyMonthMatch2.Success && int.TryParse(bodyMonthMatch2.Groups[1].Value, out var inferred))
+                        hMonth = inferred;
                 }
-
-                if (IsValidDate(d, m, y))
+                if (hMonth >= 1 && hMonth <= 12 && IsValidDate(hDay, hMonth, hYear))
                 {
-                    result.DocumentDate = new DateTime(y, m, d, 0, 0, 0, DateTimeKind.Utc);
-                    result.DocumentDateString = $"{d:D2}/{m:D2}/{y}";
+                    result.DocumentDate = new DateTime(hYear, hMonth, hDay, 0, 0, 0, DateTimeKind.Utc);
+                    result.DocumentDateString = $"{hDay:D2}/{hMonth:D2}/{hYear}";
                     return;
                 }
             }

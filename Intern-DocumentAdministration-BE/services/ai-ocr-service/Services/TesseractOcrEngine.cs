@@ -167,15 +167,39 @@ namespace AiOcrService.Services
                                 Format = MagickFormat.Bgra
                             });
                             magick.Format = MagickFormat.Png;
-                            // Không dùng AutoLevel() để giữ nguyên nét bút chữ viết tay và con dấu
+                            // Tiền xử lý ảnh để tăng độ chính xác OCR chữ viết tay
+                            PreprocessImageForHandwriting(magick);
+
+                            // Pass 1: OCR toàn trang (PSM Auto)
                             using var ms = new MemoryStream();
                             magick.Write(ms);
-
                             using var pix = Pix.LoadFromMemory(ms.ToArray());
                             using var ocrPage = engine.Process(pix);
-                            var pageText = ocrPage.GetText();
+                            var pageText = ocrPage.GetText() ?? string.Empty;
+
+                            // Pass 2: OCR vùng header (top 25%) với PSM SingleLine để tăng độ chính xác số hiệu và ngày
+                            string headerZoneText = string.Empty;
+                            try
+                            {
+                                int headerH = Math.Max(1, (int)(height * 0.25));
+                                using var headerMagick = new MagickImage(ms.ToArray());
+                                headerMagick.Crop(new MagickGeometry(0, 0, (uint)width, (uint)headerH));
+                                headerMagick.ResetPage();
+                                using var headerMs = new MemoryStream();
+                                headerMagick.Write(headerMs);
+                                using var headerEngine = new TesseractEngine(_tessDataPath, language, EngineMode.Default);
+                                headerEngine.DefaultPageSegMode = PageSegMode.SingleLine;
+                                using var headerPix = Pix.LoadFromMemory(headerMs.ToArray());
+                                using var headerOcrPage = headerEngine.Process(headerPix);
+                                headerZoneText = headerOcrPage.GetText()?.Trim() ?? string.Empty;
+                            }
+                            catch { /* header crop optional, continue */ }
+
                             if (!string.IsNullOrWhiteSpace(pageText))
                             {
+                                // Nhúng header zone vào đầu kết quả để DynamicFieldExtractor dùng
+                                if (!string.IsNullOrWhiteSpace(headerZoneText))
+                                    ocrTextBuilder.AppendLine($"[HEADER_ZONE]{headerZoneText}[/HEADER_ZONE]");
                                 ocrTextBuilder.AppendLine(pageText.Trim());
                                 ocrTextBuilder.AppendLine();
                             }
@@ -262,6 +286,32 @@ namespace AiOcrService.Services
                     if (Directory.Exists(tempDirectory)) Directory.Delete(tempDirectory, true);
                 }
                 catch { }
+            }
+        }
+
+        /// <summary>
+        /// Tiền xử lý ảnh để tăng độ chính xác OCR chữ viết tay:
+        /// - Grayscale để giảm nhiễu màu sắc
+        /// - AdaptiveThreshold để xử lý ánh sáng không đều
+        /// - UnsharpMask để làm nét nét chữ mờ
+        /// - ReduceNoise để giảm hạt nhiễu máy scan cũ
+        /// </summary>
+        private static void PreprocessImageForHandwriting(MagickImage magick)
+        {
+            try
+            {
+                // 1. Chuyển về Grayscale
+                magick.ColorSpace = ColorSpace.Gray;
+                // 2. Cân bằng histogram cục bộ (adaptive) để xử lý vùng sáng/tối không đều
+                magick.AdaptiveThreshold(15, 15, new Percentage(-10));
+                // 3. Làm nét nét chữ viết tay
+                magick.UnsharpMask(0, 1.0, 1.5, 0.05);
+                // 4. Giảm nhiễu hạt
+                magick.ReduceNoise();
+            }
+            catch
+            {
+                // Nếu một bước nào thất bại, bỏ qua và tiếp tục với ảnh hiện tại
             }
         }
 
