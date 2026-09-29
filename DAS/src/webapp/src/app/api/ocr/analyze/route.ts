@@ -13,6 +13,19 @@ function getTesseractWorkerPath(): string {
   return workerPath
 }
 
+async function renderPdfScanPages(pdfBuffer: Buffer): Promise<Buffer[]> {
+  const { PDFParse } = await import('pdf-parse')
+  const parser = new PDFParse({ data: pdfBuffer })
+
+  try {
+    const result = await parser.getScreenshot({ first: 5, desiredWidth: 1600, imageDataUrl: false })
+
+    return result.pages.map(page => Buffer.from(page.data))
+  } finally {
+    await parser.destroy()
+  }
+}
+
 /**
  * Trích xuất các luồng ảnh JPEG được nhúng bên trong tệp PDF scan
  * (99% các máy scan văn phòng, máy photocopy, CamScanner lưu trang scan dạng JPEG stream)
@@ -163,11 +176,19 @@ export async function POST(req: Request) {
         console.warn('[OCR] PDF stream extraction notice:', err.message)
       }
 
-      // 1.2 Nếu là PDF scan ảnh (< 30 ký tự text), trích xuất ảnh scan bên trong PDF rồi chạy Tesseract AI
+      // 1.2 PDF scan: render trang thành PNG để hỗ trợ cả JPEG, CCITT/TIFF và ảnh nén khác.
       if (!extractedRawText || extractedRawText.length < 30) {
         try {
-          const imageBuffers = extractJpegStreamsFromPdf(buffer)
-          console.log(`[OCR] Phát hiện ${imageBuffers.length} ảnh nhúng trong PDF scan`)
+          let imageBuffers: Buffer[]
+
+          try {
+            imageBuffers = await renderPdfScanPages(buffer)
+          } catch (renderErr: any) {
+            console.warn('[OCR] Không render được PDF scan, thử ảnh JPEG nhúng:', renderErr.message)
+            imageBuffers = extractJpegStreamsFromPdf(buffer)
+          }
+
+          console.log(`[OCR] Đã chuẩn bị ${imageBuffers.length} trang ảnh từ PDF scan`)
 
           if (imageBuffers.length > 0) {
             const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))

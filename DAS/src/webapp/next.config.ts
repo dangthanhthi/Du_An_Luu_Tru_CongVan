@@ -12,7 +12,11 @@ const nextConfig: NextConfig = {
       './node_modules/wasm-feature-detect/**/*',
       './node_modules/is-url/**/*',
       './node_modules/bmp-js/**/*',
-      './node_modules/node-fetch/**/*'
+      './node_modules/node-fetch/**/*',
+      './node_modules/pdf-parse/**/*',
+      './node_modules/pdfjs-dist/**/*',
+      './node_modules/@napi-rs/canvas/**/*',
+      './node_modules/@napi-rs/canvas-linux-x64-gnu/**/*'
     ]
   },
   typescript: {
