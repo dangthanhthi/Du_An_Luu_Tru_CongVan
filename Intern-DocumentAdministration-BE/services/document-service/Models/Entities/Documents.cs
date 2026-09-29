@@ -27,6 +27,7 @@ public class Document
     public Guid? PartnerId { get; set; }
     public Guid? SenderDepartmentId { get; set; }
     public Guid CreatedByUserId { get; set; }
+    public string? SourceMessageId { get; set; }
     public DateTime? ReceivedAt { get; set; }
     public DateTime? DistributedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

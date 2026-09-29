@@ -7,16 +7,22 @@ public class DocumentBusinessService : IDocumentBusinessService
 {
     private readonly DocumentDbContext _db;
     private readonly INotificationServiceClient _notificationClient;
+    private readonly IPartnerServiceClient _partnerClient;
+    private readonly IFilesServiceClient _filesClient;
 
     public DocumentBusinessService(
         DocumentDbContext db,
-        INotificationServiceClient notificationClient)
+        INotificationServiceClient notificationClient,
+        IPartnerServiceClient partnerClient,
+        IFilesServiceClient filesClient)
     {
         _db = db;
         _notificationClient = notificationClient;
+        _partnerClient = partnerClient;
+        _filesClient = filesClient;
     }
 
-    private async Task<string> GenerateDocumentNumberAsync(string docType, string? title = null, string? customType = null, string? deptCode = null)
+    private async Task<string> GenerateDocumentNumberAsync(string docType)
     {
         var year = DateTime.UtcNow.Year;
         int nextValue = 1;
@@ -85,52 +91,41 @@ public class DocumentBusinessService : IDocumentBusinessService
             await _db.SaveChangesAsync();
         }
 
-        // Tự động suy luận loại văn bản viết tắt từ Tiêu đề hoặc loại truyền vào (QĐ, TB, BC, KH, CT, TTr, GM, NQ, HĐ, BB, QC, HD...)
-        string typeShort = InferDocumentTypeShortCode(customType, title);
-        string cleanDept = string.IsNullOrWhiteSpace(deptCode) ? "VP" : deptCode.Trim().ToUpperInvariant();
-
-        return docType switch
+        string prefix = docType switch
         {
-            // Văn bản Đến: Số đến trong Sổ đăng ký văn bản đến theo năm (Nghị định 30)
-            DocumentTypeConstants.INCOMING => $"{nextValue:D4}/{year}",
-
-            // Văn bản Đi: {Số}/{LoạiTắt}-{CơQuan/ĐơnVị} (Nghị định 30)
-            DocumentTypeConstants.OUTGOING => $"{nextValue:D2}/{typeShort}-{cleanDept}",
-
-            // Văn bản Nội bộ: {Số}/{LoạiTắt}-NB-{PhòngBan} (Nghị định 30)
-            DocumentTypeConstants.INTERNAL => $"{nextValue:D2}/{typeShort}-NB-{cleanDept}",
-
-            _ => $"{nextValue:D4}/{year}"
+            DocumentTypeConstants.INCOMING => "CV-DEN",
+            DocumentTypeConstants.OUTGOING => "CV-DI",
+            DocumentTypeConstants.INTERNAL => "CV-NB",
+            _ => "CV"
         };
+
+        return $"{prefix}-{year}-{nextValue:D4}";
     }
 
-    private static string InferDocumentTypeShortCode(string? customType, string? title)
+    public async Task<Document> CreateIncomingAsync(CreateIncomingDocumentRequest req, DocumentActor actor)
     {
-        var text = (customType + " " + title).ToUpperInvariant();
-        if (text.Contains("QUYẾT ĐỊNH") || text.Contains("QUYET DINH") || text.Contains("/QĐ")) return "QĐ";
-        if (text.Contains("THÔNG BÁO") || text.Contains("THONG BAO") || text.Contains("/TB")) return "TB";
-        if (text.Contains("BÁO CÁO") || text.Contains("BAO CAO") || text.Contains("/BC")) return "BC";
-        if (text.Contains("TỜ TRÌNH") || text.Contains("TO TRINH") || text.Contains("/TTR")) return "TTr";
-        if (text.Contains("KẾ HOẠCH") || text.Contains("KE HOACH") || text.Contains("/KH")) return "KH";
-        if (text.Contains("CHỈ THỊ") || text.Contains("CHI THI") || text.Contains("/CT")) return "CT";
-        if (text.Contains("GIẤY MỜI") || text.Contains("GIAY MOI") || text.Contains("/GM")) return "GM";
-        if (text.Contains("NGHỊ QUYẾT") || text.Contains("NGHI QUYET") || text.Contains("/NQ")) return "NQ";
-        if (text.Contains("HỢP ĐỒNG") || text.Contains("HOP DONG") || text.Contains("/HĐ")) return "HĐ";
-        if (text.Contains("BIÊN BẢN") || text.Contains("BIEN BAN") || text.Contains("/BB")) return "BB";
-        if (text.Contains("QUY CHẾ") || text.Contains("QUY CHE") || text.Contains("/QC")) return "QC";
-        if (text.Contains("QUY ĐỊNH") || text.Contains("QUY DINH")) return "QĐ";
-        if (text.Contains("HƯỚNG DẪN") || text.Contains("HUONG DAN") || text.Contains("/HD")) return "HD";
-        if (text.Contains("CÔNG ĐIỆN") || text.Contains("CONG DIEN") || text.Contains("/CĐ")) return "CĐ";
-        
-        return "CV"; // Công văn
-    }
+        if (!DocumentAccessRules.CanCreateIncoming(actor))
+            throw new UnauthorizedAccessException("You do not have permission to register incoming documents.");
 
-    public async Task<Document> CreateIncomingAsync(CreateIncomingDocumentRequest req, Guid userId)
-    {
+        var sourceMessageId = string.IsNullOrWhiteSpace(req.SourceMessageId) ? null : req.SourceMessageId.Trim();
+        if (sourceMessageId is not null)
+        {
+            var existing = await _db.Documents
+                .Include(d => d.Attachments)
+                .Include(d => d.DepartmentAccesses)
+                .Include(d => d.StatusHistories)
+                .FirstOrDefaultAsync(d => d.SourceMessageId == sourceMessageId);
+            if (existing is not null) return existing;
+        }
+
         if (string.IsNullOrWhiteSpace(req.Title))
             throw new ArgumentException("Tiêu đề công văn không được để trống.");
 
-        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.INCOMING, req.Title);
+        if (req.PartnerId.HasValue)
+            await ValidateActivePartnerAsync(req.PartnerId.Value);
+        await ValidateFilesAsync(req.AttachmentFileIds);
+
+        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.INCOMING);
 
         var doc = new Document
         {
@@ -140,7 +135,8 @@ public class DocumentBusinessService : IDocumentBusinessService
             Title = req.Title.Trim(),
             Summary = req.Summary?.Trim(),
             PartnerId = req.PartnerId,
-            CreatedByUserId = userId,
+            CreatedByUserId = actor.UserId,
+            SourceMessageId = sourceMessageId,
             ReceivedAt = req.ReceivedAt ?? DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow
         };
@@ -164,7 +160,7 @@ public class DocumentBusinessService : IDocumentBusinessService
             DocumentId = doc.Id,
             OldStatus = null,
             NewStatus = DocumentStatusConstants.Draft,
-            ChangedByUserId = userId,
+            ChangedByUserId = actor.UserId,
             ChangedAt = DateTime.UtcNow,
             Note = "Khởi tạo công văn đến"
         });
@@ -172,25 +168,29 @@ public class DocumentBusinessService : IDocumentBusinessService
         _db.Documents.Add(doc);
         await _db.SaveChangesAsync();
 
-        // Gửi thông báo thực tế khi tiếp nhận công văn mới
-        _ = _notificationClient.SendNotificationAsync(new SendNotificationRequest(
-            RecipientEmail: "vanthu@company.com",
-            Subject: $"[Tiếp nhận Công văn đến] {doc.DocumentNumber} - {doc.Title}",
-            Body: $"Hệ thống đã tiếp nhận công văn đến số {doc.DocumentNumber}: {doc.Title}. Vui lòng kiểm tra và xử lý."
-        ));
-
         return doc;
     }
 
-    public async Task<Document> CreateOutgoingAsync(CreateOutgoingDocumentRequest req, Guid userId)
+    public async Task<Document> CreateOutgoingAsync(CreateOutgoingDocumentRequest req, DocumentActor actor)
     {
+        if (!DocumentAccessRules.CanCreateDepartmentDocument(actor))
+            throw new UnauthorizedAccessException("You do not have permission to register outgoing documents.");
         if (string.IsNullOrWhiteSpace(req.Title))
             throw new ArgumentException("Tiêu đề công văn không được để trống.");
+        if (req.PartnerId == Guid.Empty)
+            throw new ArgumentException("Đối tác nhận (PartnerId) không hợp lệ.");
+        if (actor.IsInRole("SecretaryDept") && !actor.DepartmentId.HasValue)
+            throw new UnauthorizedAccessException("A department secretary must belong to an active department.");
+        if (actor.IsInRole("Admin") && req.SenderDepartmentId == Guid.Empty)
+            throw new ArgumentException("Phòng ban gửi (SenderDepartmentId) không hợp lệ.");
 
-        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.OUTGOING, req.Title);
+        await ValidateActivePartnerAsync(req.PartnerId);
+        await ValidateFilesAsync(req.AttachmentFileIds);
+        var senderDepartmentId = actor.IsInRole("SecretaryDept")
+            ? actor.DepartmentId!.Value
+            : req.SenderDepartmentId;
 
-        var partnerId = req.PartnerId.HasValue && req.PartnerId.Value != Guid.Empty ? req.PartnerId.Value : (Guid?)null;
-        var senderDeptId = req.SenderDepartmentId.HasValue && req.SenderDepartmentId.Value != Guid.Empty ? req.SenderDepartmentId.Value : (Guid?)null;
+        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.OUTGOING);
 
         var doc = new Document
         {
@@ -199,9 +199,9 @@ public class DocumentBusinessService : IDocumentBusinessService
             Status = DocumentStatusConstants.Draft,
             Title = req.Title.Trim(),
             Summary = req.Summary?.Trim(),
-            PartnerId = partnerId,
-            SenderDepartmentId = senderDeptId,
-            CreatedByUserId = userId,
+            PartnerId = req.PartnerId,
+            SenderDepartmentId = senderDepartmentId,
+            CreatedByUserId = actor.UserId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -224,7 +224,7 @@ public class DocumentBusinessService : IDocumentBusinessService
             DocumentId = doc.Id,
             OldStatus = null,
             NewStatus = DocumentStatusConstants.Draft,
-            ChangedByUserId = userId,
+            ChangedByUserId = actor.UserId,
             ChangedAt = DateTime.UtcNow,
             Note = "Khởi tạo công văn đi"
         });
@@ -232,23 +232,26 @@ public class DocumentBusinessService : IDocumentBusinessService
         _db.Documents.Add(doc);
         await _db.SaveChangesAsync();
 
-        // Gửi thông báo thực tế khi tạo công văn đi
-        _ = _notificationClient.SendNotificationAsync(new SendNotificationRequest(
-            RecipientEmail: "vanthu@company.com",
-            Subject: $"[Soạn thảo Công văn đi] {doc.DocumentNumber} - {doc.Title}",
-            Body: $"Công văn đi số {doc.DocumentNumber} đã được khởi tạo và đang chờ duyệt."
-        ));
-
         return doc;
     }
 
-    public async Task<Document> CreateInternalAsync(CreateInternalDocumentRequest req, Guid userId)
+    public async Task<Document> CreateInternalAsync(CreateInternalDocumentRequest req, DocumentActor actor)
     {
+        if (!DocumentAccessRules.CanCreateDepartmentDocument(actor))
+            throw new UnauthorizedAccessException("You do not have permission to register internal documents.");
         if (string.IsNullOrWhiteSpace(req.Title))
             throw new ArgumentException("Tiêu đề công văn không được để trống.");
+        if (actor.IsInRole("SecretaryDept") && !actor.DepartmentId.HasValue)
+            throw new UnauthorizedAccessException("A department secretary must belong to an active department.");
+        if (actor.IsInRole("Admin") && req.SenderDepartmentId == Guid.Empty)
+            throw new ArgumentException("Phòng ban soạn thảo (SenderDepartmentId) không hợp lệ.");
 
-        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.INTERNAL, req.Title);
-        var senderDeptId = req.SenderDepartmentId.HasValue && req.SenderDepartmentId.Value != Guid.Empty ? req.SenderDepartmentId.Value : (Guid?)null;
+        await ValidateFilesAsync(req.AttachmentFileIds);
+        var senderDepartmentId = actor.IsInRole("SecretaryDept")
+            ? actor.DepartmentId!.Value
+            : req.SenderDepartmentId;
+
+        var docNumber = await GenerateDocumentNumberAsync(DocumentTypeConstants.INTERNAL);
 
         var doc = new Document
         {
@@ -258,8 +261,8 @@ public class DocumentBusinessService : IDocumentBusinessService
             Title = req.Title.Trim(),
             Summary = req.Summary?.Trim(),
             PartnerId = null,
-            SenderDepartmentId = senderDeptId,
-            CreatedByUserId = userId,
+            SenderDepartmentId = senderDepartmentId,
+            CreatedByUserId = actor.UserId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -282,7 +285,7 @@ public class DocumentBusinessService : IDocumentBusinessService
             DocumentId = doc.Id,
             OldStatus = null,
             NewStatus = DocumentStatusConstants.Draft,
-            ChangedByUserId = userId,
+            ChangedByUserId = actor.UserId,
             ChangedAt = DateTime.UtcNow,
             Note = "Khởi tạo công văn nội bộ"
         });
@@ -290,17 +293,10 @@ public class DocumentBusinessService : IDocumentBusinessService
         _db.Documents.Add(doc);
         await _db.SaveChangesAsync();
 
-        // Gửi thông báo thực tế khi tạo văn bản nội bộ
-        _ = _notificationClient.SendNotificationAsync(new SendNotificationRequest(
-            RecipientEmail: "all-staff@company.com",
-            Subject: $"[Văn bản nội bộ mới] {doc.DocumentNumber} - {doc.Title}",
-            Body: $"Văn bản nội bộ số {doc.DocumentNumber} ({doc.Title}) đã được tạo trên hệ thống."
-        ));
-
         return doc;
     }
 
-    public async Task<Document> UpdateAsync(Guid id, UpdateDocumentRequest req, Guid userId, string? userRole)
+    public async Task<Document> UpdateAsync(Guid id, UpdateDocumentRequest req, DocumentActor actor)
     {
         var doc = await _db.Documents
             .Include(d => d.Attachments)
@@ -311,6 +307,9 @@ public class DocumentBusinessService : IDocumentBusinessService
         if (doc == null)
             throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
 
+        if (!DocumentAccessRules.CanEdit(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to edit this document.");
+
         if (doc.Status != DocumentStatusConstants.Draft)
             throw new InvalidOperationException("Chỉ có thể chỉnh sửa công văn khi ở trạng thái 'Draft'.");
 
@@ -319,8 +318,13 @@ public class DocumentBusinessService : IDocumentBusinessService
 
         doc.Title = req.Title.Trim();
         doc.Summary = req.Summary?.Trim();
-        if (req.PartnerId.HasValue) doc.PartnerId = req.PartnerId.Value;
-        if (req.SenderDepartmentId.HasValue) doc.SenderDepartmentId = req.SenderDepartmentId.Value;
+        if (req.PartnerId.HasValue)
+        {
+            await ValidateActivePartnerAsync(req.PartnerId.Value);
+            doc.PartnerId = req.PartnerId.Value;
+        }
+        if (req.SenderDepartmentId.HasValue && actor.IsInRole("Admin"))
+            doc.SenderDepartmentId = req.SenderDepartmentId.Value;
         if (req.ReceivedAt.HasValue) doc.ReceivedAt = req.ReceivedAt.Value;
         doc.UpdatedAt = DateTime.UtcNow;
 
@@ -328,20 +332,24 @@ public class DocumentBusinessService : IDocumentBusinessService
         return doc;
     }
 
-    public async Task<Document> ChangeStatusAsync(Guid id, ChangeStatusRequest req, Guid userId, string? userRole)
+    public async Task<Document> ChangeStatusAsync(Guid id, ChangeStatusRequest req, DocumentActor actor)
     {
-        var oldStatus = await _db.Documents
-            .Where(d => d.Id == id)
-            .Select(d => (string?)d.Status)
-            .FirstOrDefaultAsync();
+        var doc = await _db.Documents
+            .Include(d => d.Attachments)
+            .Include(d => d.DepartmentAccesses)
+            .Include(d => d.StatusHistories)
+            .FirstOrDefaultAsync(d => d.Id == id);
 
-        if (oldStatus == null)
+        if (doc == null)
             throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
 
+        if (!DocumentAccessRules.CanChangeStatus(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to change this document's status.");
+
+        var oldStatus = doc.Status;
         var newStatus = req.Status;
 
-        if (oldStatus == newStatus)
-            return await GetByIdWithDetailsAsync(id) ?? throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
+        if (oldStatus == newStatus) return doc;
 
         // Valid transitions: Draft -> Reviewed, Draft -> Distributed, Reviewed -> Distributed
         bool isValidTransition = (oldStatus, newStatus) switch
@@ -355,197 +363,175 @@ public class DocumentBusinessService : IDocumentBusinessService
         if (!isValidTransition)
             throw new InvalidOperationException($"Không thể chuyển trạng thái từ '{oldStatus}' sang '{newStatus}'.");
 
-        var now = DateTime.UtcNow;
+        if (newStatus == DocumentStatusConstants.Distributed)
+            await ValidateReadyForDistributionAsync(doc);
+
+        doc.Status = newStatus;
+        doc.UpdatedAt = DateTime.UtcNow;
 
         if (newStatus == DocumentStatusConstants.Distributed)
         {
-            await _db.Documents
-                .Where(d => d.Id == id)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(d => d.Status, newStatus)
-                    .SetProperty(d => d.UpdatedAt, now)
-                    .SetProperty(d => d.DistributedAt, now));
-        }
-        else
-        {
-            await _db.Documents
-                .Where(d => d.Id == id)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(d => d.Status, newStatus)
-                    .SetProperty(d => d.UpdatedAt, now));
+            doc.DistributedAt = DateTime.UtcNow;
+            
+            // Asynchronously notify via NotificationService (non-blocking)
         }
 
-        _db.ChangeTracker.Clear();
-
-        _db.DocumentStatusHistory.Add(new DocumentStatusHistory
+        var history = new DocumentStatusHistory
         {
-            DocumentId = id,
+            DocumentId = doc.Id,
             OldStatus = oldStatus,
             NewStatus = newStatus,
-            ChangedByUserId = userId,
-            ChangedAt = now,
+            ChangedByUserId = actor.UserId,
+            ChangedAt = DateTime.UtcNow,
             Note = req.Note?.Trim()
-        });
+        };
+        doc.StatusHistories.Add(history);
+
+        // The history key is generated client-side. Explicitly mark this entity as
+        // Added so EF never interprets its non-default Guid as an existing row and
+        // emits an UPDATE that affects zero rows.
+        _db.DocumentStatusHistory.Add(history);
 
         try
         {
             await _db.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException exception)
         {
-            _db.ChangeTracker.Clear();
-        }
+            // Do not retry with refreshed values: that would silently overwrite the
+            // concurrent change and could create an incorrect status-history entry.
+            var current = await _db.Documents
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(d => d.Id == id)
+                .Select(d => new { d.IsDeleted })
+                .SingleOrDefaultAsync();
 
-        if (newStatus == DocumentStatusConstants.Distributed)
-        {
-            var doc = await GetByIdWithDetailsAsync(id);
-            // Asynchronously notify via NotificationService (non-blocking)
-            _ = _notificationClient.SendNotificationAsync(new SendNotificationRequest(
-                RecipientEmail: "all-departments@company.com",
-                Subject: $"[Công Văn Mới] {doc?.DocumentNumber} - {doc?.Title}",
-                Body: $"Công văn số {doc?.DocumentNumber} đã được phát hành chính thức."
-            ));
-            return doc!;
-        }
+            if (current == null || current.IsDeleted)
+                throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}", exception);
 
-        return await GetByIdWithDetailsAsync(id) ?? throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
+            throw new DocumentConcurrencyException(
+                "Công văn đã được thay đổi bởi một yêu cầu khác. Vui lòng tải lại và thử lại.",
+                exception);
+        }
+        return doc;
     }
 
-    private async Task<Document?> GetByIdWithDetailsAsync(Guid id)
+    public async Task<Document> AssignAccessAsync(Guid id, AssignAccessRequest req, DocumentActor actor)
     {
-        return await _db.Documents
+        var doc = await _db.Documents
             .Include(d => d.Attachments)
             .Include(d => d.DepartmentAccesses)
             .Include(d => d.StatusHistories)
             .FirstOrDefaultAsync(d => d.Id == id);
-    }
 
-    public async Task<Document> AssignAccessAsync(Guid id, AssignAccessRequest req, Guid userId)
-    {
-        var docExists = await _db.Documents.AnyAsync(d => d.Id == id);
-
-        if (!docExists)
+        if (doc == null)
             throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
+
+        if (!DocumentAccessRules.CanAssignDepartments(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to assign recipient departments.");
 
         if (req.DepartmentIds == null || req.DepartmentIds.Count == 0)
             throw new ArgumentException("Vui lòng chọn ít nhất một phòng ban để phân quyền.");
 
-        var existingDeptIds = await _db.DocumentDepartmentAccess
-            .Where(a => a.DocumentId == id)
-            .Select(a => a.DepartmentId)
-            .ToListAsync();
+        var requestedDepartments = req.DepartmentIds.Distinct().ToHashSet();
+        _db.DocumentDepartmentAccess.RemoveRange(
+            doc.DepartmentAccesses.Where(access => !requestedDepartments.Contains(access.DepartmentId)));
 
-        var now = DateTime.UtcNow;
-
-        foreach (var deptId in req.DepartmentIds)
+        foreach (var deptId in requestedDepartments)
         {
-            if (!existingDeptIds.Contains(deptId))
+            if (!doc.DepartmentAccesses.Any(a => a.DepartmentId == deptId))
             {
-                _db.DocumentDepartmentAccess.Add(new DocumentDepartmentAccess
+                doc.DepartmentAccesses.Add(new DocumentDepartmentAccess
                 {
-                    DocumentId = id,
+                    DocumentId = doc.Id,
                     DepartmentId = deptId,
-                    AssignedAt = now,
-                    AssignedByUserId = userId
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedByUserId = actor.UserId
                 });
             }
         }
 
+        doc.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
-        await _db.Documents
-            .Where(d => d.Id == id)
-            .ExecuteUpdateAsync(s => s.SetProperty(d => d.UpdatedAt, now));
-
-        return await GetByIdWithDetailsAsync(id) ?? throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
+        return doc;
     }
 
-    public async Task<Document> AddAttachmentAsync(Guid id, AddAttachmentRequest req)
+    public async Task<Document> AddAttachmentAsync(Guid id, AddAttachmentRequest req, DocumentActor actor)
     {
-        var docExists = await _db.Documents.AnyAsync(d => d.Id == id);
+        var doc = await _db.Documents
+            .Include(d => d.Attachments)
+            .Include(d => d.DepartmentAccesses)
+            .FirstOrDefaultAsync(d => d.Id == id);
 
-        if (!docExists)
+        if (doc == null)
             throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
+
+        if (!DocumentAccessRules.CanEdit(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to add attachments to this document.");
 
         if (req.FileId == Guid.Empty)
             throw new ArgumentException("FileId không hợp lệ.");
 
-        // Insert trực tiếp DocumentAttachment thay vì load cả Document rồi sửa qua
-        // navigation property + SaveChangesAsync — cách cũ khiến EF Core sinh câu
-        // UPDATE document.Documents theo Id nhưng bị báo "0 rows affected" dù bản
-        // ghi tồn tại (lỗi concurrency giả — không có concurrency token nào được
-        // cấu hình trên Document). Insert thẳng + ExecuteUpdate né hoàn toàn lỗi này.
-        _db.DocumentAttachments.Add(new DocumentAttachment
+        await ValidateFilesAsync([req.FileId]);
+
+        var attachment = new DocumentAttachment
         {
-            DocumentId = id,
+            DocumentId = doc.Id,
             FileId = req.FileId,
             AttachmentType = req.AttachmentType ?? "Reference",
             CreatedAt = DateTime.UtcNow
-        });
+        };
 
+        // Adding an attachment is a child-row insert. Do not touch the parent
+        // document: doing so creates an unnecessary concurrency-checked UPDATE.
+        // Explicitly add the child so its client-generated Guid cannot be mistaken
+        // for the key of an existing (detached) attachment.
+        _db.DocumentAttachments.Add(attachment);
         await _db.SaveChangesAsync();
-
-        await _db.Documents
-            .Where(d => d.Id == id)
-            .ExecuteUpdateAsync(s => s.SetProperty(d => d.UpdatedAt, DateTime.UtcNow));
-
-        var doc = await _db.Documents
-            .Include(d => d.Attachments)
-            .Include(d => d.DepartmentAccesses)
-            .Include(d => d.StatusHistories)
-            .FirstAsync(d => d.Id == id);
 
         return doc;
     }
 
-    public async Task RemoveAttachmentAsync(Guid id, Guid attachmentId)
+    public async Task RemoveAttachmentAsync(Guid id, Guid attachmentId, DocumentActor actor)
     {
-        var docExists = await _db.Documents.AnyAsync(d => d.Id == id);
+        var doc = await _db.Documents
+            .Include(d => d.Attachments)
+            .FirstOrDefaultAsync(d => d.Id == id);
 
-        if (!docExists)
+        if (doc == null)
             throw new KeyNotFoundException($"Không tìm thấy công văn với ID: {id}");
 
-        var attachment = await _db.DocumentAttachments
-            .FirstOrDefaultAsync(a => a.Id == attachmentId && a.DocumentId == id);
+        if (!DocumentAccessRules.CanEdit(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to remove attachments from this document.");
 
+        var attachment = doc.Attachments.FirstOrDefault(a => a.Id == attachmentId);
         if (attachment != null)
         {
             _db.DocumentAttachments.Remove(attachment);
+            doc.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
-
-            await _db.Documents
-                .Where(d => d.Id == id)
-                .ExecuteUpdateAsync(s => s.SetProperty(d => d.UpdatedAt, DateTime.UtcNow));
         }
     }
 
-    public async Task<Document?> GetByIdAsync(Guid id, Guid? userDepartmentId, string? userRole)
+    public async Task<Document?> GetByIdAsync(Guid id, DocumentActor actor)
     {
-        var doc = await _db.Documents
+        var query = _db.Documents
             .Include(d => d.Attachments)
             .Include(d => d.DepartmentAccesses)
             .Include(d => d.StatusHistories)
-            .FirstOrDefaultAsync(d => d.Id == id);
+            .Where(d => d.Id == id);
 
-        if (doc == null) return null;
+        var doc = await ApplyReadScope(query, actor).FirstOrDefaultAsync();
 
-        // ABAC Check: Admin, SecretaryDirector, or creator/sender or assigned department
-        if (userRole == "Admin" || userRole == "SecretaryDirector")
-            return doc;
-
-        if (userDepartmentId.HasValue)
-        {
-            bool hasAccess = doc.SenderDepartmentId == userDepartmentId.Value ||
-                             doc.DepartmentAccesses.Any(a => a.DepartmentId == userDepartmentId.Value);
-
-            if (!hasAccess && doc.Status != DocumentStatusConstants.Distributed)
-                throw new UnauthorizedAccessException("Bạn không có quyền truy cập công văn này.");
-        }
+        if (doc is null && await _db.Documents.AnyAsync(d => d.Id == id))
+            throw new UnauthorizedAccessException("You do not have permission to access this document.");
 
         return doc;
     }
 
-    public async Task<PagedResult<Document>> GetListAsync(DocumentFilter filter, Guid? userDepartmentId, string? userRole)
+    public async Task<PagedResult<Document>> GetListAsync(DocumentFilter filter, DocumentActor actor)
     {
         var query = _db.Documents
             .Include(d => d.Attachments)
@@ -553,14 +539,7 @@ public class DocumentBusinessService : IDocumentBusinessService
             .Include(d => d.StatusHistories)
             .AsQueryable();
 
-        // RBAC/ABAC filtering for non-admin/non-secretary-director users
-        if (userRole != "Admin" && userRole != "SecretaryDirector" && userDepartmentId.HasValue)
-        {
-            var deptId = userDepartmentId.Value;
-            query = query.Where(d => d.SenderDepartmentId == deptId ||
-                                     d.DepartmentAccesses.Any(a => a.DepartmentId == deptId) ||
-                                     d.Status == DocumentStatusConstants.Distributed);
-        }
+        query = ApplyReadScope(query, actor);
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
@@ -581,8 +560,11 @@ public class DocumentBusinessService : IDocumentBusinessService
 
         if (filter.DepartmentId.HasValue)
         {
-            query = query.Where(d => d.SenderDepartmentId == filter.DepartmentId.Value
-                                  || d.DepartmentAccesses.Any(a => a.DepartmentId == filter.DepartmentId.Value));
+            var departmentId = filter.DepartmentId.Value;
+            query = query.Where(d =>
+                d.DocType == DocumentTypeConstants.INCOMING
+                    ? d.DepartmentAccesses.Any(a => a.DepartmentId == departmentId)
+                    : d.SenderDepartmentId == departmentId);
         }
 
         if (filter.FromDate.HasValue)
@@ -605,10 +587,13 @@ public class DocumentBusinessService : IDocumentBusinessService
         return new PagedResult<Document>(items, totalCount, pageNumber, pageSize);
     }
 
-    public async Task<bool> DeleteAsync(Guid id, string? userRole)
+    public async Task<bool> DeleteAsync(Guid id, DocumentActor actor)
     {
         var doc = await _db.Documents.FirstOrDefaultAsync(d => d.Id == id);
         if (doc == null) return false;
+
+        if (!DocumentAccessRules.CanEdit(actor, doc))
+            throw new UnauthorizedAccessException("You do not have permission to delete this document.");
 
         // Chỉ cho phép xóa công văn khi ở trạng thái Draft
         if (doc.Status != DocumentStatusConstants.Draft)
@@ -622,5 +607,69 @@ public class DocumentBusinessService : IDocumentBusinessService
 
         await _db.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<bool?> CanReadFileAsync(Guid fileId, DocumentActor actor)
+    {
+        var documentsWithFile = _db.Documents.Where(d => d.Attachments.Any(a => a.FileId == fileId));
+        if (!await documentsWithFile.AnyAsync()) return null;
+
+        return await ApplyReadScope(documentsWithFile, actor).AnyAsync();
+    }
+
+    public Task<bool> HasProcessedSourceMessageAsync(string sourceMessageId) =>
+        _db.Documents.AnyAsync(document => document.SourceMessageId == sourceMessageId);
+
+    private static IQueryable<Document> ApplyReadScope(IQueryable<Document> query, DocumentActor actor)
+    {
+        if (actor.IsInRole("Admin")) return query;
+        if (actor.IsInRole("SecretaryDirector"))
+            return query.Where(d => d.DocType == DocumentTypeConstants.INCOMING ||
+                                    d.DocType == DocumentTypeConstants.INTERNAL &&
+                                    d.Status == DocumentStatusConstants.Distributed);
+        if (!actor.DepartmentId.HasValue) return query.Where(_ => false);
+
+        var departmentId = actor.DepartmentId.Value;
+        if (actor.IsInRole("SecretaryDept"))
+            return query.Where(d =>
+                d.DocType == DocumentTypeConstants.INCOMING && d.DepartmentAccesses.Any(a => a.DepartmentId == departmentId) ||
+                (d.DocType == DocumentTypeConstants.OUTGOING || d.DocType == DocumentTypeConstants.INTERNAL) &&
+                d.SenderDepartmentId == departmentId);
+        if (actor.IsInRole("Staff"))
+            return query.Where(d => d.DocType == DocumentTypeConstants.INCOMING &&
+                                    d.DepartmentAccesses.Any(a => a.DepartmentId == departmentId));
+
+        return query.Where(_ => false);
+    }
+
+    private async Task ValidateActivePartnerAsync(Guid partnerId)
+    {
+        var partner = await _partnerClient.GetPartnerByIdAsync(partnerId);
+        if (partner is null || !partner.IsActive)
+            throw new ArgumentException("PartnerId must reference an active External Entity.");
+    }
+
+    private async Task ValidateFilesAsync(IEnumerable<Guid>? fileIds)
+    {
+        if (fileIds is null) return;
+        foreach (var fileId in fileIds.Distinct())
+        {
+            if (fileId == Guid.Empty || await _filesClient.GetFileByIdAsync(fileId) is null)
+                throw new ArgumentException($"Attachment file '{fileId}' does not exist.");
+        }
+    }
+
+    private async Task ValidateReadyForDistributionAsync(Document document)
+    {
+        if (document.Attachments.Count == 0)
+            throw new InvalidOperationException("A PDF attachment is required before distribution.");
+        if (document.DocType == DocumentTypeConstants.OUTGOING)
+        {
+            if (!document.PartnerId.HasValue)
+                throw new InvalidOperationException("An active recipient External Entity is required before distribution.");
+            await ValidateActivePartnerAsync(document.PartnerId.Value);
+        }
+        if (document.DocType == DocumentTypeConstants.INCOMING && document.DepartmentAccesses.Count == 0)
+            throw new InvalidOperationException("At least one recipient department is required before distribution.");
     }
 }

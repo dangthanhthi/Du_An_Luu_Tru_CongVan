@@ -29,4 +29,10 @@ namespace AiOcrService.DTOs
         [JsonPropertyName("address")]
         public string? Address { get; set; }
     }
+
+    public class UploadOcrFileRequest
+    {
+        public Microsoft.AspNetCore.Http.IFormFile File { get; set; } = null!;
+        public string? SenderEmail { get; set; }
+    }
 }

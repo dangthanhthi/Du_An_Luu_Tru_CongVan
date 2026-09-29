@@ -1,8 +1,8 @@
 namespace DocumentService;
 
-public record PartnerDto(Guid Id, string Name, string Code, string EntityType, string? Email, string? Phone);
-public record FileMetadataDto(Guid Id, string FileName, string FilePath, long FileSize, string ContentType);
-public record SendNotificationRequest(string RecipientEmail, string Subject, string Body, Guid? RecipientUserId = null, Guid? RelatedDocumentId = null);
+public record PartnerDto(Guid Id, string FullName, string ShortName, string EntityType, string? Email, string? Phone, bool IsActive);
+public record FileMetadataDto(Guid Id, string OriginalName, long SizeBytes, string ContentType);
+public record SendNotificationRequest(string RecipientEmail, string Subject, string Body);
 
 public interface IPartnerServiceClient
 {

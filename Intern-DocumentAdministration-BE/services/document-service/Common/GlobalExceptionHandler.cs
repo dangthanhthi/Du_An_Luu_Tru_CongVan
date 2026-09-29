@@ -27,6 +27,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var statusCode = exception switch
         {
             KeyNotFoundException => StatusCodes.Status404NotFound,
+            DocumentConcurrencyException => StatusCodes.Status409Conflict,
             InvalidOperationException => StatusCodes.Status400BadRequest,
             ArgumentException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status403Forbidden,
@@ -47,4 +48,10 @@ public class GlobalExceptionHandler : IExceptionHandler
 
         return true;
     }
+}
+
+public sealed class DocumentConcurrencyException : Exception
+{
+    public DocumentConcurrencyException(string message, Exception innerException)
+        : base(message, innerException) { }
 }

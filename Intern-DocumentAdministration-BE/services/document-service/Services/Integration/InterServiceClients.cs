@@ -44,7 +44,7 @@ public class FilesServiceClient : IFilesServiceClient
     {
         try
         {
-            var response = await _httpClient.GetAsync($"/api/files/{fileId}");
+            var response = await _httpClient.GetAsync($"/api/files/{fileId}/info");
             if (!response.IsSuccessStatusCode) return null;
 
             var result = await response.Content.ReadFromJsonAsync<ApiResponse<FileMetadataDto>>();

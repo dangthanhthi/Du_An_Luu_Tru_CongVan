@@ -41,6 +41,19 @@ public class PartnersController : ControllerBase
         return Ok(new { success = true, data = result });
     }
 
+    // Trả về danh sách thu gọn {id, fullName} của tất cả đối tác đang hoạt động
+    // Dùng cho FE để map PartnerId -> tên hiển thị mà không cần load toàn bộ thông tin.
+    [HttpGet("reference")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetReference()
+    {
+        var filter = new PartnerFilter(null, null, true, 1, 1000);
+        var result = await _partnerService.GetListAsync(filter);
+        var refs = result.Items.Select(p => new { id = p.Id, fullName = p.FullName });
+        return Ok(new { success = true, data = refs });
+    }
+
+
     [HttpGet("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> GetById(Guid id)

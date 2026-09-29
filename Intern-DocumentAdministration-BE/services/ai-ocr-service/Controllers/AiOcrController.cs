@@ -1,6 +1,7 @@
 using AiOcrService.DTOs;
 using AiOcrService.Models;
 using AiOcrService.Services;
+using AiOcrService.Services.Concurrency;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -24,19 +25,22 @@ namespace AiOcrService.Controllers
         private readonly IOcrRuleService _ruleService;
         private readonly IDynamicFieldExtractor _fieldExtractor;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IOcrConcurrencyGate _concurrencyGate;
 
         public AiOcrController(
             IOcrEngine ocrEngine, 
             IPartnerMatcher partnerMatcher,
             IOcrRuleService ruleService,
             IDynamicFieldExtractor fieldExtractor,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            IOcrConcurrencyGate concurrencyGate)
         {
             _ocrEngine = ocrEngine;
             _partnerMatcher = partnerMatcher;
             _ruleService = ruleService;
             _fieldExtractor = fieldExtractor;
             _httpClientFactory = httpClientFactory;
+            _concurrencyGate = concurrencyGate;
         }
 
         /// <summary>
@@ -74,33 +78,49 @@ namespace AiOcrService.Controllers
                 }
 
                 var pdfBytes = await fileResponse.Content.ReadAsByteArrayAsync();
-                using var pdfStream = new MemoryStream(pdfBytes);
-
-                var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
+                
+                string extractedText;
+                using (await _concurrencyGate.EnterAsync())
+                {
+                    using var pdfStream = new MemoryStream(pdfBytes);
+                    extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
+                }
 
                 var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText, request.FileName, pdfBytes);
 
                 // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
-                // TRẠM 4: Lấy danh sách đối tác từ PartnerService và tiến hành So khớp đa tầng
                 var partners = await EnsurePartnersCachedAsync(client);
 
-                var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, request.SenderEmail);
-
-                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName))
+                // Ưu tiên so khớp đối tác dựa trên Header/Trang 1 đã bóc tách được (extractedFields.PartnerName)
+                PartnerDto? headerPartner = null;
+                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName) && extractedFields.PartnerName != "Chưa xác định")
                 {
-                    var headerPartner = partners.FirstOrDefault(p =>
+                    headerPartner = partners.FirstOrDefault(p =>
                         p.FullName.Equals(extractedFields.PartnerName, StringComparison.OrdinalIgnoreCase) ||
                         (!string.IsNullOrWhiteSpace(p.ShortName) && extractedFields.PartnerName.Contains(p.ShortName, StringComparison.OrdinalIgnoreCase)));
-                    if (headerPartner != null)
-                    {
-                        matchResult.PartnerId = headerPartner.Id;
-                        matchResult.Confidence = 0.99;
-                        matchResult.MatchMethod = "HeaderAgencyMatch";
-                    }
                 }
 
-                var finalPartnerName = extractedFields.PartnerName;
-                if (matchResult.PartnerId != null)
+                MatchResult matchResult;
+                if (headerPartner != null)
+                {
+                    matchResult = new MatchResult
+                    {
+                        PartnerId = headerPartner.Id,
+                        Confidence = 0.99,
+                        MatchMethod = "HeaderAgencyMatch"
+                    };
+                }
+                else
+                {
+                    // Fallback so khớp từ nội dung văn bản nếu Header chưa xác định được đối tác
+                    matchResult = _partnerMatcher.MatchPartner(extractedText, partners, request.SenderEmail);
+                }
+
+                var finalPartnerName = (!string.IsNullOrWhiteSpace(extractedFields.PartnerName) && extractedFields.PartnerName != "Chưa xác định")
+                    ? extractedFields.PartnerName
+                    : null;
+
+                if (string.IsNullOrWhiteSpace(finalPartnerName) && matchResult.PartnerId != null)
                 {
                     var matchedPartner = partners.FirstOrDefault(p => p.Id == matchResult.PartnerId);
                     if (matchedPartner != null)
@@ -141,8 +161,11 @@ namespace AiOcrService.Controllers
         /// <summary>
         /// </summary>
         [HttpPost("analyze-file")]
-        public async Task<IActionResult> AnalyzeUploadedFile([FromForm] Microsoft.AspNetCore.Http.IFormFile file, [FromForm] string? senderEmail = null)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AnalyzeUploadedFile([FromForm] UploadOcrFileRequest request)
         {
+            var file = request?.File;
+            var senderEmail = request?.SenderEmail;
             if (file == null || file.Length == 0)
             {
                 return BadRequest(new { success = false, message = "File tải lên không hợp lệ." });
@@ -153,30 +176,48 @@ namespace AiOcrService.Controllers
                 using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
                 var pdfBytes = ms.ToArray();
-                using var pdfStream = new MemoryStream(pdfBytes);
+                
+                string extractedText;
+                using (await _concurrencyGate.EnterAsync())
+                {
+                    using var pdfStream = new MemoryStream(pdfBytes);
+                    extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
+                }
 
-                var extractedText = _ocrEngine.ExtractTextFromPdfStream(pdfStream);
                 var extractedFields = await _fieldExtractor.ExtractFieldsAsync(extractedText, file.FileName, pdfBytes);
 
                 var client = _httpClientFactory.CreateClient();
                 var partners = await EnsurePartnersCachedAsync(client);
-                var matchResult = _partnerMatcher.MatchPartner(extractedText, partners, senderEmail);
-
-                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName))
+                // Ưu tiên so khớp đối tác dựa trên Header/Trang 1 đã bóc tách được (extractedFields.PartnerName)
+                PartnerDto? headerPartner = null;
+                if (!string.IsNullOrWhiteSpace(extractedFields.PartnerName) && extractedFields.PartnerName != "Chưa xác định")
                 {
-                    var headerPartner = partners.FirstOrDefault(p =>
+                    headerPartner = partners.FirstOrDefault(p =>
                         p.FullName.Equals(extractedFields.PartnerName, StringComparison.OrdinalIgnoreCase) ||
                         (!string.IsNullOrWhiteSpace(p.ShortName) && extractedFields.PartnerName.Contains(p.ShortName, StringComparison.OrdinalIgnoreCase)));
-                    if (headerPartner != null)
-                    {
-                        matchResult.PartnerId = headerPartner.Id;
-                        matchResult.Confidence = 0.99;
-                        matchResult.MatchMethod = "HeaderAgencyMatch";
-                    }
                 }
 
-                var finalPartnerName = extractedFields.PartnerName;
-                if (matchResult.PartnerId != null)
+                MatchResult matchResult;
+                if (headerPartner != null)
+                {
+                    matchResult = new MatchResult
+                    {
+                        PartnerId = headerPartner.Id,
+                        Confidence = 0.99,
+                        MatchMethod = "HeaderAgencyMatch"
+                    };
+                }
+                else
+                {
+                    // Fallback so khớp từ nội dung văn bản nếu Header chưa xác định được đối tác
+                    matchResult = _partnerMatcher.MatchPartner(extractedText, partners, senderEmail);
+                }
+
+                var finalPartnerName = (!string.IsNullOrWhiteSpace(extractedFields.PartnerName) && extractedFields.PartnerName != "Chưa xác định")
+                    ? extractedFields.PartnerName
+                    : null;
+
+                if (string.IsNullOrWhiteSpace(finalPartnerName) && matchResult.PartnerId != null)
                 {
                     var matchedPartner = partners.FirstOrDefault(p => p.Id == matchResult.PartnerId);
                     if (matchedPartner != null)

@@ -31,6 +31,13 @@ public class DocumentDbContext : DbContext
         modelBuilder.Entity<Document>()
             .HasIndex(d => d.DocumentNumber).IsUnique();
 
+        // Status transitions are compare-and-set operations. Including the status
+        // originally loaded in EF's UPDATE predicate prevents two requests from
+        // advancing the same state machine concurrently.
+        modelBuilder.Entity<Document>()
+            .Property(d => d.Status)
+            .IsConcurrencyToken();
+
         // Soft delete: tự động lọc bỏ công văn đã xóa khỏi mọi truy vấn
         modelBuilder.Entity<Document>()
             .HasQueryFilter(d => !d.IsDeleted);
@@ -40,6 +47,11 @@ public class DocumentDbContext : DbContext
 
         modelBuilder.Entity<Document>()
             .HasIndex(d => d.PartnerId);
+
+        modelBuilder.Entity<Document>()
+            .HasIndex(d => d.SourceMessageId)
+            .IsUnique()
+            .HasFilter("[SourceMessageId] IS NOT NULL");
 
         modelBuilder.Entity<DocumentAttachment>()
             .HasOne(a => a.Document)

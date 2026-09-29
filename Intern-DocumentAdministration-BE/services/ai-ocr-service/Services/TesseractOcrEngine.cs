@@ -112,7 +112,6 @@ namespace AiOcrService.Services
 
                 using var pdfDoc = UglyToad.PdfPig.PdfDocument.Open(pdfBytes);
                 var directText = new StringBuilder();
-                bool hasScannedPageImages = false;
 
                 foreach (var page in pdfDoc.GetPages())
                 {
@@ -121,27 +120,23 @@ namespace AiOcrService.Services
                     {
                         directText.AppendLine(text);
                     }
-                    if (page.GetImages().Any(img => img.RawBytes.Length > 5000))
-                    {
-                        hasScannedPageImages = true;
-                    }
                 }
 
                 var extracted = directText.ToString().Trim();
 
-                // Nếu văn bản trực tiếp sạch và chất lượng cao (PDF gốc xuất từ Word/InDesign, không chứa ảnh scan)
-                if (extracted.Length >= 50 && !hasScannedPageImages && !IsLowQualityText(extracted))
+                // Nếu văn bản trực tiếp sạch và chất lượng cao (PDF gốc xuất từ Word/InDesign, không bị lỗi font)
+                if (extracted.Length >= 100 && !IsLowQualityText(extracted))
                 {
                     return extracted;
                 }
 
                 // Nếu là file scan ảnh hoặc văn bản trực tiếp bị rác (lỗi font/OCR cũ):
-                // Render toàn bộ trang ở độ nét cao 2000x2828 bằng Docnet (Google PDFium) và chạy Tesseract OCR chuẩn vie+eng
+                // Render toàn bộ trang ở độ nét cao bằng Docnet (Google PDFium) và chạy Tesseract OCR chuẩn vie+eng
                 try
                 {
                     var language = ResolveLanguage();
                     using var engine = new TesseractEngine(_tessDataPath, language, EngineMode.Default);
-                    using var docReader = DocLib.Instance.GetDocReader(pdfBytes, new PageDimensions(2000, 2828));
+                    using var docReader = DocLib.Instance.GetDocReader(pdfBytes, new PageDimensions(1500, 2120));
                     int pageCount = docReader.GetPageCount();
                     var ocrTextBuilder = new StringBuilder();
 
@@ -167,39 +162,18 @@ namespace AiOcrService.Services
                                 Format = MagickFormat.Bgra
                             });
                             magick.Format = MagickFormat.Png;
-                            // Tiền xử lý ảnh để tăng độ chính xác OCR chữ viết tay
-                            PreprocessImageForHandwriting(magick);
+                            // Tiền xử lý ảnh nhanh và chuẩn theo nhánh main Seleton-VN: AutoLevel giúp tăng độ tương phản mà không tốn CPU
+                            magick.AutoLevel();
 
-                            // Pass 1: OCR toàn trang (PSM Auto)
+                            // OCR toàn trang 1 lượt duy nhất, tối ưu tốc độ tối đa
                             using var ms = new MemoryStream();
                             magick.Write(ms);
                             using var pix = Pix.LoadFromMemory(ms.ToArray());
                             using var ocrPage = engine.Process(pix);
                             var pageText = ocrPage.GetText() ?? string.Empty;
 
-                            // Pass 2: OCR vùng header (top 25%) với PSM SingleLine để tăng độ chính xác số hiệu và ngày
-                            string headerZoneText = string.Empty;
-                            try
-                            {
-                                int headerH = Math.Max(1, (int)(height * 0.25));
-                                using var headerMagick = new MagickImage(ms.ToArray());
-                                headerMagick.Crop(new MagickGeometry(0, 0, (uint)width, (uint)headerH));
-                                headerMagick.ResetPage();
-                                using var headerMs = new MemoryStream();
-                                headerMagick.Write(headerMs);
-                                using var headerEngine = new TesseractEngine(_tessDataPath, language, EngineMode.Default);
-                                headerEngine.DefaultPageSegMode = PageSegMode.SingleLine;
-                                using var headerPix = Pix.LoadFromMemory(headerMs.ToArray());
-                                using var headerOcrPage = headerEngine.Process(headerPix);
-                                headerZoneText = headerOcrPage.GetText()?.Trim() ?? string.Empty;
-                            }
-                            catch { /* header crop optional, continue */ }
-
                             if (!string.IsNullOrWhiteSpace(pageText))
                             {
-                                // Nhúng header zone vào đầu kết quả để DynamicFieldExtractor dùng
-                                if (!string.IsNullOrWhiteSpace(headerZoneText))
-                                    ocrTextBuilder.AppendLine($"[HEADER_ZONE]{headerZoneText}[/HEADER_ZONE]");
                                 ocrTextBuilder.AppendLine(pageText.Trim());
                                 ocrTextBuilder.AppendLine();
                             }
@@ -207,6 +181,7 @@ namespace AiOcrService.Services
                     }
 
                     var renderedOcrResult = ocrTextBuilder.ToString().Trim();
+                    System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ocr_debug.txt"), "Length: " + renderedOcrResult.Length + "\n" + renderedOcrResult);
                     if (!string.IsNullOrWhiteSpace(renderedOcrResult) && renderedOcrResult.Length >= 30)
                     {
                         return renderedOcrResult;
