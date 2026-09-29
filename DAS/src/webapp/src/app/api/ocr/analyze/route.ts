@@ -1,5 +1,17 @@
 import { NextResponse } from 'next/server'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
+
+function getTesseractWorkerPath(): string {
+  const workerPath = join(process.cwd(), 'node_modules', 'tesseract.js', 'src', 'worker-script', 'node', 'index.js')
+
+  if (!existsSync(workerPath)) {
+    throw new Error(`Tesseract worker is missing at runtime: ${workerPath}`)
+  }
+
+  return workerPath
+}
 
 /**
  * Trích xuất các luồng ảnh JPEG được nhúng bên trong tệp PDF scan
@@ -168,7 +180,8 @@ export async function POST(req: Request) {
               const imgBuf = imageBuffers[i]
               try {
                 const { data } = await Tesseract.recognize(imgBuf, 'vie+eng', {
-                  logger: () => {}
+                  logger: () => {},
+                  workerPath: getTesseractWorkerPath()
                 })
                 if (data?.text && data.text.trim().length > 0) {
                   ocrChunks.push(data.text.trim())
@@ -204,7 +217,8 @@ export async function POST(req: Request) {
       try {
         const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))
         const { data } = await Tesseract.recognize(buffer, 'vie+eng', {
-          logger: () => {}
+          logger: () => {},
+          workerPath: getTesseractWorkerPath()
         })
 
         if (data?.text && data.text.trim().length > 0) {
