@@ -13,10 +13,8 @@ const nextConfig: NextConfig = {
       './node_modules/is-url/**/*',
       './node_modules/bmp-js/**/*',
       './node_modules/node-fetch/**/*',
-      './node_modules/pdf-parse/**/*',
-      './node_modules/pdfjs-dist/**/*',
-      './node_modules/@napi-rs/canvas/**/*',
-      './node_modules/@napi-rs/canvas-linux-x64-gnu/**/*'
+      './node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
+      './node_modules/@napi-rs/canvas-linux-x64-gnu/*.node'
     ]
   },
   typescript: {

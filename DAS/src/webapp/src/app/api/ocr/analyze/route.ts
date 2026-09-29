@@ -1,7 +1,30 @@
 import { NextResponse } from 'next/server'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { parseOcrDocumentMetadata } from '@/utils/ocrExtractor'
+
+let compatiblePdfJsReady: Promise<void> | null = null
+
+async function getPdfDocument(buffer: Buffer) {
+  const { definePDFJSModule, getDocumentProxy } = await import('unpdf')
+
+  compatiblePdfJsReady ??= definePDFJSModule(async () => {
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs')
+    const workerPath = join(process.cwd(), 'node_modules', 'pdfjs-dist', 'legacy', 'build', 'pdf.worker.mjs')
+
+    if (!existsSync(workerPath)) {
+      throw new Error(`PDF.js worker is missing at runtime: ${workerPath}`)
+    }
+
+    pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href
+
+    return pdfjs
+  })
+  await compatiblePdfJsReady
+
+  return getDocumentProxy(new Uint8Array(buffer))
+}
 
 function getTesseractWorkerPath(): string {
   const workerPath = join(process.cwd(), 'node_modules', 'tesseract.js', 'src', 'worker-script', 'node', 'index.js')
@@ -95,8 +118,7 @@ export async function POST(req: Request) {
     if (lowerName.endsWith('.pdf') || file.type === 'application/pdf') {
       // 1.1 Bóc tách lớp văn bản kỹ thuật số đa tầng kết hợp giải mã luồng toán tử đồ họa (Type3 Glyphs & Stamped Overlays)
       try {
-        const { getDocumentProxy } = await import('unpdf')
-        const doc = await getDocumentProxy(new Uint8Array(buffer))
+        const doc = await getPdfDocument(buffer)
         const pageTexts: string[] = []
 
         for (let p = 1; p <= doc.numPages; p++) {
