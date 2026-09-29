@@ -181,6 +181,7 @@ export async function POST(req: Request) {
               try {
                 const { data } = await Tesseract.recognize(imgBuf, 'vie+eng', {
                   logger: () => {},
+                  errorHandler: (error: unknown) => console.error('[OCR] Tesseract worker error:', error),
                   workerPath: getTesseractWorkerPath()
                 })
                 if (data?.text && data.text.trim().length > 0) {
@@ -218,6 +219,7 @@ export async function POST(req: Request) {
         const Tesseract = (await import('tesseract.js')).default || (await import('tesseract.js'))
         const { data } = await Tesseract.recognize(buffer, 'vie+eng', {
           logger: () => {},
+          errorHandler: (error: unknown) => console.error('[OCR] Tesseract worker error:', error),
           workerPath: getTesseractWorkerPath()
         })
 
@@ -229,6 +231,13 @@ export async function POST(req: Request) {
       } catch (ocrErr: any) {
         console.error('[OCR] Tesseract image recognition warning:', ocrErr.message)
       }
+    }
+
+    if (!extractedRawText.trim()) {
+      return NextResponse.json({
+        success: false,
+        message: 'Không đọc được chữ từ tệp này. Vui lòng thử tệp PDF hoặc ảnh rõ nét hơn.'
+      }, { status: 422 })
     }
 
     // BƯỚC 3: BÓC TÁCH THÔNG TIN NGHIỆP VỤ BẰNG NGỮ PHÁP HÀNH CHÍNH VIỆT NAM
