@@ -2,6 +2,19 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   basePath: process.env.BASEPATH,
+  // Tesseract starts a separate Node worker at runtime. Next's file tracer
+  // cannot discover that entry point from the dynamic worker path.
+  outputFileTracingIncludes: {
+    '/api/ocr/analyze': [
+      './node_modules/tesseract.js/src/**/*',
+      './node_modules/tesseract.js-core/**/*',
+      './node_modules/regenerator-runtime/**/*',
+      './node_modules/wasm-feature-detect/**/*',
+      './node_modules/is-url/**/*',
+      './node_modules/bmp-js/**/*',
+      './node_modules/node-fetch/**/*'
+    ]
+  },
   typescript: {
     ignoreBuildErrors: true
   },
