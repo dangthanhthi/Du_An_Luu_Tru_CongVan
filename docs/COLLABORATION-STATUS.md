@@ -1,5 +1,7 @@
 # Tiến độ và phạm vi bản cộng tác
 
+> Chặng SQL hiện hành: **75 core SQL + load + restore** qua, source integrity/cleanup qua; bundle 5 backup + PDF xác minh checksum. Python QA **93/93**, layout **10/10**. [Checkpoint SQL](SQL-CHECKPOINT-20261006.md), [evidence](SQL-VERIFICATION-20261006.json). SQL CI manual-only đã chuẩn bị; hosted CI chưa chạy và G7/G8 vẫn giữ gate thực tế.
+
 ## Phân công EAP — cập nhật ngày 06/10/2026
 
 Theo yêu cầu người dùng, **EAP do người khác phụ trách; Codex không triển khai EAP cho đến khi người dùng yêu cầu rõ ràng mở lại phần này**. Yêu cầu chung “tiếp tục dự án” chỉ tiếp tục phần DAS, không mở lại EAP.

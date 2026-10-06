@@ -80,7 +80,8 @@ public sealed class SyntheticLoadSqlTests
     private static string FindRoot()
     {
         for (var p = new DirectoryInfo(AppContext.BaseDirectory); p is not null; p = p.Parent)
-            if (File.Exists(Path.Combine(p.FullName, "scripts", "qa", "run-synthetic-load.ps1"))) return p.FullName;
+            if (File.Exists(Path.Combine(p.FullName, "tools", "qa", "run-isolated-sql.py")) ||
+                File.Exists(Path.Combine(p.FullName, "scripts", "qa", "run-isolated-sql.py"))) return p.FullName;
         throw new InvalidOperationException("Owned QA worktree not found.");
     }
 }

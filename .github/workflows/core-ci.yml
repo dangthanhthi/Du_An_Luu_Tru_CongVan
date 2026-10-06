@@ -8,6 +8,38 @@ concurrency:
   group: das-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  sql-qa:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '10.0.x'
+      - name: Prepare pinned synthetic SQL image
+        run: docker pull mcr.microsoft.com/mssql/server@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090
+      - name: Run owned SQL QA
+        run: python tools/qa/run-isolated-sql.py --profile all --output .artifacts/qa/sql
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sql-qa-reports
+          path: |
+            .artifacts/qa/sql/summary.json
+            .artifacts/qa/sql/source-manifest.json
+            .artifacts/qa/sql/*.log
+            .artifacts/qa/sql/trx/
+            .artifacts/qa/sql/load/load.json
+            .artifacts/qa/sql/restore/roundtrip.json
+            .artifacts/qa/sql/restore/integrity.json
+            .artifacts/qa/sql/restore/bundle/manifest.json
+          retention-days: 7
   layout-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 15

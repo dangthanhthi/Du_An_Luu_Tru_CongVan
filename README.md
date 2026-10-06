@@ -28,9 +28,10 @@ python -m unittest discover -s tests/layout -v
 python tools/run-checks.py --profile qa --output .artifacts/qa/qa
 python tools/run-checks.py --profile backend --output .artifacts/qa/backend
 python tools/run-checks.py --profile web --output .artifacts/qa/web
+python tools/qa/run-isolated-sql.py --profile all --output .artifacts/qa/sql
 ```
 
-Mỗi output phải là thư mục mới. Backend check chạy non-SQL tests; SQL/live gateway/authority/SMTP/TMS/UAT cần môi trường riêng. Web check cài dependency từ lockfile, sinh Prisma/Next types, typecheck, lint, test và build. Không bật worker hoặc gửi dữ liệu thật.
+Mỗi output phải là thư mục mới. Backend check chạy non-SQL tests; [SQL QA](docs/SQL-QA.md) dùng Docker SQL riêng với image cố định và dữ liệu giả lập, không nhận database có sẵn. Live gateway/authority/SMTP/TMS/UAT cần môi trường riêng. Web check cài dependency từ lockfile, sinh Prisma/Next types, typecheck, lint, test và build. Không bật worker hoặc gửi dữ liệu thật.
 
 Để làm giao diện:
 

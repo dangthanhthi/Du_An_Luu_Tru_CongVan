@@ -13,6 +13,8 @@ Output phải mới để giữ report cũ. Log/cache/DB/test runtime ở `.arti
 
 Preflight export/PDF đã hỗ trợ chạy trực tiếp từ repository chính bằng `tools/qa/audit-migration-export.py`. Xem [hướng dẫn preflight](../docs/MIGRATION-PREFLIGHT.md) về staging format, output mới, exit code và giới hạn kiểm chứng; không dùng nó như lệnh import khách hàng.
 
+SQL runner `tools/qa/run-isolated-sql.py` cũng chạy trực tiếp trên layout canonical; có `core/load/restore/all`, tạo Docker SQL instance riêng cho mỗi lượt và không nhận connection string có sẵn. Xem [SQL QA](../docs/SQL-QA.md). Các tool legacy còn lại tiếp tục dùng compatibility view.
+
 Các kiểm tra dùng dữ liệu giả lập/QA không thay thế gateway/authority/scanner/customer DB/UAT thật. Không bật worker, gửi email/task thật, apply migration lên DB khách hàng hoặc deploy từ các lệnh check mặc định.
 
 Web profile và `npm run build` dùng cùng `frontend/scripts/generate-prisma.cjs`. Việc stage schema là artifact build tạm; không thêm bản schema chính thứ hai hoặc thay package-lock/dependency. Compatibility view chuyển lệnh build về generate tại schema đã ánh xạ trong view.

@@ -1,5 +1,7 @@
 # DAS — checkpoint hoàn thiện ngày 06/10/2026
 
+> SQL QA canonical đã qua **75/75 core + load + restore** trên instance riêng, bundle 5 DB/PDF qua checksum, source integrity và cleanup qua; Python QA hiện hành **93/93**, layout **10/10**. Xem [checkpoint SQL](SQL-CHECKPOINT-20261006.md) và [evidence SQL](SQL-VERIFICATION-20261006.json). CI SQL manual đã chuẩn bị; customer SQL/migration, hosted CI và các gate thật chưa được nghiệm thu.
+
 > Cập nhật sau commit `bac9c4b`: preflight CLI đã chặn overwrite/hardlink/traversal/ADS và xử lý JSON lỗi; **26/26 Windows, 26/26 Linux**, Python QA hiện hành **79/79**, layout **10/10**. Xem [checkpoint preflight](PREFLIGHT-CHECKPOINT-20261006.md) và [evidence](PREFLIGHT-VERIFICATION-20261006.json). Kết quả 67 Python tests dưới đây là mốc trước bổ sung CLI.
 
 > Frontend Windows Node22 đã kiểm xong trên commit nguồn `cfde434`: **223/223 tests**, typecheck/lint/full build và source integrity qua. Session81113 terminal exit0. Xem [checkpoint Windows](WINDOWS-FRONTEND-CHECKPOINT-20261006.md); file handover đang chạy trước đây giữ vai trò lịch sử.
@@ -26,7 +28,7 @@
 - Frontend: `web-linux-v2`, snapshot SHA256 `5efb4e8b233370229476b7fec266ee3a8bf79c27770f36a9b690b99d21b18cd2`; 223 tests, typecheck/lint/full build qua. Đối chiếu 1.158 file frontend/Prisma/công cụ chạy với nguồn hiện hành khớp byte; thay đổi backend sau đó không thay các đầu vào này.
 - Linux QA dùng Node22.23.3, .NET10.0.401, Python3.12.3; image `sha256:cb55328caaecd13556e86c4cca2e0406f0ef6a743005c4772ae02563644b3fa7`, nonroot, không mount socket/credential, không mở port, không bật worker. Source integrity và cleanup container/volume qua.
 - Python QA hiện hành: `python-qa-final` 67/67; layout `layout-final-confirmed.log` 10/10. Đã sửa công cụ cập nhật manifest ghi UTF-8/LF trên Windows để giữ gate layout; original import hashes được giữ.
-- Đây là bằng chứng chức năng cục bộ, **không chứng minh SQL/customer migration/live gateway/authority/SMTP/TMS/Fax/UAT Production**. G7 vẫn Partial/prepared, G8 chưa chạy/signoff. Mốc 608/214/57 và Windows619 trước sửa Admin chỉ là lịch sử.
+- Đây là bằng chứng chức năng cục bộ; SQL giả lập trên instance SQL thật đã có checkpoint riêng nêu trên. **Không chứng minh SQL/customer migration/live gateway/authority/SMTP/TMS/Fax/UAT Production**. G7 vẫn Partial/prepared, G8 chưa chạy/signoff. Mốc 608/214/57 và Windows619 trước sửa Admin chỉ là lịch sử.
 
 ## Các phần còn chờ
 

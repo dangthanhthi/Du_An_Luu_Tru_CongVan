@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T08:35:25.563748+00:00",
+  "branch": "codex/das-completion-20261006",
+  "baseCommit": "af3a2e39043a4dd23c6753e26a50c83494bb5195",
+  "sourceAtExecution": "WIP preserved by per-file manifests; no invented commit ID",
+  "reminderThresholdDays": 7,
+  "productionReady": false,
+  "customerDataUsed": false,
+  "workersEnabled": false,
+  "externalMailOrTasksSent": false,
+  "eapScope": "owned by another team; not reopened",
+  "ocrScope": "deferred",
+  "runtime": {
+    "os": "Windows",
+    "dotnetSdk": "10.0.204",
+    "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+    "imageRepoDigest": "mcr.microsoft.com/mssql/server@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+    "sqlUser": "mssql",
+    "loopbackOnly": true,
+    "network": "owned bridge; outbound not claimed disabled",
+    "hostMounts": false,
+    "persistentVolumes": false
+  },
+  "sqlCore": {
+    "passed": true,
+    "uniqueTests": 75,
+    "counts": {
+      "core-DocumentService": {
+        "total": 46,
+        "executed": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-FileService": {
+        "total": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-PartnerService": {
+        "total": 10,
+        "executed": 10,
+        "passed": 10,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-AuthService": {
+        "total": 9,
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-NotificationService": {
+        "total": 4,
+        "executed": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0
+      }
+    },
+    "loadTrx": {
+      "total": 1,
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "restoreTrx": {
+      "total": 1,
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "notExecuted": 0
+    },
+    "uniqueTestsIncludingLoadRestore": 77
+  },
+  "load": {
+    "passed": true,
+    "synthetic": true,
+    "scenario": "direct-service-SQL-no-HTTP",
+    "uniqueRegistrations": 300,
+    "exactReplays": 300,
+    "concurrency": 8,
+    "errors": 0,
+    "conflictsRejected": 1,
+    "workersStarted": false,
+    "externalCalls": 0,
+    "slaAccepted": false,
+    "atomicGraphCounts": {
+      "documents": 300,
+      "headers": 300,
+      "receipts": 300,
+      "statusHistory": 300,
+      "outbox": 300
+    },
+    "counters": [
+      {
+        "DocType": "INCOMING",
+        "CurrentValue": 100
+      },
+      {
+        "DocType": "INTERNAL",
+        "CurrentValue": 100
+      },
+      {
+        "DocType": "OUTGOING",
+        "CurrentValue": 100
+      }
+    ]
+  },
+  "restore": {
+    "passed": true,
+    "profile": "core-five-stores",
+    "backupCount": 5,
+    "cutId": "7ca66067-c5c3-4ebe-940b-f9b7d60b0aa6",
+    "beforeDataSha256": {
+      "auth": "5e8c82f63ccf333061474b2b8087649d1d66f34d94525c20e8008a4e94a0b694",
+      "document": "9e129422f93ad593c3a3a9fe597b12ac05716521d091b5952298ae0078f34701",
+      "files": "e95825c933dd6eeef5d6e50dd172b6679bbf19bcbcea40c313b4ad325f22c75a",
+      "notification": "cb3d03e434b60d847b4230fe69bdee5706010f6d6be14d55574400a5d72fda02",
+      "partner": "2c7ac58bdc029deb57142ada0aada73f94c2a95c7b88d6ccea5816b21152b9ed"
+    },
+    "afterDataSha256": {
+      "auth": "5e8c82f63ccf333061474b2b8087649d1d66f34d94525c20e8008a4e94a0b694",
+      "document": "9e129422f93ad593c3a3a9fe597b12ac05716521d091b5952298ae0078f34701",
+      "files": "e95825c933dd6eeef5d6e50dd172b6679bbf19bcbcea40c313b4ad325f22c75a",
+      "notification": "cb3d03e434b60d847b4230fe69bdee5706010f6d6be14d55574400a5d72fda02",
+      "partner": "2c7ac58bdc029deb57142ada0aada73f94c2a95c7b88d6ccea5816b21152b9ed"
+    },
+    "pdfBytes": 657,
+    "pdfSha256": "c643ed34466d14d1bbd5302989681ec1b6bb8a75543deccb4b79e5c4f44dfdfc",
+    "noSmtpResendCalls": 0,
+    "allWorkersStarted": false,
+    "checks": [
+      "real-backup-checksum-verifyonly-restore",
+      "all-user-table-values-equal",
+      "registration-replay-counter-unchanged",
+      "edited-company-department-preserved",
+      "rare-five-digit-preserved",
+      "history-audit-current-pdf-claim",
+      "task-and-reminder-correlations",
+      "notification-replay-no-duplicates",
+      "unknown-expired-sending-no-resend",
+      "inactive-user-revoked-token-preserved",
+      "directory-inbox-outbox-revision-preserved-no-authority-executed",
+      "partner-contact-version-tombstone-audit-preserved"
+    ],
+    "backupFiles": {
+      "auth": {
+        "bytes": 4902912,
+        "sha256": "548daf39018d2c0d1d47749dbd124c987af07ff2e081887fbc91faadb582a240"
+      },
+      "document": {
+        "bytes": 7065600,
+        "sha256": "5687e33af238e6a5f95c60c04fa8a77e46ae69cbe369693b7bcc2ad4113da5ec"
+      },
+      "files": {
+        "bytes": 4050944,
+        "sha256": "37e6a8471651b6f11736252230708faf243c69f0d874ecc4254089306bbf5fb0"
+      },
+      "notification": {
+        "bytes": 3854336,
+        "sha256": "d568ec281d0262411307f33a4570e8bad1eb62f345c89f2c88ce71d730c14cc4"
+      },
+      "partner": {
+        "bytes": 4050944,
+        "sha256": "cb199e9a89f00801781aa6762d143f4ad4a5438b3ee4d31ebdfd5fded3b553c6"
+      }
+    },
+    "bundleIntegrity": {
+      "integrityPassed": true,
+      "productionReady": false,
+      "mutated": false,
+      "artifactCount": 6,
+      "errors": [],
+      "profile": "core-five-stores",
+      "requiredBackups": [
+        "auth",
+        "document",
+        "files",
+        "notification",
+        "partner"
+      ]
+    }
+  },
+  "sourceIntegrity": {
+    "runtimeMismatches": {
+      "v5": [],
+      "v6": []
+    },
+    "qaRunnerDifferences": {
+      "v5": [
+        "tools/qa/run-isolated-sql.py"
+      ],
+      "v6": []
+    },
+    "note": "v5 core/load/restore ran before bundle-helper addition; v6 reran restore with final runner/verifier. Application, migration, workflow and fixture inputs unchanged across both/current tree."
+  },
+  "qa": {
+    "focusedSqlRunnerTests": 14,
+    "compatibilityPythonTests": 93,
+    "layoutTests": 10,
+    "skips": 0,
+    "workflowYamlParsed": true,
+    "hostedSqlWorkflow": "prepared/manual-only; not dispatched or accepted"
+  },
+  "cleanup": {
+    "v5Confirmed": true,
+    "v6Confirmed": true,
+    "ownedSqlContainersRemaining": 0,
+    "ownedSqlNetworksRemaining": 0
+  },
+  "terminalSessions": {
+    "v5": {
+      "id": 31437,
+      "exitCode": 0
+    },
+    "v6": {
+      "id": 93699,
+      "exitCode": 0
+    },
+    "pythonLayout": {
+      "id": 21004,
+      "exitCode": 0
+    }
+  },
+  "review": {
+    "agent": "/root/review_das_completion",
+    "readOnly": true,
+    "initialAndBundleCiDelta": "no actionable findings; actual results independently checked by Codex",
+    "gemini": "prior advisory failed503; no new advisory result claimed"
+  },
+  "rawArtifacts": {
+    "v5": {
+      "folder": ".artifacts/qa/sql-canonical-20261006-v5",
+      "summarySha256": "0e838a78411662352c5d9c8ff4f1407282779934c4b6b16abcbd481b5ba326cc",
+      "sourceManifestSha256": "f45de38d8d8196fbbaec1b9aa8b41398964225b48247319249a12585f6a454e4"
+    },
+    "v6": {
+      "folder": ".artifacts/qa/sql-canonical-20261006-v6",
+      "summarySha256": "7bd0de4eb8555eb884a530728a81de6ad710c7b637b945b6877d5a350c07ec1e",
+      "sourceManifestSha256": "6927cfe1b109f5668d417f0aa2a94d8946177d5840622eaba8dbe4892e941e07"
+    }
+  },
+  "preservedFailures": {
+    "v1v2": "image binary file capability prevented startup under cap-drop ALL",
+    "v3": "internal network gave no loopback port binding",
+    "v4": "invalid NuGet credential-clear element; removed; explicit public config only",
+    "allCleanupConfirmed": true,
+    "redBundleTests": ".artifacts/qa/sql-runner-red-bundle.log"
+  },
+  "openGates": [
+    "hosted clean-clone CI",
+    "live browser/gateway/authority/session",
+    "TMS API/sandbox/mapping",
+    "SMTP/audience configuration",
+    "customer migration/export/mapping",
+    "scanner/storage",
+    "deployment/RPO/RTO/SLA",
+    "security/license",
+    "Fax real flow",
+    "mentor UAT/pilot/signoff"
+  ]
+}

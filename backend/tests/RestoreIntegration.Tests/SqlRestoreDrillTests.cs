@@ -236,7 +236,8 @@ public sealed class SqlRestoreDrillTests
         private static string FindRoot()
         {
             for (var p = new DirectoryInfo(AppContext.BaseDirectory); p is not null; p = p.Parent)
-                if (File.Exists(Path.Combine(p.FullName, "scripts", "qa", "verify-restore-bundle.py"))) return p.FullName;
+                if (File.Exists(Path.Combine(p.FullName, "tools", "qa", "run-isolated-sql.py")) ||
+                    File.Exists(Path.Combine(p.FullName, "scripts", "qa", "run-isolated-sql.py"))) return p.FullName;
             throw new InvalidOperationException("Worktree not found.");
         }
         private string Name(string component, bool restored) => Components.Contains(component) ? prefix + "_" + component + (restored ? "_restored" : "_source") : throw new ArgumentException("Unknown component");
