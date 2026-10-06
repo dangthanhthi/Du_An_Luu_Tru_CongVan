@@ -10,12 +10,46 @@ from pathlib import Path
 from datetime import date
 import argparse, hashlib, json, re, uuid
 
+MAX_PDF_BYTES = 25 * 1024 * 1024
+
+def linked(path):
+    return path.is_symlink() or getattr(path, 'is_junction', lambda: False)()
+
+def validate_pdf(pdf, pdf_root):
+    if not isinstance(pdf, dict): raise ValueError('INVALID_PDF_METADATA')
+    relative, expected_hash, expected_size = pdf.get('relativePath'), pdf.get('sha256'), pdf.get('sizeBytes')
+    if not isinstance(relative, str) or not relative or any(c in relative for c in '\\:*?"<>|\x00') or any(ord(c) < 32 for c in relative) or any(part in ('', '.', '..') for part in relative.split('/')):
+        raise ValueError('INVALID_PDF_RELATIVE_PATH')
+    if not isinstance(expected_hash, str) or not re.fullmatch(r'[a-fA-F0-9]{64}', expected_hash) or type(expected_size) is not int or not 5 <= expected_size <= MAX_PDF_BYTES:
+        raise ValueError('INVALID_PDF_METADATA')
+    if pdf_root is None: return 'PDF_BYTES_NOT_VERIFIED'
+    root = Path(pdf_root).absolute()
+    if any(linked(p) for p in (root, *root.parents)): raise ValueError('PDF_LINK_NOT_ALLOWED')
+    root = root.resolve()
+    path = root / relative
+    if any(linked(p) for p in (path, *path.parents)): raise ValueError('PDF_LINK_NOT_ALLOWED')
+    if not path.resolve().is_relative_to(root) or not path.is_file(): raise ValueError('PDF_PATH_MISSING_OR_OUTSIDE_ROOT')
+    if path.stat().st_size != expected_size: raise ValueError('PDF_HASH_OR_SIZE_MISMATCH')
+    digest, size = hashlib.sha256(), 0
+    with path.open('rb') as stream:
+        signature = stream.read(5)
+        if signature != b'%PDF-': raise ValueError('PDF_SIGNATURE_INVALID')
+        digest.update(signature); size = len(signature)
+        while block := stream.read(min(1024 * 1024, expected_size - size + 1)):
+            size += len(block)
+            if size > expected_size: raise ValueError('PDF_HASH_OR_SIZE_MISMATCH')
+            digest.update(block)
+    if size != expected_size or digest.hexdigest() != expected_hash.lower(): raise ValueError('PDF_HASH_OR_SIZE_MISMATCH')
+    return 'SCANNER_AND_CURRENT_CLAIM_REQUIRE_LIVE_CHECK'
+
 def audit(source, pdf_root=None):
     errors, warnings, ids, sequences, numbers, highwater = [], [], set(), set(), set(), {}
+    invalid = {'passed':False,'errors':['INVALID_EXPORT_SCHEMA'],'warnings':[],'documents':0,'highwater':[],'mutated':False,'liveAcceptance':False}
+    if not isinstance(source, dict): return invalid
     records=source.get('documents')
     counters=source.get('counters')
     if not isinstance(records,list) or not isinstance(counters,list):
-        return {'passed':False,'errors':['INVALID_EXPORT_SCHEMA'],'warnings':[],'documents':0}
+        return invalid
     for index,row in enumerate(records):
         prefix=f'ROW_{index+1}:'
         try:
@@ -42,16 +76,8 @@ def audit(source, pdf_root=None):
             if row.get('issuedDate'): date.fromisoformat(row['issuedDate'])
             if row['status']=='Cancelled': warnings.append(prefix+'RESTORE_HISTORY_REQUIRES_RECONCILIATION')
             pdf=row.get('pdf')
-            if pdf:
-                if pdf_root is None: warnings.append(prefix+'PDF_BYTES_NOT_VERIFIED')
-                else:
-                    root=Path(pdf_root).resolve();path=(root/pdf['relativePath']).resolve()
-                    if not path.is_relative_to(root) or not path.is_file(): raise ValueError('PDF_PATH_MISSING_OR_OUTSIDE_ROOT')
-                    digest=hashlib.sha256();size=0
-                    with path.open('rb') as stream:
-                        while block:=stream.read(1024*1024): digest.update(block);size+=len(block)
-                    if size!=pdf['sizeBytes'] or digest.hexdigest().lower()!=pdf['sha256'].lower(): raise ValueError('PDF_HASH_OR_SIZE_MISMATCH')
-                    warnings.append(prefix+'SCANNER_AND_CURRENT_CLAIM_REQUIRE_LIVE_CHECK')
+            if pdf is not None:
+                warnings.append(prefix+validate_pdf(pdf,pdf_root))
             elif row['status']=='Distributed': warnings.append(prefix+'DISTRIBUTED_WITHOUT_PDF')
         except (KeyError,TypeError,ValueError,AttributeError,OSError) as exc:
             code=str(exc) if isinstance(exc,ValueError) and str(exc).isupper() else 'INVALID_OR_MISSING_FIELD'
@@ -60,7 +86,7 @@ def audit(source, pdf_root=None):
     for row in counters:
         try:
             key=(row['kind'],row['year']);current=row['currentValue']
-            if key in seen or key[0] not in ('INCOMING','OUTGOING','INTERNAL') or not isinstance(key[1],int) or isinstance(current,bool) or not isinstance(current,int) or current<highwater.get(key,0) or not 0<=current<=99999: raise ValueError()
+            if key in seen or key[0] not in ('INCOMING','OUTGOING','INTERNAL') or type(key[1]) is not int or not 1<=key[1]<=9999 or isinstance(current,bool) or not isinstance(current,int) or current<highwater.get(key,0) or not 0<=current<=99999: raise ValueError()
             seen.add(key)
         except (KeyError,TypeError,ValueError):errors.append('INVALID_OR_UNDERSIZED_COUNTER')
     if set(highwater)-seen:errors.append('MISSING_COUNTERS')

@@ -9,7 +9,7 @@ Mã C# của luồng xử lý được nhóm theo service sở hữu, không ph�
 | `Relations`, `Completion` | Liên kết công văn và đánh giá hồ sơ hoàn tất |
 | `Files` | PDF hiện hành, claims và bảo trì giao thức |
 | `Queries` | Danh sách/lọc theo phạm vi backend |
-| `Reports`, `Reminders` | Báo cáo/XLSX và nhắc quá 14 ngày, thứ Hai 08:00 giờ Việt Nam |
+| `Reports`, `Reminders` | Báo cáo/XLSX và nhắc quá 7 ngày, thứ Hai 08:00 giờ Việt Nam |
 | `Notifications` | Thông báo công văn và prepared transport |
 | `Tasks` | My Staff và intent/retry/reconcile task |
 | `DocumentBusinessService.cs` | Adapter nghiệp vụ công văn hiện có |

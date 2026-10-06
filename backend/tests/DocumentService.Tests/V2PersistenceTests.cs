@@ -214,7 +214,9 @@ public sealed class V2PersistenceTests
         f.Db.DocumentAttachments.Add(new(){DocumentId=doc.Id,FileId=Guid.NewGuid()});await f.Db.SaveChangesAsync();
         Assert.False(await legacy.CanReadFileAsync((await f.Db.DocumentAttachments.SingleAsync()).FileId,admin));
         doc.SourceMessageId="v2-private-source";await f.Db.SaveChangesAsync();
-        await Assert.ThrowsAsync<InvalidOperationException>(()=>legacy.CreateIncomingAsync(new("Fax",null,null,null,null,"v2-private-source"),admin));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(()=>legacy.CreateIncomingAsync(new("Fax",null,null,null,null,"v2-private-source"),admin));
+        var registrar=new DocumentActor(Identity.InputterUserId,Identity.OwnerDepartmentId,new HashSet<string>{"SecretaryDirector"});
+        await Assert.ThrowsAsync<InvalidOperationException>(()=>legacy.CreateIncomingAsync(new("Fax",null,null,null,null,"v2-private-source"),registrar));
         Assert.Equal(1,(await f.Db.DocumentNumberCounters.SingleAsync()).CurrentValue);
     }
 

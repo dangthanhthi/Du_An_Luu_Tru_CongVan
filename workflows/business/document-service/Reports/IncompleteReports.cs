@@ -50,7 +50,7 @@ public sealed class IncompleteReports(DocumentDbContext db,CurrentPdfAvailabilit
             .Where(x=>x.Sensitivity=="Normal"||confidential.Contains(x.DocumentId));
         if(filter.Kind is not null)query=query.Where(x=>x.Kind==filter.Kind);
         if(filter.DepartmentId is not null)query=query.Where(x=>x.OwnerDepartmentId==filter.DepartmentId);
-        var now=clock.GetUtcNow();var cutoff=DocumentNumberFormatter.RegistrationDate(now).AddDays(-14);
+        var now=clock.GetUtcNow();var cutoff=DocumentNumberFormatter.RegistrationDate(now).AddDays(-ReminderEligibility.AgeThresholdDays);
         if(!filter.IncludeRecent)query=query.Where(x=>x.RegistrationDate<cutoff);
         if(await query.CountAsync(ct)>RowBudget)throw Rule(422,"REPORT_SCOPE_TOO_LARGE");
         var headers=await query.Include(x=>x.Document!).ThenInclude(x=>x.Recipients).OrderBy(x=>x.OwnerDepartmentNameSnapshot).ThenBy(x=>x.OwnerDepartmentId).ThenBy(x=>x.RegistrationDate).ThenBy(x=>x.SequenceNumber).ThenBy(x=>x.DocumentId).ToListAsync(ct);

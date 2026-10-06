@@ -105,7 +105,7 @@ public sealed class WeeklyReminders(DocumentDbContext db,IncompleteReports repor
             if(to is null){warnings.Add("MISSING_INPUTTER_EMAIL:"+group.Key);continue;}
             envelopes.Add(new(group.Key,to,leaders.Where(x=>!x.Equals(to,StringComparison.OrdinalIgnoreCase)).ToArray(),group.ToArray()));
         }
-        var confidentialMissing=await db.DocumentRegistrations.AnyAsync(x=>x.OwnerDepartmentId==department&&x.Sensitivity!="Normal"&&(x.Kind=="OUTGOING"||x.Kind=="INTERNAL")&&x.Document!=null&&x.Document.Status!="Cancelled"&&x.RegistrationDate<DocumentNumberFormatter.RegistrationDate(report.EvaluatedAt).AddDays(-14),ct);
+        var confidentialMissing=await db.DocumentRegistrations.AnyAsync(x=>x.OwnerDepartmentId==department&&x.Sensitivity!="Normal"&&(x.Kind=="OUTGOING"||x.Kind=="INTERNAL")&&x.Document!=null&&x.Document.Status!="Cancelled"&&x.RegistrationDate<DocumentNumberFormatter.RegistrationDate(report.EvaluatedAt).AddDays(-ReminderEligibility.AgeThresholdDays),ct);
         if(confidentialMissing)warnings.Add("CONFIDENTIAL_AUDIENCE_POLICY_PENDING");
         return new(report.EvaluatedAt,envelopes,warnings);
     }

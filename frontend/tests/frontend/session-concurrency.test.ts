@@ -4,12 +4,16 @@ import { authApi, requestApiEnvelope, tokenManager } from '../../src/services/ap
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>()
+  failNextWriteFor?: string
   get length() { return this.values.size }
   clear() { this.values.clear() }
   getItem(key: string) { return this.values.get(key) ?? null }
   key(index: number) { return [...this.values.keys()][index] ?? null }
   removeItem(key: string) { this.values.delete(key) }
-  setItem(key: string, value: string) { this.values.set(key, String(value)) }
+  setItem(key: string, value: string) {
+    if (key === this.failNextWriteFor) { this.failNextWriteFor = undefined; throw new Error('Fixture storage write failed') }
+    this.values.set(key, String(value))
+  }
 }
 function deferred<T>() {
   let resolve!: (value: T) => void
@@ -38,6 +42,77 @@ afterEach(() => {
 const expired = () => Response.json({ success: false }, { status: 401 })
 const refreshed = () => Response.json({ success: true, data: { accessToken: 'rotated-access', refreshToken: 'rotated-refresh' } })
 const status401 = (error: unknown) => (error as { status: number }).status === 401
+const loginResponse = (name: string) => Response.json({ success: true, data: {
+  accessToken: `${name}-access`, refreshToken: `${name}-refresh`,
+  user: { id: name, fullName: name, email: null, roles: ['Staff'] }
+} })
+
+test('login success arriving after logout rejects and cannot resurrect tokens or identity', async () => {
+  const gate = deferred<Response>(), entered = deferred<void>()
+  globalThis.fetch = async () => { entered.resolve(); return gate.promise }
+  const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === 409)
+  await entered.promise; tokenManager.clearTokens(); gate.resolve(loginResponse('old-user')); await pending
+  assert.equal(tokenManager.getToken(), null)
+  assert.equal(tokenManager.getRefreshToken(), null)
+  assert.equal(tokenManager.getUser(), null)
+})
+
+for (const success of [true, false]) {
+  test(`late login ${success ? 'success' : 'failure'} preserves a newer authenticated session`, async () => {
+    const gate = deferred<Response>(), entered = deferred<void>()
+    globalThis.fetch = async () => { entered.resolve(); return gate.promise }
+    const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === (success ? 409 : 401))
+    await entered.promise; tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' })
+    gate.resolve(success ? loginResponse('old-user') : expired()); await pending
+    assert.equal(tokenManager.getToken(), 'new-access')
+    assert.equal(tokenManager.getRefreshToken(), 'new-refresh')
+    assert.equal(tokenManager.getUser().id, 'new-user')
+  })
+}
+
+for (const olderFinishesFirst of [true, false]) {
+  test(`overlapping logins commit only the newest attempt when older finishes ${olderFinishesFirst ? 'first' : 'last'}`, async () => {
+    const older = deferred<Response>(), newer = deferred<Response>()
+    let requests = 0
+    globalThis.fetch = async () => ++requests === 1 ? older.promise : newer.promise
+    const rejected = assert.rejects(authApi.login('old-user', 'fixture-password'), e => (e as { status: number }).status === 409)
+    const current = authApi.login('new-user', 'fixture-password')
+    if (olderFinishesFirst) {
+      older.resolve(loginResponse('old-user')); await rejected
+      assert.equal(tokenManager.getToken(), null)
+      newer.resolve(loginResponse('new-user')); await current
+    } else {
+      newer.resolve(loginResponse('new-user')); await current
+      older.resolve(loginResponse('old-user')); await rejected
+    }
+    assert.equal(tokenManager.getToken(), 'new-user-access')
+    assert.equal(tokenManager.getRefreshToken(), 'new-user-refresh')
+    assert.equal(tokenManager.getUser().id, 'new-user')
+  })
+}
+
+test('a login response cannot overwrite another tab changing storage directly', async () => {
+  const gate = deferred<Response>(), entered = deferred<void>()
+  globalThis.fetch = async () => { entered.resolve(); return gate.promise }
+  const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === 409)
+  await entered.promise
+  storage.setItem('das_access_token', 'other-tab-access'); storage.setItem('das_refresh_token', 'other-tab-refresh')
+  storage.setItem('das_user', JSON.stringify({ id: 'other-tab-user' }))
+  gate.resolve(loginResponse('old-user')); await pending
+  assert.equal(tokenManager.getToken(), 'other-tab-access')
+  assert.equal(tokenManager.getUser().id, 'other-tab-user')
+})
+
+for (const key of ['das_access_token', 'das_refresh_token', 'das_user']) {
+  test(`a failed owned login storage write at ${key} leaves no partial session`, async () => {
+    globalThis.fetch = async () => loginResponse('operator')
+    storage.failNextWriteFor = key
+    await assert.rejects(authApi.login('operator', 'fixture-password'))
+    assert.equal(tokenManager.getToken(), null)
+    assert.equal(tokenManager.getRefreshToken(), null)
+    assert.equal(tokenManager.getUser(), null)
+  })
+}
 
 test('simultaneous401s use one rotation and both callers get server data', async () => {
   const gate = deferred<void>(), entered = deferred<void>()

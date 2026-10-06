@@ -3,15 +3,14 @@ namespace DocumentService;
 public static class DocumentAccessRules
 {
     public static bool CanCreateIncoming(DocumentActor actor) =>
-        actor.IsInRole("Admin") || actor.IsInRole("SecretaryDirector") || actor.IsInRole("System");
+        actor.IsInRole("SecretaryDirector") || actor.IsInRole("System");
 
     public static bool CanCreateDepartmentDocument(DocumentActor actor) =>
-        actor.IsInRole("Admin") || actor.IsInRole("SecretaryDept");
+        actor.IsInRole("SecretaryDept");
 
     public static bool CanRead(DocumentActor actor, Document document)
     {
         if (document.Registration is not null) return false;
-        if (actor.IsInRole("Admin")) return true;
 
         if (actor.IsInRole("SecretaryDirector"))
             return document.DocType == DocumentTypeConstants.INCOMING ||
@@ -39,7 +38,6 @@ public static class DocumentAccessRules
     public static bool CanEdit(DocumentActor actor, Document document)
     {
         if (document.Registration is not null || document.Status != DocumentStatusConstants.Draft) return false;
-        if (actor.IsInRole("Admin")) return true;
         if (actor.IsInRole("SecretaryDirector")) return document.DocType == DocumentTypeConstants.INCOMING;
 
         return actor.IsInRole("SecretaryDept") && actor.DepartmentId.HasValue &&
@@ -49,12 +47,11 @@ public static class DocumentAccessRules
 
     public static bool CanAssignDepartments(DocumentActor actor, Document document) =>
         document.Registration is null && document.DocType == DocumentTypeConstants.INCOMING &&
-        (actor.IsInRole("Admin") || actor.IsInRole("SecretaryDirector"));
+        actor.IsInRole("SecretaryDirector");
 
     public static bool CanChangeStatus(DocumentActor actor, Document document)
     {
         if (document.Registration is not null) return false;
-        if (actor.IsInRole("Admin")) return true;
         if (actor.IsInRole("SecretaryDirector")) return document.DocType == DocumentTypeConstants.INCOMING;
 
         return actor.IsInRole("SecretaryDept") && actor.DepartmentId.HasValue &&

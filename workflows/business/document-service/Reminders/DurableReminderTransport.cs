@@ -84,5 +84,5 @@ public sealed class DurableReminderTransport(DocumentDbContext db,IReminderNotif
     }
     private static string Email(string value){if(value.Length>200||value.Any(char.IsControl)||!MailAddress.TryCreate(value,out var parsed)||!parsed.Address.Equals(value,StringComparison.OrdinalIgnoreCase))throw Invalid();return parsed.Address.ToLowerInvariant();}
     private static DocumentRegistrationRuleException Invalid()=>new(503,"REMINDER_PLAN_INVALID","Reminder projection is inconsistent.");
-    private static ReminderNotificationMessage Message(ReminderEnvelope x)=>new(x.InputterUserId,x.To,"Nhắc công văn chưa hoàn tất",$"Bạn có {x.Documents.Count} công văn đi/nội bộ chưa hoàn tất, đã đăng ký quá 14 ngày. Đăng nhập DAS để kiểm tra hồ sơ trong phạm vi được cấp quyền.",null,"Warning",null,x.Cc);
+    private static ReminderNotificationMessage Message(ReminderEnvelope x)=>new(x.InputterUserId,x.To,"Nhắc công văn chưa hoàn tất",$"Bạn có {x.Documents.Count} công văn đi/nội bộ chưa hoàn tất, đã đăng ký quá {ReminderEligibility.AgeThresholdDays} ngày. Đăng nhập DAS để kiểm tra hồ sơ trong phạm vi được cấp quyền.",null,"Warning",null,x.Cc);
 }

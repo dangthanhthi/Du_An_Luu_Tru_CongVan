@@ -277,15 +277,17 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Authorization/DocumentAccessRules.cs",
       "destination": "backend/services/document-service/Authorization/DocumentAccessRules.cs",
       "originalSha256": "995e805252ea389c77935ec269d136a906f68a1ca4cb70ed510dcff1657bf0a9",
-      "sha256": "dd21798b5ccd5bfb812678a73242be7d6ad2b07c24a34d0c2da1e5b1d71bf3fc",
-      "bytes": 2993
+      "sha256": "a7041da429321952e30d2fe91d0dda2e81fb8941af286a6b44107cdfc4c61764",
+      "bytes": 2760,
+      "previousCanonicalSha256": "dd21798b5ccd5bfb812678a73242be7d6ad2b07c24a34d0c2da1e5b1d71bf3fc"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Authorization/DocumentActor.cs",
       "destination": "backend/services/document-service/Authorization/DocumentActor.cs",
       "originalSha256": "3cd6435e1fca1f79f6a265beed9638818b0c222251caa1228bd24cb214efce40",
-      "sha256": "73adff188bc8d23c2a97574323399ac1e37219029171085d8ab27504463b66d1",
-      "bytes": 1118
+      "sha256": "27cd53689549281c60e67ff94c1e44835caa878dccaa83dd8d3b791f6553f542",
+      "bytes": 1178,
+      "previousCanonicalSha256": "73adff188bc8d23c2a97574323399ac1e37219029171085d8ab27504463b66d1"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Common/GlobalExceptionHandler.cs",
@@ -621,16 +623,18 @@
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/Program.cs",
       "destination": "backend/services/email-worker-service/Program.cs",
       "originalSha256": "f89965f4594ad1e964c70a32b86251a74cdbef322804aba6e2956cd9566bede7",
-      "sha256": "95e2a9f8afb81300cae6d452b893fb2ad77bbd6c65e1dcf6de2f30f064447ee5",
-      "bytes": 23206
+      "sha256": "79fc7bd133b802d93f7ebce135c78881ea1237830a4e33cf69398a64e645e9a4",
+      "bytes": 23603,
+      "previousCanonicalSha256": "95e2a9f8afb81300cae6d452b893fb2ad77bbd6c65e1dcf6de2f30f064447ee5"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/appsettings.json",
       "destination": "backend/services/email-worker-service/appsettings.json",
       "originalSha256": "629e11111c21aecb404f01b9b265885d10779ad6af84624b34f690e74ef8dd98",
-      "sha256": "9caf71f8897b715680a5490dff2c761ce40aee2949941ce5a209012b0d995bff",
-      "bytes": 763,
-      "publicationAdaptation": "Remove embedded config credentials/connection strings;local environment required"
+      "sha256": "9eba9feb97492350cfa78e7bb199fd80bc5ade40467e17fdc52af07906e96684",
+      "bytes": 839,
+      "publicationAdaptation": "Remove embedded config credentials/connection strings;local environment required",
+      "previousCanonicalSha256": "9caf71f8897b715680a5490dff2c761ce40aee2949941ce5a209012b0d995bff"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/packages.lock.json",
@@ -1198,15 +1202,17 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/AttachmentTests.cs",
       "destination": "backend/tests/DocumentService.Tests/AttachmentTests.cs",
       "originalSha256": "7360be1998c71e5e7a7f585d30943581aabfde52c5ff42ae5ca61523930715db",
-      "sha256": "2d7f5926ccd620e52e5824bd14c508b23fbe9f1c5cce84586bd1f1da321a2951",
-      "bytes": 4064
+      "sha256": "263e2fa0884a21bcbfd5119d214b4c67ece031cadb4a67a83add923a5538da49",
+      "bytes": 4181,
+      "previousCanonicalSha256": "2d7f5926ccd620e52e5824bd14c508b23fbe9f1c5cce84586bd1f1da321a2951"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/AuthorizationTests.cs",
       "destination": "backend/tests/DocumentService.Tests/AuthorizationTests.cs",
       "originalSha256": "80746823d2fc16e1c435dd6e31fbc606d940ac8a3d3adc19242973548524282c",
-      "sha256": "3259f8ccd3e57419e22ca42a301636ee3bd3901ac0767eac6506ab663539a8fb",
-      "bytes": 12522
+      "sha256": "859e186b31a0e9c4415ae84763269ac1238fc39f9efc420c9fb8b36a4f6fca7d",
+      "bytes": 16863,
+      "previousCanonicalSha256": "3259f8ccd3e57419e22ca42a301636ee3bd3901ac0767eac6506ab663539a8fb"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/CatalogSqlTests.cs",
@@ -1282,8 +1288,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/DocumentStatusTests.cs",
       "destination": "backend/tests/DocumentService.Tests/DocumentStatusTests.cs",
       "originalSha256": "d769fe9f4ca1a346df8254584f74656005cc59980a0cb9f60dd660e5e1ec4d3f",
-      "sha256": "f8477e41b9bd4da781f341a7026aa498636631df08cede5e033eaa8a50747ee3",
-      "bytes": 4199
+      "sha256": "16aa7af9033be0db9e07e47e0b1c656f837ba4ae1eb7b63cd9b16df1ce751160",
+      "bytes": 4306,
+      "previousCanonicalSha256": "f8477e41b9bd4da781f341a7026aa498636631df08cede5e033eaa8a50747ee3"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/DocumentTaskWorkflowSqlTests.cs",
@@ -1352,8 +1359,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/RegistrationTests.cs",
       "destination": "backend/tests/DocumentService.Tests/RegistrationTests.cs",
       "originalSha256": "9a9b8eee61ce735a0e813cc6c5f1b741c712b7a1d7d511e15b1f5a02d29ce97d",
-      "sha256": "9a9b8eee61ce735a0e813cc6c5f1b741c712b7a1d7d511e15b1f5a02d29ce97d",
-      "bytes": 9991
+      "sha256": "54e79fd3f8f0dffc82a2011ac8d5463a7686d88bdce3524fc53fc5d5d8081a2e",
+      "bytes": 10319,
+      "previousCanonicalSha256": "9a9b8eee61ce735a0e813cc6c5f1b741c712b7a1d7d511e15b1f5a02d29ce97d"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReminderAuditTests.cs",
@@ -1373,8 +1381,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReminderEligibilityTests.cs",
       "destination": "backend/tests/DocumentService.Tests/ReminderEligibilityTests.cs",
       "originalSha256": "721fa19d913e2c76fbafb53dbccfc48d92e3ba7ceda2c9016a105b4cc9701191",
-      "sha256": "721fa19d913e2c76fbafb53dbccfc48d92e3ba7ceda2c9016a105b4cc9701191",
-      "bytes": 2489
+      "sha256": "343ad1916a566a0376fbc239774fb508e349eaccb43abbf1d504cd8d2632e554",
+      "bytes": 2557,
+      "previousCanonicalSha256": "721fa19d913e2c76fbafb53dbccfc48d92e3ba7ceda2c9016a105b4cc9701191"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReminderFanoutSqlTests.cs",
@@ -1387,8 +1396,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReminderFanoutTests.cs",
       "destination": "backend/tests/DocumentService.Tests/ReminderFanoutTests.cs",
       "originalSha256": "b921d32b94acaa8046e830a674d12b95234fa28f50ec2b5838c57f2a520b045e",
-      "sha256": "b921d32b94acaa8046e830a674d12b95234fa28f50ec2b5838c57f2a520b045e",
-      "bytes": 3679
+      "sha256": "0987402251522f73a6f1fdce6e4f8bf7f96af8001fd61446f0867b2faed36d25",
+      "bytes": 3893,
+      "previousCanonicalSha256": "b921d32b94acaa8046e830a674d12b95234fa28f50ec2b5838c57f2a520b045e"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReportsHttpTests.cs",
@@ -1401,8 +1411,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/ReportsReminderTests.cs",
       "destination": "backend/tests/DocumentService.Tests/ReportsReminderTests.cs",
       "originalSha256": "a3154f1e93255f840c6b7a3f944792323416c7eda036d1d4e0f55bd010a9b2a5",
-      "sha256": "a3154f1e93255f840c6b7a3f944792323416c7eda036d1d4e0f55bd010a9b2a5",
-      "bytes": 9588
+      "sha256": "54a1827ca948c21e2d49fd78f7bb030a0ed1d423104a12ec2b14996079260ca5",
+      "bytes": 10241,
+      "previousCanonicalSha256": "a3154f1e93255f840c6b7a3f944792323416c7eda036d1d4e0f55bd010a9b2a5"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/SqliteNativeVersionTests.cs",
@@ -1492,8 +1503,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/V2PersistenceTests.cs",
       "destination": "backend/tests/DocumentService.Tests/V2PersistenceTests.cs",
       "originalSha256": "fe194847f84c1244cb54ef36e39802b1fca33e1b06b9a83c5c752a54e6ac7535",
-      "sha256": "fe194847f84c1244cb54ef36e39802b1fca33e1b06b9a83c5c752a54e6ac7535",
-      "bytes": 17197
+      "sha256": "74f5816a78313cf14098d26a8977ec5b86cadfe8c8cc3dc57815fd42f52d615d",
+      "bytes": 17488,
+      "previousCanonicalSha256": "fe194847f84c1244cb54ef36e39802b1fca33e1b06b9a83c5c752a54e6ac7535"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/V2RelationSqlTests.cs",
@@ -1527,8 +1539,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/EmailWorkerService.Tests/EmailWorkerService.Tests.csproj",
       "destination": "backend/tests/EmailWorkerService.Tests/EmailWorkerService.Tests.csproj",
       "originalSha256": "cda93c1938f5845f5a29d66b04199b6dd4b299dc0057e394d07f3ce048f43ed4",
-      "sha256": "8db8bd6c45f211de04535ed2defe6c320449a5ed088997a2adb436268a830086",
-      "bytes": 731
+      "sha256": "47440b9828c78ce4247908e6cf3aa18b7a4e3493be6f487c3370ccaa40628f06",
+      "bytes": 816,
+      "previousCanonicalSha256": "8db8bd6c45f211de04535ed2defe6c320449a5ed088997a2adb436268a830086"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/EmailWorkerService.Tests/ImapConnectionTestTests.cs",
@@ -1541,8 +1554,9 @@
       "source": "Intern-DocumentAdministration-BE/tests/EmailWorkerService.Tests/packages.lock.json",
       "destination": "backend/tests/EmailWorkerService.Tests/packages.lock.json",
       "originalSha256": "e86f56e2ed800f875e42e5aaaee2191242fcc969c3f7544b820bd72ea99780d6",
-      "sha256": "c23c8fb08ec19ef419fa0520aae23ab355008d1c4b2bbd150d1e9e5b9fa2dcb0",
-      "bytes": 24545
+      "sha256": "a818239d2a55b1e2a700c169b0d7a19ad0fecf4eb99abada07e0252da8b98eb0",
+      "bytes": 36552,
+      "previousCanonicalSha256": "c23c8fb08ec19ef419fa0520aae23ab355008d1c4b2bbd150d1e9e5b9fa2dcb0"
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/FileService.Tests/DatabaseStartupTests.cs",
@@ -6751,8 +6765,9 @@
       "source": "src/services/api.ts",
       "destination": "frontend/src/services/api.ts",
       "originalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86",
-      "sha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86",
-      "bytes": 20401
+      "sha256": "102aaa536fad397d5e291188e36a99349be48fffcbe181cf696ddeb1e421372a",
+      "bytes": 21006,
+      "previousCanonicalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86"
     },
     {
       "source": "src/services/das/catalogs.ts",
@@ -8214,8 +8229,9 @@
       "source": "src/views/apps/reports/IncompleteReport.tsx",
       "destination": "frontend/src/views/apps/reports/IncompleteReport.tsx",
       "originalSha256": "01139c2e97e530a2105c74679f54507743cfc012129ae13656520f4ea2d6e257",
-      "sha256": "01139c2e97e530a2105c74679f54507743cfc012129ae13656520f4ea2d6e257",
-      "bytes": 5659
+      "sha256": "bf8f7d733b5ae06610650ea10ab65f9c5c87c719a4ac24d24a2b98e57bf52274",
+      "bytes": 5657,
+      "previousCanonicalSha256": "01139c2e97e530a2105c74679f54507743cfc012129ae13656520f4ea2d6e257"
     },
     {
       "source": "src/views/apps/roles/RoleCards.tsx",
@@ -8690,8 +8706,9 @@
       "source": "src/views/dashboards/overview/IncompleteOverview.tsx",
       "destination": "frontend/src/views/dashboards/overview/IncompleteOverview.tsx",
       "originalSha256": "66200df894643089ef2e8d8452aa6e8ce6294222e937bf4fcb11f29c41a36f67",
-      "sha256": "66200df894643089ef2e8d8452aa6e8ce6294222e937bf4fcb11f29c41a36f67",
-      "bytes": 1926
+      "sha256": "8bfadb4e6ad5df4411914e3f39129b95081b50a8f2e7a602aee9ac608d24a839",
+      "bytes": 1925,
+      "previousCanonicalSha256": "66200df894643089ef2e8d8452aa6e8ce6294222e937bf4fcb11f29c41a36f67"
     },
     {
       "source": "src/views/dashboards/overview/RecentDocuments.tsx",
@@ -10202,8 +10219,9 @@
       "source": "tests/frontend/session-concurrency.test.ts",
       "destination": "frontend/tests/frontend/session-concurrency.test.ts",
       "originalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7",
-      "sha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7",
-      "bytes": 8767
+      "sha256": "c411931914e54f312a17c1c92eda5836e7027af8cb62708dc32ba2ee6c927302",
+      "bytes": 12949,
+      "previousCanonicalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7"
     },
     {
       "source": "tests/frontend/template-data-routes.test.ts",
@@ -10293,8 +10311,9 @@
       "source": "tests/qa/test_migration_audit.py",
       "destination": "tests/qa/test_migration_audit.py",
       "originalSha256": "a8158d0b8bd3600d6453110bfbacc9c2c90ad5c49bd895a82ad2a3a459f8eb2a",
-      "sha256": "a8158d0b8bd3600d6453110bfbacc9c2c90ad5c49bd895a82ad2a3a459f8eb2a",
-      "bytes": 2189
+      "sha256": "8d0fb4c2a9073eaca67ff387c317fb57957e7f4583558bf91695d4ab21273f8c",
+      "bytes": 6712,
+      "previousCanonicalSha256": "a8158d0b8bd3600d6453110bfbacc9c2c90ad5c49bd895a82ad2a3a459f8eb2a"
     },
     {
       "source": "tests/qa/test_release_images.py",
@@ -10314,8 +10333,9 @@
       "source": "scripts/qa/audit-migration-export.py",
       "destination": "tools/qa/audit-migration-export.py",
       "originalSha256": "948d33db50e1fbc5da50ee01fc175fd48a7f83293afb9f454caccc4361561ae5",
-      "sha256": "948d33db50e1fbc5da50ee01fc175fd48a7f83293afb9f454caccc4361561ae5",
-      "bytes": 5714
+      "sha256": "2419810c2a6411f0061a61757ebe8cf16f9b76cedac332137e5006ccbe0d8948",
+      "bytes": 7205,
+      "previousCanonicalSha256": "948d33db50e1fbc5da50ee01fc175fd48a7f83293afb9f454caccc4361561ae5"
     },
     {
       "source": "scripts/qa/build-core-images.py",
@@ -10377,8 +10397,9 @@
       "source": "scripts/qa/run-core-ci.py",
       "destination": "tools/qa/run-core-ci.py",
       "originalSha256": "ef1e132e2c11ecb289ab15ae82822886276990eebbca1c12fbe6fe12a101dd49",
-      "sha256": "ef1e132e2c11ecb289ab15ae82822886276990eebbca1c12fbe6fe12a101dd49",
-      "bytes": 14795
+      "sha256": "a335cf792446a723724087829a7a80838c501d7a8fd9a0327f5d1a7f22f8e0c5",
+      "bytes": 14873,
+      "previousCanonicalSha256": "ef1e132e2c11ecb289ab15ae82822886276990eebbca1c12fbe6fe12a101dd49"
     },
     {
       "source": "scripts/qa/run-frontend-image-smoke.py",
@@ -10461,8 +10482,9 @@
       "source": "scripts/qa/verify-reports-staff-ui.cjs",
       "destination": "tools/qa/verify-reports-staff-ui.cjs",
       "originalSha256": "612da61a998178c62399d75e3eef461122defa71f41fd1c21998a88e4812a218",
-      "sha256": "612da61a998178c62399d75e3eef461122defa71f41fd1c21998a88e4812a218",
-      "bytes": 7667
+      "sha256": "47f42753dc5c7047709197cef79ac95c6fb243b6d045a450aba1e4905e42f7c6",
+      "bytes": 7666,
+      "previousCanonicalSha256": "612da61a998178c62399d75e3eef461122defa71f41fd1c21998a88e4812a218"
     },
     {
       "source": "scripts/qa/verify-restore-bundle.py",
@@ -10489,8 +10511,9 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/DocumentBusinessService.cs",
       "destination": "workflows/business/document-service/DocumentBusinessService.cs",
       "originalSha256": "ef66ecafd4dad155e83eb5466182b6b34eceea2407205826d537a96cfc88ed40",
-      "sha256": "a914dfefb7b9d048536bc9c3dff6a200924983ca9d6fdba5645c63f79b88cc97",
-      "bytes": 24347
+      "sha256": "39728b739c659f022ca8d13f726f76a694f641695c336c8eaaeac1c611bb40ad",
+      "bytes": 23932,
+      "previousCanonicalSha256": "a914dfefb7b9d048536bc9c3dff6a200924983ca9d6fdba5645c63f79b88cc97"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Editing/V2DistributionRules.cs",
@@ -10601,29 +10624,33 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reminders/DurableReminderTransport.cs",
       "destination": "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
       "originalSha256": "da0c3372b6b7d65b60ddfc42078b83edcce58e74e84d80c5a611f723ff875a4d",
-      "sha256": "da0c3372b6b7d65b60ddfc42078b83edcce58e74e84d80c5a611f723ff875a4d",
-      "bytes": 10498
+      "sha256": "f735b2124bdbbfdc3eb4d8e914d7f353ebb5ebccc1d4c726389fad1f2455d2f2",
+      "bytes": 10534,
+      "previousCanonicalSha256": "da0c3372b6b7d65b60ddfc42078b83edcce58e74e84d80c5a611f723ff875a4d"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reminders/ReminderEligibility.cs",
       "destination": "workflows/business/document-service/Reminders/ReminderEligibility.cs",
       "originalSha256": "d8e552508dd6005e3f380b345e94a5c0b7c3126cc8abbac3deea60b8e4cb16d5",
-      "sha256": "d8e552508dd6005e3f380b345e94a5c0b7c3126cc8abbac3deea60b8e4cb16d5",
-      "bytes": 739
+      "sha256": "b6971e332cdeab2e91a05ff40b690f6dc94b4b8734e542c96bff136f0a0e200c",
+      "bytes": 781,
+      "previousCanonicalSha256": "d8e552508dd6005e3f380b345e94a5c0b7c3126cc8abbac3deea60b8e4cb16d5"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reminders/WeeklyReminders.cs",
       "destination": "workflows/business/document-service/Reminders/WeeklyReminders.cs",
       "originalSha256": "6df7be17b5618bc1fd714a76c1450a41bae08b66f55f8cab943eedb7fd2f7b7e",
-      "sha256": "6df7be17b5618bc1fd714a76c1450a41bae08b66f55f8cab943eedb7fd2f7b7e",
-      "bytes": 10372
+      "sha256": "6742b9047123073db223d4a468ac08941c930f2000017be531f1da6e796c2856",
+      "bytes": 10406,
+      "previousCanonicalSha256": "6df7be17b5618bc1fd714a76c1450a41bae08b66f55f8cab943eedb7fd2f7b7e"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reports/IncompleteReports.cs",
       "destination": "workflows/business/document-service/Reports/IncompleteReports.cs",
       "originalSha256": "635c82c3f0a4383db131e16441d98b6e1bd7976507267adf4c43ff534215a85e",
-      "sha256": "635c82c3f0a4383db131e16441d98b6e1bd7976507267adf4c43ff534215a85e",
-      "bytes": 6283
+      "sha256": "49a03e0c4739c89a417e72b3efef950d826fac6f0de4699b6918e704b0895788",
+      "bytes": 6317,
+      "previousCanonicalSha256": "635c82c3f0a4383db131e16441d98b6e1bd7976507267adf4c43ff534215a85e"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reports/ReportWorkbook.cs",
@@ -10678,5 +10705,41 @@
       "reason": "Legacy seed includes old account/data payload and obsolete DB initialization; not needed for collaboration."
     }
   ],
-  "textLineEndings": "LF; originalSha256 retains original Windows provenance; current sha256 covers canonical checkout bytes."
+  "textLineEndings": "LF; originalSha256 retains original Windows provenance; current sha256 covers canonical checkout bytes.",
+  "currentSourceRevision": {
+    "baselineCommit": "d5193632edcbc14f0012caca8cd1c5c76f9a400f",
+    "date": "2026-10-06",
+    "branch": "codex/das-completion-20261006",
+    "reason": "Official >7 day reminder, login ownership, migration preflight, email intake startup gates, legacy Admin scope",
+    "changedImportedFiles": [
+      "backend/services/document-service/Authorization/DocumentAccessRules.cs",
+      "backend/services/document-service/Authorization/DocumentActor.cs",
+      "backend/services/email-worker-service/Program.cs",
+      "backend/services/email-worker-service/appsettings.json",
+      "backend/tests/DocumentService.Tests/AttachmentTests.cs",
+      "backend/tests/DocumentService.Tests/AuthorizationTests.cs",
+      "backend/tests/DocumentService.Tests/DocumentStatusTests.cs",
+      "backend/tests/DocumentService.Tests/RegistrationTests.cs",
+      "backend/tests/DocumentService.Tests/ReminderEligibilityTests.cs",
+      "backend/tests/DocumentService.Tests/ReminderFanoutTests.cs",
+      "backend/tests/DocumentService.Tests/ReportsReminderTests.cs",
+      "backend/tests/DocumentService.Tests/V2PersistenceTests.cs",
+      "backend/tests/EmailWorkerService.Tests/EmailWorkerService.Tests.csproj",
+      "backend/tests/EmailWorkerService.Tests/packages.lock.json",
+      "frontend/src/services/api.ts",
+      "frontend/src/views/apps/reports/IncompleteReport.tsx",
+      "frontend/src/views/dashboards/overview/IncompleteOverview.tsx",
+      "frontend/tests/frontend/session-concurrency.test.ts",
+      "tests/qa/test_migration_audit.py",
+      "tools/qa/audit-migration-export.py",
+      "tools/qa/run-core-ci.py",
+      "tools/qa/verify-reports-staff-ui.cjs",
+      "workflows/business/document-service/DocumentBusinessService.cs",
+      "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
+      "workflows/business/document-service/Reminders/ReminderEligibility.cs",
+      "workflows/business/document-service/Reminders/WeeklyReminders.cs",
+      "workflows/business/document-service/Reports/IncompleteReports.cs"
+    ],
+    "originalSha256Preserved": true
+  }
 }

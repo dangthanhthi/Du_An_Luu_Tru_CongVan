@@ -148,7 +148,7 @@ def npm_command(node, cli):
 def ci_environment(base, node):
     values = {'Reminders__Enabled':'false','Reminders__TransportEnabled':'false','Notifications__WorkerEnabled':'false',
         'Notifications__TransportEnabled':'false','Delivery__WorkerEnabled':'false','Smtp__DeliveryEnabled':'false',
-        'PdfProtocol__MaintenanceEnabled':'false','NEXT_TELEMETRY_DISABLED':'1','CI':'true',
+        'PdfProtocol__MaintenanceEnabled':'false','EmailIntake__WorkerEnabled':'false','EmailIntake__ManualScanEnabled':'false','NEXT_TELEMETRY_DISABLED':'1','CI':'true',
         'DOTNET_NOLOGO':'true','DOTNET_CLI_TELEMETRY_OPTOUT':'1','NODE_OPTIONS':'--max-old-space-size=2304'}
     removed = {key.upper() for key in values} | {'DAS_TEST_SQL_CONNECTION','DAS_RESTORE_DRILL','DAS_RESTORE_OUTPUT','PATH'}
     env = {key:value for key,value in base.items() if key.upper() not in removed}

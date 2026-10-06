@@ -13,22 +13,15 @@ using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("Default");
-if (string.IsNullOrWhiteSpace(connectionString))
-{
-    throw new InvalidOperationException("ConnectionStrings:Default is required for EmailWorkerService.");
-}
+var database = EmailWorkerDatabaseOptions.Read(builder.Configuration, builder.Environment.IsDevelopment());
+var connectionString = database.ConnectionString;
+var emailIntakeWorkerEnabled = builder.Configuration.GetValue<bool>("EmailIntake:WorkerEnabled");
+var manualScanEnabled = builder.Configuration.GetValue<bool>("EmailIntake:ManualScanEnabled");
 
 builder.Services.AddDbContext<EmailWorkerDbContext>(options =>
 {
-    if (connectionString.Contains("Data Source=") && connectionString.EndsWith(".db"))
+    if (database.Provider == "Sqlite")
     {
-        var fileName = connectionString.Replace("Data Source=", "").Trim();
-        if (!Path.IsPathRooted(fileName))
-        {
-            var absoluteDbPath = Path.Combine(builder.Environment.ContentRootPath, fileName);
-            connectionString = $"Data Source={absoluteDbPath}";
-        }
         options.UseSqlite(connectionString);
     }
     else
@@ -65,7 +58,7 @@ builder.Services.AddScoped<IEmailProcessor, EmailProcessor>();
 builder.Services.AddHttpClient<IFilesServiceClient, FilesServiceClient>();
 builder.Services.AddHttpClient<IDocumentServiceClient, DocumentServiceClient>();
 builder.Services.AddHttpClient<IAiOcrServiceClient, AiOcrServiceClient>();
-builder.Services.AddHostedService<EmailBackgroundWorker>();
+if (emailIntakeWorkerEnabled) builder.Services.AddHostedService<EmailBackgroundWorker>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -75,7 +68,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EmailWorkerDbContext>();
-    db.Database.EnsureCreated();
+    await database.VerifyAsync(db, app.Environment.IsDevelopment());
 }
 
 if (app.Environment.IsDevelopment())
@@ -172,6 +165,7 @@ emailWorker.MapPost("/settings/test-connection", async (
     IConfiguration configuration,
     CancellationToken cancellationToken) =>
 {
+    if (!manualScanEnabled) return Results.Json(new { success = false, message = "Email intake transport is disabled." }, statusCode: 503);
     var validationMessage = ValidateSettingsRequest(
         request.ImapHost,
         request.ImapPort,
@@ -246,6 +240,7 @@ emailWorker.MapPost("/trigger-scan", (
     IServiceScopeFactory scopeFactory,
     ILogger<Program> logger) =>
 {
+    if (!manualScanEnabled) return Results.Json(new { success = false, message = "Email intake transport is disabled." }, statusCode: 503);
     _ = Task.Run(async () =>
     {
         try
@@ -283,6 +278,7 @@ emailWorker.MapPost("/trigger", async (
     IEmailProcessor processor,
     CancellationToken cancellationToken) =>
 {
+    if (!manualScanEnabled) return Results.Json(new { success = false, message = "Email intake transport is disabled." }, statusCode: 503);
     var result = await processor.ProcessIncomingEmailsAsync("Manual", cancellationToken);
     return Results.Ok(new
     {
@@ -435,6 +431,7 @@ emailWorker.MapPost("/scan-items/{itemId:guid}/confirm-intake", async (
     IDocumentServiceClient documentServiceClient,
     CancellationToken cancellationToken) =>
 {
+    if (!manualScanEnabled) return Results.Json(new { success = false, message = "Email intake transport is disabled." }, statusCode: 503);
     var item = await db.EmailScanItemLogs
         .AsNoTracking()
         .FirstOrDefaultAsync(

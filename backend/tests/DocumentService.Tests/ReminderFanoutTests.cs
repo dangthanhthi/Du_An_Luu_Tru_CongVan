@@ -18,6 +18,8 @@ public sealed class ReminderFanoutTests
         using(var scope=configured.Services.CreateScope()) {var db=scope.ServiceProvider.GetRequiredService<DocumentDbContext>();db.Add(new ReminderBatch{Id=id,DepartmentId=plan.Envelopes[0].Documents[0].DepartmentId,Period=new(2026,10,5),State="Dispatching",PayloadJson=JsonSerializer.Serialize(plan),CreatedAt=DateTimeOffset.UtcNow});await db.SaveChangesAsync();Assert.Equal("Queued",await scope.ServiceProvider.GetRequiredService<IReminderTransport>().EnqueueAsync(id,plan,default));}
         using(var scope=configured.Services.CreateScope()){Assert.Equal("Queued",await scope.ServiceProvider.GetRequiredService<IReminderTransport>().EnqueueAsync(id,plan with{EvaluatedAt=plan.EvaluatedAt.AddMinutes(5)},default));}
         Assert.Single(handler.Payloads);Assert.Contains("leader@example.test",handler.Payloads.Values.Single());Assert.DoesNotContain("Secret subject",handler.Payloads.Values.Single());
+        var sent=JsonSerializer.Deserialize<ReminderNotificationMessage>(handler.Payloads.Values.Single(),new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        Assert.Contains("quá 7 ngày",sent.Body);
         using(var scope=configured.Services.CreateScope()){var changed=plan with{Envelopes=[plan.Envelopes[0] with{To="changed@example.test"}]};Assert.Equal("RequiresReconciliation",await scope.ServiceProvider.GetRequiredService<IReminderTransport>().EnqueueAsync(id,changed,default));}
         Assert.Single(handler.Payloads);
     }

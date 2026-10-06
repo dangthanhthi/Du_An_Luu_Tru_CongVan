@@ -6,6 +6,7 @@ namespace DocumentService.Tests;
 [Trait("Suite", "LegacyBaseline")]
 public sealed class DocumentStatusTests
 {
+    private static readonly Guid Department = Guid.NewGuid();
     [Fact]
     public async Task Draft_can_be_marked_reviewed()
     {
@@ -81,12 +82,13 @@ public sealed class DocumentStatusTests
         new(db, new NotificationClient(), new PartnerClient(), new FileClient());
 
     private static DocumentActor Actor() =>
-        new(Guid.NewGuid(), Guid.NewGuid(), new HashSet<string>(StringComparer.Ordinal) { "Admin" });
+        new(Guid.NewGuid(), Department, new HashSet<string>(StringComparer.Ordinal) { "SecretaryDept" });
 
     private static Document Draft() => new()
     {
         DocumentNumber = Guid.NewGuid().ToString("N"),
         DocType = DocumentTypeConstants.INTERNAL,
+        SenderDepartmentId = Department,
         Status = DocumentStatusConstants.Draft,
         Title = "Test document",
         CreatedByUserId = Guid.NewGuid()

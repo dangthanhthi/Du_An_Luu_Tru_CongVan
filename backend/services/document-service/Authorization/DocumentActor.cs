@@ -9,11 +9,11 @@ public sealed record DocumentActor(Guid UserId, Guid? DepartmentId, IReadOnlySet
     public static DocumentActor FromPrincipal(ClaimsPrincipal principal)
     {
         var userIdValue = principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? principal.FindFirstValue("sub");
-        if (!Guid.TryParse(userIdValue, out var userId))
+        if (!Guid.TryParse(userIdValue, out var userId) || userId == Guid.Empty)
             throw new UnauthorizedAccessException("The authenticated user identifier is invalid.");
 
         var departmentValue = principal.FindFirstValue("departmentId");
-        var departmentId = Guid.TryParse(departmentValue, out var parsedDepartmentId)
+        var departmentId = Guid.TryParse(departmentValue, out var parsedDepartmentId) && parsedDepartmentId != Guid.Empty
             ? parsedDepartmentId
             : (Guid?)null;
 

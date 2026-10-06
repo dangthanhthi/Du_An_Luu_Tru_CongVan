@@ -6,6 +6,7 @@ namespace DocumentService.Tests;
 [Trait("Suite", "LegacyBaseline")]
 public sealed class AttachmentTests
 {
+    private static readonly Guid Department = Guid.NewGuid();
     [Fact]
     public async Task Valid_attachments_are_inserted_without_updating_parent_and_persist()
     {
@@ -72,12 +73,13 @@ public sealed class AttachmentTests
         new(db, new NotificationClient(), new PartnerClient(), new FileClient(validFiles));
 
     private static DocumentActor Actor() =>
-        new(Guid.NewGuid(), null, new HashSet<string>(StringComparer.Ordinal) { "Admin" });
+        new(Guid.NewGuid(), Department, new HashSet<string>(StringComparer.Ordinal) { "SecretaryDept" });
 
     private static Document Document() => new()
     {
         DocumentNumber = Guid.NewGuid().ToString("N"),
         DocType = DocumentTypeConstants.INTERNAL,
+        SenderDepartmentId = Department,
         Status = DocumentStatusConstants.Draft,
         Title = "Attachment test",
         CreatedByUserId = Guid.NewGuid()

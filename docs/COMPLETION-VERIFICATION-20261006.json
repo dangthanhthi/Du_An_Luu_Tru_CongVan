@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T07:30:16.395910+00:00",
+  "baselineCommit": "d5193632edcbc14f0012caca8cd1c5c76f9a400f",
+  "branch": "codex/das-completion-20261006",
+  "reminder": {
+    "ageThresholdDays": 7,
+    "comparison": "strictly greater than 7 Vietnam calendar days",
+    "schedule": "Monday 08:00 Asia/Ho_Chi_Minh"
+  },
+  "productionReady": false,
+  "deployed": false,
+  "customerDataUsed": false,
+  "workersEnabled": false,
+  "externalMailOrTasksSent": false,
+  "backend": {
+    "passed": true,
+    "nonSqlTests": 629,
+    "testEvidence": {
+      "DocumentService": {
+        "total": 406,
+        "executed": 406,
+        "passed": 406,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "FileService": {
+        "total": 82,
+        "executed": 82,
+        "passed": 82,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "PartnerService": {
+        "total": 46,
+        "executed": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "AuthService": {
+        "total": 54,
+        "executed": 54,
+        "passed": 54,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "NotificationService": {
+        "total": 20,
+        "executed": 20,
+        "passed": 20,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "EmailWorkerService": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "PdfIntegration": {
+        "total": 8,
+        "executed": 8,
+        "passed": 8,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "ReminderIntegration": {
+        "total": 2,
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "notExecuted": 0
+      }
+    },
+    "gatewayReleaseBuild": true,
+    "sourceManifestSha256": "6f463516308efc8529e4ca3c7975af757f1fa303d31737b1992326ce0da25ebd",
+    "sourceParity": {
+      "files": 340,
+      "mismatches": [],
+      "checkedPrefixes": [
+        "backend/",
+        "workflows/business/",
+        "database/",
+        "tools/run-checks.py",
+        "tools/qa/run-core-ci.py"
+      ],
+      "aggregateSha256": "da917f6ad1f172f0c2fbe1a64b92af55fa66f67ffb33c793449c9e06f00f2c5f",
+      "aggregateFormat": "sorted UTF-8 path + NUL + file SHA256 joined with LF"
+    },
+    "cleanupPassed": true
+  },
+  "frontend": {
+    "passed": true,
+    "testEvidence": {
+      "frontend": {
+        "total": 223,
+        "passed": 223,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "typecheck": true,
+    "lint": true,
+    "fullBuild": true,
+    "sourceManifestSha256": "5efb4e8b233370229476b7fec266ee3a8bf79c27770f36a9b690b99d21b18cd2",
+    "sourceParity": {
+      "files": 1158,
+      "mismatches": [],
+      "checkedPrefixes": [
+        "frontend/",
+        "database/prisma/",
+        "tools/run-checks.py",
+        "tools/qa/run-core-ci.py"
+      ],
+      "aggregateSha256": "532bd22d8be437b5ec905a2d8be27434e6fda61fc728f1add390f44c2d6b1f87",
+      "aggregateFormat": "sorted UTF-8 path + NUL + file SHA256 joined with LF"
+    },
+    "cleanupPassed": true
+  },
+  "pythonQa": {
+    "passed": 67,
+    "scope": "Legacy QA with documented source/path view;canonical source unchanged",
+    "logSha256": "bb01eec20cf82736886322886cb47d4ba2f496315735419622b057a4713acc2a"
+  },
+  "repositoryLayout": {
+    "passed": 10,
+    "logSha256": "e1edf4e3b32ce349a79bc99f225212aa2b211e6faa15591992a760c82eedb8ab"
+  },
+  "npmAudit": {
+    "full": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 6,
+      "critical": 0,
+      "total": 6
+    },
+    "runtime": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "lockfileSha256": "9bcfdce1c3fb358e2952cadc06e88614d50151bf68c3477f3944ce123b7df78c",
+    "riskAccepted": false,
+    "note": "No compatible official braces patch verified; suggested major downgrades were not applied",
+    "advisory": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+  },
+  "review": {
+    "independentReadOnly": "No actionable correctness finding in scoped review",
+    "gemini": "Unavailable: both account attempts returned 503; no advisory result"
+  },
+  "retainedFailureEvidence": [
+    "web-linux-v1 (QA npm executable missing)",
+    "backend-linux-v2 (legacy test expected old Admin authority)",
+    "reminder-red",
+    "email-red",
+    "legacy-admin-red",
+    "legacy-admin-http-probe"
+  ],
+  "openGates": [
+    "TMS contract and sandbox",
+    "SMTP configuration and real recipients",
+    "Directory/authority/ID mapping handover from owner",
+    "Customer database/PDF export and mapping",
+    "Production scanner/storage",
+    "Deployment backup RPO/RTO/SLA",
+    "Dependency security and license acceptance",
+    "Hosted CI/registry/signing/scanning",
+    "Fax real-flow scope and mailbox",
+    "Mentor UAT/pilot/signoff"
+  ],
+  "excludedScope": [
+    "EAP implementation belongs to another person until explicitly reopened",
+    "OCR implementation remains deferred",
+    "SQL/live gateway/authority/customer migration and UAT are not proven by these checks"
+  ],
+  "localArtifactDirectory": ".artifacts/qa/completion-20261006"
+}

@@ -268,13 +268,24 @@ const requireList = (envelope: ApiEnvelope): ApiEnvelope => {
 export const authApi = {
   login: async (userName: string, password: string) => {
     tokenManager.clearTokens()
+    const attempt = sessionSnapshot()
+
     try {
       const session = await requestLegacyLogin(API_URLS.auth, userName, password)
-      tokenManager.setTokens(session.accessToken, session.refreshToken)
-      tokenManager.setUser({ ...session.user, role: session.user.roles[0] ?? null })
+
+      if (!sessionMatches(attempt)) throw new ApiRequestError(409, 'Yêu cầu đăng nhập đã hết hiệu lực. Vui lòng đăng nhập lại nếu cần.')
+      // These writes are synchronous. Roll back an owned commit if storage fails,
+      // including failures after setTokens has advanced the generation.
+      try {
+        tokenManager.setTokens(session.accessToken, session.refreshToken)
+        tokenManager.setUser({ ...session.user, role: session.user.roles[0] ?? null })
+      } catch {
+        tokenManager.clearTokens()
+        throw new ApiRequestError(0, 'Không thể lưu phiên đăng nhập. Vui lòng kiểm tra quyền lưu trữ của trình duyệt.')
+      }
       return session
     } catch (error) {
-      tokenManager.clearTokens()
+      if (sessionMatches(attempt)) tokenManager.clearTokens()
       throw error
     }
   },

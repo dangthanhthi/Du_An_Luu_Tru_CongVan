@@ -99,8 +99,6 @@ public class DocumentBusinessService : IDocumentBusinessService
             throw new ArgumentException("Đối tác nhận (PartnerId) không hợp lệ.");
         if (actor.IsInRole("SecretaryDept") && !actor.DepartmentId.HasValue)
             throw new UnauthorizedAccessException("A department secretary must belong to an active department.");
-        if (actor.IsInRole("Admin") && req.SenderDepartmentId == Guid.Empty)
-            throw new ArgumentException("Phòng ban gửi (SenderDepartmentId) không hợp lệ.");
 
         await ValidateActivePartnerAsync(req.PartnerId);
         await ValidateFilesAsync(req.AttachmentFileIds);
@@ -155,8 +153,6 @@ public class DocumentBusinessService : IDocumentBusinessService
             throw new ArgumentException("Tiêu đề công văn không được để trống.");
         if (actor.IsInRole("SecretaryDept") && !actor.DepartmentId.HasValue)
             throw new UnauthorizedAccessException("A department secretary must belong to an active department.");
-        if (actor.IsInRole("Admin") && req.SenderDepartmentId == Guid.Empty)
-            throw new ArgumentException("Phòng ban soạn thảo (SenderDepartmentId) không hợp lệ.");
 
         await ValidateFilesAsync(req.AttachmentFileIds);
         var senderDepartmentId = actor.IsInRole("SecretaryDept")
@@ -531,7 +527,6 @@ public class DocumentBusinessService : IDocumentBusinessService
     private static IQueryable<Document> ApplyReadScope(IQueryable<Document> query, DocumentActor actor)
     {
         query = query.Where(d => d.Registration == null);
-        if (actor.IsInRole("Admin")) return query;
         if (actor.IsInRole("SecretaryDirector"))
             return query.Where(d => d.DocType == DocumentTypeConstants.INCOMING ||
                                     d.DocType == DocumentTypeConstants.INTERNAL &&

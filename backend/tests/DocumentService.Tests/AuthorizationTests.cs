@@ -49,7 +49,7 @@ public sealed class AuthorizationTests
         var incomingFilter = EmptyFilter() with { DocType = DocumentTypeConstants.INCOMING };
 
         await AssertVisibility(service, incomingFilter, Actor("Admin", null),
-            [documentA, documentB, documentC], [itFile, hrFile, unassignedFile]);
+            [], [], [documentA, documentB, documentC], [itFile, hrFile, unassignedFile]);
         await AssertVisibility(service, incomingFilter, Actor("SecretaryDirector", null),
             [documentA, documentB, documentC], [itFile, hrFile, unassignedFile]);
         await AssertVisibility(service, incomingFilter, Actor("Staff", ItDepartment),
@@ -77,7 +77,7 @@ public sealed class AuthorizationTests
             DocType = DocumentTypeConstants.INCOMING,
             DepartmentId = ItDepartment
         };
-        var result = await CreateService(db).GetListAsync(filter, Actor("Admin", null));
+        var result = await CreateService(db).GetListAsync(filter, Actor("SecretaryDirector", null));
 
         Assert.Empty(result.Items);
     }
@@ -129,6 +129,60 @@ public sealed class AuthorizationTests
             new CreateOutgoingDocumentRequest("Outgoing", null, PartnerId, ItDepartment, [FileId]), staff));
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.ChangeStatusAsync(
             document.Id, new ChangeStatusRequest(DocumentStatusConstants.Distributed, null), staff));
+    }
+
+    [Theory]
+    [InlineData("INCOMING")][InlineData("OUTGOING")][InlineData("INTERNAL")]
+    public async Task Admin_alone_never_grants_legacy_document_read_or_mutation(string kind)
+    {
+        await using var db = CreateDb();var document = NewDocument(kind, ItDepartment);
+        document.Attachments.Add(new DocumentAttachment { FileId = FileId });db.Add(document);await db.SaveChangesAsync();
+        var actor = Actor("Admin", ItDepartment);var service = CreateService(db);
+        Assert.Empty((await service.GetListAsync(EmptyFilter(), actor)).Items);
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.GetByIdAsync(document.Id, actor));
+        Assert.False(await service.CanReadFileAsync(FileId, actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.UpdateAsync(document.Id, new("Changed", null, null, ItDepartment, null), actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.ChangeStatusAsync(document.Id, new(DocumentStatusConstants.Reviewed, null), actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.AddAttachmentAsync(document.Id, new(Guid.NewGuid(), null), actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.RemoveAttachmentAsync(document.Id, document.Attachments.Single().Id, actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.DeleteAsync(document.Id, actor));
+        if (kind == "INCOMING") await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.AssignAccessAsync(document.Id, new([HrDepartment]), actor));
+        Assert.Equal("Test", document.Title);Assert.Equal(DocumentStatusConstants.Draft, document.Status);Assert.False(document.IsDeleted);Assert.Single(document.Attachments);
+    }
+
+    [Fact]
+    public async Task Admin_alone_cannot_allocate_legacy_document_numbers()
+    {
+        await using var db = CreateDb();var service = CreateService(db);var actor = Actor("Admin", ItDepartment);
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.CreateIncomingAsync(new("Incoming", null, null, null, null), actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.CreateOutgoingAsync(new("Outgoing", null, PartnerId, ItDepartment, null), actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.CreateInternalAsync(new("Internal", null, ItDepartment, null), actor));
+        Assert.Empty(await db.Documents.ToListAsync());Assert.Empty(await db.DocumentNumberCounters.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Adding_admin_does_not_expand_a_business_role_department_scope()
+    {
+        await using var db = CreateDb();var own = DepartmentDocument("OUTGOING", ItDepartment);var other = DepartmentDocument("OUTGOING", HrDepartment);
+        db.AddRange(own, other);await db.SaveChangesAsync();var actor = Actor("SecretaryDept", ItDepartment) with { Roles = new HashSet<string> { "Admin", "SecretaryDept" } };
+        var service = CreateService(db);Assert.Equal(own.Id, (await service.GetListAsync(EmptyFilter(), actor)).Items.Single().Id);
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.GetByIdAsync(other.Id, actor));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.UpdateAsync(other.Id, new("Changed", null, null, HrDepartment, null), actor));
+        Assert.Equal("Edited", (await service.UpdateAsync(own.Id, new("Edited", null, null, ItDepartment, null), actor)).Title);
+    }
+
+    [Fact]
+    public void Empty_user_identity_is_rejected_before_business_authorization()
+    {
+        var principal = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", Guid.Empty.ToString()), new Claim(ClaimTypes.Role, "SecretaryDirector")], "Bearer"));
+        Assert.Throws<UnauthorizedAccessException>(() => DocumentActor.FromPrincipal(principal));
+    }
+
+    [Fact]
+    public void Empty_department_claim_is_not_a_valid_department_membership()
+    {
+        var principal = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", Guid.NewGuid().ToString()), new Claim("departmentId", Guid.Empty.ToString()), new Claim(ClaimTypes.Role, "SecretaryDept")], "Bearer"));
+        Assert.Null(DocumentActor.FromPrincipal(principal).DepartmentId);
     }
 
     [Fact]

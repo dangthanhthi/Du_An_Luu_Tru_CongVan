@@ -1,6 +1,8 @@
 # DAS — Quản lý và lưu trữ công văn
 
-Bản cộng tác của dự án DAS, gom từ nguồn đang phát triển ngày 06/10/2026. Đây là bản **đang hoàn thiện**, dùng để đồng nghiệp đọc mã, chạy kiểm tra và cùng phát triển. G7 còn các gate vận hành; G8 chưa nghiệm thu. EAP/OCR đang hoãn, SMTP/TMS chưa bật giao tiếp thật.
+Bản cộng tác của dự án DAS, gom từ nguồn đang phát triển ngày 06/10/2026. Đây là bản **đang hoàn thiện**, dùng để đồng nghiệp đọc mã, chạy kiểm tra và cùng phát triển. G7 còn các gate vận hành; G8 chưa nghiệm thu. EAP do người khác phụ trách, OCR hoãn, SMTP/TMS chưa bật giao tiếp thật.
+
+Mốc nhắc hạn chính thức là **quá 7 ngày**, lịch thứ Hai 08:00 Việt Nam. Xem [checkpoint hoàn thiện](docs/COMPLETION-CHECKPOINT-20261006.md) để tiếp tục đúng bản nguồn và phạm vi.
 
 ## Cấu trúc
 

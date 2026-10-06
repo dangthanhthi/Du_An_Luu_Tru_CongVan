@@ -28,18 +28,19 @@ public sealed class ReminderEligibilityTests
     [InlineData("OUTGOING","Cancelled",false,false,false)]
     [InlineData("INTERNAL","Cancelled",true,true,false)]
     [InlineData("OUTGOING","Distributed",true,true,false)]
-    public void Fourteen_day_reminders_only_include_incomplete_outgoing_and_internal_excluding_cancelled(string kind,string status,bool pdf,bool date,bool expected)
+    public void Seven_day_reminders_only_include_incomplete_outgoing_and_internal_excluding_cancelled(string kind,string status,bool pdf,bool date,bool expected)
     {
-        Assert.Equal(expected,ReminderEligibility.IsEligible(kind,status,new(2027,1,1),pdf,date?new(2020,1,1):null,DateTimeOffset.Parse("2027-01-16T02:00:00Z")));
+        Assert.Equal(expected,ReminderEligibility.IsEligible(kind,status,new(2027,1,1),pdf,date?new(2020,1,1):null,DateTimeOffset.Parse("2027-01-09T02:00:00Z")));
     }
 
     [Theory]
-    [InlineData("2027-01-14T16:59:59Z",false)] // VN Jan14:13 calendar days.
-    [InlineData("2027-01-14T17:00:00Z",false)] // VN Jan15:exactly14 days.
-    [InlineData("2027-01-15T16:59:59Z",false)]
-    [InlineData("2027-01-15T17:00:00Z",true)] // VN Jan16:older than14 calendar days.
+    [InlineData("2027-01-07T16:59:59Z",false)] // VN Jan7:6 calendar days.
+    [InlineData("2027-01-07T17:00:00Z",false)] // VN Jan8:exactly7 days.
+    [InlineData("2027-01-08T16:59:59Z",false)]
+    [InlineData("2027-01-08T17:00:00Z",true)] // VN Jan9:older than7 calendar days.
+    [InlineData("2027-01-15T17:00:00Z",true)] // Older records remain eligible.
     [InlineData("2026-12-31T16:00:00Z",false)]
-    public void Boundary_is_more_than_fourteen_calendar_days_in_Vietnam_not_UTC_or_working_days(string utc,bool expected)
+    public void Boundary_is_more_than_seven_calendar_days_in_Vietnam_not_UTC_or_working_days(string utc,bool expected)
     {
         Assert.Equal(expected,ReminderEligibility.IsEligible("OUTGOING","InProgress",new(2027,1,1),false,null,DateTimeOffset.Parse(utc)));
     }

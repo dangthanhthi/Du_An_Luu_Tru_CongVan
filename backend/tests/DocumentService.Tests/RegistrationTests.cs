@@ -7,7 +7,9 @@ namespace DocumentService.Tests;
 
 public sealed class RegistrationTests
 {
-    private static readonly DocumentActor Admin = new(Guid.NewGuid(), null, new HashSet<string> { "Admin" });
+    private static readonly DocumentActor Registrar = new(Guid.NewGuid(), Guid.NewGuid(), new HashSet<string> { "SecretaryDirector" });
+
+    private static readonly DocumentActor DepartmentRegistrar = Registrar with { Roles = new HashSet<string> { "SecretaryDept" } };
 
     [Fact]
     public async Task Document_counter_and_history_rollback_together_and_context_can_retry()
@@ -16,13 +18,13 @@ public sealed class RegistrationTests
         var fault = new FailDocumentSave();
         var options = new DbContextOptionsBuilder<DocumentDbContext>().UseSqlite(connection).AddInterceptors(fault).Options;
         await using var db = new DocumentDbContext(options); await db.Database.EnsureCreatedAsync();
-        await Assert.ThrowsAsync<InvalidOperationException>(() => Service(db).CreateIncomingAsync(new("Failed", null, null, null, null), Admin));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => Service(db).CreateIncomingAsync(new("Failed", null, null, null, null), Registrar));
         Assert.False(db.ChangeTracker.HasChanges());
         Assert.Empty(await db.DocumentNumberCounters.ToListAsync());
         Assert.Empty(await db.Documents.ToListAsync());
         Assert.Empty(await db.DocumentStatusHistory.ToListAsync());
         fault.Enabled = false;
-        var result = await Service(db).CreateIncomingAsync(new("Retry", null, null, null, null), Admin);
+        var result = await Service(db).CreateIncomingAsync(new("Retry", null, null, null, null), Registrar);
         Assert.EndsWith("-0001", result.DocumentNumber);
         Assert.Equal(1, (await db.DocumentNumberCounters.SingleAsync()).CurrentValue);
         Assert.Single(await db.DocumentStatusHistory.ToListAsync());
@@ -35,7 +37,7 @@ public sealed class RegistrationTests
     {
         await using var f = await Fixture.Create();
         var clock = new Clock(DateTimeOffset.Parse(instant));
-        var result = await Service(f.Db, clock).CreateIncomingAsync(new("Boundary", null, null, new DateTime(1999, 1, 1), null), Admin);
+        var result = await Service(f.Db, clock).CreateIncomingAsync(new("Boundary", null, null, new DateTime(1999, 1, 1), null), Registrar);
         Assert.Equal(clock.GetUtcNow().UtcDateTime, result.CreatedAt);
         Assert.Equal(year, (await f.Db.DocumentNumberCounters.SingleAsync()).Year);
         Assert.Equal($"CV-DEN-{year}-0001", result.DocumentNumber);
@@ -44,13 +46,13 @@ public sealed class RegistrationTests
     }
 
     [Fact]
-    public async Task Registered_owner_cannot_change_even_for_admin_and_rejection_does_not_mutate_metadata()
+    public async Task Legacy_registered_owner_cannot_change_for_department_registrar_and_rejection_does_not_mutate_metadata()
     {
         await using var f = await Fixture.Create();
-        var owner = Guid.NewGuid();
-        var registered = await Service(f.Db).CreateInternalAsync(new("Original", null, owner, null), Admin);
+        var owner = Registrar.DepartmentId!.Value;
+        var registered = await Service(f.Db).CreateInternalAsync(new("Original", null, owner, null), DepartmentRegistrar);
         await Assert.ThrowsAsync<InvalidOperationException>(() => Service(f.Db).UpdateAsync(
-            registered.Id, new("Changed", null, null, Guid.NewGuid(), null), Admin));
+            registered.Id, new("Changed", null, null, Guid.NewGuid(), null), DepartmentRegistrar));
         Assert.Equal("Original", registered.Title);
         Assert.Equal(owner, registered.SenderDepartmentId);
         await f.Db.Entry(registered).ReloadAsync();
@@ -61,10 +63,10 @@ public sealed class RegistrationTests
     [Fact]
     public async Task Same_owner_can_be_resubmitted_and_old_number_is_never_rewritten()
     {
-        await using var f = await Fixture.Create(); var owner=Guid.NewGuid();
-        var old=new Document { DocumentNumber="20-12-0130/HL/HSE", DocType="INTERNAL", Title="Historical", SenderDepartmentId=owner,CreatedByUserId=Admin.UserId };
+        await using var f = await Fixture.Create(); var owner=Registrar.DepartmentId!.Value;
+        var old=new Document { DocumentNumber="20-12-0130/HL/HSE", DocType="INTERNAL", Title="Historical", SenderDepartmentId=owner,CreatedByUserId=Registrar.UserId };
         f.Db.Documents.Add(old); await f.Db.SaveChangesAsync();
-        var result=await Service(f.Db).UpdateAsync(old.Id,new("Edited",null,null,owner,null),Admin);
+        var result=await Service(f.Db).UpdateAsync(old.Id,new("Edited",null,null,owner,null),DepartmentRegistrar);
         Assert.Equal("20-12-0130/HL/HSE",result.DocumentNumber);
         Assert.Equal(owner,result.SenderDepartmentId);
         Assert.Empty(await f.Db.DocumentNumberCounters.ToListAsync());
@@ -77,10 +79,10 @@ public sealed class RegistrationTests
         var year=TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow,TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).Year;
         f.Db.DocumentNumberCounters.Add(new() {DocType="INCOMING",Year=year,CurrentValue=9998}); await f.Db.SaveChangesAsync();
         var service=Service(f.Db);
-        Assert.EndsWith("-9999",(await service.CreateIncomingAsync(new("Last four",null,null,null,null),Admin)).DocumentNumber);
-        Assert.EndsWith("-10000",(await service.CreateIncomingAsync(new("First five",null,null,null,null),Admin)).DocumentNumber);
-        Assert.EndsWith("-0001",(await service.CreateInternalAsync(new("Internal",null,Guid.NewGuid(),null),Admin)).DocumentNumber);
-        Assert.EndsWith("-0001",(await service.CreateOutgoingAsync(new("Outgoing",null,Guid.NewGuid(),Guid.NewGuid(),null),Admin)).DocumentNumber);
+        Assert.EndsWith("-9999",(await service.CreateIncomingAsync(new("Last four",null,null,null,null),Registrar)).DocumentNumber);
+        Assert.EndsWith("-10000",(await service.CreateIncomingAsync(new("First five",null,null,null,null),Registrar)).DocumentNumber);
+        Assert.EndsWith("-0001",(await service.CreateInternalAsync(new("Internal",null,Guid.NewGuid(),null),DepartmentRegistrar)).DocumentNumber);
+        Assert.EndsWith("-0001",(await service.CreateOutgoingAsync(new("Outgoing",null,Guid.NewGuid(),Guid.NewGuid(),null),DepartmentRegistrar)).DocumentNumber);
         Assert.Equal(3,await f.Db.DocumentNumberCounters.CountAsync());
     }
 
@@ -89,8 +91,8 @@ public sealed class RegistrationTests
     {
         await using var f=await Fixture.Create();
         var firstClock=new Clock(DateTimeOffset.Parse("2026-12-31T16:00:00Z"));
-        var first=await Service(f.Db,firstClock).CreateIncomingAsync(new("Fax",null,null,null,null,"mail-1"),Admin);
-        var replay=await Service(f.Db,new Clock(DateTimeOffset.Parse("2027-01-01T01:00:00Z"))).CreateIncomingAsync(new("Fax",null,null,null,null,"mail-1"),Admin);
+        var first=await Service(f.Db,firstClock).CreateIncomingAsync(new("Fax",null,null,null,null,"mail-1"),Registrar);
+        var replay=await Service(f.Db,new Clock(DateTimeOffset.Parse("2027-01-01T01:00:00Z"))).CreateIncomingAsync(new("Fax",null,null,null,null,"mail-1"),Registrar);
         Assert.Equal(first.Id,replay.Id);Assert.Equal(first.CreatedAt,replay.CreatedAt);
         Assert.Single(await f.Db.DocumentNumberCounters.ToListAsync());
         Assert.Equal(1,(await f.Db.DocumentNumberCounters.SingleAsync()).CurrentValue);
@@ -102,7 +104,7 @@ public sealed class RegistrationTests
         await using var f=await Fixture.Create();
         var year=TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow,TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).Year;
         f.Db.DocumentNumberCounters.Add(new() {DocType="INCOMING",Year=year,CurrentValue=int.MaxValue});await f.Db.SaveChangesAsync();
-        await Assert.ThrowsAsync<OverflowException>(()=>Service(f.Db).CreateIncomingAsync(new("Overflow",null,null,null,null),Admin));
+        await Assert.ThrowsAsync<OverflowException>(()=>Service(f.Db).CreateIncomingAsync(new("Overflow",null,null,null,null),Registrar));
         f.Db.ChangeTracker.Clear();Assert.Equal(int.MaxValue,(await f.Db.DocumentNumberCounters.SingleAsync()).CurrentValue);
         Assert.Empty(await f.Db.Documents.ToListAsync());
     }
@@ -112,9 +114,9 @@ public sealed class RegistrationTests
     {
         await using var f=await Fixture.Create();
         var request=new CreateIncomingDocumentRequest("Fax",null,Guid.NewGuid(),null,null,"partner-replay");
-        var first=await Service(f.Db).CreateIncomingAsync(request,Admin);
+        var first=await Service(f.Db).CreateIncomingAsync(request,Registrar);
         var replayService=new DocumentBusinessService(f.Db,new Notifications(),new MissingPartner(),new Files());
-        var replay=await replayService.CreateIncomingAsync(request,Admin);
+        var replay=await replayService.CreateIncomingAsync(request,Registrar);
         Assert.Equal(first.Id,replay.Id);Assert.Equal(1,(await f.Db.DocumentNumberCounters.SingleAsync()).CurrentValue);
     }
 
@@ -123,9 +125,9 @@ public sealed class RegistrationTests
     {
         await using var f=await Fixture.Create();var service=Service(f.Db);
         var request=new CreateIncomingDocumentRequest("Fax",null,null,null,null,"deleted-source");
-        var first=await service.CreateIncomingAsync(request,Admin);first.IsDeleted=true;await f.Db.SaveChangesAsync();
+        var first=await service.CreateIncomingAsync(request,Registrar);first.IsDeleted=true;await f.Db.SaveChangesAsync();
         Assert.True(await service.HasProcessedSourceMessageAsync("deleted-source"));
-        await Assert.ThrowsAsync<InvalidOperationException>(()=>service.CreateIncomingAsync(request,Admin));
+        await Assert.ThrowsAsync<InvalidOperationException>(()=>service.CreateIncomingAsync(request,Registrar));
         Assert.Equal(1,(await f.Db.DocumentNumberCounters.SingleAsync()).CurrentValue);
         Assert.Single(await f.Db.Documents.IgnoreQueryFilters().ToListAsync());
     }

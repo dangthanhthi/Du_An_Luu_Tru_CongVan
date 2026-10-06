@@ -9,7 +9,7 @@ public sealed class ReportsReminderTests
     private static readonly Guid User=Guid.NewGuid(),Department=Guid.NewGuid();
     private static readonly TimeProvider Clock=new V2PersistenceTests.Clock("2026-10-05T01:00:00Z");
     private static ReportAuthority Scope(bool export=true,bool org=false)=>new(User,true,true,export,org,new HashSet<Guid>{Department},new HashSet<Guid>(),new HashSet<Guid>());
-    private static DocumentRegistration Add(DocumentDbContext db,int age=15,string kind="INTERNAL",string status="InProgress",string sensitivity="Normal",Guid? department=null)
+    private static DocumentRegistration Add(DocumentDbContext db,int age=8,string kind="INTERNAL",string status="InProgress",string sensitivity="Normal",Guid? department=null)
     {
         var id=Guid.NewGuid();var doc=new Document{Id=id,DocType=kind,Status=status,Title="Secret subject never projected",DocumentNumber="26-09-"+id,CreatedByUserId=User};
         var sequence=db.ChangeTracker.Entries<DocumentRegistration>().Count()+1;
@@ -18,7 +18,7 @@ public sealed class ReportsReminderTests
     private static IncompleteReports Service(DocumentDbContext db)=>new(db,new(db,new Files()),Clock);
     [Fact] public async Task Report_scope_is_independent_and_excludes_confidential_cancelled_incoming_recent_complete()
     {
-        await using var f=await V2EditingTests.Fixture.Create();Add(f.Db);Add(f.Db,14);Add(f.Db,1);Add(f.Db,kind:"INCOMING");Add(f.Db,status:"Cancelled");Add(f.Db,sensitivity:"Confidential");Add(f.Db,department:Guid.NewGuid());await f.Db.SaveChangesAsync();
+        await using var f=await V2EditingTests.Fixture.Create();Add(f.Db);Add(f.Db,7);Add(f.Db,1);Add(f.Db,kind:"INCOMING");Add(f.Db,status:"Cancelled");Add(f.Db,sensitivity:"Confidential");Add(f.Db,department:Guid.NewGuid());await f.Db.SaveChangesAsync();
         var result=await Service(f.Db).QueryAsync(User,Scope(),new(),1,20,false,default);Assert.Single(result.Items);Assert.Equal(1,result.Groups[0].Count);Assert.Equal(User,result.Items[0].Originator);Assert.DoesNotContain("subject",System.Text.Json.JsonSerializer.Serialize(result),StringComparison.OrdinalIgnoreCase);
         Assert.Equal(3,(await Service(f.Db).QueryAsync(User,Scope(),new(IncludeRecent:true),1,20,false,default)).Total);
     }
@@ -37,6 +37,14 @@ public sealed class ReportsReminderTests
     }
     [Fact] public async Task Organization_scope_does_not_grant_confidential()
     {await using var f=await V2EditingTests.Fixture.Create();Add(f.Db,sensitivity:"Confidential");await f.Db.SaveChangesAsync();Assert.Empty((await Service(f.Db).QueryAsync(User,Scope(org:true),new(),1,20,false,default)).Items);}
+    [Theory][InlineData(7,false)][InlineData(8,true)]
+    public async Task Confidential_warning_uses_same_seven_day_boundary_without_exposing_documents(int age,bool warned)
+    {
+        await using var f=await V2EditingTests.Fixture.Create();Add(f.Db,age,sensitivity:"Confidential");await f.Db.SaveChangesAsync();
+        var svc=new WeeklyReminders(f.Db,Service(f.Db),new Directory(),new UnavailableReminderTransport(),Clock);
+        var batch=await svc.PlanAsync(Department);var plan=System.Text.Json.JsonSerializer.Deserialize<ReminderPlan>(batch.PayloadJson)!;
+        Assert.Empty(plan.Envelopes);Assert.Equal(warned,plan.Warnings.Count>0);
+    }
     [Fact] public async Task Complete_means_active_verified_current_pdf_and_issued_date()
     {
         await using var f=await V2EditingTests.Fixture.Create();var h=Add(f.Db,status:"Distributed");h.IssuedDate=new(2026,9,1);

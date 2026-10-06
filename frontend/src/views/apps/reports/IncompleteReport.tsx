@@ -22,10 +22,10 @@ export default function IncompleteReport() {
   }
   return <Card><CardContent><Stack spacing={3}>
     <Typography variant='h4'>Báo cáo hồ sơ chưa hoàn tất</Typography>
-    <Typography>Công văn đi/nội bộ chưa đủ trạng thái Distributed, PDF hiện hành và ngày phát hành. Mặc định chỉ lấy công văn đăng ký quá 14 ngày.</Typography>
+    <Typography>Công văn đi/nội bộ chưa đủ trạng thái Distributed, PDF hiện hành và ngày phát hành. Mặc định chỉ lấy công văn đăng ký quá 7 ngày.</Typography>
     <Stack direction='row' spacing={2} flexWrap='wrap' useFlexGap>
       <TextField select label='Loại công văn' value={filter.kind ?? ''} onChange={e => setFilter(f => ({ ...f, kind: e.target.value ? e.target.value as 'Outgoing' | 'Internal' : undefined, pageNumber: 1 }))} sx={{ minWidth: 180 }}><MenuItem value=''>Tất cả</MenuItem><MenuItem value='Outgoing'>Công văn đi</MenuItem><MenuItem value='Internal'>Nội bộ</MenuItem></TextField>
-      <FormControlLabel control={<Checkbox checked={filter.includeRecent ?? false} onChange={(_, checked) => setFilter(f => ({ ...f, includeRecent: checked, pageNumber: 1 }))} />} label='Bao gồm công văn trong 14 ngày gần đây' />
+      <FormControlLabel control={<Checkbox checked={filter.includeRecent ?? false} onChange={(_, checked) => setFilter(f => ({ ...f, includeRecent: checked, pageNumber: 1 }))} />} label='Bao gồm công văn trong 7 ngày gần đây' />
       <Button onClick={() => setReload(n => n + 1)} disabled={loading}>Tải lại</Button>
       {data?.canExport && <Button variant='contained' onClick={download} disabled={loading || exporting}>{exporting ? 'Đang tải…' : 'Tải Excel'}</Button>}
     </Stack>
