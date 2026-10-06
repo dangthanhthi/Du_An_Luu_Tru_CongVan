@@ -10311,8 +10311,8 @@
       "source": "tests/qa/test_migration_audit.py",
       "destination": "tests/qa/test_migration_audit.py",
       "originalSha256": "a8158d0b8bd3600d6453110bfbacc9c2c90ad5c49bd895a82ad2a3a459f8eb2a",
-      "sha256": "8d0fb4c2a9073eaca67ff387c317fb57957e7f4583558bf91695d4ab21273f8c",
-      "bytes": 6712,
+      "sha256": "0346d08d31dd55a4e292e2c96c575d1c36f33ffcb5469c3699e2d14de82adce4",
+      "bytes": 14776,
       "previousCanonicalSha256": "a8158d0b8bd3600d6453110bfbacc9c2c90ad5c49bd895a82ad2a3a459f8eb2a"
     },
     {
@@ -10333,8 +10333,8 @@
       "source": "scripts/qa/audit-migration-export.py",
       "destination": "tools/qa/audit-migration-export.py",
       "originalSha256": "948d33db50e1fbc5da50ee01fc175fd48a7f83293afb9f454caccc4361561ae5",
-      "sha256": "2419810c2a6411f0061a61757ebe8cf16f9b76cedac332137e5006ccbe0d8948",
-      "bytes": 7205,
+      "sha256": "0b1adbedd461af66bd99897ac27f841f40cd076723dd417b48f7746ed466d416",
+      "bytes": 9489,
       "previousCanonicalSha256": "948d33db50e1fbc5da50ee01fc175fd48a7f83293afb9f454caccc4361561ae5"
     },
     {
@@ -10740,6 +10740,17 @@
       "workflows/business/document-service/Reminders/WeeklyReminders.cs",
       "workflows/business/document-service/Reports/IncompleteReports.cs"
     ],
-    "originalSha256Preserved": true
+    "originalSha256Preserved": true,
+    "followUpRevisions": [
+      {
+        "baselineCommit": "bac9c4b8c511b9460c8fd2bef635041018035bd5",
+        "date": "2026-10-06",
+        "reason": "Read-only migration CLI: fresh output, single source snapshot, strict JSON, Windows/POSIX alias guards",
+        "changedImportedFiles": [
+          "tools/qa/audit-migration-export.py",
+          "tests/qa/test_migration_audit.py"
+        ]
+      }
+    ]
   }
 }

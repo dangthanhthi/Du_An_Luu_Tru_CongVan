@@ -11,6 +11,8 @@ Entry point công khai: `python tools/run-checks.py --profile qa|backend|web|aud
 
 Output phải mới để giữ report cũ. Log/cache/DB/test runtime ở `.artifacts/`, bị Git ignore. Khi thay nguồn đã ánh xạ, chạy `python tools/update-source-manifest.py`; khi thêm/xóa/di chuyển file phải cập nhật cả mapping và test.
 
+Preflight export/PDF đã hỗ trợ chạy trực tiếp từ repository chính bằng `tools/qa/audit-migration-export.py`. Xem [hướng dẫn preflight](../docs/MIGRATION-PREFLIGHT.md) về staging format, output mới, exit code và giới hạn kiểm chứng; không dùng nó như lệnh import khách hàng.
+
 Các kiểm tra dùng dữ liệu giả lập/QA không thay thế gateway/authority/scanner/customer DB/UAT thật. Không bật worker, gửi email/task thật, apply migration lên DB khách hàng hoặc deploy từ các lệnh check mặc định.
 
 Web profile và `npm run build` dùng cùng `frontend/scripts/generate-prisma.cjs`. Việc stage schema là artifact build tạm; không thêm bản schema chính thứ hai hoặc thay package-lock/dependency. Compatibility view chuyển lệnh build về generate tại schema đã ánh xạ trong view.

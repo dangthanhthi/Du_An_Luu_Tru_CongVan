@@ -1,5 +1,7 @@
 # DAS — checkpoint hoàn thiện ngày 06/10/2026
 
+> Cập nhật sau commit `bac9c4b`: preflight CLI đã chặn overwrite/hardlink/traversal/ADS và xử lý JSON lỗi; **26/26 Windows, 26/26 Linux**, Python QA hiện hành **79/79**, layout **10/10**. Xem [checkpoint preflight](PREFLIGHT-CHECKPOINT-20261006.md) và [evidence](PREFLIGHT-VERIFICATION-20261006.json). Kết quả 67 Python tests dưới đây là mốc trước bổ sung CLI.
+
 ## Quyết định mới và phạm vi
 
 - Người dùng xác nhận chính thức: nhắc công văn **quá 7 ngày**, thay thế mốc 14 ngày trước đây. Giữ cách tính ngày lịch Việt Nam, lịch thứ Hai 08:00 Việt Nam, nhóm công văn đi/nội bộ chưa hoàn tất, loại Cancelled/Incoming; Queued/Accepted chưa phải Sent. Đúng 7 ngày chưa đủ điều kiện, ngày thứ 8 mới đủ điều kiện.

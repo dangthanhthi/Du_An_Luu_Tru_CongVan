@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "capturedAtUtc": "2026-10-06T07:30:16.395910+00:00",
+  "capturedAtUtc": "2026-10-06T07:49:04.641547+00:00",
   "baselineCommit": "d5193632edcbc14f0012caca8cd1c5c76f9a400f",
   "branch": "codex/das-completion-20261006",
   "reminder": {
@@ -121,13 +121,13 @@
     "cleanupPassed": true
   },
   "pythonQa": {
-    "passed": 67,
+    "passed": 79,
     "scope": "Legacy QA with documented source/path view;canonical source unchanged",
-    "logSha256": "bb01eec20cf82736886322886cb47d4ba2f496315735419622b057a4713acc2a"
+    "logSha256": "bc33b98bbf17c21dd1cc5a145b76b626316ef6e9fc248fc9b55edd98af47f647"
   },
   "repositoryLayout": {
     "passed": 10,
-    "logSha256": "e1edf4e3b32ce349a79bc99f225212aa2b211e6faa15591992a760c82eedb8ab"
+    "logSha256": "a7173e2df6d4f918a9c1e19079a2d1675f10a578bf52f8e864eda8170f4d4292"
   },
   "npmAudit": {
     "full": {
@@ -180,5 +180,16 @@
     "OCR implementation remains deferred",
     "SQL/live gateway/authority/customer migration and UAT are not proven by these checks"
   ],
-  "localArtifactDirectory": ".artifacts/qa/completion-20261006"
+  "localArtifactDirectory": ".artifacts/qa/completion-20261006",
+  "previousPythonQa": {
+    "passed": 67,
+    "scope": "Legacy QA with documented source/path view;canonical source unchanged",
+    "logSha256": "bb01eec20cf82736886322886cb47d4ba2f496315735419622b057a4713acc2a"
+  },
+  "migrationPreflightCli": {
+    "evidence": "PREFLIGHT-VERIFICATION-20261006.json",
+    "windowsPassed": 26,
+    "linuxPassed": 26,
+    "followUpBaselineCommit": "bac9c4b8c511b9460c8fd2bef635041018035bd5"
+  }
 }

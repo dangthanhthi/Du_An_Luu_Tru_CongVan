@@ -12,6 +12,9 @@ import argparse, hashlib, json, re, uuid
 
 MAX_PDF_BYTES = 25 * 1024 * 1024
 
+def failure_report(code):
+    return {'passed':False,'errors':[code],'warnings':[],'documents':0,'highwater':[],'mutated':False,'liveAcceptance':False}
+
 def linked(path):
     return path.is_symlink() or getattr(path, 'is_junction', lambda: False)()
 
@@ -44,7 +47,7 @@ def validate_pdf(pdf, pdf_root):
 
 def audit(source, pdf_root=None):
     errors, warnings, ids, sequences, numbers, highwater = [], [], set(), set(), set(), {}
-    invalid = {'passed':False,'errors':['INVALID_EXPORT_SCHEMA'],'warnings':[],'documents':0,'highwater':[],'mutated':False,'liveAcceptance':False}
+    invalid = failure_report('INVALID_EXPORT_SCHEMA')
     if not isinstance(source, dict): return invalid
     records=source.get('documents')
     counters=source.get('counters')
@@ -92,10 +95,59 @@ def audit(source, pdf_root=None):
     if set(highwater)-seen:errors.append('MISSING_COUNTERS')
     return {'passed':not errors,'documents':len(records),'errors':errors,'warnings':warnings,'highwater':[{'kind':k[0],'year':k[1],'sequence':v} for k,v in sorted(highwater.items())], 'mutated':False, 'liveAcceptance':False}
 
-if __name__=='__main__':
+def unique_json_object(pairs):
+    result={}
+    for key,value in pairs:
+        if key in result:raise ValueError('Duplicate JSON key')
+        result[key]=value
+    return result
+
+def reject_json_constant(value):
+    raise ValueError('Non-finite JSON constant')
+
+def portable_output_path(path):
+    if str(path).startswith(('\\\\?\\','\\\\.\\')):return False
+    if path.drive and not path.is_absolute():return False
+    for part in path.parts:
+        if part==path.anchor:continue
+        if part=='..' or part.endswith((' ','.')) or any(c in part for c in '\\:*?"<>|\x00') or any(ord(c)<32 for c in part):return False
+        # Device aliases/streams do not produce an independent report file on Windows.
+        stem=part.split('.')[0].rstrip(' ').upper()
+        if re.fullmatch(r'CON|PRN|AUX|NUL|CONIN\$|CONOUT\$|COM[1-9¹²³]|LPT[1-9¹²³]',stem):return False
+    return True
+
+def load_report(source, pdf_root):
+    try:content=source.read_bytes()
+    except OSError:
+        report=failure_report('EXPORT_READ_FAILED');report['sourceSha256']=None;return report
+    # Parse and hash the same byte snapshot, including any UTF-8 BOM.
+    digest=hashlib.sha256(content).hexdigest()
+    try:
+        parsed=json.loads(content.decode('utf-8-sig'),object_pairs_hook=unique_json_object,parse_constant=reject_json_constant)
+    except (UnicodeError,ValueError,RecursionError):
+        report=failure_report('INVALID_EXPORT_JSON')
+    else:report=audit(parsed,pdf_root)
+    report['sourceSha256']=digest
+    return report
+
+def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('source',type=Path);parser.add_argument('--pdf-root',type=Path);parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
-    if args.output.resolve()==args.source.resolve():parser.error('Output must not overwrite source.')
-    if args.pdf_root and args.output.resolve().is_relative_to(args.pdf_root.resolve()):parser.error('Output must not be written inside the source PDF tree.')
-    report=audit(json.loads(args.source.read_text(encoding='utf-8-sig')),args.pdf_root)
-    report['sourceSha256']=hashlib.sha256(args.source.read_bytes()).hexdigest()
-    args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({'passed':report['passed'],'documents':report['documents'],'errors':len(report['errors']),'warnings':len(report['warnings'])}));raise SystemExit(0 if report['passed'] else 1)
+    if not portable_output_path(args.output):parser.error('Output must use a portable file path without traversal, streams or device aliases.')
+    output=args.output.absolute()
+    try:
+        if any(linked(p) for p in (output,*output.parents)):parser.error('Output and its parents must not be links.')
+        if output.exists() or output.resolve()==args.source.resolve():parser.error('Output must be a new file; existing files cannot be overwritten.')
+        if args.pdf_root and output.resolve().is_relative_to(args.pdf_root.resolve()):parser.error('Output must not be written inside the source PDF tree.')
+    except (OSError,RuntimeError):parser.error('Cannot validate the output path.')
+    report=load_report(args.source,args.pdf_root)
+    try:
+        output.parent.mkdir(parents=True,exist_ok=True)
+        if any(linked(p) for p in (output,*output.parents)):parser.error('Output and its parents must not be links.')
+        # Exclusive create also prevents overwriting a hardlink or a late-created alias.
+        with output.open('x',encoding='utf-8',newline='\n') as stream:
+            stream.write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+    except OSError:parser.error('Cannot create a fresh output report.')
+    print(json.dumps({'passed':report['passed'],'documents':report['documents'],'errors':len(report['errors']),'warnings':len(report['warnings'])}))
+    return 0 if report['passed'] else 1
+
+if __name__=='__main__':raise SystemExit(main())

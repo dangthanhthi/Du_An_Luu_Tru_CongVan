@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T07:49:04.641547+00:00",
+  "baselineCommit": "bac9c4b8c511b9460c8fd2bef635041018035bd5",
+  "windowsFocused": {
+    "passed": 26,
+    "skipped": 0,
+    "logSha256": "b84ad115ad3e26cfc14ec8bf0471b05e5eb76f95d3156a19e62c365be8ed634e"
+  },
+  "linuxFocused": {
+    "passed": true,
+    "tests": 26,
+    "exitCode": 0,
+    "source": {
+      "tools/qa/audit-migration-export.py": {
+        "sha256": "0b1adbedd461af66bd99897ac27f841f40cd076723dd417b48f7746ed466d416",
+        "bytes": 9489
+      },
+      "tests/qa/test_migration_audit.py": {
+        "sha256": "0346d08d31dd55a4e292e2c96c575d1c36f33ffcb5469c3699e2d14de82adce4",
+        "bytes": 14776
+      }
+    },
+    "sourceChanged": [],
+    "cleanupPassed": true,
+    "networkEnabled": false,
+    "image": "sha256:cb55328caaecd13556e86c4cca2e0406f0ef6a743005c4772ae02563644b3fa7",
+    "productionReady": false,
+    "customerDataUsed": false,
+    "workersEnabled": false,
+    "hostCredentialsMounted": false
+  },
+  "fullPythonQa": {
+    "passed": 79,
+    "scope": "Legacy QA with documented source/path view;canonical source unchanged",
+    "logSha256": "bc33b98bbf17c21dd1cc5a145b76b626316ef6e9fc248fc9b55edd98af47f647"
+  },
+  "repositoryLayout": {
+    "passed": 10,
+    "logSha256": "a7173e2df6d4f918a9c1e19079a2d1675f10a578bf52f8e864eda8170f4d4292"
+  },
+  "runtimeSourceParity": {
+    "backend": {
+      "matchedFiles": 340,
+      "mismatches": [],
+      "scope": "Previously tested runtime/build/test inputs unchanged; CLI QA is verified separately"
+    },
+    "frontend": {
+      "matchedFiles": 1158,
+      "mismatches": [],
+      "scope": "Previously tested runtime/build/test inputs unchanged; CLI QA is verified separately"
+    }
+  },
+  "redEvidence": [
+    "red-utf8.log: 9 failures/22, including actual source/PDF hardlink mutation",
+    "traversal-red.log: 1 failure/23",
+    "windows-alias-red.log: 7 subtest failures/25",
+    "namespace-red.log: 1 failure/26"
+  ],
+  "readOnlyDecisions": [
+    "Parse and hash one exact UTF-8 byte snapshot",
+    "Reject duplicate JSON keys and NaN/Infinity",
+    "Sanitized read/JSON failure report",
+    "Fresh exclusive output; no existing file overwrite",
+    "Reject traversal/links/ADS/device aliases/namespace/nonportable output names"
+  ],
+  "review": "Two actionable findings (parent traversal and Windows ADS) were reproduced and fixed; final independent read-only review had no actionable issue",
+  "productionReady": false,
+  "customerDataUsed": false,
+  "databaseMutated": false,
+  "transportEnabled": false,
+  "limits": [
+    "Static file checks do not isolate concurrent adversarial filesystem changes",
+    "Preflight does not prove scanner/authority or migrate customer data",
+    "G7 security/license/live/customer gates and G8 acceptance remain open"
+  ]
+}

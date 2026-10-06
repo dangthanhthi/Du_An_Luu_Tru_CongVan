@@ -18,7 +18,7 @@ Kiểm tra sau sắp xếp đã qua: **608/608 backend non-SQL tests và Gateway
 
 ## Phần đã triển khai nội bộ
 
-Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**, Gateway Release build; frontend Linux **223/223**, typecheck/lint/full build; Python QA **67/67** và layout **10/10** đã qua. Nguồn đầu vào đã đối chiếu hash với cây hiện hành; source integrity/cleanup qua. Đã sửa login ownership, preflight PDF, Email Worker startup gates và quyền Admin legacy. Xem [checkpoint](COMPLETION-CHECKPOINT-20261006.md) và [bằng chứng mới](COMPLETION-VERIFICATION-20261006.json). Các gate thật dưới đây vẫn mở; những số này không thay UAT hoặc chấp thuận bảo mật/license.
+Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**, Gateway Release build; frontend Linux **223/223**, typecheck/lint/full build; Python QA hiện hành **79/79** và layout **10/10** đã qua. Nguồn runtime đầu vào đã đối chiếu hash với cây hiện hành; source integrity/cleanup qua. Đã sửa login ownership, preflight PDF/CLI, Email Worker startup gates và quyền Admin legacy. CLI riêng **26/26 trên Windows và Linux**. Xem [checkpoint](COMPLETION-CHECKPOINT-20261006.md), [checkpoint CLI](PREFLIGHT-CHECKPOINT-20261006.md) và [bằng chứng mới](COMPLETION-VERIFICATION-20261006.json). Các gate thật dưới đây vẫn mở; những số này không thay UAT hoặc chấp thuận bảo mật/license.
 
 | Giai đoạn | Phần đã có | Còn chờ |
 |---|---|---|
@@ -35,7 +35,7 @@ Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**
 
 1. G2: Đã sửa login trả về muộn/overlap và rollback phiên dở dang khi storage lỗi; 34/34 focused tests qua trên Windows. Cross-tab atomic rotation, BFF/session/authority thật và nghiệm thu browser/gateway còn mở.
    Đã bỏ bypass Admin ở API công văn legacy; Admin chỉ có quyền quản trị master data, quyền công văn theo vai trò/phạm vi nghiệp vụ. Các bài test cũ dùng Admin để tạo công văn đã chuyển sang vai trò thư ký phù hợp. Kiểm tra HTTP xác nhận list/detail/file/mutation không tiết lộ hoặc thay đổi công văn cho Admin không có quyền nghiệp vụ.
-2. G7: Đã sửa top-level nonobject, bool/year, PDF metadata/path/link/signature/hash/size; 14/14 focused tests qua, giữ read-only semantics. Đây chỉ là preflight, chưa nhập dữ liệu khách hàng hay thay thế scanner.
+2. G7: Đã sửa top-level nonobject, bool/year, PDF metadata/path/link/signature/hash/size; sau đó bổ sung CLI chống overwrite/hardlink/traversal/ADS và parse/hash cùng snapshot. 26/26 focused tests Windows và Linux qua, giữ read-only semantics. Đây chỉ là preflight, chưa nhập dữ liệu khách hàng hay thay thế scanner. Xem [hướng dẫn](MIGRATION-PREFLIGHT.md).
 3. Dependency audit còn 6 high; license Vuexy/Mapbox/assets và một số notice texts chưa được xác nhận. Bản này không tự chấp thuận risk, license hoặc quyền phân phối.
 4. Email Worker đã mặc định tắt worker và manual transport, hạn chế schema initialization vào Development, kiểm tra schema đã provision khi không initialize. 8/8 startup tests qua; intake thật/OCR/quyền thao tác/schema SQL được bàn giao chưa nghiệm thu. Xem [vận hành intake](EMAIL-INTAKE-OPERATIONS.md).
 5. Các đầu vào thật còn thiếu: customer DB/PDF mapping, RPO/RTO/SLA, company authority/scanner, SMTP/TMS contracts/config, hosted registry/signing/scanning và UAT approval. EAP/OCR vẫn hoãn.
