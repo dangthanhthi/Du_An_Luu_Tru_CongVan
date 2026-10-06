@@ -6,6 +6,10 @@ Mốc nhắc hạn chính thức là **quá 7 ngày**, lịch thứ Hai 08:00 Vi
 
 Đã kiểm [CI hosted trên runtime `abb54a9`](docs/HOSTED-CI-CHECKPOINT-20261006.md): backend629 mỗi OS, frontend223, SQL77 và layout/QA qua. Full workflow vẫn failure do dependency audit6high; G7/G8 chưa được nghiệm thu.
 
+Runtime mới nhất: [`87ddc9c`](https://github.com/dangthanhthi/Du_An_Luu_Tru_CongVan/commit/87ddc9c6070358040ad6123156e8c2a670f2d604), xử lý phiên nhiều tab và request ownership. [Checkpoint](docs/CLIENT-SESSION-CHECKPOINT-20261006.md), [publication evidence](docs/CLIENT-SESSION-PUBLICATION-20261006.json). Kiểm cục bộ frontend291/Python93/layout10; chưa nghiệm thu môi trường thật.
+
+Trên máy, làm việc trong `DAS-Collaboration`; cấu trúc bên trong giống root GitHub. [Cách tìm nguồn và archive cũ](docs/LOCAL-WORKSPACE.md).
+
 ## Cấu trúc
 
 | Thư mục | Nội dung chính | Bắt đầu đọc |

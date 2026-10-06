@@ -1,0 +1,51 @@
+{
+  "verifiedAtUtc": "2026-10-06T11:46:50.459128+00:00",
+  "runtimeCommit": "87ddc9c6070358040ad6123156e8c2a670f2d604",
+  "verifiedRemoteMain": "87ddc9c6070358040ad6123156e8c2a670f2d604",
+  "push": "fast-forward",
+  "previousMain": "5f6179bf8ad0a870d399811d22a26202c0437396",
+  "runtimeCommitChangedFiles": 41,
+  "stagedSourceByteChecks": 1542,
+  "frozenInputs": 1169,
+  "sourceChanged": [],
+  "stagedByteChanged": [],
+  "frontendTests": {
+    "total": 291,
+    "pass": 291,
+    "fail": 0,
+    "skip": 0,
+    "cancelled": 0
+  },
+  "pythonQA": 93,
+  "layout": {
+    "tests": 10,
+    "exitCode": 0,
+    "toolChunkId": "c792e9"
+  },
+  "prePushLogSha256": {
+    "frontend": "0142debc0fbd23a237d7cdbf56100a437b80228d2f6dd8acec12818da2c4cf66",
+    "pythonQA": "2accfdec46eee8e458622402b990493261dd542da7e2ea6015c9fc66b28e6fe3"
+  },
+  "fullBuildEvidence": "cross-tab-session-20261006/build-v7; exact 1169 inputs rechecked",
+  "runnerRecovery": "Initial Python QA output path was absolute; corrected to relative path without code changes",
+  "localWorkspace": {
+    "CheckedAtUtc": "2026-10-06T11:45:29.8335574Z",
+    "Canonical": "DAS-Collaboration",
+    "Archive": "archive/legacy-sources-20261006",
+    "MovedEntries": 19,
+    "CheckedSourceFiles": 4096,
+    "SourceChanged": [],
+    "DeletedFiles": 0,
+    "CanonicalCodeMoved": false,
+    "GitRepositoriesPreserved": true
+  },
+  "localLayoutReportSha256": "ef302987b45bcf501d30f26edd83e13d3fdaad53791238d5796d03c11d2a314b",
+  "archiveSourceManifestSha256": "d9c841a2fd279ebf4263cb00f59a337c0ff48d969284162f3bd6cc3ca731b47b",
+  "archiveMoveManifestSha256": "e28562353285fc8c459e92feff13fc7b86ca9d4f3a40687139f351ef2305d460",
+  "archivedSourcesPublished": false,
+  "secretsOrCustomerDataPublished": false,
+  "newHostedCIDispatched": false,
+  "productionReady": false,
+  "G7": "Partial/prepared",
+  "G8": "not accepted"
+}
