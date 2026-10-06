@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T08:07:30.073463+00:00",
+  "sourceCommit": "cfde43452ef995d3614ef5e02593faa02b337626",
+  "sourceFiles": 1552,
+  "frontendInputFiles": 1159,
+  "sourceManifestSha256": "f741ff431b2d2b07f18a2ae3102e6b7c23761601c658f44681c7c53adfdae168",
+  "sourceChanged": [],
+  "currentFrontendInputMismatches": [],
+  "profileSummary": {
+    "profile": "web",
+    "passed": true,
+    "productionReady": false,
+    "capturedAtUtc": "2026-10-06T08:04:38.083166+00:00",
+    "steps": [
+      {
+        "name": "npm-ci",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 134.078,
+        "log": "npm-ci.log"
+      },
+      {
+        "name": "prisma-generate",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 38.203,
+        "log": "prisma-generate.log"
+      },
+      {
+        "name": "next-typegen",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 8.219,
+        "log": "next-typegen.log"
+      },
+      {
+        "name": "typecheck",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 63.469,
+        "log": "typecheck.log"
+      },
+      {
+        "name": "lint",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 24.046,
+        "log": "lint.log"
+      },
+      {
+        "name": "frontend-tests",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 20.235,
+        "log": "frontend-tests.log"
+      },
+      {
+        "name": "next-build",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 136.594,
+        "log": "next-build.log"
+      }
+    ],
+    "testEvidence": {
+      "frontend": {
+        "total": 223,
+        "passed": 223,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "scope": "prepared core checks; SQL/live gateway/EAP/OCR/fax/license/UAT excluded",
+    "workersEnabled": false
+  },
+  "runtime": {
+    "node": "v22.23.3",
+    "npm": "10.9.9",
+    "nodeArchiveSha256": "2b0ff57b049cda1bbcea2240eec20467018713c1efe1f7360c2681859b90ed71",
+    "officialChecksumSource": "https://nodejs.org/dist/v22.23.3/SHASUMS256.txt",
+    "portableRuntimeOnly": true
+  },
+  "environment": {
+    "hostConfigUsed": false,
+    "emptyNpmConfigs": "Separate user/global files",
+    "freshNpmCache": true,
+    "hostNodeModulesUsed": false,
+    "registryNetworkEnabled": true,
+    "tlsVerificationDisabled": false
+  },
+  "retainedFailure": "Bootstrap v1 failed because npm rejected same config file loaded twice; separate empty config files fixed QA setup, app source/lockfile unchanged",
+  "productionReady": false,
+  "workersEnabled": false,
+  "customerDataUsed": false,
+  "deployed": false,
+  "webServerStarted": false,
+  "limits": [
+    "Build/tests do not prove browser/gateway/authority/UAT",
+    "SQL/SMTP/TMS/customer migration/security/license gates remain open",
+    "EAP belongs to another owner; OCR deferred"
+  ],
+  "localArtifacts": ".artifacts/qa/windows-frontend-20261006"
+}

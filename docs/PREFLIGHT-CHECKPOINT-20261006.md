@@ -28,4 +28,4 @@ Review độc lập phát hiện hai edge `..` và ADS. Đã tái hiện, thêm 
 
 G7 vẫn Partial/prepared. Customer export/mapping/đối soát thật, scanner/authority/storage, SMTP/TMS, RPO/RTO/SLA, hosted CI/registry/signing/scanning, security/license và UAT/pilot chưa nghiệm thu. G8 vẫn chờ mentor chạy/signoff. Không tự mở lại EAP hoặc OCR.
 
-Windows frontend chưa có lượt build trên Node22 được kiểm chứng. Máy hiện có Node24.14.1/24.19.0; không dùng kết quả Node24 để gắn nhãn Node22. Đây là bước QA có thể tiếp tục nếu chuẩn bị được runtime Node22 chính thức, nguồn riêng và môi trường không lấy credential/config thật. Không yêu cầu người dùng cấp credential để làm QA cục bộ.
+Gate QA frontend Windows đã được kiểm tiếp bằng runtime Node22.23.3 chính thức: 223/223 tests, typecheck/lint/full build và source integrity qua. Xem [checkpoint Windows](WINDOWS-FRONTEND-CHECKPOINT-20261006.md). Giữ Node24 hệ thống nguyên trạng; không dùng kết quả Node24 để gắn nhãn Node22 hoặc yêu cầu credential thật cho QA cục bộ.

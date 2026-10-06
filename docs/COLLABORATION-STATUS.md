@@ -33,6 +33,8 @@ Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**
 
 ## Backlog cần đọc trước khi sửa
 
+Frontend Windows Node22.23.3 đã qua **223/223 tests**, typecheck/lint/full build, nguồn giữ nguyên và đối chiếu với runtime inputs hiện hành khớp. Xem [checkpoint Windows](WINDOWS-FRONTEND-CHECKPOINT-20261006.md). Hosted clean-clone CI và browser/gateway/authority/UAT vẫn là gate riêng.
+
 1. G2: Đã sửa login trả về muộn/overlap và rollback phiên dở dang khi storage lỗi; 34/34 focused tests qua trên Windows. Cross-tab atomic rotation, BFF/session/authority thật và nghiệm thu browser/gateway còn mở.
    Đã bỏ bypass Admin ở API công văn legacy; Admin chỉ có quyền quản trị master data, quyền công văn theo vai trò/phạm vi nghiệp vụ. Các bài test cũ dùng Admin để tạo công văn đã chuyển sang vai trò thư ký phù hợp. Kiểm tra HTTP xác nhận list/detail/file/mutation không tiết lộ hoặc thay đổi công văn cho Admin không có quyền nghiệp vụ.
 2. G7: Đã sửa top-level nonobject, bool/year, PDF metadata/path/link/signature/hash/size; sau đó bổ sung CLI chống overwrite/hardlink/traversal/ADS và parse/hash cùng snapshot. 26/26 focused tests Windows và Linux qua, giữ read-only semantics. Đây chỉ là preflight, chưa nhập dữ liệu khách hàng hay thay thế scanner. Xem [hướng dẫn](MIGRATION-PREFLIGHT.md).
