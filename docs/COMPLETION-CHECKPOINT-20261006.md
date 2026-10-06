@@ -1,5 +1,7 @@
 # DAS — checkpoint hoàn thiện ngày 06/10/2026
 
+> Cập nhật GitHub/hosted CI: runtime `abb54a9` đã lên main; backend629 mỗi OS, frontend223, SQL77 và layout/QA qua trên clean checkout GitHub. Full workflow failure do audit6high; không tự nghiệm thu security/license. Xem [checkpoint hosted](HOSTED-CI-CHECKPOINT-20261006.md).
+
 > SQL QA canonical đã qua **75/75 core + load + restore** trên instance riêng, bundle 5 DB/PDF qua checksum, source integrity và cleanup qua; Python QA hiện hành **93/93**, layout **10/10**. Xem [checkpoint SQL](SQL-CHECKPOINT-20261006.md) và [evidence SQL](SQL-VERIFICATION-20261006.json). CI SQL manual đã chuẩn bị; customer SQL/migration, hosted CI và các gate thật chưa được nghiệm thu.
 
 > Cập nhật sau commit `bac9c4b`: preflight CLI đã chặn overwrite/hardlink/traversal/ADS và xử lý JSON lỗi; **26/26 Windows, 26/26 Linux**, Python QA hiện hành **79/79**, layout **10/10**. Xem [checkpoint preflight](PREFLIGHT-CHECKPOINT-20261006.md) và [evidence](PREFLIGHT-VERIFICATION-20261006.json). Kết quả 67 Python tests dưới đây là mốc trước bổ sung CLI.

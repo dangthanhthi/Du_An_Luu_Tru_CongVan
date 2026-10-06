@@ -1,5 +1,7 @@
 # Tiến độ và phạm vi bản cộng tác
 
+> Đã publish runtime `abb54a9` lên main và kiểm CI hosted thật: **backend629 mỗi OS, frontend223, SQL77, layout/QA qua**. Full workflow vẫn failure do audit6high. [Checkpoint GitHub/CI](HOSTED-CI-CHECKPOINT-20261006.md), [evidence](HOSTED-CI-VERIFICATION-20261006.json). G7/G8 giữ các gate còn mở.
+
 > Chặng SQL hiện hành: **75 core SQL + load + restore** qua, source integrity/cleanup qua; bundle 5 backup + PDF xác minh checksum. Python QA **93/93**, layout **10/10**. [Checkpoint SQL](SQL-CHECKPOINT-20261006.md), [evidence](SQL-VERIFICATION-20261006.json). SQL CI manual-only đã chuẩn bị; hosted CI chưa chạy và G7/G8 vẫn giữ gate thực tế.
 
 ## Phân công EAP — cập nhật ngày 06/10/2026
@@ -30,7 +32,7 @@ Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**
 | G4 | Durable notification inbox/outbox/dedup/retry/history | SMTP thật; EAP/OCR hoãn; Fax sau |
 | G5 | Dashboard/report/XLSX cùng scope, reminder7ngày/thứHai08VN | Audience/directory/SMTP config thật |
 | G6 | DAS My Staff/tasks, task intent/retry/reconcile/history | TMS contract/sandbox/hierarchy/ID mapping và authority thật |
-| G7 | Preflight đã siết schema/PDF, CI/image/runtime/config, Production DB checks, restore 5 DB+PDF, load/idempotency, runbooks | customer export/mapping/RPO/RTO/SLA; security/license; hostedCI/registry/signing/scanning |
+| G7 | Preflight đã siết schema/PDF, hosted functional CI, image/runtime/config, Production DB checks, SQL/restore 5 DB+PDF, load/idempotency, runbooks | customer export/mapping/RPO/RTO/SLA; security/full-audit/license; registry/signing/scanning |
 | G8 | 18 kịch bản UAT đã chuẩn bị | Môi trường/dữ liệu thật, mentor chạy và ký duyệt/pilot |
 
 ## Backlog cần đọc trước khi sửa

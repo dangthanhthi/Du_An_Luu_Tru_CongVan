@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T08:57:27.620526+00:00",
+  "repository": "dangthanhthi/Du_An_Luu_Tru_CongVan",
+  "publishedRuntimeCommit": "abb54a91e2c9f73ea8b4344d0c7c3182fb11ce51",
+  "forcePush": false,
+  "runId": 37437948911,
+  "runUrl": "https://github.com/dangthanhthi/Du_An_Luu_Tru_CongVan/actions/runs/37437948911",
+  "event": "workflow_dispatch",
+  "status": "completed",
+  "overallConclusion": "failure",
+  "functionalJobsPassed": true,
+  "fullPipelinePassed": false,
+  "productionReady": false,
+  "deployed": false,
+  "customerDataUsed": false,
+  "externalMailOrTasksSent": false,
+  "workersEnabled": false,
+  "eapReopened": false,
+  "ocrReopened": false,
+  "jobs": [
+    {
+      "name": "layout-qa",
+      "id": 112184339830,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "backend (windows-latest)",
+      "id": 112184339920,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "dependency-audit",
+      "id": 112184339957,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "backend (ubuntu-latest)",
+      "id": 112184340096,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "frontend",
+      "id": 112184340147,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "sql-qa",
+      "id": 112184340266,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "counts": {
+    "backendUbuntu": 629,
+    "backendWindows": 629,
+    "frontendTap": {
+      "total": 223,
+      "passed": 223,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "sqlCore": 75,
+    "sqlIncludingLoadRestore": 77,
+    "sqlCoreCounts": {
+      "core-DocumentService": {
+        "total": 46,
+        "executed": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-FileService": {
+        "total": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-PartnerService": {
+        "total": 10,
+        "executed": 10,
+        "passed": 10,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-AuthService": {
+        "total": 9,
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-NotificationService": {
+        "total": 4,
+        "executed": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0
+      }
+    },
+    "pythonQaLocal": 93,
+    "layoutLocal": 10,
+    "hostedLayoutQaJobPassed": true,
+    "note": "Hosted layout/QA job success verified by API steps; local93/10 counts retained as local evidence, no invented hosted count."
+  },
+  "frontend": {
+    "allStepsPassed": true,
+    "typegenTypecheckLintFullBuildPassed": true,
+    "failedSteps": []
+  },
+  "sql": {
+    "allPassed": true,
+    "imageObservedDockerId": "sha256:5b0916c7af8ca97ce9390be7e1182862d6fa90bff9f44f035dbe1626df140637",
+    "repoDigestGuard": "mcr.microsoft.com/mssql/server@sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+    "loopbackOnly": true,
+    "cleanupConfirmed": true,
+    "sourceChanged": [],
+    "sourceInputFiles": 362,
+    "sourceManifestSha256": "0c3edf394a74dcd78328c713abf479ce4799a29043176f7cd728b3e6359d3511",
+    "currentInputMismatches": [],
+    "uniqueRegistrations": 300,
+    "exactReplays": 300,
+    "bundleIntegrity": {
+      "integrityPassed": true,
+      "productionReady": false,
+      "mutated": false,
+      "artifactCount": 6,
+      "errors": [],
+      "profile": "core-five-stores",
+      "requiredBackups": [
+        "auth",
+        "document",
+        "files",
+        "notification",
+        "partner"
+      ]
+    },
+    "smtpResendCalls": 0
+  },
+  "audit": {
+    "npmMetadata": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 6,
+      "critical": 0,
+      "total": 6
+    },
+    "failedSteps": [
+      "npm-audit"
+    ],
+    "nugetEvidence": {
+      "document": {
+        "vulnerablePackageCount": 0
+      },
+      "files": {
+        "vulnerablePackageCount": 0
+      },
+      "partner": {
+        "vulnerablePackageCount": 0
+      },
+      "auth": {
+        "vulnerablePackageCount": 0
+      },
+      "notification": {
+        "vulnerablePackageCount": 0
+      },
+      "email": {
+        "vulnerablePackageCount": 0
+      }
+    },
+    "runtimeNpmAudit": {
+      "passed": true,
+      "exitCode": 0,
+      "scope": "npm audit --omit=dev; dev gate still open",
+      "metadata": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "sourceChanged": [],
+      "productionReady": false
+    },
+    "runtimeAuditSourceMatchesPublishedLock": true,
+    "securityAccepted": false,
+    "licenseAccepted": false,
+    "rootAdvisory": "GHSA-vfj7-8cjw-p6xm",
+    "affectedPackage": "braces",
+    "affectedVersions": "<=3.0.3",
+    "patchedVersionPublished": false,
+    "primarySource": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+    "decision": "Keep full audit failing; no major downgrade/risk signoff and no lockfile mutation."
+  },
+  "artifactVerification": [
+    {
+      "name": "sql-qa-reports",
+      "id": 11400395506,
+      "sha256": "38f903d165568fcdc3369932debf737e9086e6706984d67b9374adcbdb6d7fb5",
+      "apiDigestVerified": true,
+      "passed": true,
+      "trxCount": 7,
+      "trxPassed": 77
+    },
+    {
+      "name": "dependency-audit",
+      "id": 11400375284,
+      "sha256": "bbae7add96158b54529cde3a0a162b813b627811da5876b3c936da750364dcc8",
+      "apiDigestVerified": true,
+      "passed": false,
+      "trxCount": 0,
+      "trxPassed": 0
+    },
+    {
+      "name": "backend-ubuntu-latest",
+      "id": 11400126066,
+      "sha256": "d063ce0c87f0af78bcfcde8701e72160448dc96c07ff14b07970fa7f9cc3a957",
+      "apiDigestVerified": true,
+      "passed": true,
+      "trxCount": 8,
+      "trxPassed": 629
+    },
+    {
+      "name": "backend-windows-latest",
+      "id": 11399957368,
+      "sha256": "f482469c9cb828b4d3ca3cdf9266dd1c958cb3ee18972f0ae5a13df19d594e0e",
+      "apiDigestVerified": true,
+      "passed": true,
+      "trxCount": 8,
+      "trxPassed": 629
+    },
+    {
+      "name": "frontend",
+      "id": 11399604067,
+      "sha256": "b305225a8688f5a98bda8c0786ddbb04ad557e4ff60f0b0622ecb4ed5f505363",
+      "apiDigestVerified": true,
+      "passed": true,
+      "trxCount": 0,
+      "trxPassed": 0
+    }
+  ],
+  "rawArtifacts": ".artifacts/qa/github-ci-20261006; raw zip/log/TRX/cache stay outside Git",
+  "openGates": [
+    "security full-audit failure",
+    "license",
+    "live browser/gateway/authority/session",
+    "TMS API/sandbox/mapping",
+    "SMTP/audience",
+    "customer DB/PDF/mapping",
+    "scanner/storage",
+    "registry/signing/scanning/deployment/RPO/RTO/SLA",
+    "Fax real flow",
+    "mentor UAT/pilot/signoff"
+  ]
+}

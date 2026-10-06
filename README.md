@@ -4,6 +4,8 @@ Bản cộng tác của dự án DAS, gom từ nguồn đang phát triển ngày
 
 Mốc nhắc hạn chính thức là **quá 7 ngày**, lịch thứ Hai 08:00 Việt Nam. Xem [checkpoint hoàn thiện](docs/COMPLETION-CHECKPOINT-20261006.md) để tiếp tục đúng bản nguồn và phạm vi.
 
+Đã kiểm [CI hosted trên runtime `abb54a9`](docs/HOSTED-CI-CHECKPOINT-20261006.md): backend629 mỗi OS, frontend223, SQL77 và layout/QA qua. Full workflow vẫn failure do dependency audit6high; G7/G8 chưa được nghiệm thu.
+
 ## Cấu trúc
 
 | Thư mục | Nội dung chính | Bắt đầu đọc |

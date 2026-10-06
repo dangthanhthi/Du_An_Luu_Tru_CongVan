@@ -1,5 +1,7 @@
 # DAS — checkpoint SQL QA ngày 06/10/2026
 
+> Sau checkpoint SQL: đã publish runtime `abb54a9` lên main và chạy hosted CI thật. 5 job chức năng qua (SQL77, backend629 mỗi OS, frontend223, layout/QA); full pipeline failure do audit6high. Xem [checkpoint GitHub/CI](HOSTED-CI-CHECKPOINT-20261006.md). Các trạng thái local/chưa dispatch dưới đây là thời điểm trước publication.
+
 Đã hoàn thiện runner SQL cho layout cộng tác. **75/75 core SQL tests**, 1 load fixture và 1 restore fixture qua trên Windows .NET10.0.204 với SQL Server 2022 thật trong Docker riêng. Load kiểm 300 đăng ký + 300 exact replays, counters chung 3 loại, không duplicate/gap và conflict không cấp số. Restore kiểm backup/restore 5 store + PDF giả lập, số 4/5 chữ số, công ty/phòng sau sửa, token thu hồi/tombstone/audit/correlation và không gửi lại SMTP chưa rõ kết quả.
 
 Bằng chứng tổng hợp: [SQL-VERIFICATION-20261006.json](SQL-VERIFICATION-20261006.json). Cách chạy lại: [SQL-QA.md](SQL-QA.md). Quy tắc nhắc hạn vẫn **quá 7 ngày**, đúng 7 ngày chưa đủ, thứ Hai 08:00 Việt Nam. EAP do người khác phụ trách, OCR tiếp tục hoãn.
@@ -29,4 +31,4 @@ G7 vẫn **Partial/prepared**, G8 chưa UAT/signoff. SQL ở đây là SQL thậ
 
 Tiếp tục hosted clean-clone CI/publication trên repo được người dùng chỉ định, kiểm remote/branch trước và không overwrite công việc đồng nghiệp. Còn browser/gateway/authority/session, TMS sandbox/API/mapping, SMTP/audience, customer DB/PDF/mapping, scanner/storage, triển khai/RPO/RTO/SLA, security/license, Fax và mentor UAT/pilot. Đầu vào thật chưa có phải giữ prepared, không tự tạo credential hoặc ký nghiệm thu.
 
-Nguồn chính `DAS-Collaboration`, nhánh `codex/das-completion-20261006`; mốc trước chặng SQL `af3a2e39043a4dd23c6753e26a50c83494bb5195`. Đọc `git log -1` và checkpoint tiếp tục trên Desktop để biết commit sau chặng. GitHub main hiện mới được xác minh đến mốc publication trước; không tuyên bố các commit local đã push.
+Nguồn chính `DAS-Collaboration`, nhánh `codex/das-completion-20261006`; mốc trước chặng SQL `af3a2e39043a4dd23c6753e26a50c83494bb5195`. Đọc `git log -1` và checkpoint tiếp tục trên Desktop để biết commit sau chặng. Ở thời điểm chạy SQL trước dispatch, các commit mới còn local; trạng thái publication sau đó được ghi trong checkpoint GitHub/CI nêu trên.
