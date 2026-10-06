@@ -1,0 +1,354 @@
+{
+  "createdAtUtc": "2026-10-06T13:11:33.806515+00:00",
+  "scope": "Database schema/startup/provisioning milestone only; no customer data or external integrations",
+  "baselineCommit": "9bddd340c7271667a0c73c2b7f82880a45fd7508",
+  "productionReady": false,
+  "g7": "Partial/prepared",
+  "g8": "No UAT/signoff",
+  "checks": {
+    "backendNonSql": {
+      "passed": true,
+      "profile": "backend",
+      "productionReady": false,
+      "capturedAtUtc": "2026-10-06T12:49:48.400416+00:00",
+      "scope": "prepared core checks; SQL/live gateway/EAP/OCR/fax/license/UAT excluded",
+      "testEvidence": {
+        "DocumentService": {
+          "total": 406,
+          "executed": 406,
+          "passed": 406,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "FileService": {
+          "total": 82,
+          "executed": 82,
+          "passed": 82,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "PartnerService": {
+          "total": 46,
+          "executed": 46,
+          "passed": 46,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "AuthService": {
+          "total": 54,
+          "executed": 54,
+          "passed": 54,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "NotificationService": {
+          "total": 20,
+          "executed": 20,
+          "passed": 20,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "EmailWorkerService": {
+          "total": 13,
+          "executed": 13,
+          "passed": 13,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "PdfIntegration": {
+          "total": 8,
+          "executed": 8,
+          "passed": 8,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "ReminderIntegration": {
+          "total": 2,
+          "executed": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0
+        }
+      },
+      "workersEnabled": false,
+      "localArtifact": ".artifacts/qa/database-backend-20261006/summary.json",
+      "summarySha256": "051fb13018d03dba73608255cbbdd59f39394cb7387a4ba9bd20cbf9819bc66b",
+      "totalPassed": 631
+    },
+    "pythonQa": {
+      "passed": true,
+      "productionReady": false,
+      "scope": "Legacy QA with documented source/path view;canonical source unchanged",
+      "localArtifact": ".artifacts/qa/database-python-20261006/summary.json",
+      "summarySha256": "e67a07f8ffe3f47235ac3ca7db1a35aee52ad3572d52b33e38262a2c0dd34e4a",
+      "tests": 94,
+      "logSha256": "7828902b6e1bae1ffee16c3eea2992ac9710ff82e8982de1c7df9d058822c247"
+    },
+    "offlineSixStoreSchema": {
+      "passed": true,
+      "productionReady": false,
+      "scope": "offline SQL generation and model/snapshot parity only",
+      "sourceChanged": [],
+      "errors": [],
+      "databaseConnected": false,
+      "sqlApplied": false,
+      "stores": [
+        {
+          "store": "auth",
+          "context": "AuthDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260728074907_InitialCreate",
+            "20260810130346_ImproveAuthModel",
+            "20261004054605_AddDirectoryProjection"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/auth.sql",
+          "bytes": 10343,
+          "sha256": "d43af2eec3d730b2413bd2f2172b9ab373d8088e973f579354fc82dded9cb0ce"
+        },
+        {
+          "store": "document",
+          "context": "DocumentDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260730115658_InitialCreate",
+            "20260827080431_AddSoftDeleteSqlServer",
+            "20260827110241_AddIncomingSourceMessageId",
+            "20261004060403_AddBusinessCatalogs",
+            "20261004111636_AddV2RegistrationPersistence",
+            "20261004122637_AddDocumentEditAudit",
+            "20261004125541_AddDocumentKindDetails",
+            "20261004132429_AddDocumentRelations",
+            "20261004134524_AddDocumentCancellations",
+            "20261005024036_AddCurrentPdfReplacement",
+            "20261005052843_AddReminderAndTaskIntents",
+            "20261005060101_AddDocumentNotificationDelivery",
+            "20261005072535_AddReminderDeliveryLedger"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/document.sql",
+          "bytes": 40142,
+          "sha256": "3eb7dc5c1536828976b85365770eb83f125ca6032f787543ee64c2f7b9c5c02d"
+        },
+        {
+          "store": "files",
+          "context": "FileDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260806035121_InitialFileSchema",
+            "20261004142642_AddManagedPdfUploads",
+            "20261005024053_AddPdfClaims"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/files.sql",
+          "bytes": 5153,
+          "sha256": "a20af30b27e77586185dcfa2ba1f941854013bcfb21808a61b342d1555e1d9ea"
+        },
+        {
+          "store": "notification",
+          "context": "NotificationDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20261005052849_DurableNotificationsBaseline"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/notification.sql",
+          "bytes": 4586,
+          "sha256": "1c9a2a9f5a64f27d23b02555e0c445a6eb5921de96235aa5ccfb0efc499e36cc"
+        },
+        {
+          "store": "partner",
+          "context": "PartnerDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260810113448_InitialCreate",
+            "20261005043235_ExternalEntityContactsAndConcurrency"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/partner.sql",
+          "bytes": 7191,
+          "sha256": "a1076976a5d29d385d5b691ff4169de7d5b7628e9c55884125b99ccd1407b15c"
+        },
+        {
+          "store": "email",
+          "context": "EmailWorkerDbContext",
+          "efToolVersion": "9.0.0",
+          "migrationIds": [
+            "20261006121013_EmailWorkerBaseline"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/email.sql",
+          "bytes": 3671,
+          "sha256": "c5f6b3ffb305818f0f4893d76fe5be331da104fc2e433c3dfeda362e25062899"
+        }
+      ],
+      "localArtifact": ".artifacts/qa/database-schema-final-20261006/summary.json",
+      "summarySha256": "6347fb14d44f7229eaee9bad98618e8ab23fdd15e2b8776f5f2e21d961bc9e3a"
+    },
+    "emailSqlFocused": {
+      "passed": true,
+      "profile": "core",
+      "selectedService": "EmailWorkerService",
+      "productionReady": false,
+      "capturedAtUtc": "2026-10-06T12:58:33.669250+00:00",
+      "scope": "owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT",
+      "testEvidence": {
+        "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+        "loopbackOnly": true,
+        "internalNetwork": false,
+        "networkScope": "owned bridge; loopback publish; outbound network is not claimed disabled",
+        "core-EmailWorkerService": {
+          "total": 4,
+          "executed": 4,
+          "passed": 4,
+          "failed": 0,
+          "notExecuted": 0
+        }
+      },
+      "cleanupConfirmed": true,
+      "sourceChanged": [],
+      "errors": [],
+      "workersEnabled": false,
+      "localArtifact": ".artifacts/qa/database-email-green-20261006/summary.json",
+      "summarySha256": "f7dedc13396e64d4e57b26e54f7729f8c6f9e4081a7c4ef1d20c78a1b1a603a4"
+    },
+    "notificationSqlFocused": {
+      "passed": true,
+      "profile": "core",
+      "selectedService": "NotificationService",
+      "productionReady": false,
+      "capturedAtUtc": "2026-10-06T13:02:20.195743+00:00",
+      "scope": "owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT",
+      "testEvidence": {
+        "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+        "loopbackOnly": true,
+        "internalNetwork": false,
+        "networkScope": "owned bridge; loopback publish; outbound network is not claimed disabled",
+        "core-NotificationService": {
+          "total": 5,
+          "executed": 5,
+          "passed": 5,
+          "failed": 0,
+          "notExecuted": 0
+        }
+      },
+      "cleanupConfirmed": true,
+      "sourceChanged": [],
+      "errors": [],
+      "workersEnabled": false,
+      "localArtifact": ".artifacts/qa/database-notification-green-20261006/summary.json",
+      "summarySha256": "ae9bf5754882da6581820441c5483e01ef99a6a9878ef266d5a75a4465da6f92"
+    },
+    "fullSqlCore": {
+      "passed": false,
+      "profile": "core",
+      "selectedService": null,
+      "productionReady": false,
+      "capturedAtUtc": "2026-10-06T12:42:22.021431+00:00",
+      "scope": "owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT",
+      "testEvidence": {
+        "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+        "loopbackOnly": true,
+        "internalNetwork": false,
+        "networkScope": "owned bridge; loopback publish; outbound network is not claimed disabled"
+      },
+      "cleanupConfirmed": true,
+      "sourceChanged": [],
+      "errors": [
+        "RuntimeError: test-core-DocumentService failed; see redacted log"
+      ],
+      "workersEnabled": false,
+      "localArtifact": ".artifacts/qa/database-sql-green-20261006/summary.json",
+      "summarySha256": "6b5a87207074d2bfee6f95ff61395770f7b36bf6469ea582ed6158243f12c8f4",
+      "documentTestCounts": {
+        "total": 46,
+        "executed": 46,
+        "passed": 45,
+        "failed": 1,
+        "notExecuted": 0
+      },
+      "failure": {
+        "test": "Twenty_independent_keys_share_the_counter_and_create_twenty_atomic_graphs",
+        "message": "Cannot acquire document allocation lock; result=-1",
+        "rootCauseConfirmed": false,
+        "writerChangedInThisMilestone": false
+      }
+    },
+    "frozenGitTreeLayout": {
+      "passed": true,
+      "tests": 13,
+      "gitTree": "902786a3e590de68f8cbc3df381a2524c079245d",
+      "scope": "Frozen staged database source plus published baseline frontend; concurrent UI excluded",
+      "logSha256": "9bbd22398fcce5b54760ca64f3b9c4789ae25b8d601af2c540d38546e8c496ac"
+    },
+    "previewReleaseBuild": {
+      "restoreExitCode": 0,
+      "buildExitCode": 0,
+      "capturedAtUtc": "2026-10-06T13:08:16.7901462Z",
+      "configuration": "Release",
+      "scope": "Canonical backend solution locked restore/build; no live integration",
+      "passed": true
+    },
+    "localPreviewHealth": {
+      "capturedAtUtc": "2026-10-06T13:08:57.933013+00:00",
+      "backendHealth": [
+        {
+          "port": 5001,
+          "status": 200
+        },
+        {
+          "port": 5002,
+          "status": 200
+        },
+        {
+          "port": 5003,
+          "status": 200
+        },
+        {
+          "port": 5004,
+          "status": 200
+        },
+        {
+          "port": 5005,
+          "status": 200
+        },
+        {
+          "port": 5007,
+          "status": 200
+        },
+        {
+          "port": 8080,
+          "status": 200
+        }
+      ],
+      "passed": true,
+      "scope": "Development host health only; V2 authority/live integrations/UI acceptance excluded"
+    }
+  },
+  "sourceManifestSha256": "eb400993dff7d88288b658897f745fdbc4e4ea5e6776fd11767968d08815714e",
+  "sourceInputAlignment": {
+    "passed": true,
+    "matchedInputCount": 369,
+    "scope": "Final offline schema and focused SQL source manifests match staged Git blobs; concurrent frontend excluded"
+  },
+  "uiScope": "Pre-concurrent-edit report only; frontend changes and genminiwork output excluded from database commit and verification",
+  "review": {
+    "independentCodexReview": true,
+    "reviewerRanTests": false,
+    "finding": "InitializeOnStartup documentation corrected to Database:Initialize for all six stores",
+    "geminiServerVersion": "4-30min",
+    "geminiJobResult": "failed: both accounts 503; no advisory result used"
+  },
+  "remainingGates": [
+    "DocumentService allocation-lock timeout investigation and repeat core/load",
+    "Email Worker restore roundtrip (existing restore proof is five stores plus PDF)",
+    "Customer export/PDF/mapping and actual environment validation",
+    "Authority/session/CSRF/revocation, TMS contract/sandbox/hierarchy/IDs, SMTP/audience/directory",
+    "Scanner/storage/deployment/RPO/RTO/SLA, Fax, dependency audit/license/registry/signing/scanning, UAT"
+  ],
+  "deferred": [
+    "EAP owned by another group until explicit reopening",
+    "OCR"
+  ]
+}

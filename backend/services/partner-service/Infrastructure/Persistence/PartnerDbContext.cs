@@ -85,7 +85,7 @@ public class PartnerDbContextFactory : IDesignTimeDbContextFactory<PartnerDbCont
     public PartnerDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<PartnerDbContext>();
-        optionsBuilder.UseSqlServer("Server=sqlserver;Database=DocumentManagementDb;User Id=sa;Password=DummyPassword;TrustServerCertificate=True;");
+        optionsBuilder.UseSqlServer("Server=localhost;Database=DAS_Partner_DesignOnly;Integrated Security=true;TrustServerCertificate=true;");
         return new PartnerDbContext(optionsBuilder.Options);
     }
 }

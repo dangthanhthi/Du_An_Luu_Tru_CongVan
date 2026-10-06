@@ -2,7 +2,7 @@
 
 Entry point công khai: `python tools/run-checks.py --profile qa|backend|web|audit --output .artifacts/qa/<tên-mới>`.
 
-- `backend` chạy trực tiếp trên `backend/`, kiểm compile các migration/workflow đã liên kết bằng MSBuild và chạy non-SQL tests.
+- `backend` chạy trực tiếp trên `backend/`, kiểm compile các migration/workflow đã liên kết bằng MSBuild và chạy non-SQL tests. Build/obj dùng output riêng, không ghi đè assemblies của preview local.
 - `web` chạy trực tiếp trên `frontend/`, locked install, Prisma/Next types, typecheck/lint/tests/full build.
 - `audit` kiểm npm và các core NuGet dependencies. Các finding high còn mở phải làm gate fail, không bị bỏ qua để có dấu xanh.
 - `qa` dùng `create-check-view.py` tạo source view tạm dưới `.artifacts/qa/`, ánh xạ layout mới về layout các QA tools hiện có. Nó ghi manifest hash nguồn/hash view và ba nhóm adapter đường dẫn (package/schema/MSBuild) được mô tả trong report. Không tạo bản canonical code thứ hai, không thay namespace/API, không copy credential/cache/binary runtime và không sửa nguồn chính.
@@ -14,6 +14,8 @@ Output phải mới để giữ report cũ. Log/cache/DB/test runtime ở `.arti
 Preflight export/PDF đã hỗ trợ chạy trực tiếp từ repository chính bằng `tools/qa/audit-migration-export.py`. Xem [hướng dẫn preflight](../docs/MIGRATION-PREFLIGHT.md) về staging format, output mới, exit code và giới hạn kiểm chứng; không dùng nó như lệnh import khách hàng.
 
 SQL runner `tools/qa/run-isolated-sql.py` cũng chạy trực tiếp trên layout canonical; có `core/load/restore/all`, tạo Docker SQL instance riêng cho mỗi lượt và không nhận connection string có sẵn. Xem [SQL QA](../docs/SQL-QA.md). Các tool legacy còn lại tiếp tục dùng compatibility view.
+
+`python tools/export-database-schema.py --output .artifacts/qa/<tên-mới>` kiểm model/snapshot và xuất SQL idempotent đủ sáu store bằng EF CLI cố định. Đây là lệnh offline, không kết nối/apply database. Xem [provisioning](../database/PROVISIONING.md). SQL core đã thêm EmailWorker; restore vẫn năm-store + PDF.
 
 Các kiểm tra dùng dữ liệu giả lập/QA không thay thế gateway/authority/scanner/customer DB/UAT thật. Không bật worker, gửi email/task thật, apply migration lên DB khách hàng hoặc deploy từ các lệnh check mặc định.
 

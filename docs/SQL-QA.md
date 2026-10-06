@@ -11,10 +11,12 @@ Runner không tự pull hoặc dùng tag thay đổi. SQL Developer chỉ dùng 
 
 | Profile | Phạm vi |
 |---|---|
-| `core` | SQL tests của Document, Files, Partner, Auth, Notification; loại fixture load để không có skip |
+| `core` | SQL tests của Document, Files, Partner, Auth, Notification, EmailWorker; loại fixture load để không có skip |
 | `load` | 300 registrations, 300 exact replays, race/conflict/counter/idempotency với dữ liệu giả lập |
 | `restore` | Backup CHECKSUM, VERIFYONLY, restore 5 SQL store + PDF giả lập, so sánh dữ liệu và kiểm correlation/revocation/tombstone; SMTP giả lập có 0 lần gửi |
 | `all` | Cả ba nhóm, tuần tự trên một instance riêng |
+
+`--profile core --service EmailWorkerService` giới hạn kiểm tra một service; tên service được ghi vào `selectedService` trong summary. Không dùng kết quả focused để tuyên bố toàn bộ core đã qua. `--service` không được kết hợp load/restore/all. Build/obj của các SQL test nằm trong output riêng (`--artifacts-path`), không ghi đè assembly đang chạy local.
 
 Mỗi lượt tạo container/network với token ngẫu nhiên và label ownership. SQL chạy nonroot `mssql`, 3 GiB/2 CPU, `no-new-privileges`, drop capability trừ `NET_BIND_SERVICE` mà executable của image yêu cầu. Không mount host/socket hay dùng volume có sẵn. Bridge riêng chỉ publish `127.0.0.1` tới cổng được Docker cấp. Bridge này **không tắt outbound network**; fixture chỉ kết nối instance SQL vừa tạo, không có credential thật hoặc host worker. `--internal` đã thử nhưng không cấp port binding cho lượt Windows này; runner không fallback mở rộng mạng khi chạy.
 

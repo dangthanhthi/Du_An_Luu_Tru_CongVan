@@ -178,14 +178,16 @@ def run_profile(profile, root, output, node, npm_cli, dotnet):
         steps.append({'name':name,'passed':False,'error':str(error)})
 
     if profile == 'backend':
+        # Keep QA assemblies separate from a running local preview and other concurrent checks.
+        artifacts = ['--artifacts-path', str(output / 'build')]
         for name,project in PROJECTS:
-            if not execute('restore-'+name,[dotnet,'restore',str(project),'--locked-mode','--verbosity','minimal']): continue
-            if execute('test-'+name,[dotnet,'test',str(project),'--no-restore','--configuration','Release','--filter','FullyQualifiedName!~SqlTests','--logger','trx;LogFileName='+name+'.trx','--results-directory',str(output),'--verbosity','minimal']):
+            if not execute('restore-'+name,[dotnet,'restore',str(project),*artifacts,'--locked-mode','--verbosity','minimal']): continue
+            if execute('test-'+name,[dotnet,'test',str(project),*artifacts,'--no-restore','--configuration','Release','--filter','FullyQualifiedName!~SqlTests','--logger','trx;LogFileName='+name+'.trx','--results-directory',str(output),'--verbosity','minimal']):
                 try: evidence[name] = trx_counts(output/(name+'.trx'))
                 except (ValueError,OSError) as error: failure('evidence-'+name,error)
         gateway = str(BACKEND/'gateway/Gateway.csproj')
-        if execute('restore-gateway',[dotnet,'restore',gateway,'--locked-mode','--verbosity','minimal']):
-            execute('build-gateway',[dotnet,'build',gateway,'--no-restore','--configuration','Release','--verbosity','minimal'])
+        if execute('restore-gateway',[dotnet,'restore',gateway,*artifacts,'--locked-mode','--verbosity','minimal']):
+            execute('build-gateway',[dotnet,'build',gateway,*artifacts,'--no-restore','--configuration','Release','--verbosity','minimal'])
     elif profile == 'web':
         if execute('npm-ci',npm+locked_install_args(output)):
             execute('prisma-generate',[node,str(root/'node_modules/prisma/build/index.js'),'generate'])

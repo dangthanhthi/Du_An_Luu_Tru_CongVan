@@ -35,7 +35,16 @@ public sealed record EmailWorkerDatabaseOptions(string Provider, string Connecti
     {
         if (!development && (Provider == "Sqlite" || Initialize))
             throw new InvalidOperationException("Startup schema changes and SQLite are limited to Development.");
-        if (Initialize) await db.Database.EnsureCreatedAsync(cancellationToken);
+        if (db.Database.IsSqlServer())
+        {
+            if (db.Database.HasPendingModelChanges())
+                throw new InvalidOperationException("Email database model differs from its migration snapshot. Generate and review a migration before startup.");
+            if (Initialize)
+                await db.Database.MigrateAsync(cancellationToken);
+            else if ((await db.Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+                throw new InvalidOperationException("Apply reviewed email SQL migrations separately before startup. Existing EnsureCreated databases require an audited baseline.");
+        }
+        else if (Initialize) await db.Database.EnsureCreatedAsync(cancellationToken);
         // No schema writes when initialization is disabled; missing tables fail startup.
         await db.EmailImapSettings.AsNoTracking().Take(1).ToListAsync(cancellationToken);
         await db.EmailScanLogs.AsNoTracking().Take(1).ToListAsync(cancellationToken);

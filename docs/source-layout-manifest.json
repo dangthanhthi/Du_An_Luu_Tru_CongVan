@@ -220,8 +220,8 @@
       "source": "Intern-DocumentAdministration-BE/services/auth-service/Infrastructure/Persistence/AuthDbContextFactory.cs",
       "destination": "backend/services/auth-service/Infrastructure/Persistence/AuthDbContextFactory.cs",
       "originalSha256": "e110e145fe93a86712c10df10a9a39cdb061754790a3ebab544fcaca5a469395",
-      "sha256": "1fbb3c809a8d78de1641261d185d873ffb3b4521070c6f1b352db48ea3a6b00a",
-      "bytes": 1091
+      "sha256": "ea23498146a8a0d6c54d3840e290922c8380bdb36053ab53ddd348cdfb6a90c9",
+      "bytes": 705
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/auth-service/Infrastructure/Persistence/DatabaseStartup.cs",
@@ -595,8 +595,8 @@
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/EmailWorkerService.csproj",
       "destination": "backend/services/email-worker-service/EmailWorkerService.csproj",
       "originalSha256": "873bf37242163589496a455a662a8580de1b0543304dd3d45b8d232706f019ad",
-      "sha256": "9f4d39c3af4f3d5444eb4eb15abd50a35aacce61786a35f9746ddf07f366f7d4",
-      "bytes": 1186
+      "sha256": "b7ef31a5558c07ff3e2af74a9a7b4c8c39d2029a7c4325a8a6afe298d513e9df",
+      "bytes": 1439
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/Models/EmailScanItemLog.cs",
@@ -640,8 +640,8 @@
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/packages.lock.json",
       "destination": "backend/services/email-worker-service/packages.lock.json",
       "originalSha256": "3738c7c41fb5cc11c3d73dc588fd3fe742d60453b606b21dd3169e5ef597982c",
-      "sha256": "9fd3cc1a3abfd2ac52d000de4b01a2878696ef638f3b978f22049fa498fdb4ce",
-      "bytes": 16493
+      "sha256": "9b259e0e851d1f362014b0d596cc63425b3a530af0a7fd07dd5338ced026803f",
+      "bytes": 22624
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/email-worker-service/services/EmailFieldParser.cs",
@@ -956,8 +956,8 @@
       "source": "Intern-DocumentAdministration-BE/services/notification-service/Program.cs",
       "destination": "backend/services/notification-service/Program.cs",
       "originalSha256": "36c8ef6fe72d4de88cc483a0afb983ba6a02b9fad39a150d22b83a880f8bdb4a",
-      "sha256": "b70cc1b3ffc0849c1ce631cad86f2de9ef4fb86985c9ac9a3466eab7a23831dc",
-      "bytes": 4636
+      "sha256": "478dce99a1585832027c26c59f6bb962eb22c9f13ab7d2443515949e8833e927",
+      "bytes": 4714
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/notification-service/Services/ConfiguredDeliveryEmail.cs",
@@ -1019,8 +1019,8 @@
       "source": "Intern-DocumentAdministration-BE/services/partner-service/Infrastructure/Persistence/PartnerDbContext.cs",
       "destination": "backend/services/partner-service/Infrastructure/Persistence/PartnerDbContext.cs",
       "originalSha256": "ebbd7ea45dbfc1cc73cc25fd70d336e8e97a7e3e6faeb24def1aa501e60fb7fd",
-      "sha256": "bfa1c7d03049f4c376867166882a6c020fe8b93c744cace97d9e3ebe827d5480",
-      "bytes": 3799
+      "sha256": "40dffec629ec4660b4c414d225481a989a177996e583f1bdbf8b5547f446d7ab",
+      "bytes": 3792
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/partner-service/PartnerService.csproj",
@@ -10397,8 +10397,8 @@
       "source": "scripts/qa/run-core-ci.py",
       "destination": "tools/qa/run-core-ci.py",
       "originalSha256": "ef1e132e2c11ecb289ab15ae82822886276990eebbca1c12fbe6fe12a101dd49",
-      "sha256": "a335cf792446a723724087829a7a80838c501d7a8fd9a0327f5d1a7f22f8e0c5",
-      "bytes": 14873,
+      "sha256": "0aac0efee4f660caaefd2f6496c4ab3ad2ecc577ae7d1fba494effdcdf3d88a4",
+      "bytes": 15077,
       "previousCanonicalSha256": "ef1e132e2c11ecb289ab15ae82822886276990eebbca1c12fbe6fe12a101dd49"
     },
     {

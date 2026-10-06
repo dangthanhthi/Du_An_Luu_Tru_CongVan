@@ -69,10 +69,12 @@ def connection(port, password):
     return f'Server=127.0.0.1,{port};Database=master;User ID=sa;Password={password};Encrypt=True;TrustServerCertificate=True;Connect Timeout=15'
 
 
-def suites(profile, output):
+def suites(profile, output, service=None):
+    if service is not None and profile != 'core': raise ValueError('Service selection is limited to the core profile')
     result = []
     if profile in ('core', 'all'):
-        for project in ('DocumentService', 'FileService', 'PartnerService', 'AuthService', 'NotificationService'):
+        for project in ('DocumentService', 'FileService', 'PartnerService', 'AuthService', 'NotificationService', 'EmailWorkerService'):
+            if service is not None and project != service: continue
             result.append({'name': 'core-' + project, 'project': project, 'environment': {},
                            'filter': 'FullyQualifiedName~SqlTests&FullyQualifiedName!~SyntheticLoadSqlTests'})
     if profile in ('load', 'all'):
@@ -81,7 +83,7 @@ def suites(profile, output):
     if profile in ('restore', 'all'):
         result.append({'name': 'restore', 'project': 'RestoreIntegration', 'filter': 'FullyQualifiedName~SqlRestoreDrillTests',
                        'environment': {'DAS_RESTORE_DRILL': 'synthetic', 'DAS_RESTORE_OUTPUT': str(output / 'restore')}})
-    if not result: raise ValueError('Unknown SQL profile')
+    if not result: raise ValueError('Unknown SQL profile or service')
     return result
 
 
@@ -194,6 +196,8 @@ def source_hashes(root):
 
 
 def run(args, root=ROOT):
+    selected = getattr(args, 'service', None)
+    selected_suites = suites(args.profile, root / args.output, selected)
     output = fresh_output(root, args.output); output.mkdir(parents=True)
     env = child_environment(os.environ, output)
     password = 'QA_' + secrets.token_hex(24) + '!a9'
@@ -257,14 +261,14 @@ def run(args, root=ROOT):
         settings = output / 'qa.runsettings'
         settings.write_text('<RunSettings><RunConfiguration><MaxCpuCount>1</MaxCpuCount></RunConfiguration><xUnit><MaxParallelThreads>2</MaxParallelThreads><ParallelizeTestCollections>false</ParallelizeTestCollections></xUnit></RunSettings>\n', encoding='utf-8')
         restored = set()
-        for suite in suites(args.profile, output):
+        for suite in selected_suites:
             project = suite['project']; relative = Path('backend/tests') / (project+'.Tests') / (project+'.Tests.csproj')
             if project not in restored:
-                execute('restore-'+project, [args.dotnet, 'restore', str(relative), '--locked-mode', '--configfile', str(config), '--verbosity', 'minimal'], env)
+                execute('restore-'+project, [args.dotnet, 'restore', str(relative), '--artifacts-path', str(output / 'build'), '--locked-mode', '--configfile', str(config), '--verbosity', 'minimal'], env)
                 restored.add(project)
             results = output / 'trx' / suite['name']; results.mkdir(parents=True)
             test_env = {**env, 'DAS_TEST_SQL_CONNECTION': connection(port, password), **suite['environment']}
-            execute('test-'+suite['name'], [args.dotnet, 'test', str(relative), '--no-restore', '--configuration', 'Release',
+            execute('test-'+suite['name'], [args.dotnet, 'test', str(relative), '--artifacts-path', str(output / 'build'), '--no-restore', '--configuration', 'Release',
                     '--settings', str(settings), '--filter', suite['filter'], '--logger', 'trx;LogFileName=tests.trx',
                     '--results-directory', str(results), '--verbosity', 'minimal'], test_env)
             evidence[suite['name']] = trx_counts(results / 'tests.trx')
@@ -301,7 +305,7 @@ def run(args, root=ROOT):
             if p.is_file() and p.suffix in ('.trx', '.log', '.json') and not any(part in ('nuget-packages', 'dotnet-home') for part in p.relative_to(output).parts):
                 content = p.read_text(encoding='utf-8')
                 if password in content: p.write_text(content.replace(password, '[REDACTED]'), encoding='utf-8')
-        report = {'profile': args.profile, 'passed': bool(steps) and all(s['passed'] for s in steps) and not errors and cleanup,
+        report = {'profile': args.profile, 'selectedService': selected, 'passed': bool(steps) and all(s['passed'] for s in steps) and not errors and cleanup,
                   'synthetic': True, 'productionReady': False, 'workersEnabled': False, 'capturedAtUtc': datetime.now(timezone.utc).isoformat(),
                   'cleanupConfirmed': cleanup, 'ownerToken': token, 'errors': errors, 'steps': steps, 'testEvidence': evidence, 'sourceChanged': changed,
                   'scope': 'owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT'}
@@ -313,6 +317,7 @@ def run(args, root=ROOT):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--profile', required=True, choices=('core', 'load', 'restore', 'all'))
+    p.add_argument('--service', choices=('DocumentService', 'FileService', 'PartnerService', 'AuthService', 'NotificationService', 'EmailWorkerService'), help='Optional single service, core profile only')
     p.add_argument('--output', required=True, help='Fresh directory below .artifacts/qa')
     p.add_argument('--dotnet', default=shutil.which('dotnet') or 'dotnet')
     p.add_argument('--docker', default=shutil.which('docker') or 'docker')

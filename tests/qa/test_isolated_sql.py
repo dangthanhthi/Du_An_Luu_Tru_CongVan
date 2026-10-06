@@ -117,14 +117,23 @@ class IsolatedSqlTests(unittest.TestCase):
     def test_profiles_do_not_accidentally_select_skipped_load_or_restore(self):
         m = module()
         core = m.suites('core', Path('/qa'))
-        self.assertEqual(5, len(core))
+        self.assertEqual(6, len(core))
+        self.assertIn('EmailWorkerService', [s['project'] for s in core])
         self.assertTrue(all('!~SyntheticLoadSqlTests' in s['filter'] for s in core))
         self.assertEqual({}, core[0]['environment'])
         load = m.suites('load', Path('/qa'))
         self.assertEqual('enabled', load[0]['environment']['DAS_SYNTHETIC_LOAD'])
         restore = m.suites('restore', Path('/qa'))
         self.assertEqual('synthetic', restore[0]['environment']['DAS_RESTORE_DRILL'])
-        self.assertEqual(7, len(m.suites('all', Path('/qa'))))
+        self.assertEqual(8, len(m.suites('all', Path('/qa'))))
+
+    def test_focused_core_profile_cannot_silently_select_load_restore_or_unknown_service(self):
+        m = module()
+        selected = m.suites('core', Path('/qa'), 'EmailWorkerService')
+        self.assertEqual(['EmailWorkerService'], [s['project'] for s in selected])
+        for profile in ('all', 'restore', 'load'):
+            with self.assertRaises(ValueError): m.suites(profile, Path('/qa'), 'EmailWorkerService')
+        with self.assertRaises(ValueError): m.suites('core', Path('/qa'), 'ForeignService')
 
     def test_trx_rejects_empty_failed_or_skipped_execution(self):
         m = module()

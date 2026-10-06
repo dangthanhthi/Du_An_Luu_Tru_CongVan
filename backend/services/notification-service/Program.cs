@@ -67,7 +67,8 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
     if(database.Initialize){
         if(!app.Environment.IsDevelopment())throw new InvalidOperationException("Automatic initialization is restricted to Development.");
-        await db.Database.EnsureCreatedAsync();
+        if (db.Database.IsSqlServer()) await db.Database.MigrateAsync();
+        else await db.Database.EnsureCreatedAsync();
     }
     // Check both schema and the durable inbox. Legacy local DBs require an explicit upgrade.
     await db.Set<NotificationService.Models.DeliveryInbox>().AsNoTracking().Take(1).Select(x=>x.Id).ToListAsync();

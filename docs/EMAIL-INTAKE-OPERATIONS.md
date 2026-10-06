@@ -6,9 +6,10 @@ Email intake là dịch vụ đọc hộp thư/đưa công văn đến vào DAS.
 
 - `EmailIntake:WorkerEnabled=false`: không đăng ký worker quét định kỳ.
 - `EmailIntake:ManualScanEnabled=false`: test IMAP, quét thủ công và confirm-intake trả 503 trước khi gọi transport/service ngoài. Cờ này không tự bật worker định kỳ.
-- `Database:Initialize=false`: không tạo schema khi khởi động. Dịch vụ đọc kiểm tra ba bảng hiện có và dừng nếu schema thiếu.
+- `Database:Initialize=false`: không tạo schema khi khởi động. SQL yêu cầu migration history đầy đủ và model/snapshot khớp, sau đó đọc kiểm tra ba bảng; thiếu migration/schema thì dừng. Không tự nhận baseline cho DB EnsureCreated cũ.
 - `Database:Provider` phải là `SqlServer` hoặc `Sqlite`, cùng `ConnectionStrings:Default` hợp lệ. Production chỉ chấp nhận SQL Server, database được provision riêng và `Initialize=false`.
 - Development có thể tạo SQLite QA bằng `Database:Provider=Sqlite`, connection tới file riêng và `Database:Initialize=true`. Không áp dụng cách này với dữ liệu khách hàng.
+- Development SQL với Initialize=true dùng migration baseline trong `database/migrations/email-worker-service`; hướng dẫn xuất/provision/DB cũ tại [database provisioning](../database/PROVISIONING.md).
 
 Trong cấu hình environment, thay dấu `:` bằng `__`, ví dụ `EmailIntake__WorkerEnabled=false`. Không đặt mật khẩu vào Git hoặc frontend.
 

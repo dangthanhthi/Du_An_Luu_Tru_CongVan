@@ -9,7 +9,7 @@
 | `partner-service` | Đối tác/cơ quan, audit và khôi phục |
 | `files-service` | Tệp/PDF, claims/quarantine/scanner/current-file protocol |
 | `notification-service` | Durable inbox/outbox, dedup/receipt/history và delivery |
-| `email-worker-service` | Bộ quét/xử lý email cũ; chưa chạy host trong bản kiểm chứng này |
+| `email-worker-service` | Bộ quét/xử lý email; schema/startup có guard, worker/manual transport mặc định tắt |
 | `gateway` | Routing và kiểm tra cấu hình/token |
 
 ```sh
@@ -20,7 +20,7 @@ python tools/run-checks.py --profile backend --output .artifacts/qa/backend
 
 Chạy các lệnh trên từ root repository. Non-SQL tests là lựa chọn mặc định. SQL/restore/load tests cần môi trường QA được chỉ định, không dùng DB công ty.
 
-Khi chạy host, đặt `ASPNETCORE_URLS`, provider/connection string, JWT và các inter-service settings trên máy. Gateway và Auth dùng cấu hình JWT tương thích; file claim/scanner/directory settings phải được chỉ định. Các core service có startup guards để chặn thiếu cấu hình/tự tạo schema ở Production. Email Worker cũ vẫn gọi `EnsureCreated` và đăng ký background worker trong `Program.cs`; không bật host này trên môi trường thật trước khi rà soát startup/transport. Đọc `Program.cs`, `Data/*Startup*` và config mẫu của đúng service trước khi bật host.
+Khi chạy host, đặt `ASPNETCORE_URLS`, provider/connection string, JWT và các inter-service settings trên máy. Gateway và Auth dùng cấu hình JWT tương thích; file claim/scanner/directory settings phải được chỉ định. Các core service có startup guards để chặn thiếu cấu hình/tự tạo schema ở Production. Email Worker chỉ dùng EnsureCreated cho SQLite Development; SQL dùng migration và Production không tự thay schema. Worker/manual transport mặc định tắt; schema có sẵn không đồng nghĩa intake thật đã nghiệm thu. Đọc `Program.cs`, `Data/*Startup*`, [provision database](../database/PROVISIONING.md) và config mẫu của đúng service trước khi bật host.
 
 Migration ở `../database/migrations`; workflow ở `../workflows/business`. MSBuild props liên kết vào assembly đúng chủ sở hữu. Khi debug, IDE hiển thị các file này dưới `Migrations` và `Workflows`.
 
