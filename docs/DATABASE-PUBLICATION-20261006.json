@@ -1,0 +1,18 @@
+{
+  "capturedAtUtc": "2026-10-06T13:12:42.594030+00:00",
+  "repository": "https://github.com/dangthanhthi/Du_An_Luu_Tru_CongVan",
+  "branch": "main",
+  "runtimeCommit": "d34ec11048c55bbe75849e3c0f8e0e9c840b1d6e",
+  "remoteCommitConfirmed": "d34ec11048c55bbe75849e3c0f8e0e9c840b1d6e",
+  "runtimeFilesChanged": 32,
+  "sourceInputAlignment": {
+    "passed": true,
+    "matchedInputCount": 369,
+    "scope": "Final offline schema and focused SQL source manifests match staged Git blobs; concurrent frontend excluded"
+  },
+  "concurrentFrontendIncluded": false,
+  "localWorkingBranch": "main",
+  "hostedCiCheckedForThisRuntime": false,
+  "productionReady": false,
+  "scope": "Database milestone and UI handoff documents only; publication is not deployment or UAT"
+}

@@ -47,7 +47,7 @@ G7 vẫn **Partial/prepared**; G8 chưa UAT/signoff. Không dùng số giai đo�
 
 ### Kiến trúc và vị trí source
 
-Repository: `https://github.com/dangthanhthi/Du_An_Luu_Tru_CongVan`. Main đã xuất bản đến `9bddd340c7271667a0c73c2b7f82880a45fd7508` ở đầu lượt DB hiện tại; runtime phiên nhiều tab nằm ở `87ddc9c`. Nhánh đang làm database: `codex/database-readiness-20261006`; thay đổi mới chưa được coi đã có trên main cho đến khi có publication checkpoint.
+Repository: `https://github.com/dangthanhthi/Du_An_Luu_Tru_CongVan`. Chặng database đã xuất bản lên main ở `d34ec11048c55bbe75849e3c0f8e0e9c840b1d6e`, xuất phát từ `9bddd34`; runtime phiên nhiều tab nằm ở `87ddc9c`. Local đang làm việc trên main. Xem [publication database](DATABASE-PUBLICATION-20261006.json). Các sửa frontend song song không nằm trong commit này và chưa được Codex kiểm chứng.
 
 Thư mục chính trên máy: `C:/Users/MSIIIIII/Desktop/Dự án taskmanager/DAS-Collaboration`.
 

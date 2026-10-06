@@ -45,4 +45,6 @@ Tài khoản demo: `secretary_user`, `admin_user`, `employee_user`; mật khẩu
 
 Independent Codex review đã đọc diff; lỗi hướng dẫn flag initialize đã được sửa. Reviewer không chạy SQL/test. Gemini MCP báo `server_version=4-30min`; một background review thất bại do cả hai tài khoản 503, không có kết quả Gemini được dùng. Không gửi lại job trùng.
 
-Commit database chỉ gồm source/tests/runbooks/evidence cần thiết và hai tài liệu bàn giao UI. Không gồm frontend đang sửa song song, DB/PDF/backup/log/cache/env/secret thật. Publication và preview thực tế được cập nhật sau kiểm chứng cuối; không tự suy ra đã deploy từ tài liệu này.
+Runtime **`d34ec11048c55bbe75849e3c0f8e0e9c840b1d6e`** đã push main; remote ref được đọc lại và khớp. Xem [publication evidence](DATABASE-PUBLICATION-20261006.json). Local đang làm việc trên main; các sửa frontend song song được giữ nguyên ngoài commit database. Hosted CI mới chưa được dùng làm bằng chứng của chặng này.
+
+Commit database chỉ gồm source/tests/runbooks/evidence cần thiết và hai tài liệu bàn giao UI. Không gồm frontend đang sửa song song, DB/PDF/backup/log/cache/env/secret thật. Publication không phải deploy Production hoặc nghiệm thu khách hàng.

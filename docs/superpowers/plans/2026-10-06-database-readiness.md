@@ -10,7 +10,7 @@
 - [x] Add/test an offline pinned-tool schema export command for all six stores and extend isolated SQL core coverage to EmailWorker.
 - [x] Run locked restore, backend tests, six-store offline parity/scripts, SQL core and layout/tool checks. Preserve redacted evidence in a new ignored QA directory. **Execution is complete; full SQL acceptance is not:** final full core stopped at DocumentService45/46 with allocation-lock timeout. See database checkpoint/evidence for focused checks and source scopes.
 - [x] Request independent review, address material findings, update database deployment documentation and checkpoints with actual outcomes and external gates.
-- [ ] Restore/verify local backend preview, commit essential sources, synchronize and push main without overwriting remote work.
+- [x] Restore/verify local backend preview, commit essential sources, synchronize and push main without overwriting remote work. Runtime `d34ec11` is published on main; seven backend health checks passed and Next dev is Ready. Concurrent frontend changes are preserved outside this commit.
 
 Verification commands: `dotnet test backend/tests/EmailWorkerService.Tests/EmailWorkerService.Tests.csproj --filter FullyQualifiedName~DatabaseSchemaTests`; `python tools/export-database-schema.py --output .artifacts/qa/database-schema-20261006`; `python tools/qa/run-isolated-sql.py --profile core --output .artifacts/qa/database-sql-20261006`; `python tools/run-checks.py --profile backend --output .artifacts/qa/database-backend-20261006`; `python -m unittest discover -s tests/qa`; `python -m unittest discover -s tests/layout`.
 
