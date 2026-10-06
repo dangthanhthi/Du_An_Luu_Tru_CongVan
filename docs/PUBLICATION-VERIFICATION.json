@@ -1,0 +1,167 @@
+{
+  "kind": "DAS collaboration publication verification",
+  "capturedAtUtc": "2026-10-06T06:15:18.409013+00:00",
+  "localFunctionalChecksPassed": true,
+  "productionReady": false,
+  "hostedCI": false,
+  "deployed": false,
+  "customerDataUsed": false,
+  "workersEnabled": false,
+  "versions": {
+    "node": "v22.23.3",
+    "npm": "10.9.9",
+    "python": "Python 3.12.3",
+    "dotnet": "10.0.401"
+  },
+  "checks": {
+    "gitSourceLayout": {
+      "passed": 10,
+      "failed": 0
+    },
+    "pythonQA": {
+      "passed": 57,
+      "failed": 0
+    },
+    "backendNonSql": {
+      "passed": 608,
+      "failed": 0,
+      "notExecuted": 0,
+      "suites": {
+        "DocumentService": {
+          "total": 393,
+          "executed": 393,
+          "passed": 393,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "FileService": {
+          "total": 82,
+          "executed": 82,
+          "passed": 82,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "PartnerService": {
+          "total": 46,
+          "executed": 46,
+          "passed": 46,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "AuthService": {
+          "total": 54,
+          "executed": 54,
+          "passed": 54,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "NotificationService": {
+          "total": 20,
+          "executed": 20,
+          "passed": 20,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "EmailWorkerService": {
+          "total": 3,
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "PdfIntegration": {
+          "total": 8,
+          "executed": 8,
+          "passed": 8,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "ReminderIntegration": {
+          "total": 2,
+          "executed": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0
+        }
+      }
+    },
+    "gatewayReleaseBuild": true,
+    "frontend": {
+      "total": 214,
+      "passed": 214,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "frontendTypecheck": true,
+    "frontendLint": {
+      "errors": 0,
+      "warnings": 66
+    },
+    "frontendBuild": true,
+    "sourceIntegrity": true,
+    "ownedContainerCleanup": true
+  },
+  "source": {
+    "frontendAndToolingManifestSha256": "633a6aaf30ebfa6ae66d57fbaab88af6fbf82790ced2e27fb56e352d30fd5856",
+    "backendManifestSha256": "b6b2db98f60fde457f671c6e39ac9e5a6bbd323f979e670e08780e2aac53aff4",
+    "publishedBuildInputsComparedWithGit": 1532,
+    "gitByteDifferences": 0,
+    "backendInputEquivalence": {
+      "scope": "Backend service/test/config/lockfile/shared source, database migrations, business workflows",
+      "files": 332,
+      "changedSincePassingBackendV2": [],
+      "digest": "7b77ad680de9362ac1d6ce89f393e86f1dfd7ea8d28d3b4c860802d2795b5d13"
+    },
+    "mappedOriginalFiles": 1520,
+    "textLineEndings": "LF"
+  },
+  "installation": {
+    "lockedDependencies": true,
+    "dependencyVersionsChanged": false,
+    "hostNodeModulesUsed": false,
+    "npmCacheSeed": {
+      "url": "https://registry.npmjs.org/@iconify/json/-/json-2.2.408.tgz",
+      "integrity": "sha512-xKr3eb3LWps/VCtnMJAcv7nf9e6i2IWcgtdq9b7bsJSyrqWc00SHdtA3pAH1hBI0z0SCY6rZFs+6h4B5gMOnTQ==",
+      "bytes": 86915789,
+      "sha256": "5e3f9ffa6c3e3beb124f5766eb1c16433986e85b5ee9650ea5101cade668638e",
+      "hostNodeModulesUsed": false,
+      "freshContainerCache": true,
+      "tlsVerificationDisabled": false
+    },
+    "prismaGeneration": "One canonical schema in database; ignored temporary path view resolves frontend locked dependencies. Autoinstall disabled; stage removed."
+  },
+  "publicationReview": {
+    "privateConfigsRemoved": true,
+    "oldSeedAccountsDataExcluded": true,
+    "privateRuntimePayloadsExcluded": true,
+    "patternScanUnresolvedFindings": 0,
+    "reviewedSyntheticCredentialUrlFixture": true,
+    "externalSecurityScannerApproval": false,
+    "geminiAdvisoryResult": false,
+    "newLayoutFilesWhitespaceCheckPassed": true,
+    "importedWhitespaceFindingsRetained": 22
+  },
+  "knownOpen": {
+    "historicalDependencyAuditHighFindings": 6,
+    "currentAuditRerun": false,
+    "licenseApproval": false,
+    "eapAndOcr": "held",
+    "smtpAndTms": "prepared; live contracts/config absent",
+    "customerMigrationAndAuthority": "not accepted",
+    "uatAndPilot": "not accepted",
+    "delayedLoginOwnershipBug": "backlog",
+    "migrationPreflightValidationBugs": "backlog",
+    "legacyEmailWorkerStartup": "EnsureCreated/background worker registration still requires review before live use"
+  },
+  "diagnosticFailuresResolved": [
+    "backend-v1 omitted two existing EmailWorker OCR dependency adapter files; restored without adding OCR service",
+    "web-v3 Prisma dependency resolution from external schema directory; fixed with source-preserving temporary generation view"
+  ],
+  "reportHashes": {
+    "backend": "73c027c5d910d426685efbc4b73df8147224a480f1398b4607ff5f2af0de6d44",
+    "web": "bea9a3582f39d4c015473c00bc5bd4dc70c0ee3422bf98943e5eedd68fa691e4",
+    "backendSourceEquivalence": "13b5df5b007f742d08f20b65e40cafcb610db8a430ae71e6187c4aa8881814c6",
+    "sourceCompleteness": "953c4befc1721c459c9a226e4183e3a4af2dcd22a295c48ad7eb5877a2462557"
+  }
+}

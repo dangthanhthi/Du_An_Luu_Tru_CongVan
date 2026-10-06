@@ -1,0 +1,37 @@
+<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="shared/PdfProtocol/PdfProtocol.csproj" />
+  </Folder>
+  <Folder Name="/Gateway/">
+    <Project Path="gateway/Gateway.csproj" />
+  </Folder>
+  <Folder Name="/Services/Auth/">
+    <Project Path="services/auth-service/AuthService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Document/">
+    <Project Path="services/document-service/DocumentService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Partner/">
+    <Project Path="services/partner-service/PartnerService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Files/">
+    <Project Path="services/files-service/FileService.API.csproj" />
+  </Folder>
+  <Folder Name="/Services/EmailWorker/">
+    <Project Path="services/email-worker-service/EmailWorkerService.csproj" />
+  </Folder>
+  <Folder Name="/Services/Notification/">
+    <Project Path="services/notification-service/NotificationService.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/PartnerService.Tests/PartnerService.Tests.csproj" />
+    <Project Path="tests/RestoreIntegration.Tests/RestoreIntegration.Tests.csproj" />
+    <Project Path="tests/ReminderIntegration.Tests/ReminderIntegration.Tests.csproj" />
+    <Project Path="tests/PdfIntegration.Tests/PdfIntegration.Tests.csproj" />
+    <Project Path="tests/AuthService.Tests/AuthService.Tests.csproj" />
+    <Project Path="tests/DocumentService.Tests/DocumentService.Tests.csproj" />
+    <Project Path="tests/NotificationService.Tests/NotificationService.Tests.csproj" />
+    <Project Path="tests/FileService.Tests/FileService.Tests.csproj" />
+    <Project Path="tests/EmailWorkerService.Tests/EmailWorkerService.Tests.csproj" />
+  </Folder>
+</Solution>

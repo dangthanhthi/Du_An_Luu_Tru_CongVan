@@ -1,0 +1,8 @@
+export const catalogGroups = ['companies', 'methods', 'documentTypes', 'internalTypes', 'sensitivity', 'categories'] as const
+export type CatalogGroup = typeof catalogGroups[number]
+export const editableCatalogGroups: readonly CatalogGroup[] = ['methods', 'documentTypes', 'internalTypes', 'categories']
+export type CatalogItem = { id: string; group: CatalogGroup; code: string; name: string; sortOrder: number; isActive: boolean; version: number }
+export type CatalogCreate = { group: CatalogGroup; code: string; name: string }
+export type CatalogEdit = Pick<CatalogItem, 'name' | 'sortOrder' | 'isActive'>
+export type DistributionTarget = { id: string; name: string; initial: string | null; mappingState: 'Pending'; version: number }
+export type DistributionPage = { items: DistributionTarget[]; pageNumber: number; pageSize: number; totalCount: number }

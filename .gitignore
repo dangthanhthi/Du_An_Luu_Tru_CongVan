@@ -1,32 +1,28 @@
-# Node / Next.js
 **/node_modules/
 **/.next/
-**/out/
-**/build/
-.env*.local
-.pnpm-store/
-pnpm-workspace.yaml
-
-# .NET / C#
 **/bin/
 **/obj/
 **/publish/
-*.user
-*.suo
-
-# Large Templates & Temp
-Theme Template/
-Export_Auth_Service_Full/
-TaskManager.Backend/
-scratch/
-.agents/
-
-# Docs, Reports, Binaries
-*.exe
-*.lnk
+**/__pycache__/
+**/.artifacts/
+**/.env
+**/.env.*
+!**/.env.example
+**/appsettings.Local.json
+**/appsettings.*.local.json
+*.tsbuildinfo
+*.pyc
 *.log
-*.docx
-*.html
-*.txt
+*.trx
+*.db
+*.sqlite
+*.bak
+*.pem
+*.pfx
+*.key
+**/uploads/
+test-results/
+playwright-report/
+frontend/next-env.d.ts
 .DS_Store
 Thumbs.db

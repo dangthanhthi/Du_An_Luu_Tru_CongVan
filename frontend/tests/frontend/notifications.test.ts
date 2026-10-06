@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import { notificationsApi } from '../../src/services/das/notifications'
+const id = '11111111-1111-4111-8111-111111111111'
+test('Missing notification service remains a failure', async () => { const old = globalThis.fetch; globalThis.fetch = async () => Response.json({ success: false }, { status: 503 }); try { await assert.rejects(notificationsApi.list()) } finally { globalThis.fetch = old } })
+test('Unsafe legacy action URL cannot be rendered as a notification link', async () => { const old = globalThis.fetch; globalThis.fetch = async () => Response.json({ success: true, data: { items: [{ id, recipientUserId: id, title: 'Test', message: 'Test', actionUrl: '//foreign.test', isRead: false, createdAt: '2026-10-05T01:00:00Z' }], totalCount: 1, page: 1, pageSize: 20 } }); try { await assert.rejects(notificationsApi.list()) } finally { globalThis.fetch = old } })
+test('Unread count must be a nonnegative integer', async () => { const old = globalThis.fetch; globalThis.fetch = async () => Response.json({ success: true, data: { unreadCount: -1 } }); try { await assert.rejects(notificationsApi.unread()) } finally { globalThis.fetch = old } })
+test('Mark read is server PUT with no caller-supplied recipient', async () => { const old = globalThis.fetch; globalThis.fetch = async (url, options) => { assert.match(String(url), new RegExp('/'+id+'/read$')); assert.equal(options?.method, 'PUT'); assert.equal(options?.body, undefined); return Response.json({ success: true }) }; try { await notificationsApi.read(id) } finally { globalThis.fetch = old } })

@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'AuthService'">
+    <DasSourceOwner>auth-service</DasSourceOwner>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'DocumentService'">
+    <DasSourceOwner>document-service</DasSourceOwner>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'EmailWorkerService'">
+    <DasSourceOwner>email-worker-service</DasSourceOwner>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'FileService.API'">
+    <DasSourceOwner>files-service</DasSourceOwner>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'NotificationService'">
+    <DasSourceOwner>notification-service</DasSourceOwner>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'PartnerService'">
+    <DasSourceOwner>partner-service</DasSourceOwner>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(DasSourceOwner)' != ''">
+    <Compile Include="$(MSBuildThisFileDirectory)../database/migrations/$(DasSourceOwner)/**/*.cs" Link="Migrations/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(MSBuildThisFileDirectory)../workflows/business/$(DasSourceOwner)/**/*.cs" Link="Workflows/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>
