@@ -1,8 +1,10 @@
 # Tiến độ và phạm vi bản cộng tác
 
+> Chặng hiện hành: sửa rollback khi lưu refresh thất bại và logout menu xóa nhầm phiên mới. Local Windows **frontend231/231**, typecheck/lint/full build, Python93/93 và layout10/10 qua; nguồn đối chiếu hash. [Checkpoint phiên](SESSION-STORAGE-CHECKPOINT-20261006.md), [evidence](SESSION-STORAGE-VERIFICATION-20261006.json). Cross-tab atomicity/browser/authority thật vẫn chưa hoàn tất; CI dưới đây thuộc runtime trước patch này.
+
 > Đã publish runtime `abb54a9` lên main và kiểm CI hosted thật: **backend629 mỗi OS, frontend223, SQL77, layout/QA qua**. Full workflow vẫn failure do audit6high. [Checkpoint GitHub/CI](HOSTED-CI-CHECKPOINT-20261006.md), [evidence](HOSTED-CI-VERIFICATION-20261006.json). G7/G8 giữ các gate còn mở.
 
-> Chặng SQL hiện hành: **75 core SQL + load + restore** qua, source integrity/cleanup qua; bundle 5 backup + PDF xác minh checksum. Python QA **93/93**, layout **10/10**. [Checkpoint SQL](SQL-CHECKPOINT-20261006.md), [evidence](SQL-VERIFICATION-20261006.json). SQL CI manual-only đã chuẩn bị; hosted CI chưa chạy và G7/G8 vẫn giữ gate thực tế.
+> Chặng SQL trước patch phiên: **75 core SQL + load + restore** qua, source integrity/cleanup qua; bundle 5 backup + PDF xác minh checksum. Python QA **93/93**, layout **10/10**. [Checkpoint SQL](SQL-CHECKPOINT-20261006.md), [evidence](SQL-VERIFICATION-20261006.json). SQL hosted CI đã qua trên runtime abb54a9 theo checkpoint GitHub/CI; G7/G8 vẫn giữ gate thực tế.
 
 ## Phân công EAP — cập nhật ngày 06/10/2026
 
@@ -39,7 +41,7 @@ Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**
 
 Frontend Windows Node22.23.3 đã qua **223/223 tests**, typecheck/lint/full build, nguồn giữ nguyên và đối chiếu với runtime inputs hiện hành khớp. Xem [checkpoint Windows](WINDOWS-FRONTEND-CHECKPOINT-20261006.md). Hosted clean-clone CI và browser/gateway/authority/UAT vẫn là gate riêng.
 
-1. G2: Đã sửa login trả về muộn/overlap và rollback phiên dở dang khi storage lỗi; 34/34 focused tests qua trên Windows. Cross-tab atomic rotation, BFF/session/authority thật và nghiệm thu browser/gateway còn mở.
+1. G2: Đã sửa login trả về muộn/overlap, rollback khi lưu refresh thất bại và logout menu muộn; chặng hiện hành 26/26 session/menu tests và 231/231 full frontend Windows qua. Cross-tab atomic rotation, BFF/session/authority thật và nghiệm thu browser/gateway còn mở. Xem [checkpoint phiên](SESSION-STORAGE-CHECKPOINT-20261006.md) và [nghiên cứu nhiều tab](plans/2026-10-06-session-coordination-research.md).
    Đã bỏ bypass Admin ở API công văn legacy; Admin chỉ có quyền quản trị master data, quyền công văn theo vai trò/phạm vi nghiệp vụ. Các bài test cũ dùng Admin để tạo công văn đã chuyển sang vai trò thư ký phù hợp. Kiểm tra HTTP xác nhận list/detail/file/mutation không tiết lộ hoặc thay đổi công văn cho Admin không có quyền nghiệp vụ.
 2. G7: Đã sửa top-level nonobject, bool/year, PDF metadata/path/link/signature/hash/size; sau đó bổ sung CLI chống overwrite/hardlink/traversal/ADS và parse/hash cùng snapshot. 26/26 focused tests Windows và Linux qua, giữ read-only semantics. Đây chỉ là preflight, chưa nhập dữ liệu khách hàng hay thay thế scanner. Xem [hướng dẫn](MIGRATION-PREFLIGHT.md).
 3. Dependency audit còn 6 high; license Vuexy/Mapbox/assets và một số notice texts chưa được xác nhận. Bản này không tự chấp thuận risk, license hoặc quyền phân phối.

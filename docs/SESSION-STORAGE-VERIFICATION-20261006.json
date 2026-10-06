@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-10-06T09:49:25.125772+00:00",
+  "sourceBaseCommit": "93e673d58d781b9a19934a9ca95d59ff9c6c0ec2",
+  "scope": "local Windows frontend refresh storage rollback and actual menu logout handler; no two-browser test",
+  "red": {
+    "total": 26,
+    "passed": 18,
+    "failed": 8,
+    "skipped": 0,
+    "exitCode": 1
+  },
+  "focused": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "frontend": {
+    "total": 231,
+    "passed": 231,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "pythonQa": {
+    "passed": 93,
+    "total": 93
+  },
+  "layout": {
+    "passed": 10,
+    "total": 10,
+    "evidence": "terminal session 38451 exit0; unittest discover -s tests/layout -v"
+  },
+  "nodeVersion": "v22.23.3",
+  "build": {
+    "passed": true,
+    "steps": [
+      {
+        "name": "npm-ci",
+        "exitCode": 0,
+        "seconds": 168.031
+      },
+      {
+        "name": "prisma-generate",
+        "exitCode": 0,
+        "seconds": 24.032
+      },
+      {
+        "name": "next-typegen",
+        "exitCode": 0,
+        "seconds": 8.515
+      },
+      {
+        "name": "typecheck",
+        "exitCode": 0,
+        "seconds": 66.422
+      },
+      {
+        "name": "full-lint",
+        "exitCode": 0,
+        "seconds": 25.11
+      },
+      {
+        "name": "frontend-tests",
+        "exitCode": 0,
+        "seconds": 19.937
+      },
+      {
+        "name": "next-build",
+        "exitCode": 0,
+        "seconds": 125.906
+      }
+    ],
+    "tests": {
+      "total": 231,
+      "passed": 231,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "sourceChanged": [],
+    "snapshotChanged": [],
+    "sourceCount": 1157,
+    "productionReady": false,
+    "workersEnabled": false,
+    "customerDataUsed": false,
+    "hostConfigUsed": false
+  },
+  "sourceSha256": {
+    "frontend/src/services/api.ts": "fc8b9b3abba7898131ce967388d2597751484589bcae8edee0704c34151484fa",
+    "frontend/src/components/layout/shared/UserDropdown.tsx": "a9e806f38b0874290d4304a4c454c0523b9c75f8ff71eda290fd18705614371a",
+    "frontend/tests/frontend/session-concurrency.test.ts": "1224c0cf49e352b590539c38b8b42ec4e9b8dc99ddf6c85ec2c9c4542bc657e3",
+    "frontend/package.json": "d97ab7ac870ca392abd64b2f83cbab6d19031eb60ad4f8b0523c7d5eda033d26",
+    "frontend/package-lock.json": "9bcfdce1c3fb358e2952cadc06e88614d50151bf68c3477f3944ce123b7df78c"
+  },
+  "sourceParityPassed": true,
+  "independentCodeReview": {
+    "actionableFindings": 0,
+    "testsRunByReviewer": false
+  },
+  "researchReview": {
+    "unresolvedDesignConditions": 3,
+    "implementationProven": false
+  },
+  "harnessFailuresRetained": [
+    "all.log: NODE_PATH cannot resolve ESM @iconify/tools; not a passing full suite",
+    "build/prisma-generate.log: temporary runner bypassed canonical schema staging; v2 uses repository script and fresh source/install"
+  ],
+  "crossTabAtomicityProven": false,
+  "realBrowserVerified": false,
+  "realAuthorityVerified": false,
+  "productionReady": false,
+  "deployed": false,
+  "customerDataUsed": false,
+  "workersEnabled": false,
+  "eapReopened": false,
+  "ocrReopened": false,
+  "historicalHostedCi": {
+    "sourceCommit": "abb54a91e2c9f73ea8b4344d0c7c3182fb11ce51",
+    "runId": 37437948911,
+    "overallConclusion": "failure",
+    "coversThisPatch": false
+  },
+  "logs": {
+    "red2.log": "e9543714584f993e099b2de7907189e0d71e6af91c62c97e3f85ba7bab9a2410",
+    "green.log": "a315c6cca2f743d48306e862d857383096755a25605acb76134686e9da4a36c2",
+    "lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-v2/frontend-tests.log": "4556fdc5f479a353f36db2ebfc1eff037fe47edee71430998ad941cc7e2ec891",
+    "build-v2/typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-v2/full-lint.log": "159339e8ed7265f768a22826b847cf27f45a9d13211c02c1a39808c13707e1a8",
+    "build-v2/next-build.log": "370c82aa729afb3327d7a0e51aad4754be658aa146cdedbd05c7d0ec1e5b7b23",
+    "python-qa/python-qa.log": "ad9493cb21425c05039008899aad93eb4a0caea0bb5b79355eabda5cac0be037"
+  }
+}

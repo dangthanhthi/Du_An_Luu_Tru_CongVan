@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
+import { readFileSync } from 'node:fs'
+import { runInNewContext } from 'node:vm'
+import ts from 'typescript'
 import { authApi, requestApiEnvelope, tokenManager } from '../../src/services/api'
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>()
   failNextWriteFor?: string
+  onFailedWrite?: () => void
   get length() { return this.values.size }
   clear() { this.values.clear() }
   getItem(key: string) { return this.values.get(key) ?? null }
   key(index: number) { return [...this.values.keys()][index] ?? null }
   removeItem(key: string) { this.values.delete(key) }
   setItem(key: string, value: string) {
-    if (key === this.failNextWriteFor) { this.failNextWriteFor = undefined; throw new Error('Fixture storage write failed') }
+    if (key === this.failNextWriteFor) { this.failNextWriteFor = undefined; this.onFailedWrite?.(); throw new Error('Fixture storage write failed') }
     this.values.set(key, String(value))
   }
 }
@@ -46,6 +50,79 @@ const loginResponse = (name: string) => Response.json({ success: true, data: {
   accessToken: `${name}-access`, refreshToken: `${name}-refresh`,
   user: { id: name, fullName: name, email: null, roles: ['Staff'] }
 } })
+
+// Execute the actual menu handler without rendering MUI or replacing the auth API.
+function menuLogout(redirect: (url: string) => void): () => Promise<void> {
+  const path = new URL('../../src/components/layout/shared/UserDropdown.tsx', import.meta.url)
+  const source = ts.createSourceFile(path.pathname, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  let handler: ts.ArrowFunction | undefined
+  const visit = (node: ts.Node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === 'handleUserLogout' && node.initializer && ts.isArrowFunction(node.initializer)) handler = node.initializer
+    ts.forEachChild(node, visit)
+  }
+
+  visit(source)
+  assert.ok(handler, 'The production logout handler must be present')
+  const javascript = ts.transpileModule(`exports.run = ${handler.getText(source)}`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
+  const exports: { run?: () => Promise<void> } = {}
+
+  runInNewContext(javascript, { exports, authApi, tokenManager, window: { location: { set href(url: string) { redirect(url) } } }, locale: 'vi', getLocalizedUrl: (url: string, locale: string) => `/${locale}${url}` })
+  return exports.run!
+}
+
+for (const key of ['das_access_token', 'das_refresh_token']) {
+  for (const callerCount of [1, 2]) {
+    test(`refresh storage failure at ${key} clears the partial session without replay for ${callerCount} caller(s)`, async () => {
+      const gate = deferred<Response>(), entered = deferred<void>()
+      let operations = 0, rotations = 0
+      const statuses: number[] = []
+
+      tokenManager.setUser({ id: 'old-user' })
+      globalThis.fetch = async input => {
+        if (String(input).endsWith('/api/auth/refresh')) { rotations++; entered.resolve(); return gate.promise }
+        operations++; return expired()
+      }
+      const rejected = Array.from({ length: callerCount }, () => assert.rejects(requestApiEnvelope('document', '/fixture/write', { method: 'POST', body: '{}' }), error => { statuses.push((error as { status: number }).status); return true }))
+
+      await entered.promise; storage.failNextWriteFor = key; gate.resolve(refreshed()); await Promise.all(rejected)
+      assert.equal(rotations, 1)
+      assert.equal(operations, callerCount)
+      assert.equal(tokenManager.getToken(), null)
+      assert.equal(tokenManager.getRefreshToken(), null)
+      assert.equal(tokenManager.getUser(), null)
+      assert.deepEqual(statuses, Array(callerCount).fill(401))
+    })
+  }
+
+  test(`refresh rollback at ${key} preserves a replacement session`, async () => {
+    globalThis.fetch = async input => String(input).endsWith('/api/auth/refresh') ? refreshed() : expired()
+    storage.failNextWriteFor = key
+    storage.onFailedWrite = () => { tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' }) }
+    await assert.rejects(requestApiEnvelope('document', '/fixture/write', { method: 'POST', body: '{}' }), status401)
+    assert.equal(tokenManager.getToken(), 'new-access')
+    assert.equal(tokenManager.getRefreshToken(), 'new-refresh')
+    assert.equal(tokenManager.getUser().id, 'new-user')
+  })
+}
+
+for (const transportFails of [false, true]) {
+  test(`menu logout preserves a newer session after delayed ${transportFails ? 'failed' : 'successful'} transport`, async () => {
+    const gate = deferred<void>(), entered = deferred<void>()
+    let redirectUrl: string | undefined
+
+    globalThis.fetch = async () => { entered.resolve(); await gate.promise; if (transportFails) throw new TypeError('Fixture network failure'); return Response.json({ success: true }) }
+    const pending = menuLogout(url => { redirectUrl = url })()
+
+    await entered.promise
+    assert.equal(tokenManager.getToken(), null)
+    tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' })
+    gate.resolve(); await pending
+    assert.equal(redirectUrl, '/vi/login')
+    assert.equal(tokenManager.getToken(), 'new-access')
+    assert.equal(tokenManager.getRefreshToken(), 'new-refresh')
+    assert.equal(tokenManager.getUser().id, 'new-user')
+  })
+}
 
 test('login success arriving after logout rejects and cannot resurrect tokens or identity', async () => {
   const gate = deferred<Response>(), entered = deferred<void>()

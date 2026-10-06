@@ -97,7 +97,7 @@ const UserDropdown = () => {
     try {
       await authApi.logout()
     } catch {}
-    tokenManager.clearTokens()
+    // authApi clears before transport; a late response must preserve a newer login.
     window.location.href = getLocalizedUrl('/login', locale as Locale)
   }
 

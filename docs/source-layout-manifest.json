@@ -6149,8 +6149,8 @@
       "source": "src/components/layout/shared/UserDropdown.tsx",
       "destination": "frontend/src/components/layout/shared/UserDropdown.tsx",
       "originalSha256": "9c868e9512a41d71e7dfb3f66a3971c0c983414535e0c046980b5a14f8cbcfc1",
-      "sha256": "9c868e9512a41d71e7dfb3f66a3971c0c983414535e0c046980b5a14f8cbcfc1",
-      "bytes": 6553
+      "sha256": "a9e806f38b0874290d4304a4c454c0523b9c75f8ff71eda290fd18705614371a",
+      "bytes": 6607
     },
     {
       "source": "src/components/layout/shared/dasLauncher.ts",
@@ -6765,8 +6765,8 @@
       "source": "src/services/api.ts",
       "destination": "frontend/src/services/api.ts",
       "originalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86",
-      "sha256": "102aaa536fad397d5e291188e36a99349be48fffcbe181cf696ddeb1e421372a",
-      "bytes": 21006,
+      "sha256": "fc8b9b3abba7898131ce967388d2597751484589bcae8edee0704c34151484fa",
+      "bytes": 21465,
       "previousCanonicalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86"
     },
     {
@@ -10219,8 +10219,8 @@
       "source": "tests/frontend/session-concurrency.test.ts",
       "destination": "frontend/tests/frontend/session-concurrency.test.ts",
       "originalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7",
-      "sha256": "c411931914e54f312a17c1c92eda5836e7027af8cb62708dc32ba2ee6c927302",
-      "bytes": 12949,
+      "sha256": "1224c0cf49e352b590539c38b8b42ec4e9b8dc99ddf6c85ec2c9c4542bc657e3",
+      "bytes": 17260,
       "previousCanonicalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7"
     },
     {

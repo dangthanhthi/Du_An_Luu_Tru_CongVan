@@ -112,7 +112,17 @@ async function refreshSession(snapshot: SessionSnapshot): Promise<RefreshedToken
   if (!sessionMatches(snapshot)) return null
   if (!session) { tokenManager.clearTokens(); return null }
   // Rotation belongs to this generation; replacement/login/logout invalidates it.
-  persistTokens(session.accessToken, session.refreshToken)
+  try {
+    persistTokens(session.accessToken, session.refreshToken)
+  } catch {
+    // A failed second write leaves the new access token paired with the old
+    // refresh token. Discard only this owned commit; never restore a token the
+    // authority has already rotated or clear a replacement login.
+    const partial = { accessToken: session.accessToken, refreshToken: snapshot.refreshToken }
+
+    if (sessionMatches(snapshot) || sessionMatches(snapshot, partial)) tokenManager.clearTokens()
+    return null
+  }
   return session
 }
 
