@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import ts from 'typescript'
 import { authApi, requestApiEnvelope, tokenManager } from '../../src/services/api'
+import { FixtureLocks, seedSession, SESSION_KEY } from './helpers/session-fixture'
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>()
-  failNextWriteFor?: string
+  failNextSessionState?: 'anonymous' | 'active' | 'refreshing'
   onFailedWrite?: () => void
   get length() { return this.values.size }
   clear() { this.values.clear() }
@@ -15,7 +16,7 @@ class MemoryStorage implements Storage {
   key(index: number) { return [...this.values.keys()][index] ?? null }
   removeItem(key: string) { this.values.delete(key) }
   setItem(key: string, value: string) {
-    if (key === this.failNextWriteFor) { this.failNextWriteFor = undefined; this.onFailedWrite?.(); throw new Error('Fixture storage write failed') }
+    if (key === SESSION_KEY && JSON.parse(value).state === this.failNextSessionState) { this.failNextSessionState = undefined; this.onFailedWrite?.(); throw new Error('Fixture storage write failed') }
     this.values.set(key, String(value))
   }
 }
@@ -27,16 +28,19 @@ function deferred<T>() {
 const originalFetch = globalThis.fetch
 const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
 const localDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')
+const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
 let storage: MemoryStorage
 beforeEach(() => {
   storage = new MemoryStorage()
   Object.defineProperty(globalThis, 'window', { configurable: true, value: {} })
   Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage })
-  tokenManager.clearTokens()
-  tokenManager.setTokens('old-access', 'old-refresh')
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { locks: new FixtureLocks() } })
+  seedSession(storage)
 })
 afterEach(() => {
-  tokenManager.clearTokens()
+  storage.removeItem(SESSION_KEY)
+  if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor)
+  else Reflect.deleteProperty(globalThis, 'navigator')
   globalThis.fetch = originalFetch
   if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
   else Reflect.deleteProperty(globalThis, 'window')
@@ -70,22 +74,24 @@ function menuLogout(redirect: (url: string) => void): () => Promise<void> {
   return exports.run!
 }
 
-for (const key of ['das_access_token', 'das_refresh_token']) {
+for (const phase of ['intent', 'commit'] as const) {
   for (const callerCount of [1, 2]) {
-    test(`refresh storage failure at ${key} clears the partial session without replay for ${callerCount} caller(s)`, async () => {
+    test(`refresh storage failure at ${phase} clears the partial session without replay for ${callerCount} caller(s)`, async () => {
       const gate = deferred<Response>(), entered = deferred<void>()
       let operations = 0, rotations = 0
       const statuses: number[] = []
 
-      tokenManager.setUser({ id: 'old-user' })
+      seedSession(storage, 'old-access', 'old-refresh', { id: 'old-user' })
       globalThis.fetch = async input => {
         if (String(input).endsWith('/api/auth/refresh')) { rotations++; entered.resolve(); return gate.promise }
         operations++; return expired()
       }
+      if (phase === 'intent') storage.failNextSessionState = 'refreshing'
       const rejected = Array.from({ length: callerCount }, () => assert.rejects(requestApiEnvelope('document', '/fixture/write', { method: 'POST', body: '{}' }), error => { statuses.push((error as { status: number }).status); return true }))
 
-      await entered.promise; storage.failNextWriteFor = key; gate.resolve(refreshed()); await Promise.all(rejected)
-      assert.equal(rotations, 1)
+      if (phase === 'commit') { await entered.promise; storage.failNextSessionState = 'active'; gate.resolve(refreshed()) }
+      await Promise.all(rejected)
+      assert.equal(rotations, phase === 'commit' ? 1 : 0)
       assert.equal(operations, callerCount)
       assert.equal(tokenManager.getToken(), null)
       assert.equal(tokenManager.getRefreshToken(), null)
@@ -94,10 +100,10 @@ for (const key of ['das_access_token', 'das_refresh_token']) {
     })
   }
 
-  test(`refresh rollback at ${key} preserves a replacement session`, async () => {
+  test(`refresh rollback at ${phase} preserves a replacement session`, async () => {
     globalThis.fetch = async input => String(input).endsWith('/api/auth/refresh') ? refreshed() : expired()
-    storage.failNextWriteFor = key
-    storage.onFailedWrite = () => { tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' }) }
+    storage.failNextSessionState = phase === 'intent' ? 'refreshing' : 'active'
+    storage.onFailedWrite = () => { seedSession(storage, 'new-access', 'new-refresh', { id: 'new-user' }) }
     await assert.rejects(requestApiEnvelope('document', '/fixture/write', { method: 'POST', body: '{}' }), status401)
     assert.equal(tokenManager.getToken(), 'new-access')
     assert.equal(tokenManager.getRefreshToken(), 'new-refresh')
@@ -115,7 +121,7 @@ for (const transportFails of [false, true]) {
 
     await entered.promise
     assert.equal(tokenManager.getToken(), null)
-    tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' })
+    seedSession(storage, 'new-access', 'new-refresh', { id: 'new-user' })
     gate.resolve(); await pending
     assert.equal(redirectUrl, '/vi/login')
     assert.equal(tokenManager.getToken(), 'new-access')
@@ -128,7 +134,7 @@ test('login success arriving after logout rejects and cannot resurrect tokens or
   const gate = deferred<Response>(), entered = deferred<void>()
   globalThis.fetch = async () => { entered.resolve(); return gate.promise }
   const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === 409)
-  await entered.promise; tokenManager.clearTokens(); gate.resolve(loginResponse('old-user')); await pending
+  await entered.promise; storage.removeItem(SESSION_KEY); gate.resolve(loginResponse('old-user')); await pending
   assert.equal(tokenManager.getToken(), null)
   assert.equal(tokenManager.getRefreshToken(), null)
   assert.equal(tokenManager.getUser(), null)
@@ -139,7 +145,7 @@ for (const success of [true, false]) {
     const gate = deferred<Response>(), entered = deferred<void>()
     globalThis.fetch = async () => { entered.resolve(); return gate.promise }
     const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === (success ? 409 : 401))
-    await entered.promise; tokenManager.setTokens('new-access', 'new-refresh'); tokenManager.setUser({ id: 'new-user' })
+    await entered.promise; seedSession(storage, 'new-access', 'new-refresh', { id: 'new-user' })
     gate.resolve(success ? loginResponse('old-user') : expired()); await pending
     assert.equal(tokenManager.getToken(), 'new-access')
     assert.equal(tokenManager.getRefreshToken(), 'new-refresh')
@@ -173,23 +179,30 @@ test('a login response cannot overwrite another tab changing storage directly', 
   globalThis.fetch = async () => { entered.resolve(); return gate.promise }
   const pending = assert.rejects(authApi.login('operator', 'fixture-password'), e => (e as { status: number }).status === 409)
   await entered.promise
-  storage.setItem('das_access_token', 'other-tab-access'); storage.setItem('das_refresh_token', 'other-tab-refresh')
-  storage.setItem('das_user', JSON.stringify({ id: 'other-tab-user' }))
+  seedSession(storage, 'other-tab-access', 'other-tab-refresh', { id: 'other-tab-user' })
   gate.resolve(loginResponse('old-user')); await pending
   assert.equal(tokenManager.getToken(), 'other-tab-access')
   assert.equal(tokenManager.getUser().id, 'other-tab-user')
 })
 
-for (const key of ['das_access_token', 'das_refresh_token', 'das_user']) {
-  test(`a failed owned login storage write at ${key} leaves no partial session`, async () => {
+for (const phase of ['intent', 'commit'] as const) {
+  test(`a failed owned login storage write at ${phase} leaves no partial session`, async () => {
     globalThis.fetch = async () => loginResponse('operator')
-    storage.failNextWriteFor = key
+    storage.failNextSessionState = phase === 'intent' ? 'anonymous' : 'active'
     await assert.rejects(authApi.login('operator', 'fixture-password'))
     assert.equal(tokenManager.getToken(), null)
     assert.equal(tokenManager.getRefreshToken(), null)
     assert.equal(tokenManager.getUser(), null)
   })
 }
+
+test('an oversized server identity cannot partially commit token fields', async () => {
+  globalThis.fetch = async () => Response.json({ success: true, data: { accessToken: 'actor-access', refreshToken: 'actor-refresh', user: { id: 'actor', fullName: 'x'.repeat(65536), email: null, roles: ['Staff'] } } })
+  await assert.rejects(authApi.login('operator', 'fixture-password'))
+  assert.equal(tokenManager.getToken(), null)
+  assert.equal(tokenManager.getRefreshToken(), null)
+  assert.equal(tokenManager.getUser(), null)
+})
 
 test('simultaneous401s use one rotation and both callers get server data', async () => {
   const gate = deferred<void>(), entered = deferred<void>()
@@ -217,7 +230,7 @@ test('refresh completing after local logout cannot resurrect tokens or retry the
     operations++; return expired()
   }
   const pending = assert.rejects(requestApiEnvelope('document', '/fixture/old-write', { method: 'POST', body: '{}' }), status401)
-  await entered.promise; tokenManager.clearTokens(); gate.resolve(refreshed()); await pending
+  await entered.promise; storage.removeItem(SESSION_KEY); gate.resolve(refreshed()); await pending
   assert.equal(tokenManager.getToken(), null)
   assert.equal(tokenManager.getRefreshToken(), null)
   assert.equal(operations, 1)
@@ -232,7 +245,7 @@ for (const success of [true, false]) {
       operations++; return expired()
     }
     const pending = assert.rejects(requestApiEnvelope('document', '/fixture/old'), status401)
-    await entered.promise; tokenManager.clearTokens(); tokenManager.setTokens('new-user-access', 'new-user-refresh')
+    await entered.promise; storage.removeItem(SESSION_KEY); seedSession(storage, 'new-user-access', 'new-user-refresh')
     gate.resolve(success ? refreshed() : expired()); await pending
     assert.equal(tokenManager.getToken(), 'new-user-access')
     assert.equal(tokenManager.getRefreshToken(), 'new-user-refresh')
@@ -245,7 +258,7 @@ test('an old401 arriving after account change never refreshes or replays with th
   let requests = 0
   globalThis.fetch = async () => { requests++; entered.resolve(); return requests === 1 ? gate.promise : refreshed() }
   const pending = assert.rejects(requestApiEnvelope('document', '/fixture/old-write', { method: 'POST', body: '{"oldUserDraft":true}' }), status401)
-  await entered.promise; tokenManager.clearTokens(); tokenManager.setTokens('new-user-access', 'new-user-refresh')
+  await entered.promise; storage.removeItem(SESSION_KEY); seedSession(storage, 'new-user-access', 'new-user-refresh')
   gate.resolve(expired()); await pending
   assert.equal(requests, 1)
   assert.equal(tokenManager.getToken(), 'new-user-access')
@@ -261,7 +274,7 @@ test('logout clears locally before transport and its late response preserves a l
   }
   const pending = authApi.logout(); await entered.promise
   const tokenBeforeResponse = tokenManager.getToken()
-  tokenManager.setTokens('new-user-access', 'new-user-refresh')
+  seedSession(storage, 'new-user-access', 'new-user-refresh')
   gate.resolve(Response.json({ success: true })); await pending
   assert.equal(tokenBeforeResponse, null)
   assert.equal(tokenManager.getToken(), 'new-user-access')
@@ -277,7 +290,7 @@ test('a delayed retried401 cannot clear a session created while that retry was i
     retried.resolve(); return gate.promise
   }
   const pending = assert.rejects(requestApiEnvelope('document', '/fixture/read'), status401)
-  await retried.promise; tokenManager.clearTokens(); tokenManager.setTokens('new-user-access', 'new-user-refresh')
+  await retried.promise; storage.removeItem(SESSION_KEY); seedSession(storage, 'new-user-access', 'new-user-refresh')
   gate.resolve(expired()); await pending
   assert.equal(tokenManager.getToken(), 'new-user-access')
 })

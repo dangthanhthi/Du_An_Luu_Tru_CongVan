@@ -1,3 +1,4 @@
+import type { SessionIntent } from '../api'
 import { ApiRequestError, requestApiEnvelope } from '../api'
 import { isDocumentGuid } from './documents'
 
@@ -34,15 +35,15 @@ export const documentTasksApi = {
     for (const item of x.items) { receipt(item); if (!isDocumentGuid(item.assigneeUserId) || !text(item.title, 250) || isPendingTask(item.state) && !x.hasPending) throw invalid() }
     return x
   },
-  async create(documentId: string, key: string, draft: TaskDraft): Promise<TaskReceipt> {
+  async create(documentId: string, key: string, draft: TaskDraft, sessionIntent?: SessionIntent): Promise<TaskReceipt> {
     checkId(documentId)
     if (!validTaskRequest(key, draft)) throw new ApiRequestError(400, 'Người được giao hoặc tiêu đề task không hợp lệ.')
-    return receipt((await requestApiEnvelope<TaskReceipt>('document', `/api/v2/documents/${documentId}/tasks`, { method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify({ assigneeUserId: draft.assigneeUserId, title: draft.title }), cache: 'no-store', redirect: 'error' })).data)
+    return receipt((await requestApiEnvelope<TaskReceipt>('document', `/api/v2/documents/${documentId}/tasks`, { sessionIntent, method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify({ assigneeUserId: draft.assigneeUserId, title: draft.title }), cache: 'no-store', redirect: 'error' })).data)
   },
-  async retry(correlationId: string): Promise<TaskReceipt> { return this.operation(correlationId, 'retry') },
-  async reconcile(correlationId: string): Promise<TaskReceipt> { return this.operation(correlationId, 'reconcile') },
-  async operation(correlationId: string, action: 'retry' | 'reconcile'): Promise<TaskReceipt> {
+  async retry(correlationId: string, sessionIntent?: SessionIntent): Promise<TaskReceipt> { return this.operation(correlationId, 'retry', sessionIntent) },
+  async reconcile(correlationId: string, sessionIntent?: SessionIntent): Promise<TaskReceipt> { return this.operation(correlationId, 'reconcile', sessionIntent) },
+  async operation(correlationId: string, action: 'retry' | 'reconcile', sessionIntent?: SessionIntent): Promise<TaskReceipt> {
     checkId(correlationId)
-    return receipt((await requestApiEnvelope<TaskReceipt>('document', `/api/v2/task-intents/${correlationId}/${action}`, { method: 'POST', cache: 'no-store', redirect: 'error' })).data, correlationId)
+    return receipt((await requestApiEnvelope<TaskReceipt>('document', `/api/v2/task-intents/${correlationId}/${action}`, { sessionIntent, method: 'POST', cache: 'no-store', redirect: 'error' })).data, correlationId)
   }
 }

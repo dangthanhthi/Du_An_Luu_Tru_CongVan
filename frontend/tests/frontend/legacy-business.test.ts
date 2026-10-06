@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { documentApi, partnerApi, tokenManager } from '../../src/services/api'
+import { FixtureLocks, seedSession } from './helpers/session-fixture'
 
 class Store implements Storage {
   private m = new Map<string,string>()
@@ -12,9 +13,11 @@ class Store implements Storage {
 const previousFetch = globalThis.fetch
 const previousWindow = Object.getOwnPropertyDescriptor(globalThis,'window')
 const previousStorage = Object.getOwnPropertyDescriptor(globalThis,'localStorage')
+const previousNavigator = Object.getOwnPropertyDescriptor(globalThis,'navigator')
 let storage:Store
 beforeEach(()=>{
   storage=new Store()
+  Object.defineProperty(globalThis,'navigator',{configurable:true,value:{locks:new FixtureLocks()}})
   Object.defineProperty(globalThis,'window',{configurable:true,value:{}})
   Object.defineProperty(globalThis,'localStorage',{configurable:true,value:storage})
   storage.setItem('das_documents_store','[{"id":"old","documentNumber":"CV-DEN-2020-0130","title":"Historical"}]')
@@ -22,6 +25,7 @@ beforeEach(()=>{
 })
 afterEach(()=>{
   globalThis.fetch=previousFetch
+  if(previousNavigator)Object.defineProperty(globalThis,'navigator',previousNavigator);else Reflect.deleteProperty(globalThis,'navigator')
   if(previousWindow)Object.defineProperty(globalThis,'window',previousWindow);else Reflect.deleteProperty(globalThis,'window')
   if(previousStorage)Object.defineProperty(globalThis,'localStorage',previousStorage);else Reflect.deleteProperty(globalThis,'localStorage')
 })
@@ -74,7 +78,7 @@ test('empty array legacy response is valid and contains no cached rows',async()=
   assert.deepEqual((await documentApi.getList()).data,[])
 })
 test('refresh reads backend envelope and retries with returned access token',async()=>{
-  tokenManager.setTokens('old-access','refresh-1')
+  seedSession(storage,'old-access','refresh-1')
   let calls=0
   globalThis.fetch=async(input,options)=>{
     calls++
@@ -108,7 +112,7 @@ test('document detail propagates request cancellation',async()=>{
   await assert.rejects(documentApi.getById('old',controller.signal),(e:any)=>e.name==='AbortError')
 })
 test('cancelling an authenticated retry preserves the refreshed session',async()=>{
-  tokenManager.setTokens('old-access','refresh-1')
+  seedSession(storage,'old-access','refresh-1')
   let calls=0
   globalThis.fetch=async input=>{
     calls++
@@ -122,7 +126,7 @@ test('cancelling an authenticated retry preserves the refreshed session',async()
 })
 
 test('lost write response after successful refresh remains an unknown network outcome',async()=>{
-  tokenManager.setTokens('old-access','refresh-1')
+  seedSession(storage,'old-access','refresh-1')
   let calls=0
   globalThis.fetch=async input=>{
     calls++

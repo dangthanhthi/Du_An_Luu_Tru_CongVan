@@ -1,3 +1,4 @@
+import type { SessionIntent } from '../api'
 import { requestApiEnvelope, V2ApiError } from './http'
 import type { DocumentKind } from '../../types/das/documents'
 import type { DocumentDetailV2, DocumentFormOptions, DocumentWriteResult, EditDraft, RegistrationDraft } from '../../types/das/document-v2'
@@ -48,23 +49,23 @@ export const documentsV2Api = {
         !Array.isArray(x.distributionTargets) || !x.distributionTargets.every(t => t && isDocumentGuid(t.id) && text(t.name, 200))) throw bad()
     return x
   },
-  async register(draft: RegistrationDraft, key: string): Promise<DocumentWriteResult> {
+  async register(draft: RegistrationDraft, key: string, sessionIntent?: SessionIntent): Promise<DocumentWriteResult> {
     if (!/^[A-Za-z0-9._:-]{1,128}$/.test(key) || !kinds.includes(draft.kind)) throw new V2ApiError(400, 'Yêu cầu đăng ký không hợp lệ.')
     return write((await requestApiEnvelope<unknown>('document', '/api/v2/documents', {
-      method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(draft)
+      sessionIntent, method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(draft)
     })).data)
   },
-  async edit(id: string, draft: EditDraft): Promise<DocumentWriteResult> {
+  async edit(id: string, draft: EditDraft, sessionIntent?: SessionIntent): Promise<DocumentWriteResult> {
     checkId(id)
     if (!version(draft.expectedVersion)) throw new V2ApiError(400, 'Phiên bản không hợp lệ.')
-    return write((await requestApiEnvelope<unknown>('document', `/api/v2/documents/${id}`, { method: 'PUT', body: JSON.stringify(draft) })).data, id)
+    return write((await requestApiEnvelope<unknown>('document', `/api/v2/documents/${id}`, { sessionIntent, method: 'PUT', body: JSON.stringify(draft) })).data, id)
   },
-  async status(id: string, expectedVersion: number, action: string, reason?: string): Promise<DocumentWriteResult> {
+  async status(id: string, expectedVersion: number, action: string, reason?: string, sessionIntent?: SessionIntent): Promise<DocumentWriteResult> {
     checkId(id)
     if (!version(expectedVersion) || !['Distribute', 'Cancel', 'Restore'].includes(action) ||
         action === 'Cancel' && !text(reason, 4000) || action !== 'Cancel' && reason !== undefined) throw new V2ApiError(400, 'Thao tác trạng thái không hợp lệ.')
     return write((await requestApiEnvelope<unknown>('document', `/api/v2/documents/${id}/status`, {
-      method: 'POST', body: JSON.stringify({ expectedVersion, action, ...(reason !== undefined ? { reason } : {}) })
+      sessionIntent, method: 'POST', body: JSON.stringify({ expectedVersion, action, ...(reason !== undefined ? { reason } : {}) })
     })).data, id)
   }
 }

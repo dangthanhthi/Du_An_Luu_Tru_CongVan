@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 
 import { tokenManager } from '@/services/api'
+import { subscribeBrowserSession } from '@/services/browserSession'
 import { i18n } from '@/configs/i18n'
 import { useAppDictionary } from './useDictionary'
 import { buildDasLauncher, buildDasShortcuts, getCachedCapabilityHints } from '@/components/layout/shared/dasLauncher'
@@ -20,13 +21,7 @@ export const useCachedCapabilityHints = () => {
 
   useEffect(() => {
     refreshCapabilities()
-    window.addEventListener('storage', refreshCapabilities)
-    window.addEventListener('focus', refreshCapabilities)
-
-    return () => {
-      window.removeEventListener('storage', refreshCapabilities)
-      window.removeEventListener('focus', refreshCapabilities)
-    }
+    return subscribeBrowserSession(refreshCapabilities, tokenManager.getEpoch)
   }, [refreshCapabilities])
 
   return { capabilities, refreshCapabilities }

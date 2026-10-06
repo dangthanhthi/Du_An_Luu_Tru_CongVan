@@ -5253,8 +5253,8 @@
       "source": "src/app/[lang]/(dashboard)/(private)/layout.tsx",
       "destination": "frontend/src/app/[lang]/(dashboard)/(private)/layout.tsx",
       "originalSha256": "803c054ee6035530891aca918dfc0f64915c6bc704cca481638bce9fc68c35ab",
-      "sha256": "30a0ca00fb06d7a88a8c9dd107ef5b3e0cd074e610fb0b45c0921bd22ae2ba69",
-      "bytes": 2603
+      "sha256": "85390fe9c06459f873dce20d2ac6960674276ee2397cb111a019b5d75aa37265",
+      "bytes": 2792
     },
     {
       "source": "src/app/[lang]/(dashboard)/(private)/pages/account-settings/page.tsx",
@@ -6107,8 +6107,8 @@
       "source": "src/components/layout/shared/DasNotificationsDropdown.tsx",
       "destination": "frontend/src/components/layout/shared/DasNotificationsDropdown.tsx",
       "originalSha256": "6313aa27048385dd3fb0ffc514fa5b9452447c586fc8d08d9266f2eebdc2d2eb",
-      "sha256": "6313aa27048385dd3fb0ffc514fa5b9452447c586fc8d08d9266f2eebdc2d2eb",
-      "bytes": 3143
+      "sha256": "d4ff37419a25eef32efb22429aafb85bb168df0753e7d14f438dbf4cc7890ca5",
+      "bytes": 3274
     },
     {
       "source": "src/components/layout/shared/LanguageDropdown.tsx",
@@ -6149,8 +6149,8 @@
       "source": "src/components/layout/shared/UserDropdown.tsx",
       "destination": "frontend/src/components/layout/shared/UserDropdown.tsx",
       "originalSha256": "9c868e9512a41d71e7dfb3f66a3971c0c983414535e0c046980b5a14f8cbcfc1",
-      "sha256": "a9e806f38b0874290d4304a4c454c0523b9c75f8ff71eda290fd18705614371a",
-      "bytes": 6607
+      "sha256": "cefa7d1146c4858435ad75e0ed846f15f09c569da21d4b2e3891d9d508dc09dc",
+      "bytes": 6624
     },
     {
       "source": "src/components/layout/shared/dasLauncher.ts",
@@ -6520,8 +6520,8 @@
       "source": "src/hooks/useDasLauncher.ts",
       "destination": "frontend/src/hooks/useDasLauncher.ts",
       "originalSha256": "8ee73c240fa6713ba90cafcbfa003cd450c9617f24ef9873dc939eab0b2d51d7",
-      "sha256": "8ee73c240fa6713ba90cafcbfa003cd450c9617f24ef9873dc939eab0b2d51d7",
-      "bytes": 1563
+      "sha256": "a9bddb0617b18d7f83e3083458eefdb47589c3ff29eb72fe256d5908d5e014a6",
+      "bytes": 1438
     },
     {
       "source": "src/hooks/useDictionary.ts",
@@ -6765,16 +6765,16 @@
       "source": "src/services/api.ts",
       "destination": "frontend/src/services/api.ts",
       "originalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86",
-      "sha256": "fc8b9b3abba7898131ce967388d2597751484589bcae8edee0704c34151484fa",
-      "bytes": 21465,
+      "sha256": "a1b813e3416d4e59d7a62edd456c2ab5742e2db5bf1f2ab86d27554ffbaf027e",
+      "bytes": 20628,
       "previousCanonicalSha256": "3e9db01ab8f830e4185b1a1623c092bdd4e1c27ac9e5989791326af4e4ad8a86"
     },
     {
       "source": "src/services/das/catalogs.ts",
       "destination": "frontend/src/services/das/catalogs.ts",
       "originalSha256": "4249e36a9799260ceab6f928512140693918c25316a0b269dd447b9ee3cc322b",
-      "sha256": "4249e36a9799260ceab6f928512140693918c25316a0b269dd447b9ee3cc322b",
-      "bytes": 5455
+      "sha256": "099e573548aae9d9ce2e4a2940e7cd92a43b6eb2c5f00caf05b6dc895ed82067",
+      "bytes": 5591
     },
     {
       "source": "src/services/das/directory.ts",
@@ -6787,29 +6787,29 @@
       "source": "src/services/das/document-pdf.ts",
       "destination": "frontend/src/services/das/document-pdf.ts",
       "originalSha256": "b7ec26c0a322b2fce35a58265ecefaef85c7df4907fa50d23fe34eb966970515",
-      "sha256": "b7ec26c0a322b2fce35a58265ecefaef85c7df4907fa50d23fe34eb966970515",
-      "bytes": 3201
+      "sha256": "106e190e3a49a014c030a5e5f15fa7c24db548e7b3509d8a186f717b4abeea01",
+      "bytes": 3337
     },
     {
       "source": "src/services/das/document-tasks.ts",
       "destination": "frontend/src/services/das/document-tasks.ts",
       "originalSha256": "4e9bc41f6bab462ab54f5bd0026040dc47451b18a8df78ba273bba09abd4ad02",
-      "sha256": "4e9bc41f6bab462ab54f5bd0026040dc47451b18a8df78ba273bba09abd4ad02",
-      "bytes": 4547
+      "sha256": "00fb3eb61564d72ba99ebe388dbae4af8845082157895ee02a5d625009f8a500",
+      "bytes": 4775
     },
     {
       "source": "src/services/das/documents.ts",
       "destination": "frontend/src/services/das/documents.ts",
       "originalSha256": "b66eff007d9f2b261ccab50c923528b31de1163f740e052ad1eba27e82f74da0",
-      "sha256": "b66eff007d9f2b261ccab50c923528b31de1163f740e052ad1eba27e82f74da0",
-      "bytes": 5909
+      "sha256": "7bbae30ed24450c0bbd8e486265b8ee50942251cd68db0a0ee4bc26bdaa71adf",
+      "bytes": 6091
     },
     {
       "source": "src/services/das/external-entities.ts",
       "destination": "frontend/src/services/das/external-entities.ts",
       "originalSha256": "44d31ae3e952d30fb1bf4eb418b2292441ac10b5d7fd98fc72f8a3f5a8c173bb",
-      "sha256": "44d31ae3e952d30fb1bf4eb418b2292441ac10b5d7fd98fc72f8a3f5a8c173bb",
-      "bytes": 7226
+      "sha256": "92357a732a07741be6ac718b2b57331c2e44787a6f8d058a9b84f66df69cb816",
+      "bytes": 7408
     },
     {
       "source": "src/services/das/http.ts",
@@ -6822,8 +6822,8 @@
       "source": "src/services/das/notifications.ts",
       "destination": "frontend/src/services/das/notifications.ts",
       "originalSha256": "45f16a981a6fb4c422170199bffdd181f9bd861b8d5c5b7266f9c1493e61498b",
-      "sha256": "45f16a981a6fb4c422170199bffdd181f9bd861b8d5c5b7266f9c1493e61498b",
-      "bytes": 2350
+      "sha256": "e83b1766fa4390926b03a0441ac5be31aede3b1cce287692048023dc87603146",
+      "bytes": 2484
     },
     {
       "source": "src/services/das/reports-staff.ts",
@@ -7277,22 +7277,22 @@
       "source": "src/views/apps/documents/DocumentTaskPanel.tsx",
       "destination": "frontend/src/views/apps/documents/DocumentTaskPanel.tsx",
       "originalSha256": "05eb25fe083113a3d6f4fb1e62d0d5294aa03707c5dc9d69b8f878589be43803",
-      "sha256": "05eb25fe083113a3d6f4fb1e62d0d5294aa03707c5dc9d69b8f878589be43803",
-      "bytes": 8494
+      "sha256": "a0866e1a97e7ce1e8cfe71108803f98a87b5879b2be8e2a2b0fb6163dba0bb6e",
+      "bytes": 8678
     },
     {
       "source": "src/views/apps/documents/V2DocumentForm.tsx",
       "destination": "frontend/src/views/apps/documents/V2DocumentForm.tsx",
       "originalSha256": "0c44ba9e4fae0b541486eddc15919e20b38377b282b0b7d13827ce7f1f5844fc",
-      "sha256": "0c44ba9e4fae0b541486eddc15919e20b38377b282b0b7d13827ce7f1f5844fc",
-      "bytes": 15060
+      "sha256": "a930266eb3421d563e94e0bd438a35353436bb1bd950b3b3affcd20d9d0a2007",
+      "bytes": 15229
     },
     {
       "source": "src/views/apps/documents/V2PdfPanel.tsx",
       "destination": "frontend/src/views/apps/documents/V2PdfPanel.tsx",
       "originalSha256": "1403afa826e2ba81998635148e3ba1ee32984ff4e35e17e88ddbb5b08819b2d7",
-      "sha256": "1403afa826e2ba81998635148e3ba1ee32984ff4e35e17e88ddbb5b08819b2d7",
-      "bytes": 4438
+      "sha256": "0857898749d97602208d580ab2d7a86b63f0b9e035ff7f3b334a6dd6ffaa7b1e",
+      "bytes": 4645
     },
     {
       "source": "src/views/apps/documents/V2ReferencePicker.tsx",
@@ -7312,8 +7312,8 @@
       "source": "src/views/apps/documents/detail/index.tsx",
       "destination": "frontend/src/views/apps/documents/detail/index.tsx",
       "originalSha256": "dcdad44a33bea61bc596ad3232861798db98030740279a49b7e99027c430ce6a",
-      "sha256": "dcdad44a33bea61bc596ad3232861798db98030740279a49b7e99027c430ce6a",
-      "bytes": 6550
+      "sha256": "a9f633eb8fc335cd77e8323228b6ae0230112027463d213f9c9ddc293effd065",
+      "bytes": 6668
     },
     {
       "source": "src/views/apps/documents/edit/EditDocumentForm.tsx",
@@ -8201,15 +8201,15 @@
       "source": "src/views/apps/partners/list/AddPartnerDrawer.tsx",
       "destination": "frontend/src/views/apps/partners/list/AddPartnerDrawer.tsx",
       "originalSha256": "46e985810dea37a0c80af21f75b2e19a49aa8d4de2080b4c820616d343759d46",
-      "sha256": "46e985810dea37a0c80af21f75b2e19a49aa8d4de2080b4c820616d343759d46",
-      "bytes": 5119
+      "sha256": "76f3c8f2c075340bdf45ab08160304072b138527dd422a35a45a9b6f67943976",
+      "bytes": 5252
     },
     {
       "source": "src/views/apps/partners/list/PartnerListTable.tsx",
       "destination": "frontend/src/views/apps/partners/list/PartnerListTable.tsx",
       "originalSha256": "c3494e3769df438c6e5875093a841c6c195a5c172615476761c8909965940972",
-      "sha256": "c3494e3769df438c6e5875093a841c6c195a5c172615476761c8909965940972",
-      "bytes": 8530
+      "sha256": "f4cb81455caa544d834c16493ef4395bcc6380d66cb3ab12fb21b24c884461c6",
+      "bytes": 8648
     },
     {
       "source": "src/views/apps/partners/list/index.tsx",
@@ -8258,8 +8258,8 @@
       "source": "src/views/apps/settings/BusinessCatalogs.tsx",
       "destination": "frontend/src/views/apps/settings/BusinessCatalogs.tsx",
       "originalSha256": "471b3b0b072485620f62d5714cf72a5af4335a56b260200ec20b4d372c350353",
-      "sha256": "471b3b0b072485620f62d5714cf72a5af4335a56b260200ec20b4d372c350353",
-      "bytes": 14061
+      "sha256": "f6291fe302867e9d5dd16e8677713fa9991fee1b18d8d66c6a6fb70e9d14c2e6",
+      "bytes": 14194
     },
     {
       "source": "src/views/apps/settings/OrganizationDirectory.tsx",
@@ -10163,8 +10163,8 @@
       "source": "tests/frontend/document-tasks.test.ts",
       "destination": "frontend/tests/frontend/document-tasks.test.ts",
       "originalSha256": "c201c5972e974d1b4021e1f2a2cbeada624b69d60312a56b2bd8ff0c06bc0c69",
-      "sha256": "c201c5972e974d1b4021e1f2a2cbeada624b69d60312a56b2bd8ff0c06bc0c69",
-      "bytes": 6949
+      "sha256": "47c0725401cb3d4c5b9e51a86f0e5d55fffe9d16ceda157475f0da32ccd0d0cb",
+      "bytes": 6970
     },
     {
       "source": "tests/frontend/document-v2-client.test.ts",
@@ -10184,15 +10184,15 @@
       "source": "tests/frontend/legacy-auth.test.ts",
       "destination": "frontend/tests/frontend/legacy-auth.test.ts",
       "originalSha256": "a3f13b9fc6c2529fe6902f56c86273957571aca86afdbfde46c56753ffcf3c7b",
-      "sha256": "9639fde95f87e94d345c633248350aa6a0ac47c8baf5180c441f57094f8d5898",
-      "bytes": 6737
+      "sha256": "5d8e6b98c751d0a4037565a24dba623344d64301289709b75979b7b9341c29fe",
+      "bytes": 7249
     },
     {
       "source": "tests/frontend/legacy-business.test.ts",
       "destination": "frontend/tests/frontend/legacy-business.test.ts",
       "originalSha256": "838a198b92fcb40ad36026a6302a7e4135cd5c50cc4146e7a93dbd26ef6e6262",
-      "sha256": "838a198b92fcb40ad36026a6302a7e4135cd5c50cc4146e7a93dbd26ef6e6262",
-      "bytes": 8051
+      "sha256": "f32d275f484efb3ad5850bb268687f359c7cdbb65592e5071b2238e4b6cc650b",
+      "bytes": 8434
     },
     {
       "source": "tests/frontend/notifications.test.ts",
@@ -10219,8 +10219,8 @@
       "source": "tests/frontend/session-concurrency.test.ts",
       "destination": "frontend/tests/frontend/session-concurrency.test.ts",
       "originalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7",
-      "sha256": "1224c0cf49e352b590539c38b8b42ec4e9b8dc99ddf6c85ec2c9c4542bc657e3",
-      "bytes": 17260,
+      "sha256": "4f748fd731f695cea7e5152efb237a3cf2ffb7e4000dcd78ed8452f253fddbec",
+      "bytes": 18324,
       "previousCanonicalSha256": "43a3c29a0e2fa1de8131c627e03b341dc5486f11009a9a5a28f812aed062cba7"
     },
     {

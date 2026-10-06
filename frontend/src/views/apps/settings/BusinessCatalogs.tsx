@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, Dialog, DialogActions, DialogContent,
@@ -17,6 +18,7 @@ type Group = CatalogGroup | 'targets'
 type Editor = { original?: CatalogItem; code: string; name: string; sortOrder: string; isActive: boolean }
 
 const BusinessCatalogs = () => {
+  const sessionIntent = useSessionIntent()
   const { isEn } = useAppDictionary()
   const l = (vi: string, en: string) => isEn ? en : vi
   const names: Record<Group, string> = { companies: l('Công ty', 'Companies'), methods: l('Phương thức', 'Methods'),
@@ -88,8 +90,8 @@ const BusinessCatalogs = () => {
     setBusy(true)
     setSaveError(null)
     try {
-      if (editor.original) await catalogApi.update(editor.original, { name: editor.name, sortOrder: order, isActive: editor.isActive })
-      else await catalogApi.create({ group: group as CatalogGroup, code: editor.code, name: editor.name })
+      if (editor.original) await catalogApi.update(editor.original, { name: editor.name, sortOrder: order, isActive: editor.isActive }, sessionIntent)
+      else await catalogApi.create({ group: group as CatalogGroup, code: editor.code, name: editor.name }, sessionIntent)
       if (alive.current) {
         setEditor(null)
         setRevision(value => value + 1)

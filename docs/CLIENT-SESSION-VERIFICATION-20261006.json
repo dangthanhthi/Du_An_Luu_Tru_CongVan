@@ -1,0 +1,368 @@
+{
+  "verifiedAtUtc": "2026-10-06T11:25:53.738188+00:00",
+  "baselineCommit": "5f6179bf8ad0a870d399811d22a26202c0437396",
+  "status": "verified-local-prepared",
+  "productionReady": false,
+  "scope": {
+    "EAPImplemented": false,
+    "OCRImplemented": false,
+    "customerDataUsed": false,
+    "liveAuthorityUsed": false,
+    "liveTMSUsed": false,
+    "liveSMTPUsed": false,
+    "UATAccepted": false
+  },
+  "runtimeSourceSha256": {
+    "frontend/src/app/[lang]/(dashboard)/(private)/layout.tsx": "85390fe9c06459f873dce20d2ac6960674276ee2397cb111a019b5d75aa37265",
+    "frontend/src/components/DasSessionBoundary.tsx": "f7dc5a38316e19a362295ce3b69b59abc0b924830eb11ca535d2abdaf6f6aef7",
+    "frontend/src/components/layout/shared/DasNotificationsDropdown.tsx": "d4ff37419a25eef32efb22429aafb85bb168df0753e7d14f438dbf4cc7890ca5",
+    "frontend/src/components/layout/shared/UserDropdown.tsx": "cefa7d1146c4858435ad75e0ed846f15f09c569da21d4b2e3891d9d508dc09dc",
+    "frontend/src/contexts/sessionIntentContext.ts": "65a9cb32089d27e6d005213baa1d1bcff84171b89f893a4173eeb070bb7a6b25",
+    "frontend/src/hooks/useDasLauncher.ts": "a9bddb0617b18d7f83e3083458eefdb47589c3ff29eb72fe256d5908d5e014a6",
+    "frontend/src/hooks/useSessionIntent.ts": "69fe4221c0ea0fe2c91e0d8d8a2a98ee7455841c902361369663087a8c302bfb",
+    "frontend/src/services/api.ts": "a1b813e3416d4e59d7a62edd456c2ab5742e2db5bf1f2ab86d27554ffbaf027e",
+    "frontend/src/services/browserSession.ts": "aa5bf2e3f1145bbc883af9e416a9b2f15967f7225f66ab049f337febdf3be8df",
+    "frontend/src/services/das/catalogs.ts": "099e573548aae9d9ce2e4a2940e7cd92a43b6eb2c5f00caf05b6dc895ed82067",
+    "frontend/src/services/das/document-pdf.ts": "106e190e3a49a014c030a5e5f15fa7c24db548e7b3509d8a186f717b4abeea01",
+    "frontend/src/services/das/document-tasks.ts": "00fb3eb61564d72ba99ebe388dbae4af8845082157895ee02a5d625009f8a500",
+    "frontend/src/services/das/documents.ts": "7bbae30ed24450c0bbd8e486265b8ee50942251cd68db0a0ee4bc26bdaa71adf",
+    "frontend/src/services/das/external-entities.ts": "92357a732a07741be6ac718b2b57331c2e44787a6f8d058a9b84f66df69cb816",
+    "frontend/src/services/das/notifications.ts": "e83b1766fa4390926b03a0441ac5be31aede3b1cce287692048023dc87603146",
+    "frontend/src/services/sessionCoordinator.ts": "a02cbb562fa5d9f7d7d452470123590682d3e9f37d2e9f45981962f251407992",
+    "frontend/src/views/apps/documents/DocumentTaskPanel.tsx": "a0866e1a97e7ce1e8cfe71108803f98a87b5879b2be8e2a2b0fb6163dba0bb6e",
+    "frontend/src/views/apps/documents/V2DocumentForm.tsx": "a930266eb3421d563e94e0bd438a35353436bb1bd950b3b3affcd20d9d0a2007",
+    "frontend/src/views/apps/documents/V2PdfPanel.tsx": "0857898749d97602208d580ab2d7a86b63f0b9e035ff7f3b334a6dd6ffaa7b1e",
+    "frontend/src/views/apps/documents/detail/index.tsx": "a9f633eb8fc335cd77e8323228b6ae0230112027463d213f9c9ddc293effd065",
+    "frontend/src/views/apps/partners/list/AddPartnerDrawer.tsx": "76f3c8f2c075340bdf45ab08160304072b138527dd422a35a45a9b6f67943976",
+    "frontend/src/views/apps/partners/list/PartnerListTable.tsx": "f4cb81455caa544d834c16493ef4395bcc6380d66cb3ab12fb21b24c884461c6",
+    "frontend/src/views/apps/settings/BusinessCatalogs.tsx": "f6291fe302867e9d5dd16e8677713fa9991fee1b18d8d66c6a6fb70e9d14c2e6",
+    "frontend/tests/frontend/cross-tab-session.test.ts": "d034eef88c087d01640c51d84ae4c3d2dc56f12c0405b3b13189c8bbf40794fe",
+    "frontend/tests/frontend/document-tasks.test.ts": "47c0725401cb3d4c5b9e51a86f0e5d55fffe9d16ceda157475f0da32ccd0d0cb",
+    "frontend/tests/frontend/helpers/api-context.ts": "20b9778731886d6329ef5fe89421ce5432949be5238b4e26a7260c5f18eb3e05",
+    "frontend/tests/frontend/helpers/session-fixture.ts": "bf65e6af2ec4748623feec1fea3becbeb33067fb40d24b6b02b2a4ddd442ff70",
+    "frontend/tests/frontend/legacy-auth.test.ts": "5d8e6b98c751d0a4037565a24dba623344d64301289709b75979b7b9341c29fe",
+    "frontend/tests/frontend/legacy-business.test.ts": "f32d275f484efb3ad5850bb268687f359c7cdbb65592e5071b2238e4b6cc650b",
+    "frontend/tests/frontend/session-concurrency.test.ts": "4f748fd731f695cea7e5152efb237a3cf2ffb7e4000dcd78ed8452f253fddbec",
+    "frontend/tests/frontend/session-content.test.ts": "dd0e58331ca6fee1b497338e7270b203c07d06535ed2f6ff4139a74fd562a2be",
+    "frontend/tests/frontend/session-coordinator.test.ts": "b8bb897601e185c0aaa5dc814d1b8ee101840819b4252a561f9fa895bd79baeb",
+    "frontend/tests/frontend/session-intent.test.ts": "26e7f2d9afa32d41dbc9244fcda3c85bf019f245ae7deb23226ee4bbfe3e8ee8",
+    "frontend/tests/frontend/session-ui.test.ts": "4edd493e061e7451b07872763dcf9c21f2ebb5732b9ca6b37894fe426825f5e9"
+  },
+  "fullFrontend": {
+    "passed": true,
+    "steps": [
+      {
+        "name": "npm-ci",
+        "exitCode": 0,
+        "seconds": 129.672
+      },
+      {
+        "name": "prisma-generate",
+        "exitCode": 0,
+        "seconds": 41.063
+      },
+      {
+        "name": "next-typegen",
+        "exitCode": 0,
+        "seconds": 9.312
+      },
+      {
+        "name": "typecheck",
+        "exitCode": 0,
+        "seconds": 96.204
+      },
+      {
+        "name": "full-lint",
+        "exitCode": 0,
+        "seconds": 34.531
+      },
+      {
+        "name": "frontend-tests",
+        "exitCode": 0,
+        "seconds": 25.89
+      },
+      {
+        "name": "next-build",
+        "exitCode": 0,
+        "seconds": 181.844
+      }
+    ],
+    "tests": {
+      "total": 291,
+      "passed": 291,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    "sourceChanged": [],
+    "snapshotChanged": [],
+    "sourceCount": 1169,
+    "productionReady": false,
+    "workersEnabled": false,
+    "customerDataUsed": false,
+    "hostConfigUsed": false
+  },
+  "frozenSourceManifestSha256": "ad71df025a7a7455034bb439fe0e35d283c439dc7861a3b2274c3f12a78baec0",
+  "sourceParity": {
+    "sourceChanged": [],
+    "snapshotChanged": [],
+    "inventoryChanged": []
+  },
+  "focused": {
+    "tests": {
+      "tests": 130,
+      "pass": 130,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "sourceManifestSha256": "1ae3cec16d318350e6f388706283df8297e67b2aaa2d1d2c0f5c2026df174837"
+  },
+  "browser": {
+    "fixture": "browser-v8",
+    "browser": "Codex in-app Chromium",
+    "nativeWebLocks": true,
+    "nativeStorageEvents": true,
+    "ReactActual": true,
+    "transport": "fake whitelist only",
+    "observations": 10,
+    "cases": [
+      "native-two-tabs-single-refresh-preserves-drafts",
+      "reload-keeps-frozen-request",
+      "stale-200-rejected-and-old-private-body-cleared",
+      "late-child-inherits-old-boundary-owner-before-event",
+      "old-child-zero-post-and-new-B-child-empty-at-mount",
+      "delayed-native-events-preserve-new-B-request",
+      "denied-cleanup-blocks-render-and-private-transport",
+      "recovered-storage-cleaned-before-new-B-child-mount-and-post",
+      "logout-hides-both-tabs-while-refresh-still-held",
+      "late-held-refresh-cannot-resurrect-session"
+    ],
+    "sourceSha256": {
+      "src/services/legacyAuth.ts": "135c322b23790f88586acf2d0cc728c2ef6e287ee02a79b976920a92b3701283",
+      "src/services/sessionCoordinator.ts": "a02cbb562fa5d9f7d7d452470123590682d3e9f37d2e9f45981962f251407992",
+      "src/services/browserSession.ts": "aa5bf2e3f1145bbc883af9e416a9b2f15967f7225f66ab049f337febdf3be8df",
+      "src/services/api.ts": "a1b813e3416d4e59d7a62edd456c2ab5742e2db5bf1f2ab86d27554ffbaf027e",
+      "src/contexts/sessionIntentContext.ts": "65a9cb32089d27e6d005213baa1d1bcff84171b89f893a4173eeb070bb7a6b25",
+      "src/components/DasSessionBoundary.tsx": "f7dc5a38316e19a362295ce3b69b59abc0b924830eb11ca535d2abdaf6f6aef7",
+      "src/hooks/useSessionIntent.ts": "69fe4221c0ea0fe2c91e0d8d8a2a98ee7455841c902361369663087a8c302bfb"
+    },
+    "observationsSha256": "d3f2341a02b4b0a74be9cbe8db7771d13d0aa96c7fe4c4af653543f7bb43b6f7",
+    "bundleSha256": "74447068a5e1bbc2f5b6febbcb1054357341d3e58b971f6525202f4815c5c72f",
+    "screenshotSha256": "dd90e8cfb94acbaa82f730dc5e28bc04116366d0c5da1a172c1ba65792556ddf",
+    "closed": true,
+    "closedProofSha256": "6e56b7627615c71211c2ddd08f340d4c1088294d92f76891473e98f54d77df83"
+  },
+  "pythonQA": {
+    "tests": 93,
+    "passed": true,
+    "viewManifestSha256": "ab9892ef48db73e06a6c828af35fcc58e2dec74aedf4db6309b7d4c636f474f1",
+    "canonicalSourceChanged": []
+  },
+  "layout": {
+    "passed": true,
+    "tests": 10,
+    "exitCode": 0,
+    "productionReady": false
+  },
+  "sourceLayoutManifestSha256": "e307ec58afdcb198d3b7721175ca127be413ce71a2cc1922d2827bfcbb03a1b9",
+  "independentReview": {
+    "importantIssuesRemaining": 0,
+    "readOnly": true,
+    "reviewerRanTests": false,
+    "reviewerVerifiedRealIntegration": false
+  },
+  "redEvidence": [
+    {
+      "stage": "red2",
+      "tests": {
+        "tests": 9,
+        "pass": 2,
+        "fail": 7,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "f4637127fb9043e7cee17ff1f1ed7c384b17f8c004572b0ea529ea65cf18976d"
+    },
+    {
+      "stage": "coordinator-red",
+      "tests": {
+        "tests": 17,
+        "pass": 14,
+        "fail": 3,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "7636658507472674ce7bc63067f5fe11fdf8e2bb55e0da8bf51e5a23a4f0ef9d"
+    },
+    {
+      "stage": "intent-red",
+      "tests": {
+        "tests": 5,
+        "pass": 0,
+        "fail": 5,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "f5b7df33d5b37db3314d56e51e345360975658a163dd0ddb52a8c83796ee84fe"
+    },
+    {
+      "stage": "invalidation-red",
+      "tests": {
+        "tests": 13,
+        "pass": 12,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "adbedafb33493979c72f178cdb09a66b107c17317cc1f9588d76c8752e0c3ec0"
+    },
+    {
+      "stage": "inherited-owner-red2",
+      "tests": {
+        "tests": 23,
+        "pass": 21,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "226e767def3fbffa6d728b2cb2de3f373d326b7a64515071ed691cebd8bc7b52"
+    },
+    {
+      "stage": "recovery-red",
+      "tests": {
+        "tests": 20,
+        "pass": 18,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "4cb85c5d43b368982b5e7eb305fea290026451a27a4fb5e040d46c49c87392c7"
+    },
+    {
+      "stage": "tombstone-red",
+      "tests": {
+        "tests": 21,
+        "pass": 20,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "ccfbf2ed9d7fee9a87004d7ef0a8c8528a7f3bbb79fa8eab4f775e846a081574"
+    },
+    {
+      "stage": "boundary-cleanup-red",
+      "tests": {
+        "tests": 6,
+        "pass": 4,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "1c15df6a72ce14acc13fa3a1551df27a0e018c84243331e4924136299e781a29"
+    },
+    {
+      "stage": "delayed-cleanup-red",
+      "tests": {
+        "tests": 8,
+        "pass": 6,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "b95c60a1ea283aba6631ad39a5c78daf71beda5719e014f317321b8b2ed874a2"
+    },
+    {
+      "stage": "denied-cleanup-red",
+      "tests": {
+        "tests": 10,
+        "pass": 8,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "f312be1f498046e50d084bbd1f02caa38a6e70e31df0d223999fb140f92eccb2"
+    },
+    {
+      "stage": "denied-cleanup-effects-red2",
+      "tests": {
+        "tests": 10,
+        "pass": 8,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "logSha256": "8cec540a99cb1356daa377dfc9400690901c9886bbd12a72ae16223be7b9bd96"
+    }
+  ],
+  "streamBaselineRed": {
+    "baseline": "5f6179bf8ad0a870d399811d22a26202c0437396",
+    "expectedTestExitCode": 1,
+    "tests": {
+      "tests": 6,
+      "passed": 0,
+      "failed": 6,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "inputs": {
+      "frontend/src/services/api.ts": "fc8b9b3abba7898131ce967388d2597751484589bcae8edee0704c34151484fa",
+      "frontend/src/services/legacyAuth.ts": "135c322b23790f88586acf2d0cc728c2ef6e287ee02a79b976920a92b3701283",
+      "frontend/src/services/das/catalogs.ts": "4249e36a9799260ceab6f928512140693918c25316a0b269dd447b9ee3cc322b",
+      "frontend/src/services/das/directory.ts": "af284012ecd299cc12271b78860f3c70045a1df5dcb66c8cf75d50ff98814884",
+      "frontend/src/services/das/document-pdf.ts": "b7ec26c0a322b2fce35a58265ecefaef85c7df4907fa50d23fe34eb966970515",
+      "frontend/src/services/das/document-tasks.ts": "4e9bc41f6bab462ab54f5bd0026040dc47451b18a8df78ba273bba09abd4ad02",
+      "frontend/src/services/das/documents.ts": "b66eff007d9f2b261ccab50c923528b31de1163f740e052ad1eba27e82f74da0",
+      "frontend/src/services/das/external-entities.ts": "44d31ae3e952d30fb1bf4eb418b2292441ac10b5d7fd98fc72f8a3f5a8c173bb",
+      "frontend/src/services/das/http.ts": "8e3598320771fb3e3068c29c889db41687e597a9087731345a438da0590a2d3c",
+      "frontend/src/services/das/notifications.ts": "45f16a981a6fb4c422170199bffdd181f9bd861b8d5c5b7266f9c1493e61498b",
+      "frontend/src/services/das/reports-staff.ts": "8ef77051518e64882844a2f926e70dd6825b4431c9310b3c3e6f5bd44d0cf052",
+      "frontend/src/services/das/task-session.ts": "d2456dd3cea9ceac60b83d0a281e8714804d82d0eb67f9144d33645ba9733b9f",
+      "frontend/tests/frontend/session-content.test.ts": "dd0e58331ca6fee1b497338e7270b203c07d06535ed2f6ff4139a74fd562a2be",
+      "frontend/tests/frontend/helpers/api-context.ts": "d3b55f59d5e6091e7029859839952481dfe19d0aa69c96f8abdae4a28be3595e",
+      "frontend/tests/frontend/helpers/session-fixture.ts": "bf65e6af2ec4748623feec1fea3becbeb33067fb40d24b6b02b2a4ddd442ff70"
+    },
+    "initialSummaryParserFailed": true,
+    "productionReady": false
+  },
+  "failedOrInterruptedAttempts": [
+    "Initial cross-context/hook loader fixture mistakes corrected; not counted as behavior failures",
+    "Inherited-owner first RED contained apiContext alias ReferenceErrors; corrected RED2 used for behavior evidence",
+    "Initial stream-baseline summary parser failed after actual six tests failed; retained raw log/evidence",
+    "First render harness ran effects too freely; dependency comparison and intermediate failed commit corrected before RED2",
+    "build-v1 TypeScript tuple fixture failed, corrected before later full runs",
+    "build-v2/v3/v4 passed functional steps on earlier snapshots but rejected source parity; not current evidence",
+    "build-v5/v6 deliberately interrupted at user pause; not full passes",
+    "Browser-v1 esbuild dependency resolution failed; browser-v2 owned process stopped after closed stdin",
+    "Browser-v6 artificial five-second refresh exceeded five-second refresh lock queue; one waiter correctly returned401; not accepted happy-path proof",
+    "Browser-v3/v4 and v7 exposed cleanup/recovery issues; fixed before final browser-v8"
+  ],
+  "priorHostedCI": {
+    "runId": 37437948911,
+    "runtimeCommit": "abb54a91e2c9f73ea8b4344d0c7c3182fb11ce51",
+    "coversCurrentRuntime": false,
+    "conclusion": "failure",
+    "reason": "dependency-audit gate"
+  },
+  "remainingGates": [
+    "real browser-gateway-authority/session/CSRF/revocation",
+    "customer export/PDF/mapping and migration acceptance",
+    "TMS contract/sandbox/IDs/hierarchy",
+    "SMTP/audience/directory",
+    "scanner/storage/deployment/RPO/RTO/SLA/Fax",
+    "security/audit/license/registry/signing/scanning",
+    "mentor UAT/signoff/pilot"
+  ],
+  "logSha256": {
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/npm-ci.log": "f6da2907b8a6a0b18c829e358dc66f8f0f61eead34f14fbf8d211deecec1ae43",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/prisma-generate.log": "613b5d253e4dbc74b38b8ad5b04916b031c9098e5fb3aeab2d66f35e353ad9ad",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/next-typegen.log": "adba4af9194e10e47dda75ff0fd0f8c2b756474896d0eba5612799c527ff372a",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/full-lint.log": "8a6bd16e8527f8947aa83a9003725b2d58e7ec4da65c30373d3ea05d1f5739d6",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/frontend-tests.log": "4bbcdc31ac6d658cdae0dce4afeb4df3d8d6bd35a8336c00ce179313043e6dc5",
+    ".artifacts/qa/cross-tab-session-20261006/build-v7/next-build.log": "376bc8e8bfe29d9ebc7d4dd0098631ff034b7f7b4f12b1f3393f1c9ab81b50f9",
+    ".artifacts/qa/cross-tab-session-20261006/python-layout-v1/python-qa.log": "ddc41ce67ceaaf0c475a9e480a1f35252c041f861b5b5dfcebe869954d53de25",
+    ".artifacts/qa/cross-tab-session-20261006/python-layout-v1/layout.log": "5f31e9d2af499b8bc185b8ec5f76bf1ba6336d15d48e3082637f10e7c80061ff",
+    ".artifacts/qa/cross-tab-session-20261006/denied-cleanup-effects-green.log": "ecd34a1c01fe539394f4eeaf3b1efe2b8c8e4fdd472d8e2d3f688cd8fa3e4266"
+  }
+}

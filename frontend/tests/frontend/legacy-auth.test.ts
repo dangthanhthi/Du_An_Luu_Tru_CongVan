@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { authApi, documentApi, tokenManager } from '../../src/services/api'
+import { FixtureLocks, seedSession } from './helpers/session-fixture'
 
 class MemoryStorage implements Storage {
   private values = new Map<string, string>()
@@ -15,14 +16,18 @@ class MemoryStorage implements Storage {
 const originalFetch = globalThis.fetch
 const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
 const storageDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage')
+const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
 let storage: MemoryStorage
 beforeEach(() => {
   storage = new MemoryStorage()
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { locks: new FixtureLocks() } })
   Object.defineProperty(globalThis, 'window', { configurable: true, value: {} })
   Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage })
 })
 afterEach(() => {
   globalThis.fetch = originalFetch
+  if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor)
+  else Reflect.deleteProperty(globalThis, 'navigator')
   if (windowDescriptor) Object.defineProperty(globalThis, 'window', windowDescriptor)
   else Reflect.deleteProperty(globalThis, 'window')
   if (storageDescriptor) Object.defineProperty(globalThis, 'localStorage', storageDescriptor)
@@ -53,7 +58,8 @@ test('Missing server identity cannot be replaced with a fabricated user or Admin
 test('A valid backend session persists only the returned identity and roles', async () => {
   globalThis.fetch = async () => Response.json({ success: true, data })
   await authApi.login('operator', 'fixture-password')
-  assert.equal(storage.getItem('das_access_token'), 'fixture-access')
+  assert.equal(tokenManager.getToken(), 'fixture-access')
+  assert.equal(storage.getItem('das_access_token'), null)
   assert.equal(tokenManager.getUser().id, user.id)
   assert.deepEqual(tokenManager.getUser().roles, ['Staff'])
   assert.equal(tokenManager.getUser().role, 'Staff')
@@ -65,14 +71,15 @@ test('An identity with no roles is never upgraded to Admin', async () => {
   assert.equal(tokenManager.getUser().role, null)
 })
 test('Network failure clears the previous session and its local business cache', async () => {
-  storage.setItem('das_access_token', 'previous-user-token')
-  storage.setItem('das_user', JSON.stringify({ id: 'previous-user', role: 'Admin' }))
+  seedSession(storage, 'previous-user-token', 'previous-refresh', { id: 'previous-user', role: 'Admin' })
   storage.setItem('das_documents_store', JSON.stringify([{ title: 'previous-user-document' }]))
   globalThis.fetch = async () => { throw new TypeError('fixture network unavailable') }
   await assert.rejects(authApi.login('operator', 'fixture-password'))
   assert.equal(storage.getItem('das_access_token'), null)
   assert.equal(storage.getItem('das_user'), null)
   assert.equal(storage.getItem('das_documents_store'), null)
+  assert.equal(tokenManager.getToken(), null)
+  assert.equal(tokenManager.getUser(), null)
 })
 
 for (const status of [400, 403, 405, 503]) {

@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useEffect, useState } from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -24,6 +25,7 @@ import tableStyles from '@core/styles/table.module.css'
 
 const names = { Sender: 'Nơi gửi', Recipient: 'Nơi nhận', Both: 'Nơi gửi và nhận' }
 export default function PartnerListTable() {
+  const sessionIntent = useSessionIntent()
   const [search, setSearch] = useState('')
   const [type, setType] = useState<ExternalEntityType | ''>('')
   const [status, setStatus] = useState('')
@@ -66,7 +68,7 @@ export default function PartnerListTable() {
     if (!operation || !canManage || busy) return
     setBusy(true); setNotice(null)
     try {
-      await externalEntityApi.changeDeletion(operation, !operation.isDeleted)
+      await externalEntityApi.changeDeletion(operation, !operation.isDeleted, sessionIntent)
       setNotice({ type: 'success', text: operation.isDeleted ? 'Đã khôi phục đơn vị.' : 'Đã xóa mềm đơn vị. Hồ sơ cũ vẫn giữ nguyên.' });setOperation(null);reload()
     } catch (failure) {
       if (failure instanceof ApiRequestError && [401, 403].includes(failure.status)) revoke()

@@ -30,6 +30,7 @@ import { useSettings } from '@core/hooks/useSettings'
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 import { tokenManager, authApi } from '@/services/api'
+import { subscribeBrowserSession } from '@/services/browserSession'
 import { getUserMenuIdentity, type UserMenuIdentity } from './userMenuIdentity'
 import { useAppDictionary } from '@/hooks/useDictionary'
 
@@ -71,9 +72,7 @@ const UserDropdown = () => {
     const syncIdentity = () => setUser(readMenuIdentity())
 
     syncIdentity()
-    window.addEventListener('storage', syncIdentity)
-
-    return () => window.removeEventListener('storage', syncIdentity)
+    return subscribeBrowserSession(syncIdentity, tokenManager.getEpoch)
   }, [])
 
   const handleDropdownOpen = () => {

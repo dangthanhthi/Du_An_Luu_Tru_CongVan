@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useEffect, useRef, useState } from 'react'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
@@ -10,6 +11,7 @@ import type { DocumentDetailV2 } from '@/types/das/document-v2'
 import DocumentPDFPreview from '@/components/DocumentPDFPreview'
 
 export default function V2PdfPanel({ document, onChange }: { document: DocumentDetailV2; onChange: () => void }) {
+  const sessionIntent = useSessionIntent()
   const h = document.header, key = `${h.id}:${h.version}`
   const [result, setResult] = useState<{ key: string; url?: string; name?: string; complete?: boolean; error?: string }>({ key: '' })
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState('')
@@ -39,9 +41,11 @@ export default function V2PdfPanel({ document, onChange }: { document: DocumentD
     if (busy) return
     setBusy(true); setNotice('')
     try {
+      sessionIntent.assertCurrent()
       if (file) {
-        const uploaded = await documentPdfApi.upload(file)
+        const uploaded = await documentPdfApi.upload(file, sessionIntent)
 
+        sessionIntent.assertCurrent()
         pending.current = { key, fileId: uploaded.id, operationId: crypto.randomUUID(), version: h.version, attempted: false }
       }
       const operation = pending.current
@@ -53,7 +57,7 @@ export default function V2PdfPanel({ document, onChange }: { document: DocumentD
         if (info.state !== 'Available' || !info.canAttach) { setNotice('PDF chưa sẵn sàng. Công văn chưa đổi tệp; kiểm tra lại tệp đã tải sau khi dịch vụ quét xác nhận.'); return }
         operation.attempted = true
       }
-      await documentPdfApi.replace(h.id, operation.operationId, operation.fileId, operation.version)
+      await documentPdfApi.replace(h.id, operation.operationId, operation.fileId, operation.version, sessionIntent)
       pending.current = null
       onChange()
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Chưa xác nhận được thay PDF. Thử lại cùng yêu cầu hoặc tải lại để đối chiếu.') }

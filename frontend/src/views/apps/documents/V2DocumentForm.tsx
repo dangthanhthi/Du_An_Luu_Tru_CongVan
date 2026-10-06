@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Card from '@mui/material/Card'
@@ -20,6 +21,7 @@ import type { ReferenceOption } from './V2ReferencePicker'
 
 type Model = { draft: RegistrationDraft; options: DocumentFormOptions; original?: DocumentDetailV2; external: ReferenceOption[]; sender: ReferenceOption[]; related: ReferenceOption[] }
 export default function V2DocumentForm({ id }: { id?: string }) {
+  const sessionIntent = useSessionIntent()
   const router = useRouter(), params = useParams(), search = useSearchParams()
   const kindValue = search.get('kind') ?? 'Outgoing'
   const validKind = ['Incoming', 'Outgoing', 'Internal'].includes(kindValue) && search.getAll('kind').length <= 1
@@ -81,19 +83,20 @@ export default function V2DocumentForm({ id }: { id?: string }) {
     if (!model || busy) return
     setBusy(true); setWriteError('')
     try {
+      sessionIntent.assertCurrent()
       const { draft, original } = model
       const relatedIds = model.related.map(x => x.id)
       const result = id && original ? await documentsV2Api.edit(id, {
         companyCode: draft.companyCode, subject: draft.subject, originatorUserId: draft.originatorUserId, ownerDepartmentId: draft.ownerDepartmentId,
         sensitivity: draft.sensitivity, issuedDate: draft.issuedDate, remark: draft.remark, details: draft.details,
         expectedVersion: original.header.version, ...(draft.kind !== 'Internal' ? { relations: { addedIds: relatedIds.filter(x => !original.relatedDocumentIds.includes(x)), removedIds: original.relatedDocumentIds.filter(x => !relatedIds.includes(x)) } } : {})
-      }) : await (async () => {
+      }, sessionIntent) : await (async () => {
         const body = { ...draft, ...(draft.kind !== 'Internal' ? { relatedDocumentIds: relatedIds } : {}) }
         const serialized = JSON.stringify(body)
 
         if (retry.current && retry.current.body !== serialized && ambiguous) throw new Error('Hãy thử lại yêu cầu đang chờ xác nhận trước khi thay đổi nội dung.')
         if (!retry.current || retry.current.body !== serialized) retry.current = { key: crypto.randomUUID(), body: serialized }
-        return documentsV2Api.register(body, retry.current.key)
+        return documentsV2Api.register(body, retry.current.key, sessionIntent)
       })()
 
       window.dispatchEvent(new Event('das_documents_updated'))

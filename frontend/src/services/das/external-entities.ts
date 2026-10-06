@@ -1,3 +1,4 @@
+import type { SessionIntent } from '../api'
 import { ApiRequestError, requestApiEnvelope } from '../api'
 import { entityTypes } from '../../types/das/external-entities'
 import type { ExternalEntity, ExternalEntityDraft, ExternalEntityPage, ExternalEntityQuery } from '../../types/das/external-entities'
@@ -72,21 +73,21 @@ export const externalEntityApi = {
     if (entry.id !== id) throw invalid()
     return entry
   },
-  async create(draft: ExternalEntityDraft): Promise<ExternalEntity> {
+  async create(draft: ExternalEntityDraft, sessionIntent?: SessionIntent): Promise<ExternalEntity> {
     const submitted = payload(draft)
-    const { data } = await requestApiEnvelope('partner', '/api/partners', { method: 'POST', body: JSON.stringify(submitted), cache: 'no-store', redirect: 'error' })
+    const { data } = await requestApiEnvelope('partner', '/api/partners', { sessionIntent, method: 'POST', body: JSON.stringify(submitted), cache: 'no-store', redirect: 'error' })
     const entry = item(data)
 
     same(entry, submitted)
     if (entry.version !== 1 || entry.isDeleted || !entry.isActive) throw invalid()
     return entry
   },
-  async update(original: ExternalEntity, draft: ExternalEntityDraft, isActive: boolean): Promise<ExternalEntity> {
+  async update(original: ExternalEntity, draft: ExternalEntityDraft, isActive: boolean, sessionIntent?: SessionIntent): Promise<ExternalEntity> {
     item(original)
     if (original.isDeleted || !integer(original.version, 1, Number.MAX_SAFE_INTEGER - 1) || typeof isActive !== 'boolean') throw new ApiRequestError(400, 'Khôi phục đơn vị trước khi sửa hoặc tải lại phiên bản.')
     const submitted = payload(draft)
     const { data } = await requestApiEnvelope('partner', '/api/partners/' + original.id, {
-      method: 'PUT', body: JSON.stringify({ ...submitted, expectedVersion: original.version, isActive }), cache: 'no-store', redirect: 'error'
+      sessionIntent, method: 'PUT', body: JSON.stringify({ ...submitted, expectedVersion: original.version, isActive }), cache: 'no-store', redirect: 'error'
     })
     const entry = item(data)
 
@@ -94,11 +95,11 @@ export const externalEntityApi = {
     if (entry.id !== original.id || entry.version !== original.version + 1 || entry.isActive !== isActive || entry.isDeleted) throw invalid()
     return entry
   },
-  async changeDeletion(original: ExternalEntity, deleted: boolean): Promise<ExternalEntity> {
+  async changeDeletion(original: ExternalEntity, deleted: boolean, sessionIntent?: SessionIntent): Promise<ExternalEntity> {
     item(original)
     if (original.isDeleted === deleted || !integer(original.version, 1, Number.MAX_SAFE_INTEGER - 1)) throw new ApiRequestError(400, 'Trạng thái hoặc phiên bản không hợp lệ.')
     const { data } = await requestApiEnvelope('partner', '/api/partners/' + original.id + (deleted ? '' : '/restore'), {
-      method: deleted ? 'DELETE' : 'POST', body: JSON.stringify({ expectedVersion: original.version }), cache: 'no-store', redirect: 'error'
+      sessionIntent, method: deleted ? 'DELETE' : 'POST', body: JSON.stringify({ expectedVersion: original.version }), cache: 'no-store', redirect: 'error'
     })
     const entry = item(data)
 

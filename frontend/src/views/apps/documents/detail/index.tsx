@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -23,6 +24,7 @@ import V2PdfPanel from '../V2PdfPanel'
 import DocumentTaskPanel from '../DocumentTaskPanel'
 
 export default function DocumentDetail({ id }: { id: string }) {
+  const sessionIntent = useSessionIntent()
   const params = useParams(), lang = typeof params.lang === 'string' ? params.lang : 'vi'
   const [revision, setRevision] = useState(0), [busy, setBusy] = useState(false)
   const key = `${id}:${revision}`
@@ -45,7 +47,7 @@ export default function DocumentDetail({ id }: { id: string }) {
   async function status(action: string) {
     if (!doc || busy) return
     setBusy(true); setMessage('')
-    try { await documentsV2Api.status(id, doc.header.version, action, action === 'Cancel' ? reason : undefined); refresh() }
+    try { await documentsV2Api.status(id, doc.header.version, action, action === 'Cancel' ? reason : undefined, sessionIntent); refresh() }
     catch (error) { setMessage(error instanceof ApiRequestError && error.status === 409 ? 'Công văn đã thay đổi. Tải lại trước khi thao tác tiếp.' : 'Chưa xác nhận được thay đổi trạng thái. Tải lại để đối chiếu dữ liệu trước khi thử lại.') }
     finally { setBusy(false) }
   }

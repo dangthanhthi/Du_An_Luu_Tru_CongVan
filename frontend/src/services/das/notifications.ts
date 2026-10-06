@@ -1,3 +1,4 @@
+import type { SessionIntent } from '../api'
 import { ApiRequestError, requestApiEnvelope } from '../api'
 export type InAppNotification = { id: string; recipientUserId: string; title: string; message: string; actionUrl: string | null; relatedDocumentId: string | null; notificationType: string; isRead: boolean; readAt: string | null; createdAt: string }
 const guid = (v: unknown) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)
@@ -15,6 +16,6 @@ export const notificationsApi = {
     if (!r || !Number.isSafeInteger(r.unreadCount) || r.unreadCount < 0) throw invalid()
     return r.unreadCount
   },
-  read(id: string) { if (!guid(id)) throw new ApiRequestError(400, 'ID thông báo không hợp lệ.'); return requestApiEnvelope('notification', `/api/notifications/${id}/read`, { method: 'PUT', cache: 'no-store', redirect: 'error' }) },
-  readAll: () => requestApiEnvelope('notification', '/api/notifications/read-all', { method: 'PUT', cache: 'no-store', redirect: 'error' })
+  read(id: string, sessionIntent?: SessionIntent) { if (!guid(id)) throw new ApiRequestError(400, 'ID thông báo không hợp lệ.'); return requestApiEnvelope('notification', `/api/notifications/${id}/read`, { sessionIntent, method: 'PUT', cache: 'no-store', redirect: 'error' }) },
+  readAll: (sessionIntent?: SessionIntent) => requestApiEnvelope('notification', '/api/notifications/read-all', { sessionIntent, method: 'PUT', cache: 'no-store', redirect: 'error' })
 }

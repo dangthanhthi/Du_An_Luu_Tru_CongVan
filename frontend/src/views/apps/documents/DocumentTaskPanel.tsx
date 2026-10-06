@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useEffect, useRef, useState } from 'react'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
@@ -17,6 +18,7 @@ const labels: Record<TaskState, string> = {
 }
 const errorMessage = (error: unknown) => error instanceof Error ? error.message : 'Không thể xác nhận yêu cầu task.'
 export default function DocumentTaskPanel({ documentId }: { documentId: string }) {
+  const sessionIntent = useSessionIntent()
   const [options, setOptions] = useState<TaskOptions | null>(null), [history, setHistory] = useState<TaskHistory | null>(null)
   const [pending, setPending] = useState<FrozenTaskRequest | null>(null), [receipt, setReceipt] = useState<TaskReceipt | null>(null)
   const [assignee, setAssignee] = useState(''), [title, setTitle] = useState(''), [error, setError] = useState('')
@@ -53,11 +55,12 @@ export default function DocumentTaskPanel({ documentId }: { documentId: string }
     inFlight.current = true; setBusy(true); setError('')
     const actor = options.userId
     try {
+      sessionIntent.assertCurrent()
       const frozen = pending ?? { key: crypto.randomUUID(), draft: { assigneeUserId: assignee, title: title.trim() } }
       // Persist before the network call. Storage failure must prevent any task side effect.
       saveTaskRequest(window.sessionStorage, actor, documentId, frozen)
       setPending(frozen)
-      const result = await documentTasksApi.create(documentId, frozen.key, frozen.draft)
+      const result = await documentTasksApi.create(documentId, frozen.key, frozen.draft, sessionIntent)
       clearTaskRequest(window.sessionStorage, actor, documentId)
       if (!mounted.current) return
       setPending(null); setReceipt(result); setTitle('')
@@ -70,7 +73,7 @@ export default function DocumentTaskPanel({ documentId }: { documentId: string }
     if (inFlight.current || loading || !options || !history || error || pending) return
     inFlight.current = true; setBusy(true); setError('')
     try {
-      const result = await (state === 'PendingConfiguration' ? documentTasksApi.retry(id) : documentTasksApi.reconcile(id))
+      const result = await (state === 'PendingConfiguration' ? documentTasksApi.retry(id, sessionIntent) : documentTasksApi.reconcile(id, sessionIntent))
       if (!mounted.current) return
       setReceipt(result); await load()
     } catch (e) { if (mounted.current) setError(`Chưa xác nhận được trạng thái. Tải lại yêu cầu trước khi tiếp tục. ${errorMessage(e)}`) }

@@ -1,4 +1,5 @@
 'use client'
+import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useState } from 'react'
 import Drawer from '@mui/material/Drawer'
 import Button from '@mui/material/Button'
@@ -17,6 +18,7 @@ const fields = [['fullName', 'Tên đầy đủ', 500], ['shortName', 'Tên vi�
 export default function AddPartnerDrawer({ original, canManage, onClose, onSaved, onRevoked }: {
   original: ExternalEntity | null; canManage: boolean; onClose: () => void; onSaved: (entry: ExternalEntity) => void; onRevoked: () => void
 }) {
+  const sessionIntent = useSessionIntent()
   const [draft, setDraft] = useState<ExternalEntityDraft>(original ?? { fullName: '', entityType: 'Both' })
   const [active, setActive] = useState(original?.isActive ?? true)
   const [busy, setBusy] = useState(false)
@@ -30,7 +32,7 @@ export default function AddPartnerDrawer({ original, canManage, onClose, onSaved
     if (busy || !writable || conflict) return
     setBusy(true); setError('')
     try {
-      const saved = latest ? await externalEntityApi.update(latest, draft, active) : await externalEntityApi.create(draft)
+      const saved = latest ? await externalEntityApi.update(latest, draft, active, sessionIntent) : await externalEntityApi.create(draft, sessionIntent)
 
       onSaved(saved)
     } catch (failure) {

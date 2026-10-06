@@ -1,6 +1,10 @@
 # Tiến độ và phạm vi bản cộng tác
 
-> Chặng hiện hành: sửa rollback khi lưu refresh thất bại và logout menu xóa nhầm phiên mới. Local Windows **frontend231/231**, typecheck/lint/full build, Python93/93 và layout10/10 qua; nguồn đối chiếu hash. [Checkpoint phiên](SESSION-STORAGE-CHECKPOINT-20261006.md), [evidence](SESSION-STORAGE-VERIFICATION-20261006.json). Cross-tab atomicity/browser/authority thật vẫn chưa hoàn tất; CI dưới đây thuộc runtime trước patch này.
+> Xác nhận của người dùng: **chưa đủ thông tin dữ liệu khách hàng và chưa kiểm chứng trên môi trường thật**. G7 giữ trạng thái **Partial/prepared**, chưa nghiệm thu; G8 chưa UAT/signoff. Ước lượng 70–80% chỉ nói về phần chuẩn bị kỹ thuật, không phải tỷ lệ hoàn thành toàn bộ G7. Chưa có trọng số được duyệt để báo một tỷ lệ nghiệm thu đáng tin cậy.
+
+> Chặng mới phối hợp phiên nhiều tab đã kiểm cục bộ: **frontend291/291**, typecheck/lint/full build, Python93/93, layout10/10;1.169 inputs và inventory khớp. Browser-v8 hai tab native/React đã kiểm với transport giả lập, đóng fixture. [Checkpoint hiện hành](CLIENT-SESSION-CHECKPOINT-20261006.md), [evidence](CLIENT-SESSION-VERIFICATION-20261006.json). Chưa publish tại thời điểm ghi; G2 tích hợp thật/G7/G8 vẫn giữ gate. Checkpoint tạm dừng bên dưới là lịch sử.
+
+> Chặng trước: sửa rollback khi lưu refresh thất bại và logout menu xóa nhầm phiên mới. Local Windows **frontend231/231**, typecheck/lint/full build, Python93/93 và layout10/10 qua; nguồn đối chiếu hash. [Checkpoint phiên](SESSION-STORAGE-CHECKPOINT-20261006.md), [evidence](SESSION-STORAGE-VERIFICATION-20261006.json). Cross-tab atomicity/browser/authority thật vẫn chưa hoàn tất; CI dưới đây thuộc runtime trước patch này.
 
 > Đã publish runtime `abb54a9` lên main và kiểm CI hosted thật: **backend629 mỗi OS, frontend223, SQL77, layout/QA qua**. Full workflow vẫn failure do audit6high. [Checkpoint GitHub/CI](HOSTED-CI-CHECKPOINT-20261006.md), [evidence](HOSTED-CI-VERIFICATION-20261006.json). G7/G8 giữ các gate còn mở.
 
@@ -29,7 +33,7 @@ Cập nhật sau xác nhận **quá 7 ngày**: backend Linux **629/629 non-SQL**
 | Giai đoạn | Phần đã có | Còn chờ |
 |---|---|---|
 | G0/G1 | Baseline, contracts, master data/company/phòng/đối tác, CRUD/audit/restore | Mapping và nguồn chuẩn EAP/legacy |
-| G2 | Backend policies/capability/fail-closed, credential login adapter, refresh/logout/login ownership guards và rollback lỗi lưu phiên | browser→gateway→authority/session/CSRF/revocation thật |
+| G2 | Backend policies/capability/fail-closed, credential login adapter, single-record/Web Locks phối hợp nhiều tab, inherited mutation owner và cleanup/recovery đã kiểm native browser giả lập | browser→gateway→authority/session/CSRF/revocation thật |
 | G3 | 3 loại công văn/counters, register/edit/distribute/cancel/restore/relations/PDF/idempotency/audit | File/scanner/live authority và UAT |
 | G4 | Durable notification inbox/outbox/dedup/retry/history | SMTP thật; EAP/OCR hoãn; Fax sau |
 | G5 | Dashboard/report/XLSX cùng scope, reminder7ngày/thứHai08VN | Audience/directory/SMTP config thật |

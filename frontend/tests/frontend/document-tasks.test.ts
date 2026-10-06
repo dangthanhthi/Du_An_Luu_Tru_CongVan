@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { tokenManager } from '../../src/services/api'
+import { clearBrowserSessionData } from '../../src/services/browserSession'
 const doc = 'd68a56e8-89ca-4ec5-bc6c-0e7f1d2a8ae7', user = '9b8242aa-4500-4f0a-a66d-1a44c951c9c4', correlation = '25730bbf-b7d8-4c1e-b394-194619775036'
 async function api() { const module = await import('../../src/services/das/document-tasks').catch(() => null); assert.ok(module, 'Document task client must exist'); return module.documentTasksApi }
 test('Task options verify document/actor scope and reject duplicate or foreign self entries', async () => {
@@ -52,6 +52,6 @@ test('Logout clears frozen task bodies while preserving unrelated session prefer
   const values = new Map([['das_task_request:actor:doc','private task body'],['preference','keep']]), previousWindow = globalThis.window, previousLocal = globalThis.localStorage, previousSession = globalThis.sessionStorage
   const storage = { get length() { return values.size }, key: (i:number) => Array.from(values.keys())[i] ?? null, removeItem: (key:string) => { values.delete(key) } }
   Object.defineProperty(globalThis,'window',{value:{},configurable:true}); Object.defineProperty(globalThis,'localStorage',{value:{removeItem:()=>{}},configurable:true});Object.defineProperty(globalThis,'sessionStorage',{value:storage,configurable:true})
-  try { tokenManager.clearTokens(); assert.equal(values.has('das_task_request:actor:doc'),false);assert.equal(values.get('preference'),'keep') }
+  try { clearBrowserSessionData(); assert.equal(values.has('das_task_request:actor:doc'),false);assert.equal(values.get('preference'),'keep') }
   finally { Object.defineProperty(globalThis,'window',{value:previousWindow,configurable:true});Object.defineProperty(globalThis,'localStorage',{value:previousLocal,configurable:true});Object.defineProperty(globalThis,'sessionStorage',{value:previousSession,configurable:true}) }
 })

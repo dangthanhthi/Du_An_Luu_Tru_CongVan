@@ -1,3 +1,4 @@
+import type { SessionIntent } from '../api'
 import { catalogGroups, editableCatalogGroups } from '../../types/das/catalogs'
 import type { CatalogGroup, CatalogItem, CatalogCreate, CatalogEdit, DistributionPage, DistributionTarget } from '../../types/das/catalogs'
 import { requestApiEnvelope, V2ApiError } from './http'
@@ -38,25 +39,25 @@ export const catalogApi = {
     if (entry.id !== id) throw invalid()
     return entry
   },
-  async create(input: CatalogCreate): Promise<CatalogItem> {
+  async create(input: CatalogCreate, sessionIntent?: SessionIntent): Promise<CatalogItem> {
     const code = input.code.trim().toUpperCase(), name = input.name.trim()
 
     if (!editableCatalogGroups.includes(input.group) || !/^[A-Z0-9_]{1,64}$/.test(code) || !text(name, 200))
       throw new V2ApiError(400, 'Nhóm, mã hoặc tên danh mục không hợp lệ.')
     const { data } = await requestApiEnvelope<unknown>('document', '/api/v2/admin/catalogs', {
-      method: 'POST', body: JSON.stringify({ group: input.group, code, name })
+      sessionIntent, method: 'POST', body: JSON.stringify({ group: input.group, code, name })
     })
     const entry = item(data)
 
     if (entry.group !== input.group || entry.code !== code || entry.name !== name || !entry.isActive) throw invalid()
     return entry
   },
-  async update(original: CatalogItem, edit: CatalogEdit): Promise<CatalogItem> {
+  async update(original: CatalogItem, edit: CatalogEdit, sessionIntent?: SessionIntent): Promise<CatalogItem> {
     item(original)
     validEdit(edit)
     if (!editableCatalogGroups.includes(original.group)) throw new V2ApiError(400, 'Nhóm danh mục này được cố định.')
     const { data } = await requestApiEnvelope<unknown>('document', '/api/v2/admin/catalogs/' + original.id, {
-      method: 'PUT', body: JSON.stringify({ name: edit.name.trim(), sortOrder: edit.sortOrder, isActive: edit.isActive, version: original.version })
+      sessionIntent, method: 'PUT', body: JSON.stringify({ name: edit.name.trim(), sortOrder: edit.sortOrder, isActive: edit.isActive, version: original.version })
     })
     const entry = item(data)
 
