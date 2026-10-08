@@ -138,8 +138,22 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       await authApi.login(data.userName, data.password)
       window.location.href = getLocalizedUrl('/dashboards/overview', locale)
     } catch (error) {
-      setErrorState({ message: error instanceof LegacyAuthError
-        ? error.message : t.login.failed })
+      if (error instanceof LegacyAuthError) {
+        const isEn = locale === 'en'
+        let msg = error.message
+
+        if (isEn) {
+          if (error.status === 401) msg = 'Invalid username or password.'
+          else if (error.status === 403) msg = 'Your account does not have access permission.'
+          else if (error.status === 0) msg = 'Cannot connect to authentication server. Please check your network and retry.'
+          else if (error.status === 502) msg = 'Invalid response from authentication server. Please contact administrator.'
+          else if (error.status >= 500) msg = 'Authentication service is temporarily unavailable. Please retry later.'
+          else msg = 'Login failed. Please verify credentials and try again.'
+        }
+        setErrorState({ message: msg })
+      } else {
+        setErrorState({ message: t.login.failed })
+      }
     } finally {
       setLoading(false)
     }

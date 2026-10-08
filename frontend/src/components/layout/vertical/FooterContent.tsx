@@ -21,15 +21,17 @@ const FooterContent = () => {
       className={classnames(verticalLayoutClasses.footerContent, 'flex items-center justify-between flex-wrap gap-4')}
     >
       <p>
-        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
-        <span>{`❤️`}</span>
-        <span className='text-textSecondary'>{` by `}</span>
-        <Link href='https://pixinvent.com' target='_blank' className='text-primary uppercase'>
-          Pixinvent
-        </Link>
+        <span className='font-semibold text-textPrimary'>DAS — Document Administration System</span>
+        <span className='text-textSecondary'>{` © ${new Date().getFullYear()}`}</span>
       </p>
       {!isBreakpointReached && (
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-4 text-xs text-textSecondary'>
+          <span>
+            Template by{' '}
+            <Link href='https://pixinvent.com' target='_blank' className='text-primary uppercase font-medium'>
+              Pixinvent
+            </Link>
+          </span>
           <Link href='https://themeforest.net/licenses/standard' target='_blank' className='text-primary'>
             License
           </Link>

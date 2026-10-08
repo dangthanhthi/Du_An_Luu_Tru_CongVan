@@ -27,6 +27,15 @@ test('network ambiguity remains failure and same registration key can be retried
   await assert.rejects(documentsV2Api.register(draft,'same-key'),(e:any)=>e.status===0)
 })
 const detail={header:{...write,kind:'Internal',subject:'Saved',registrationDate:'2026-10-05',companyCode:'HL',sensitivity:'Normal',allowedActions:['Edit']},originatorUserId:id,ownerDepartmentId:dept,inputterUserId:id,lastModifierUserId:id,remark:null,details:null,recipients:[],relatedDocumentIds:[],pdfState:'None'}
+for (const field of ['methodNameSnapshot', 'documentTypeNameSnapshot', 'categoryNameSnapshot']) test(`v2 detail rejects malformed historical label ${field}`, async () => {
+  globalThis.fetch = async () => Response.json({ success: true, data: { ...detail, details: { [field]: { invalid: 'object' } } } })
+  await assert.rejects(documentsV2Api.detail(id), (error: any) => error.status === 502)
+})
+test('v2 detail preserves saved historical labels independently of current catalogs', async () => {
+  const saved = { ...detail, details: { methodCode: 'EMAIL', methodNameSnapshot: 'Historical method', documentTypeNameSnapshot: 'Historical type', categoryNameSnapshot: 'Historical category' } }
+  globalThis.fetch = async () => Response.json({ success: true, data: saved })
+  assert.deepEqual(await documentsV2Api.detail(id), saved)
+})
 test('valid v2 detail is accepted and abort propagates',async()=>{
   globalThis.fetch=async()=>Response.json({success:true,data:detail})
   assert.deepEqual(await documentsV2Api.detail(id),detail)

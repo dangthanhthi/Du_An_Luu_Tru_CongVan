@@ -34,6 +34,7 @@
 }
 
 .toggler {
+  border: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,6 +96,8 @@
 }
 
 .itemWrapper {
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,11 +118,13 @@
 .itemLabel {
   font-size: 13px;
   line-height: 1.538462;
-  cursor: pointer;
+  cursor: default;
   color: var(--mui-palette-text-secondary);
 }
 
 .primaryColorWrapper {
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,4 +176,31 @@
     border: 1px solid var(--mui-palette-divider);
     font-size: 14px;
   }
+}
+
+.iconButton {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customizer button:focus-visible {
+  outline: 3px solid var(--mui-palette-text-primary);
+  outline-offset: 3px;
+}
+
+.customizer button {
+  font: inherit;
+}
+
+.customizer button[class~='cursor-pointer'] {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
 }

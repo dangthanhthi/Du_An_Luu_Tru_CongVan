@@ -1,0 +1,1786 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "DAS J21-J23 additive API draft",
+    "version": "0.1.0-proposed",
+    "description": "Design-only as of 2026-10-08. All five operations below are proposals; no production endpoint or authority integration is enabled by this file."
+  },
+  "x-status": "PROPOSED_CONTRACT_REQUIRED",
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local preview only; these draft endpoints have not been installed."
+    }
+  ],
+  "paths": {
+    "/api/v2/my-staff/tasks": {
+      "get": {
+        "operationId": "getMyStaffTasks",
+        "summary": "J21 global assignee filter and independent task pagination",
+        "tags": [
+          "Document"
+        ],
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "assigneeUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "responses": {
+          "200": {
+            "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyStaffTasksResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "taskState": "Connected",
+                    "selectedAssignee": {
+                      "userId": "11111111-1111-4111-8111-111111111111",
+                      "name": "Nhân sự kiểm thử A",
+                      "departmentId": "22222222-2222-4222-8222-222222222222",
+                      "departmentName": "Phòng kiểm thử"
+                    },
+                    "tasks": {
+                      "items": [
+                        {
+                          "taskId": "qa-task-21",
+                          "assignee": {
+                            "userId": "11111111-1111-4111-8111-111111111111",
+                            "name": "Nhân sự kiểm thử A",
+                            "departmentId": "22222222-2222-4222-8222-222222222222",
+                            "departmentName": "Phòng kiểm thử"
+                          },
+                          "title": "Công việc kiểm thử được lọc trước phân trang",
+                          "status": "InProgress",
+                          "dueAt": null
+                        }
+                      ],
+                      "total": 1,
+                      "pageNumber": 1,
+                      "pageSize": 20
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated; middleware may return an empty challenge body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/admin/catalogs": {
+      "get": {
+        "operationId": "listAdminCatalogs",
+        "summary": "J22 management list including inactive catalogs",
+        "tags": [
+          "Document"
+        ],
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "companies",
+                "methods",
+                "documentTypes",
+                "internalTypes",
+                "sensitivity",
+                "categories"
+              ]
+            }
+          },
+          {
+            "name": "activity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Active",
+                "Inactive",
+                "All"
+              ],
+              "default": "Active"
+            }
+          },
+          {
+            "name": "searchTerm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "responses": {
+          "200": {
+            "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogAdminResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "group": "methods",
+                    "activity": "Inactive",
+                    "canEditGroup": true,
+                    "items": [
+                      {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "group": "methods",
+                        "code": "QA_METHOD",
+                        "name": "Phương thức kiểm thử",
+                        "sortOrder": 1,
+                        "isActive": false,
+                        "version": 2
+                      }
+                    ],
+                    "totalCount": 1,
+                    "pageNumber": 1,
+                    "pageSize": 20
+                  },
+                  "message": null,
+                  "errors": [],
+                  "traceId": "qa-example"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated; middleware may return an empty challenge body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/admin/catalogs/options": {
+      "get": {
+        "operationId": "getCatalogAdminOptions",
+        "summary": "J22 effective management capability metadata",
+        "tags": [
+          "Document"
+        ],
+        "parameters": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "responses": {
+          "200": {
+            "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogOptionsResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "canManage": false
+                  },
+                  "message": null,
+                  "errors": [],
+                  "traceId": "qa-example"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated; middleware may return an empty challenge body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/partners/{partnerId}/audit": {
+      "get": {
+        "operationId": "getPartnerAudit",
+        "summary": "J23 metadata-only partner audit, CatalogManage required",
+        "tags": [
+          "Partner"
+        ],
+        "parameters": [
+          {
+            "name": "partnerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "throughVersion",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "responses": {
+          "200": {
+            "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerAuditResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "partnerId": "44444444-4444-4444-8444-444444444444",
+                    "throughVersion": "2",
+                    "items": [
+                      {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "actorUserId": "11111111-1111-4111-8111-111111111111",
+                        "action": "Update",
+                        "version": "2",
+                        "occurredAt": "2026-10-08T03:00:00Z",
+                        "changesAvailability": "NotRecorded"
+                      }
+                    ],
+                    "totalCount": 1,
+                    "pageNumber": 1,
+                    "pageSize": 20
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated; middleware may return an empty challenge body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/documents/{documentId}/history": {
+      "get": {
+        "operationId": "getDocumentLifecycleHistory",
+        "summary": "J23 authorized V2 lifecycle history only",
+        "tags": [
+          "Document"
+        ],
+        "parameters": [
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "throughVersion",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,18}$",
+              "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "responses": {
+          "200": {
+            "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentHistoryResponse"
+                },
+                "example": {
+                  "success": true,
+                  "data": {
+                    "documentId": "66666666-6666-4666-8666-666666666666",
+                    "throughVersion": "14",
+                    "items": [
+                      {
+                        "id": "77777777-7777-4777-8777-777777777777",
+                        "actorUserId": "11111111-1111-4111-8111-111111111111",
+                        "version": "14",
+                        "occurredAt": "2026-10-08T03:00:00Z",
+                        "action": "Restore",
+                        "fromStatus": "Cancelled",
+                        "toStatus": "Distributed",
+                        "cancellationReason": "Lý do kiểm thử của đúng chu kỳ hủy"
+                      }
+                    ],
+                    "totalCount": 1,
+                    "pageNumber": 1,
+                    "pageSize": 20,
+                    "coverage": "V2LifecycleOnly"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated; middleware may return an empty challenge body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Error; no stale or partial business data returned.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "no-store"
+                  ]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "StaffMember": {
+        "type": "object",
+        "required": [
+          "userId",
+          "name",
+          "departmentId",
+          "departmentName"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "departmentId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "departmentName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "StaffTask": {
+        "type": "object",
+        "required": [
+          "taskId",
+          "assignee",
+          "title",
+          "status",
+          "dueAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "assignee": {
+            "$ref": "#/components/schemas/StaffMember"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$",
+            "description": "UTC ISO8601 timestamp",
+            "nullable": true
+          }
+        }
+      },
+      "StaffTaskPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "pageNumber",
+          "pageSize"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/StaffTask"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pageNumber": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "MyStaffConnected": {
+        "type": "object",
+        "required": [
+          "taskState",
+          "selectedAssignee",
+          "tasks"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "taskState": {
+            "type": "string",
+            "enum": [
+              "Connected"
+            ]
+          },
+          "selectedAssignee": {
+            "type": "object",
+            "required": [
+              "userId",
+              "name",
+              "departmentId",
+              "departmentName"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "departmentId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "departmentName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "nullable": true
+          },
+          "tasks": {
+            "$ref": "#/components/schemas/StaffTaskPage"
+          }
+        }
+      },
+      "MyStaffDegraded": {
+        "type": "object",
+        "required": [
+          "taskState",
+          "selectedAssignee",
+          "tasks"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "taskState": {
+            "type": "string",
+            "enum": [
+              "TMS_UNAVAILABLE",
+              "TMS_TIMEOUT",
+              "TMS_CONTRACT_INVALID"
+            ]
+          },
+          "selectedAssignee": {
+            "type": "object",
+            "required": [
+              "userId",
+              "name",
+              "departmentId",
+              "departmentName"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "departmentId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "departmentName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "nullable": true
+          },
+          "tasks": {
+            "type": "object",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          }
+        }
+      },
+      "MyStaffTasksResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MyStaffConnected"
+              },
+              {
+                "$ref": "#/components/schemas/MyStaffDegraded"
+              }
+            ]
+          }
+        }
+      },
+      "CatalogItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "group",
+          "code",
+          "name",
+          "sortOrder",
+          "isActive",
+          "version"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "companies",
+              "methods",
+              "documentTypes",
+              "internalTypes",
+              "sensitivity",
+              "categories"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_]{1,64}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          }
+        }
+      },
+      "CatalogAdminPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "totalCount",
+          "pageNumber",
+          "pageSize",
+          "group",
+          "activity",
+          "canEditGroup"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/CatalogItem"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pageNumber": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "companies",
+              "methods",
+              "documentTypes",
+              "internalTypes",
+              "sensitivity",
+              "categories"
+            ]
+          },
+          "activity": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Inactive",
+              "All"
+            ]
+          },
+          "canEditGroup": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CatalogAdminResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors",
+          "traceId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/CatalogAdminPage"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "maxItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/PartnerErrorEntry"
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "CatalogOptionsResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors",
+          "traceId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "type": "object",
+            "required": [
+              "canManage"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "canManage": {
+                "type": "boolean"
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "maxItems": 0,
+            "items": {
+              "$ref": "#/components/schemas/PartnerErrorEntry"
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "PartnerAuditItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "actorUserId",
+          "action",
+          "version",
+          "occurredAt",
+          "changesAvailability"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "actorUserId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "Create",
+              "Update",
+              "Delete",
+              "Restore"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$",
+            "description": "UTC ISO8601 timestamp"
+          },
+          "changesAvailability": {
+            "type": "string",
+            "enum": [
+              "NotRecorded"
+            ]
+          }
+        }
+      },
+      "PartnerAuditPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "totalCount",
+          "pageNumber",
+          "pageSize",
+          "partnerId",
+          "throughVersion"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/PartnerAuditItem"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pageNumber": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "partnerId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "throughVersion": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+          }
+        }
+      },
+      "PartnerAuditResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/PartnerAuditPage"
+          }
+        }
+      },
+      "PartnerErrorEntry": {
+        "type": "object",
+        "required": [
+          "field",
+          "code",
+          "message"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PartnerError": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors",
+          "traceId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/PartnerErrorEntry"
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "DocumentLifecycleItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "actorUserId",
+          "version",
+          "occurredAt",
+          "action",
+          "fromStatus",
+          "toStatus",
+          "cancellationReason"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "actorUserId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$",
+            "description": "UTC ISO8601 timestamp"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "Distribute",
+              "Cancel",
+              "Restore"
+            ]
+          },
+          "fromStatus": {
+            "type": "string",
+            "enum": [
+              "InProgress",
+              "Distributed",
+              "Cancelled"
+            ]
+          },
+          "toStatus": {
+            "type": "string",
+            "enum": [
+              "InProgress",
+              "Distributed",
+              "Cancelled"
+            ]
+          },
+          "cancellationReason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000,
+            "nullable": true
+          }
+        }
+      },
+      "DocumentHistoryPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "totalCount",
+          "pageNumber",
+          "pageSize",
+          "documentId",
+          "throughVersion",
+          "coverage"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/DocumentLifecycleItem"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pageNumber": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "documentId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "throughVersion": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,18}$",
+            "description": "Canonical decimal Int64: 1..9223372036854775807, checked server-side; JSON string preserves precision."
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "V2LifecycleOnly"
+            ]
+          }
+        }
+      },
+      "DocumentHistoryResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "data": {
+            "$ref": "#/components/schemas/DocumentHistoryPage"
+          }
+        }
+      },
+      "V2Error": {
+        "type": "object",
+        "required": [
+          "success",
+          "code"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
+      "CatalogError": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors",
+          "traceId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "enum": [
+              null
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/PartnerErrorEntry"
+            }
+          },
+          "traceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}

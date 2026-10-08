@@ -17,6 +17,9 @@ public sealed record StaffTask(string TaskId,Guid AssigneeUserId,string Title,st
 public sealed record StaffTaskPage(IReadOnlyList<StaffTask> Items,int Total,int PageNumber,int PageSize);
 // This is a DAS contract, not a claim about the unprovided TMS API.
 // The future adapter resolves remote IDs and enforces the exact assignee scope.
+// ListAsync filters the allowed user set BEFORE counting and paging. Items and total
+// must come from the same query snapshot in a stable adapter-defined order across
+// pages. DAS cannot infer ordering from opaque task IDs; real TMS must certify it.
 public interface ITmsConnector
 {
     Task<StaffTaskPage> ListAsync(IReadOnlySet<Guid> users,int page,int size,CancellationToken ct);
@@ -34,6 +37,70 @@ public sealed class UnavailableTmsConnector:ITmsConnector
 public sealed record MyStaffPage(IReadOnlyList<StaffMember> Staff,int Total,int PageNumber,int PageSize,StaffTaskPage? Tasks,string TaskState);
 public sealed class MyStaffService(IStaffAuthority authority,ITmsConnector tms)
 {
+    public async Task<MyStaffTasksResult> QueryTasksAsync(Guid user,int page,int size,Guid? assignee,CancellationToken ct)
+    {
+        if(page<1||page>1000000||size<1||size>100||assignee==Guid.Empty)throw new DocumentRegistrationRuleException(400,"INVALID_STAFF_QUERY","Invalid task query.");
+        ct.ThrowIfCancellationRequested();
+        var initial=await ResolveTaskScope(user,ct);
+        var managedIds=initial.ManagedStaff.Select(x=>x.UserId).ToHashSet();
+        if(assignee.HasValue&&!managedIds.Contains(assignee.Value))throw new DocumentRegistrationRuleException(403,"ASSIGNEE_FORBIDDEN","Assignee is outside managed scope.");
+        var allowed=assignee.HasValue?new HashSet<Guid>{assignee.Value}:managedIds;
+        StaffTaskPage? remote=null;var state="Connected";
+        if(allowed.Count>0)
+        {
+            using var deadline=CancellationTokenSource.CreateLinkedTokenSource(ct);
+            deadline.CancelAfter(TimeSpan.FromSeconds(15));
+            try
+            {
+                remote=await tms.ListAsync(allowed,page,size,deadline.Token).WaitAsync(deadline.Token);
+                ct.ThrowIfCancellationRequested();
+                if(!ValidTaskPage(remote,allowed,page,size)){remote=null;state="TMS_CONTRACT_INVALID";}
+            }
+            catch(OperationCanceledException) when(ct.IsCancellationRequested){throw;}
+            catch(OperationCanceledException){state="TMS_TIMEOUT";remote=null;}
+            catch(TimeoutException){state="TMS_TIMEOUT";remote=null;}
+            catch(System.Text.Json.JsonException){state="TMS_CONTRACT_INVALID";remote=null;}
+            catch(DocumentRegistrationRuleException e) when(e.Status==503)
+            {state=e.Code is "TMS_CONTRACT_INVALID" or "TMS_RESPONSE_INVALID"?"TMS_CONTRACT_INVALID":e.Code=="TMS_TIMEOUT"?"TMS_TIMEOUT":"TMS_UNAVAILABLE";remote=null;}
+            catch(Exception){ct.ThrowIfCancellationRequested();state="TMS_UNAVAILABLE";remote=null;}
+        }
+        // Revalidate even degraded responses and verified empty scopes before
+        // disclosing a selected staff member or any task/name from the old scope.
+        ct.ThrowIfCancellationRequested();
+        var fresh=await ResolveTaskScope(user,ct);
+        ct.ThrowIfCancellationRequested();
+        var members=fresh.ManagedStaff.ToDictionary(x=>x.UserId);
+        if(!managedIds.SetEquals(members.Keys))throw new DocumentRegistrationRuleException(409,"STAFF_SCOPE_CHANGED","Managed staff changed during the request.");
+        MyStaffTasksPage? tasks=state!="Connected"?null:remote is null?new([],0,page,size):new(
+            remote.Items.Select(x=>new MyStaffTaskItem(x.TaskId,members[x.AssigneeUserId],x.Title,x.Status,x.DueAt?.UtcDateTime)).ToArray(),remote.Total,page,size);
+        return new(state,assignee.HasValue?members[assignee.Value]:null,tasks);
+    }
+
+    private async Task<StaffAuthority> ResolveTaskScope(Guid user,CancellationToken ct)
+    {
+        StaffAuthority scope;
+        try{scope=await authority.ResolveAsync(user,ct);}
+        catch(OperationCanceledException) when(ct.IsCancellationRequested){throw;}
+        catch(DocumentRegistrationRuleException){throw;}
+        catch(Exception){ct.ThrowIfCancellationRequested();throw new DocumentRegistrationRuleException(503,"STAFF_AUTHORITY_UNAVAILABLE","Staff authority is unavailable.");}
+        if(scope is null||scope.ManagedStaff is null||scope.ManagedStaff.Any(x=>x is null))throw new DocumentRegistrationRuleException(503,"AUTHORITY_MISMATCH","Staff authority is inconsistent.");
+        StaffAuthorityValidation.Verify(scope,user);
+        return scope;
+    }
+
+    private static bool ValidTaskPage(StaffTaskPage? result,IReadOnlySet<Guid> allowed,int page,int size)
+    {
+        if(result is null||result.Items is null||result.PageNumber!=page||result.PageSize!=size||result.Total<0||result.Items.Count>size||result.Total<result.Items.Count)return false;
+        var offset=(long)(page-1)*size;
+        if(offset>=result.Total&&result.Items.Count!=0||offset<result.Total&&offset+result.Items.Count>result.Total)return false;
+        var taskIds=new HashSet<string>(StringComparer.Ordinal);
+        return result.Items.All(x=>x is not null&&allowed.Contains(x.AssigneeUserId)&&
+            !string.IsNullOrWhiteSpace(x.TaskId)&&x.TaskId.Length<=200&&taskIds.Add(x.TaskId)&&
+            !string.IsNullOrWhiteSpace(x.Title)&&x.Title.Length<=2000&&
+            !string.IsNullOrWhiteSpace(x.Status)&&x.Status.Length<=100&&
+            (!x.DueAt.HasValue||x.DueAt.Value.Offset==TimeSpan.Zero));
+    }
+
     public async Task<MyStaffPage> QueryAsync(Guid user,int page,int size,bool tasks,CancellationToken ct)
     {
         if(page<1||page>1000000||size<1||size>100)throw new DocumentRegistrationRuleException(400,"INVALID_STAFF_QUERY","Invalid staff query.");

@@ -1,5 +1,9 @@
 # Database
 
+Mở [tài liệu database dạng HTML](DAS_DATABASE_HUONG_DAN_CHI_TIET.html) để bàn giao đồng nghiệp: chữ đen, Times New Roman, mục lục, tra cứu từng bảng và nút tải HTML ở cuối trang. File mở độc lập, không cần mạng hoặc backend.
+
+Bản nguồn [tài liệu kỹ thuật database DAS](DATABASE-HANDBOOK.md) bao gồm kiến trúc sáu store, dictionary 43 bảng/360 cột, PK/index/FK/CHECK, quy tắc nghiệp vụ, transaction/replay, provisioning/migrations và backup/restore. Khi schema đổi, cập nhật bản nguồn và đồng bộ HTML trước khi bàn giao.
+
 `migrations/<service>/` chứa toàn bộ EF migrations và model snapshots của service đó. File chỉ có một bản tại đây; `backend/Directory.Build.props` đưa vào Compile của đúng project. Giữ nguyên migration ID, namespace và thứ tự lịch sử khi chuyển folder.
 
 | Nhóm | Project sở hữu |

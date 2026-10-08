@@ -6,9 +6,13 @@ const guid = (v: unknown) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-
 const safePath = (v: unknown) => v === null || typeof v === 'string' && v.startsWith('/') && !v.startsWith('//') && !v.includes('\\') && !/[\x00-\x1f]/.test(v) && v.length <= 500
 const invalid = () => new ApiRequestError(502, 'Phản hồi thông báo không hợp lệ.')
 export const notificationsApi = {
-  async list(signal?: AbortSignal) {
-    const r = (await requestApiEnvelope<{ items: InAppNotification[]; totalCount: number; page: number; pageSize: number }>('notification', '/api/notifications/my?page=1&pageSize=20', { signal, cache: 'no-store', redirect: 'error' })).data
-    if (!r || r.page !== 1 || r.pageSize !== 20 || !Number.isSafeInteger(r.totalCount) || r.totalCount < 0 || !Array.isArray(r.items) || r.items.length > 20 || r.items.length > r.totalCount || r.items.some(x => !guid(x.id) || !guid(x.recipientUserId) || typeof x.title !== 'string' || !x.title.trim() || typeof x.message !== 'string' || typeof x.isRead !== 'boolean' || !safePath(x.actionUrl) || typeof x.createdAt !== 'string' || Number.isNaN(Date.parse(x.createdAt)))) throw invalid()
+  async list(pageOrSignal?: number | AbortSignal, pageSizeOrSignal?: number | AbortSignal, signalArg?: AbortSignal) {
+    const page = typeof pageOrSignal === 'number' ? pageOrSignal : 1
+    const pageSize = typeof pageSizeOrSignal === 'number' ? pageSizeOrSignal : 20
+    const signal = pageOrSignal instanceof AbortSignal ? pageOrSignal : pageSizeOrSignal instanceof AbortSignal ? pageSizeOrSignal : signalArg
+    if (!Number.isSafeInteger(page) || page < 1 || page > 1000000 || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100) throw new ApiRequestError(400, 'Phân trang không hợp lệ.')
+    const r = (await requestApiEnvelope<{ items: InAppNotification[]; totalCount: number; page: number; pageSize: number }>('notification', `/api/notifications/my?page=${page}&pageSize=${pageSize}`, { signal, cache: 'no-store', redirect: 'error' })).data
+    if (!r || r.page !== page || r.pageSize !== pageSize || !Number.isSafeInteger(r.totalCount) || r.totalCount < 0 || !Array.isArray(r.items) || r.items.length > pageSize || r.items.length > r.totalCount || r.items.some(x => !guid(x.id) || !guid(x.recipientUserId) || typeof x.title !== 'string' || !x.title.trim() || typeof x.message !== 'string' || typeof x.isRead !== 'boolean' || !safePath(x.actionUrl) || typeof x.createdAt !== 'string' || Number.isNaN(Date.parse(x.createdAt)))) throw invalid()
     return r
   },
   async unread(signal?: AbortSignal) {

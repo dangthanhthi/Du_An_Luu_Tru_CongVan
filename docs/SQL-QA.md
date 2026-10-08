@@ -11,9 +11,9 @@ Runner không tự pull hoặc dùng tag thay đổi. SQL Developer chỉ dùng 
 
 | Profile | Phạm vi |
 |---|---|
-| `core` | SQL tests của Document, Files, Partner, Auth, Notification, EmailWorker; loại fixture load để không có skip |
+| `core` | SQL tests của Document, Files, Partner, Auth, Notification, EmailWorker; loại fixture load và restore Email để không có skip |
 | `load` | 300 registrations, 300 exact replays, race/conflict/counter/idempotency với dữ liệu giả lập |
-| `restore` | Backup CHECKSUM, VERIFYONLY, restore 5 SQL store + PDF giả lập, so sánh dữ liệu và kiểm correlation/revocation/tombstone; SMTP giả lập có 0 lần gửi |
+| `restore` | Backup CHECKSUM, VERIFYONLY, restore 5 SQL store + PDF giả lập; sau đó diễn tập độc lập Email Worker settings/logs/migration history và FK; tất cả worker tắt |
 | `all` | Cả ba nhóm, tuần tự trên một instance riêng |
 
 `--profile core --service EmailWorkerService` giới hạn kiểm tra một service; tên service được ghi vào `selectedService` trong summary. Không dùng kết quả focused để tuyên bố toàn bộ core đã qua. `--service` không được kết hợp load/restore/all. Build/obj của các SQL test nằm trong output riêng (`--artifacts-path`), không ghi đè assembly đang chạy local.
@@ -23,6 +23,10 @@ Mỗi lượt tạo container/network với token ngẫu nhiên và label owners
 Mật khẩu QA sinh trong bộ nhớ và truyền bằng environment; không nằm trong command line, source, summary hoặc log/TRX đã lưu. Environment tiến trình test được whitelist, các worker/SMTP/reminder/intake tắt. NuGet restore dùng lockfile và public config/cache riêng trong output. Test settings giảm parallelism giữa collection; bài kiểm concurrency vẫn chạy các tác vụ song song bên trong fixture.
 
 Output phải là thư mục mới dưới `.artifacts/qa`, không link/junction/traversal. Runner lưu summary, source hash manifest, redacted console logs, TRX, SQL server log; profile restore giữ backup/PDF **giả lập** ngoài Git. Bundle gồm `backups/*.bak`, `storage/*.pdf`, manifest v2 giữ cutId từ fixture và `restore/integrity.json` do verifier chỉ đọc xác nhận. Không đưa cache, `.bak`, PDF hay raw logs lên Git.
+
+Email Worker có `restore-email/roundtrip.json`, `restore-email/emailworker.bak` và `restore-email/integrity.json`; summary ghi `emailRestore`. Checksum backup được đối chiếu với file nguồn trong container, dữ liệu/migration trước và sau phải có hash bằng nhau, worker flags phải đều false. Báo cáo chỉ chứa metadata/hashes, không chứa cấu hình mailbox hoặc password. Cut này độc lập với bundle `core-five-stores`; không gọi hai kết quả là backup đồng bộ sáu store.
+
+Trên máy RAM 8 GB, chạy một lượt `all` để các suite dùng chung cache/build của lượt đó, không mở nhiều runner đồng thời. Tạm dừng preview không cần cho SQL và giữ nguyên bài concurrency bên trong fixture. Sau khi runner kết thúc và xác nhận cleanup, giữ summary/source manifests/log/TRX/backup/PDF; có thể dọn riêng `build`, `nuget-packages`, `dotnet-home` của lượt đó sau khi kiểm tra đường dẫn và chắc chắn không có tiến trình đang dùng. Không xóa cả thư mục bằng chứng hay Docker volumes/images khác.
 
 CI `.github/workflows/core-ci.yml` có job `sql-qa` chạy khi chủ động `workflow_dispatch`; PR thông thường vẫn chạy core checks. Image và action giữ digest/commit cố định, token chỉ `contents:read`, checkout không persist credential. Job chỉ upload report/log/TRX đã redacted trong 7 ngày, không upload NuGet cache/backup/PDF. SQL hosted đã qua trên commit `abb54a9`; full workflow vẫn failure do dependency audit. Xem [checkpoint hosted](HOSTED-CI-CHECKPOINT-20261006.md) để giữ đúng scope và source SHA.
 

@@ -2,7 +2,8 @@
 import { headers } from 'next/headers'
 
 // MUI Imports
-import InitColorSchemeScript from '@mui/material/InitColorSchemeScript'
+import InitColorSchemeScript from '@mui/system/InitColorSchemeScript'
+import Script from 'next/script'
 
 // Third-party Imports
 import 'react-perfect-scrollbar/dist/css/styles.css'
@@ -48,12 +49,16 @@ const RootLayout = async (props: ChildrenType & { params: Promise<{ lang: string
   const headersList = await headers()
   const systemMode = await getSystemMode()
   const direction = i18n.langDirection[lang]
+  // Preserve Material storage keys while Next owns execution during locale navigation.
+  const themeScript = InitColorSchemeScript({ attribute: 'data', defaultMode: systemMode,
+    modeStorageKey: 'mui-mode', colorSchemeStorageKey: 'mui-color-scheme' })
 
   return (
     <TranslationWrapper headersList={headersList} lang={lang}>
       <html id='__next' lang={lang} dir={direction} suppressHydrationWarning>
         <body className='flex is-full min-bs-full flex-auto flex-col'>
-          <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
+          <Script id='das-theme-init' strategy='beforeInteractive'
+            dangerouslySetInnerHTML={themeScript.props.dangerouslySetInnerHTML} />
           {children}
         </body>
       </html>

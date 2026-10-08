@@ -1,0 +1,1108 @@
+{
+  "createdAtUtc": "2026-10-06T16:16:39.760274+00:00",
+  "baselineCommit": "ec94a448f4e05f66c47b1342701637f88688a129",
+  "scope": "Current local database/schema, SQL core/load and two independent synthetic restore cuts; runtime changes uncommitted and not pushed",
+  "productionReady": false,
+  "customerMigrationExecuted": false,
+  "g7": "Partial/prepared",
+  "g8": "No UAT/signoff",
+  "eap": "Other team; deferred until explicit user request",
+  "ocr": "Deferred",
+  "sqlTotalPassed": 87,
+  "sqlCorePassed": 84,
+  "checks": {
+    "sqlAll": {
+      "profile": "all",
+      "selectedService": null,
+      "passed": true,
+      "synthetic": true,
+      "productionReady": false,
+      "workersEnabled": false,
+      "capturedAtUtc": "2026-10-06T16:13:12.121874+00:00",
+      "cleanupConfirmed": true,
+      "ownerToken": "94a3c9e25302709aab57a8be",
+      "errors": [],
+      "steps": [
+        {
+          "name": "restore-DocumentService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 39.172
+        },
+        {
+          "name": "test-core-DocumentService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 126.047
+        },
+        {
+          "name": "restore-FileService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 7.328
+        },
+        {
+          "name": "test-core-FileService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 20.063
+        },
+        {
+          "name": "restore-PartnerService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 1.938
+        },
+        {
+          "name": "test-core-PartnerService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 19.687
+        },
+        {
+          "name": "restore-AuthService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 2.515
+        },
+        {
+          "name": "test-core-AuthService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 28.61
+        },
+        {
+          "name": "restore-NotificationService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 29.0
+        },
+        {
+          "name": "test-core-NotificationService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 36.109
+        },
+        {
+          "name": "restore-EmailWorkerService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 19.75
+        },
+        {
+          "name": "test-core-EmailWorkerService",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 33.844
+        },
+        {
+          "name": "test-load",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 11.328
+        },
+        {
+          "name": "restore-RestoreIntegration",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 6.937
+        },
+        {
+          "name": "test-restore",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 49.469
+        },
+        {
+          "name": "test-restore-email",
+          "exitCode": 0,
+          "passed": true,
+          "error": null,
+          "seconds": 23.797
+        }
+      ],
+      "testEvidence": {
+        "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+        "loopbackOnly": true,
+        "internalNetwork": false,
+        "networkScope": "owned bridge; loopback publish; outbound network is not claimed disabled",
+        "core-DocumentService": {
+          "total": 46,
+          "executed": 46,
+          "passed": 46,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "core-FileService": {
+          "total": 6,
+          "executed": 6,
+          "passed": 6,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "core-PartnerService": {
+          "total": 10,
+          "executed": 10,
+          "passed": 10,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "core-AuthService": {
+          "total": 9,
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "core-NotificationService": {
+          "total": 5,
+          "executed": 5,
+          "passed": 5,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "core-EmailWorkerService": {
+          "total": 8,
+          "executed": 8,
+          "passed": 8,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "load": {
+          "total": 1,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "loadReport": {
+          "passed": true,
+          "synthetic": true,
+          "productionReady": false,
+          "scenario": "direct-service-SQL-no-HTTP",
+          "uniqueRegistrations": 300,
+          "exactReplays": 300,
+          "concurrency": 8,
+          "errors": 0,
+          "conflictsRejected": 1,
+          "registration": {
+            "count": 300,
+            "minimumMs": 16.7975,
+            "p50Ms": 37.3122,
+            "p95Ms": 95.8678,
+            "maximumMs": 1040.6179
+          },
+          "replay": {
+            "count": 300,
+            "minimumMs": 3.1242,
+            "p50Ms": 5.5569,
+            "p95Ms": 19.2206,
+            "maximumMs": 240.745
+          },
+          "elapsedMilliseconds": 2888,
+          "serviceCallsPerSecond": 207.7447232840286,
+          "workersStarted": false,
+          "externalCalls": 0,
+          "slaAccepted": false,
+          "counters": [
+            {
+              "DocType": "INCOMING",
+              "CurrentValue": 100
+            },
+            {
+              "DocType": "INTERNAL",
+              "CurrentValue": 100
+            },
+            {
+              "DocType": "OUTGOING",
+              "CurrentValue": 100
+            }
+          ],
+          "atomicGraphCounts": {
+            "documents": 300,
+            "headers": 300,
+            "receipts": 300,
+            "statusHistory": 300,
+            "outbox": 300
+          },
+          "checks": [
+            "three-shared-counters",
+            "300unique-300replay",
+            "no-gap-no-duplicate",
+            "atomic-graphs",
+            "409-conflict-counter-unchanged"
+          ]
+        },
+        "restore": {
+          "total": 1,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "restoreReport": {
+          "passed": true,
+          "synthetic": true,
+          "productionReady": false,
+          "cutId": "778e851a-9c02-4de4-9b7a-3df41b55968f",
+          "profile": "core-five-stores",
+          "components": [
+            "auth",
+            "document",
+            "files",
+            "notification",
+            "partner"
+          ],
+          "beforeDataSha256": {
+            "auth": "8885929e86014e6684b59df7e08d68f668d58d3e39dbbe0bee9cb28672fc006b",
+            "document": "7cdc8c7084ba47cfd032b374b6189f5a95164bebe173a3573009508736b732b4",
+            "files": "5e8a56a380c92e32be590c814003a28d4004740b49e47e868ad40a6e6c2b62ba",
+            "notification": "1e2604a1b550073908fcc3bafc16b863d50adca46ad25054463939807e73ec65",
+            "partner": "93c08f9eb6b06d68e8b5047aea2d8a71c219eb04825e8c32a0b1db3903189adc"
+          },
+          "afterDataSha256": {
+            "auth": "8885929e86014e6684b59df7e08d68f668d58d3e39dbbe0bee9cb28672fc006b",
+            "document": "7cdc8c7084ba47cfd032b374b6189f5a95164bebe173a3573009508736b732b4",
+            "files": "5e8a56a380c92e32be590c814003a28d4004740b49e47e868ad40a6e6c2b62ba",
+            "notification": "1e2604a1b550073908fcc3bafc16b863d50adca46ad25054463939807e73ec65",
+            "partner": "93c08f9eb6b06d68e8b5047aea2d8a71c219eb04825e8c32a0b1db3903189adc"
+          },
+          "pdfSha256": "f1cfda0a498ef38d37693814a5b3afd271ecaf2a28f7aaf36a41a35bb25b2b85",
+          "pdfBytes": 657,
+          "backupCount": 5,
+          "noSmtpResendCalls": 0,
+          "allWorkersStarted": false,
+          "elapsedMilliseconds": 30037,
+          "checks": [
+            "real-backup-checksum-verifyonly-restore",
+            "all-user-table-values-equal",
+            "registration-replay-counter-unchanged",
+            "edited-company-department-preserved",
+            "rare-five-digit-preserved",
+            "history-audit-current-pdf-claim",
+            "task-and-reminder-correlations",
+            "notification-replay-no-duplicates",
+            "unknown-expired-sending-no-resend",
+            "inactive-user-revoked-token-preserved",
+            "directory-inbox-outbox-revision-preserved-no-authority-executed",
+            "partner-contact-version-tombstone-audit-preserved"
+          ]
+        },
+        "backups": {
+          "auth": {
+            "bytes": 4902912,
+            "sha256": "656c1906715650f671c2623ea9810cd0f2cfaf43ba90834462fda5c391f7b3ca"
+          },
+          "document": {
+            "bytes": 7065600,
+            "sha256": "bbb7a03f9d1c4d23809feeed3fbcc90bbe1f47099647d203a926178d8b08cdbf"
+          },
+          "files": {
+            "bytes": 4050944,
+            "sha256": "54d151dd79797f7e8f1a705a93cb42d8c0b5e1ba6a2da67186445f301d1db3dc"
+          },
+          "notification": {
+            "bytes": 3854336,
+            "sha256": "232a50c9118a64feb0b150ad845712cac0402944c99081dfb00b916c7091fc03"
+          },
+          "partner": {
+            "bytes": 4050944,
+            "sha256": "d495de22e28941c9f7abd76f2875c091d7bfc15e2b5d7324dba9139b0effb33a"
+          }
+        },
+        "bundleIntegrity": {
+          "integrityPassed": true,
+          "productionReady": false,
+          "mutated": false,
+          "artifactCount": 6,
+          "errors": [],
+          "profile": "core-five-stores",
+          "requiredBackups": [
+            "auth",
+            "document",
+            "files",
+            "notification",
+            "partner"
+          ]
+        },
+        "restore-email": {
+          "total": 1,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "notExecuted": 0
+        },
+        "emailRestore": {
+          "profile": "email-worker-store",
+          "cutId": "34d157df-48c2-4ef4-800e-f5bf63521b4c",
+          "integrityPassed": true,
+          "artifactCount": 1,
+          "productionReady": false,
+          "allWorkersStarted": false,
+          "workerFlags": {
+            "EmailIntake__WorkerEnabled": false,
+            "EmailIntake__ManualScanEnabled": false,
+            "Delivery__WorkerEnabled": false,
+            "Reminders__Enabled": false
+          },
+          "beforeDataSha256": {
+            "emailworker": "f552d6f2c9d8387e8af31baca180d697a190a46f849dc861293c298c8c6f4be2"
+          },
+          "afterDataSha256": {
+            "emailworker": "f552d6f2c9d8387e8af31baca180d697a190a46f849dc861293c298c8c6f4be2"
+          },
+          "rowCounts": {
+            "settings": 1,
+            "scanLogs": 1,
+            "scanItems": 5,
+            "migrations": 2
+          },
+          "backup": {
+            "bytes": 3788800,
+            "sha256": "5da53d24ac0c697ef48d16ddac22fa6996c8c99963bae979e32aab64bb915ecf"
+          }
+        }
+      },
+      "sourceChanged": [],
+      "scope": "owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT",
+      "localArtifact": ".artifacts/qa/sql-database-complete-20261006-02/summary.json",
+      "artifactSha256": "e32906dc03fe296065f48d12bfed46289bd5a1af478da2c37312d356f836f949"
+    },
+    "offlineSchema": {
+      "createdAtUtc": "2026-10-06T16:03:54.795065+00:00",
+      "passed": true,
+      "scope": "offline SQL generation and model/snapshot parity only",
+      "databaseConnected": false,
+      "sqlApplied": false,
+      "productionReady": false,
+      "stores": [
+        {
+          "store": "auth",
+          "context": "AuthDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260728074907_InitialCreate",
+            "20260810130346_ImproveAuthModel",
+            "20261004054605_AddDirectoryProjection"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/auth.sql",
+          "bytes": 10343,
+          "sha256": "d43af2eec3d730b2413bd2f2172b9ab373d8088e973f579354fc82dded9cb0ce"
+        },
+        {
+          "store": "document",
+          "context": "DocumentDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260730115658_InitialCreate",
+            "20260827080431_AddSoftDeleteSqlServer",
+            "20260827110241_AddIncomingSourceMessageId",
+            "20261004060403_AddBusinessCatalogs",
+            "20261004111636_AddV2RegistrationPersistence",
+            "20261004122637_AddDocumentEditAudit",
+            "20261004125541_AddDocumentKindDetails",
+            "20261004132429_AddDocumentRelations",
+            "20261004134524_AddDocumentCancellations",
+            "20261005024036_AddCurrentPdfReplacement",
+            "20261005052843_AddReminderAndTaskIntents",
+            "20261005060101_AddDocumentNotificationDelivery",
+            "20261005072535_AddReminderDeliveryLedger"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/document.sql",
+          "bytes": 40142,
+          "sha256": "3eb7dc5c1536828976b85365770eb83f125ca6032f787543ee64c2f7b9c5c02d"
+        },
+        {
+          "store": "files",
+          "context": "FileDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260806035121_InitialFileSchema",
+            "20261004142642_AddManagedPdfUploads",
+            "20261005024053_AddPdfClaims"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/files.sql",
+          "bytes": 5153,
+          "sha256": "a20af30b27e77586185dcfa2ba1f941854013bcfb21808a61b342d1555e1d9ea"
+        },
+        {
+          "store": "notification",
+          "context": "NotificationDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20261005052849_DurableNotificationsBaseline"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/notification.sql",
+          "bytes": 4586,
+          "sha256": "1c9a2a9f5a64f27d23b02555e0c445a6eb5921de96235aa5ccfb0efc499e36cc"
+        },
+        {
+          "store": "partner",
+          "context": "PartnerDbContext",
+          "efToolVersion": "10.0.3",
+          "migrationIds": [
+            "20260810113448_InitialCreate",
+            "20261005043235_ExternalEntityContactsAndConcurrency"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/partner.sql",
+          "bytes": 7191,
+          "sha256": "a1076976a5d29d385d5b691ff4169de7d5b7628e9c55884125b99ccd1407b15c"
+        },
+        {
+          "store": "email",
+          "context": "EmailWorkerDbContext",
+          "efToolVersion": "9.0.0",
+          "migrationIds": [
+            "20261006121013_EmailWorkerBaseline",
+            "20261006154722_FixedEmailSettingsKey"
+          ],
+          "pendingModelChanges": false,
+          "script": "sql/email.sql",
+          "bytes": 6718,
+          "sha256": "0edf97f159f42f914bc5b0b54be09035dc506781440f655a582c76943a5e86dd"
+        }
+      ],
+      "steps": [
+        {
+          "name": "install-ef-10.0.3",
+          "exitCode": 0
+        },
+        {
+          "name": "install-ef-9.0.0",
+          "exitCode": 0
+        },
+        {
+          "name": "auth-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "auth-build",
+          "exitCode": 0
+        },
+        {
+          "name": "auth-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "auth-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "auth-script",
+          "exitCode": 0
+        },
+        {
+          "name": "document-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "document-build",
+          "exitCode": 0
+        },
+        {
+          "name": "document-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "document-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "document-script",
+          "exitCode": 0
+        },
+        {
+          "name": "files-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "files-build",
+          "exitCode": 0
+        },
+        {
+          "name": "files-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "files-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "files-script",
+          "exitCode": 0
+        },
+        {
+          "name": "notification-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "notification-build",
+          "exitCode": 0
+        },
+        {
+          "name": "notification-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "notification-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "notification-script",
+          "exitCode": 0
+        },
+        {
+          "name": "partner-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "partner-build",
+          "exitCode": 0
+        },
+        {
+          "name": "partner-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "partner-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "partner-script",
+          "exitCode": 0
+        },
+        {
+          "name": "email-restore",
+          "exitCode": 0
+        },
+        {
+          "name": "email-build",
+          "exitCode": 0
+        },
+        {
+          "name": "email-parity",
+          "exitCode": 0
+        },
+        {
+          "name": "email-migrations",
+          "exitCode": 0
+        },
+        {
+          "name": "email-script",
+          "exitCode": 0
+        }
+      ],
+      "errors": [],
+      "sourceChanged": [],
+      "localArtifact": ".artifacts/qa/database-schema-reviewed-20261006/summary.json",
+      "artifactSha256": "bfa7df4786d1271d461c603c5e7885abe70d8b3d79bbeb3bcedc2429cb93380c"
+    },
+    "pythonQa": {
+      "passed": true,
+      "scope": "Legacy QA with documented source/path view;canonical source unchanged",
+      "productionReady": false,
+      "view": ".artifacts/qa/check-view-16c7062df8d6",
+      "localArtifact": ".artifacts/qa/database-final-python-20261006/summary.json",
+      "artifactSha256": "991dcecf8db4d99f2a0f468e1d981165084373f1a3a70c20d86dfd4419b4ec50",
+      "totalPassed": 96
+    },
+    "layout": {
+      "passed": true,
+      "baselineCommit": "ec94a448f4e05f66c47b1342701637f88688a129",
+      "scope": "HEAD source-only archive plus database changes; excludes unreviewed frontend changes",
+      "overlay": [
+        "backend/services/email-worker-service/Data/EmailWorkerDbContext.cs",
+        "backend/tests/EmailWorkerService.Tests/DatabaseSchemaTests.cs",
+        "backend/tests/EmailWorkerService.Tests/EmailDatabaseSqlTests.cs",
+        "backend/tests/EmailWorkerService.Tests/EmailRestoreSqlTests.cs",
+        "database/migrations/email-worker-service/20261006154722_FixedEmailSettingsKey.cs",
+        "database/migrations/email-worker-service/20261006154722_FixedEmailSettingsKey.Designer.cs",
+        "database/migrations/email-worker-service/EmailWorkerDbContextModelSnapshot.cs",
+        "database/PROVISIONING.md",
+        "docs/SQL-QA.md",
+        "docs/source-layout-manifest.json",
+        "tools/qa/run-isolated-sql.py",
+        "tests/qa/test_isolated_sql.py"
+      ],
+      "manifestRowsUpdated": [
+        "backend/services/email-worker-service/Data/EmailWorkerDbContext.cs"
+      ],
+      "productionReady": false,
+      "localArtifact": ".artifacts/qa/database-final-diagnostics-20261006/layout-summary.json",
+      "artifactSha256": "af0a9c003552843b6dd8a7e6d4e0fd67f288b2bb20ec854822ccb00037ff342d",
+      "totalPassed": 13
+    },
+    "emailNonSql": {
+      "passed": true,
+      "scope": "Email Worker non-SQL tests using the assembly built by the completed SQL run; no other backend suites re-run",
+      "testEvidence": {
+        "total": 13,
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "sourceChanged": [],
+      "workersEnabled": false,
+      "productionReady": false,
+      "localArtifact": ".artifacts/qa/database-email-nonsql-reviewed-20261006/summary.json",
+      "artifactSha256": "9891f48d25597b148889f5fecb76c018ffafea643abd3d3be384f90330be3e40"
+    }
+  },
+  "sourceManifests": {
+    ".artifacts/qa/sql-database-complete-20261006-02/source-manifest.json": {
+      "sha256": "652f7f9f9b6a7815230f6735c505adfe2e31a4d4ff2de4a77ecaa04df216c062",
+      "fileCount": 372,
+      "currentSourceMatches": true
+    },
+    ".artifacts/qa/database-schema-reviewed-20261006/source-manifest.json": {
+      "sha256": "f1754a63f36ae97830a238a162b759209140458864dc8976beeff44e551e2e53",
+      "fileCount": 230,
+      "currentSourceMatches": true
+    }
+  },
+  "preservedRedRun": {
+    "profile": "all",
+    "selectedService": null,
+    "passed": false,
+    "synthetic": true,
+    "productionReady": false,
+    "workersEnabled": false,
+    "capturedAtUtc": "2026-10-06T15:41:34.674240+00:00",
+    "cleanupConfirmed": true,
+    "ownerToken": "e061419519824ab83c3f5e5a",
+    "errors": [
+      "RuntimeError: test-restore-email failed; see redacted log"
+    ],
+    "steps": [
+      {
+        "name": "restore-DocumentService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 45.015
+      },
+      {
+        "name": "test-core-DocumentService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 89.672
+      },
+      {
+        "name": "restore-FileService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 12.547
+      },
+      {
+        "name": "test-core-FileService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 33.594
+      },
+      {
+        "name": "restore-PartnerService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 2.391
+      },
+      {
+        "name": "test-core-PartnerService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 31.625
+      },
+      {
+        "name": "restore-AuthService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 3.422
+      },
+      {
+        "name": "test-core-AuthService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 27.688
+      },
+      {
+        "name": "restore-NotificationService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 39.109
+      },
+      {
+        "name": "test-core-NotificationService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 22.375
+      },
+      {
+        "name": "restore-EmailWorkerService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 28.547
+      },
+      {
+        "name": "test-core-EmailWorkerService",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 18.203
+      },
+      {
+        "name": "test-load",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 28.375
+      },
+      {
+        "name": "restore-RestoreIntegration",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 5.766
+      },
+      {
+        "name": "test-restore",
+        "exitCode": 0,
+        "passed": true,
+        "error": null,
+        "seconds": 48.063
+      },
+      {
+        "name": "test-restore-email",
+        "exitCode": 1,
+        "passed": false,
+        "error": null,
+        "seconds": 7.218
+      }
+    ],
+    "testEvidence": {
+      "sqlImage": "sha256:4402d880dd4c34bfa7d8705e56a86cd6c88da80a1f6bbbe741f999e76264a090",
+      "loopbackOnly": true,
+      "internalNetwork": false,
+      "networkScope": "owned bridge; loopback publish; outbound network is not claimed disabled",
+      "core-DocumentService": {
+        "total": 46,
+        "executed": 46,
+        "passed": 46,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-FileService": {
+        "total": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-PartnerService": {
+        "total": 10,
+        "executed": 10,
+        "passed": 10,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-AuthService": {
+        "total": 9,
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-NotificationService": {
+        "total": 5,
+        "executed": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "core-EmailWorkerService": {
+        "total": 4,
+        "executed": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "load": {
+        "total": 1,
+        "executed": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "loadReport": {
+        "passed": true,
+        "synthetic": true,
+        "productionReady": false,
+        "scenario": "direct-service-SQL-no-HTTP",
+        "uniqueRegistrations": 300,
+        "exactReplays": 300,
+        "concurrency": 8,
+        "errors": 0,
+        "conflictsRejected": 1,
+        "registration": {
+          "count": 300,
+          "minimumMs": 25.7244,
+          "p50Ms": 96.3766,
+          "p95Ms": 176.0658,
+          "maximumMs": 999.8447
+        },
+        "replay": {
+          "count": 300,
+          "minimumMs": 4.0922,
+          "p50Ms": 7.956,
+          "p95Ms": 66.5596,
+          "maximumMs": 257.5035
+        },
+        "elapsedMilliseconds": 5418,
+        "serviceCallsPerSecond": 110.73731320899219,
+        "workersStarted": false,
+        "externalCalls": 0,
+        "slaAccepted": false,
+        "counters": [
+          {
+            "DocType": "INCOMING",
+            "CurrentValue": 100
+          },
+          {
+            "DocType": "INTERNAL",
+            "CurrentValue": 100
+          },
+          {
+            "DocType": "OUTGOING",
+            "CurrentValue": 100
+          }
+        ],
+        "atomicGraphCounts": {
+          "documents": 300,
+          "headers": 300,
+          "receipts": 300,
+          "statusHistory": 300,
+          "outbox": 300
+        },
+        "checks": [
+          "three-shared-counters",
+          "300unique-300replay",
+          "no-gap-no-duplicate",
+          "atomic-graphs",
+          "409-conflict-counter-unchanged"
+        ]
+      },
+      "restore": {
+        "total": 1,
+        "executed": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0
+      },
+      "restoreReport": {
+        "passed": true,
+        "synthetic": true,
+        "productionReady": false,
+        "cutId": "b5fcb5c1-6b3e-4fcc-bcb4-976e54e7f09c",
+        "profile": "core-five-stores",
+        "components": [
+          "auth",
+          "document",
+          "files",
+          "notification",
+          "partner"
+        ],
+        "beforeDataSha256": {
+          "auth": "c54c7bf97bb4523ac8e019ac4d1970b103e1ec6a6586becf9b5f7a1a9c1a81c4",
+          "document": "6aad08f43526d257945f861bccaea3516e5533632af9187d21919c4eacd38c43",
+          "files": "1ba95af539c1d0c0e195feed8a2607010d1bba83a67d559e5bb573a779be1235",
+          "notification": "b5b5832a370d1831c020ed85f2f5874516d324c88cc328a1750b7e67ed4959bb",
+          "partner": "268dbbe681f7d47feb37907141ed590d776206568ee946f6325ef896f0e0dbd9"
+        },
+        "afterDataSha256": {
+          "auth": "c54c7bf97bb4523ac8e019ac4d1970b103e1ec6a6586becf9b5f7a1a9c1a81c4",
+          "document": "6aad08f43526d257945f861bccaea3516e5533632af9187d21919c4eacd38c43",
+          "files": "1ba95af539c1d0c0e195feed8a2607010d1bba83a67d559e5bb573a779be1235",
+          "notification": "b5b5832a370d1831c020ed85f2f5874516d324c88cc328a1750b7e67ed4959bb",
+          "partner": "268dbbe681f7d47feb37907141ed590d776206568ee946f6325ef896f0e0dbd9"
+        },
+        "pdfSha256": "fbcd2e14b955be5a08de737e19a84dbde207e500c9e3fc4f4facce3509b3d87e",
+        "pdfBytes": 657,
+        "backupCount": 5,
+        "noSmtpResendCalls": 0,
+        "allWorkersStarted": false,
+        "elapsedMilliseconds": 31225,
+        "checks": [
+          "real-backup-checksum-verifyonly-restore",
+          "all-user-table-values-equal",
+          "registration-replay-counter-unchanged",
+          "edited-company-department-preserved",
+          "rare-five-digit-preserved",
+          "history-audit-current-pdf-claim",
+          "task-and-reminder-correlations",
+          "notification-replay-no-duplicates",
+          "unknown-expired-sending-no-resend",
+          "inactive-user-revoked-token-preserved",
+          "directory-inbox-outbox-revision-preserved-no-authority-executed",
+          "partner-contact-version-tombstone-audit-preserved"
+        ]
+      },
+      "backups": {
+        "auth": {
+          "bytes": 4902912,
+          "sha256": "ae29656b73f8768443a86caa0fc35fe2c1827d103dc62ba7846180b0ebcbb9d5"
+        },
+        "document": {
+          "bytes": 7065600,
+          "sha256": "42089640db61b5c227911208c837ff9b61db148a83730ac9af0e070d60baa885"
+        },
+        "files": {
+          "bytes": 4050944,
+          "sha256": "8119710f5e3079fbc4b96b653c82bf474c71340b2eb37e4e7b9b04ac0d261b5b"
+        },
+        "notification": {
+          "bytes": 3854336,
+          "sha256": "ee080f8c78712e4587d36404cb65aaab1b133a1087913d704c7b0f14ed43166f"
+        },
+        "partner": {
+          "bytes": 4050944,
+          "sha256": "27e36208a742c352a108210b8c876665ea9e803d37f65b20e1f821be3e293ddd"
+        }
+      },
+      "bundleIntegrity": {
+        "integrityPassed": true,
+        "productionReady": false,
+        "mutated": false,
+        "artifactCount": 6,
+        "errors": [],
+        "profile": "core-five-stores",
+        "requiredBackups": [
+          "auth",
+          "document",
+          "files",
+          "notification",
+          "partner"
+        ]
+      }
+    },
+    "sourceChanged": [],
+    "scope": "owned synthetic SQL only; no customer migration, EAP/OCR, transport, HTTP SLA or UAT",
+    "localArtifact": ".artifacts/qa/sql-database-complete-20261006-01/summary.json",
+    "artifactSha256": "a114d65a11433561726bf2b90bc8c7319acf766e4c02776c220c0cbe7972bfbb"
+  },
+  "cacheCleanup": {
+    "AtUtc": "2026-10-06T16:15:06.4967916Z",
+    "Boundary": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa",
+    "FreeBeforeBytes": 20551266304,
+    "FreeAfterBytes": 28474433536,
+    "FreeChangeBytes": 7923167232,
+    "Results": [
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-01\\build",
+        "EstimatedBytes": 1397499994,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-01\\nuget-packages",
+        "EstimatedBytes": 1315600341,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-01\\dotnet-home",
+        "EstimatedBytes": 0,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-02\\build",
+        "EstimatedBytes": 1397574894,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-02\\nuget-packages",
+        "EstimatedBytes": 1315600341,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\sql-database-complete-20261006-02\\dotnet-home",
+        "EstimatedBytes": 0,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\database-schema-complete-20261006\\dotnet-home",
+        "EstimatedBytes": 1211212737,
+        "Removed": true,
+        "Error": null
+      },
+      {
+        "Path": "C:\\Users\\MSIIIIII\\Desktop\\Dự án taskmanager\\DAS-Collaboration\\.artifacts\\qa\\database-schema-reviewed-20261006\\dotnet-home",
+        "EstimatedBytes": 1211212737,
+        "Removed": true,
+        "Error": null
+      }
+    ],
+    "Preserved": [
+      "source/mentor documents",
+      "SQLite previews and real data",
+      "summary/manifests/logs/TRX/SQL exports",
+      "synthetic backup/PDF evidence",
+      "Node preview runtime",
+      "Docker volumes/images and other apps including Roblox"
+    ],
+    "localArtifact": ".artifacts/qa/database-cache-cleanup-20261006/cache-cleanup-result.json",
+    "artifactSha256": "95c732f927ceeac3bd7defbe34c9d8f702ae0b08b47050c025b6a548f32a4791"
+  },
+  "resourcesAfter": {
+    "AtUtc": "2026-10-06T16:15:53.4939343Z",
+    "FreeRamMiB": 1623.0,
+    "FreeDiskGiB": 26.66,
+    "RobloxProcesses": 1,
+    "PreviewListeningPorts": [],
+    "localArtifact": ".artifacts/qa/database-final-diagnostics-20261006/resources-final.json",
+    "artifactSha256": "dd01e6bb24744a9de0d86f6a46908013c1e58ff73fb05633f225f3dd901b04f8"
+  },
+  "review": {
+    "independentCodexReview": "Read-only; custom CHECK/default loss identified and fixed with Up/Down SQL regression coverage",
+    "gemini": "Server 4-30min; background review failed terminal 503 on both accounts; no Gemini result used"
+  },
+  "limits": [
+    "No real customer export/PDF/ID mapping applied",
+    "Two independent restore cuts; no coordinated six-store/PDF backup claim",
+    "No live gateway/authority/TMS/SMTP/EAP/OCR/UAT validation",
+    "Old allocation-lock timeout did not recur; root cause and production performance/RPO/RTO/SLA still unproven",
+    "Other backend non-SQL suites and current dirty frontend were not re-run in this milestone"
+  ]
+}

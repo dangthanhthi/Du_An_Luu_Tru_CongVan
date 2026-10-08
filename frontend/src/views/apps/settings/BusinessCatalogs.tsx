@@ -41,6 +41,7 @@ const BusinessCatalogs = () => {
   const [mustReload, setMustReload] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
   const alive = useRef(false)
+  const inFlightRef = useRef(false)
   const editable = group !== 'targets' && editableCatalogGroups.includes(group) && canManage
 
   useEffect(() => {
@@ -60,8 +61,25 @@ const BusinessCatalogs = () => {
       ? catalogApi.getDistributionTargets({ pageNumber, pageSize, search }, controller.signal).then(targets => ({ key, targets }))
       : catalogApi.getGroup(group, controller.signal).then(entries => ({ key, entries }))
 
-    request.then(value => { if (!controller.signal.aborted) setResult(value) })
-      .catch(error => { if (!controller.signal.aborted) setResult({ key, error }) })
+    request.then(value => {
+      if (!controller.signal.aborted) {
+        if ('targets' in value && value.targets) {
+          const maxPage = Math.max(1, Math.ceil(value.targets.totalCount / pageSize))
+          if (pageNumber > maxPage) {
+            setPageNumber(maxPage)
+            return
+          }
+        }
+        setResult(value)
+      }
+    })
+      .catch(error => {
+        if (!controller.signal.aborted) {
+          const status = error instanceof V2ApiError ? error.status : 0
+          if (status === 401 || status === 403) setCanManage(false)
+          setResult({ key, error })
+        }
+      })
     return () => controller.abort()
   }, [group, key, pageNumber, pageSize, search])
 
@@ -79,7 +97,7 @@ const BusinessCatalogs = () => {
     setNotice(null)
   }
   const save = async () => {
-    if (!editor || !editable || busy || mustReload) return
+    if (inFlightRef.current || !editor || !editable || busy || mustReload) return
     const order = Number(editor.sortOrder)
 
     if (!editor.name.trim() || editor.name.trim().length > 200 || !Number.isSafeInteger(order) || order < 0 || order > 10000 ||
@@ -87,6 +105,7 @@ const BusinessCatalogs = () => {
       setSaveError(l('Tên tối đa 200 ký tự; mã chỉ gồm chữ, số, dấu gạch dưới; thứ tự từ 0 đến 10000.', 'Name: up to 200 characters; code: letters, digits or underscore; order: 0–10000.'))
       return
     }
+    inFlightRef.current = true
     setBusy(true)
     setSaveError(null)
     try {
@@ -100,6 +119,7 @@ const BusinessCatalogs = () => {
     } catch (error) {
       if (!alive.current) return
       const status = error instanceof V2ApiError ? error.status : 0
+      if (status === 401 || status === 403) setCanManage(false)
 
       if (status === 409 && editor.original) {
         setMustReload(true)
@@ -109,10 +129,14 @@ const BusinessCatalogs = () => {
         setMustReload(true)
         setSaveError(l('Chưa xác định kết quả lưu. Máy chủ có thể đã lưu; kiểm tra dữ liệu trước khi thao tác lại.', 'Save outcome is unknown. The server may have saved it; check the data before trying again.'))
       } else setSaveError(status === 400 ? l('Dữ liệu không hợp lệ. Kiểm tra các trường và thử lại.', 'Invalid data. Review the fields and retry.') : message(error))
-    } finally { if (alive.current) setBusy(false) }
+    } finally {
+      inFlightRef.current = false
+      if (alive.current) setBusy(false)
+    }
   }
   const reloadEditor = async () => {
-    if (!editor || busy) return
+    if (inFlightRef.current || !editor || busy) return
+    inFlightRef.current = true
     setBusy(true)
     try {
       if (editor.original) {
@@ -130,8 +154,17 @@ const BusinessCatalogs = () => {
         }
       }
       if (alive.current) setRevision(value => value + 1)
-    } catch (error) { if (alive.current) setSaveError(message(error)) }
-    finally { if (alive.current) setBusy(false) }
+    } catch (error) {
+      if (alive.current) {
+        const status = error instanceof V2ApiError ? error.status : 0
+        if (status === 401 || status === 403) setCanManage(false)
+        setSaveError(message(error))
+      }
+    }
+    finally {
+      inFlightRef.current = false
+      if (alive.current) setBusy(false)
+    }
   }
 
   return <Card>
@@ -174,7 +207,8 @@ const BusinessCatalogs = () => {
               </TableRow>)}</TableBody>
             </Table></TableContainer>}
       </Box>
-      {current?.targets && <TablePagination component='div' count={current.targets.totalCount} page={pageNumber - 1} rowsPerPage={pageSize}
+      {current?.targets && <TablePagination component='div' count={current.targets.totalCount}
+        page={Math.min(pageNumber - 1, Math.max(0, Math.ceil((current.targets.totalCount || 1) / pageSize) - 1))} rowsPerPage={pageSize}
         rowsPerPageOptions={[10, 20, 50]} labelRowsPerPage={l('Số dòng', 'Rows per page')}
         labelDisplayedRows={({ from, to, count }) => `${from}–${to} / ${count}`}
         getItemAriaLabel={type => type === 'next' ? l('Trang sau', 'Next page') : l('Trang trước', 'Previous page')}

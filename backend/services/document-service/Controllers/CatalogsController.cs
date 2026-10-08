@@ -7,8 +7,22 @@ namespace DocumentService;
 [ApiController]
 [Route("api/v2/catalogs")]
 [Authorize]
-public sealed class CatalogsController(CatalogService service, DocumentDbContext db) : ControllerBase
+public sealed class CatalogsController(CatalogService service, DocumentDbContext db, IAuthorizationService authorization) : ControllerBase
 {
+    [HttpGet("/api/v2/admin/catalogs/options")]
+    public Task<IActionResult> GetAdminOptions(CancellationToken ct = default) => Execute(async () =>
+    {
+        if (Actor() == Guid.Empty) return Failure(401, "ACTOR_REQUIRED", "Authentication is required.");
+        if (Request.Query.Count != 0) return Failure(400, "INVALID_ADMIN_CATALOG_QUERY", "Admin catalog query is invalid.");
+        var capability = await authorization.AuthorizeAsync(User, null, "CatalogManage");
+        return Success(new { canManage = capability.Succeeded });
+    });
+
+    [HttpGet("/api/v2/admin/catalogs")]
+    [Authorize(Policy = "CatalogManage")]
+    public Task<IActionResult> GetAdminPage(CancellationToken ct = default) =>
+        Execute(async () => Success(await service.GetAdminPageAsync(CatalogAdminQuery.Parse(Request.Query), Actor(), ct)));
+
     [HttpGet]
     public Task<IActionResult> Get(string? groups = null, CancellationToken ct = default) =>
         Execute(async () => Success(await service.GetAsync(groups, ct)));
@@ -42,6 +56,7 @@ public sealed class CatalogsController(CatalogService service, DocumentDbContext
         try { return await action(); }
         catch (CatalogRuleException e) { return Failure(e.Status, e.Code, e.Message); }
         catch (System.Data.Common.DbException) { return Failure(503, "CATALOG_DEPENDENCY_UNAVAILABLE", "Catalog service is unavailable."); }
+        catch (Microsoft.EntityFrameworkCore.Storage.RetryLimitExceededException) { return Failure(503, "CATALOG_DEPENDENCY_UNAVAILABLE", "Catalog service is unavailable."); }
     }
     private object Envelope(object? data) => new { success = true, data, message = (string?)null, errors = Array.Empty<object>(), traceId = HttpContext.TraceIdentifier };
     private IActionResult Success(object data) => Ok(Envelope(data));

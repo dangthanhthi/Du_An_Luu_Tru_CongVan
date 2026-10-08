@@ -19,7 +19,6 @@ import MenuList from '@mui/material/MenuList'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
-import Button from '@mui/material/Button'
 
 // Type Imports
 import type { Locale } from '@configs/i18n'
@@ -92,6 +91,17 @@ const UserDropdown = () => {
     setOpen(false)
   }
 
+  const handleMenuKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape' || event.key === 'Tab') {
+      if (event.key === 'Escape') event.preventDefault()
+      setOpen(false)
+      anchorRef.current?.focus()
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setOpen(true)
+    }
+  }
+
   const handleUserLogout = async () => {
     try {
       await authApi.logout()
@@ -115,7 +125,6 @@ const UserDropdown = () => {
   return (
     <>
       <Badge
-        ref={anchorRef}
         overlap='circular'
         badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
         invisible={!user}
@@ -130,8 +139,10 @@ const UserDropdown = () => {
           aria-label={t.userMenu.openMenu}
           aria-haspopup='menu'
           aria-expanded={open}
+          aria-controls={open ? 'das-user-menu' : undefined}
           onClick={handleDropdownOpen}
           onKeyDown={event => {
+            handleMenuKeyDown(event)
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault()
               handleDropdownOpen()
@@ -157,7 +168,7 @@ const UserDropdown = () => {
           >
             <Paper className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}>
               <ClickAwayListener onClickAway={e => handleDropdownClose(e)}>
-                <MenuList>
+                <div>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
                     <Avatar alt={displayName}><i className='tabler-user' aria-hidden='true' /></Avatar>
                     <div className='flex items-start flex-col'>
@@ -170,23 +181,17 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className='mlb-1' />
+                  <MenuList id='das-user-menu' autoFocusItem={open} onKeyDown={handleMenuKeyDown}>
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/dashboards/overview')}>
                     <i className='tabler-smart-home text-[22px]' />
                     <Typography color='text.primary'>{t.userMenu.dashboard}</Typography>
                   </MenuItem>
-                  <div className='flex items-center plb-1.5 pli-3'>
-                    <Button
-                      fullWidth
-                      color={user ? 'error' : 'primary'}
-                      size='small'
-                      variant='contained'
-                      onClick={user ? handleUserLogout : () => handleDropdownClose(undefined, '/login')}
-                      endIcon={<i className={user ? 'tabler-logout' : 'tabler-login'} />}
-                    >
-                      {user ? t.userMenu.logout : t.userMenu.signIn}
-                    </Button>
-                  </div>
-                </MenuList>
+                  <MenuItem className='mli-2 gap-3' onClick={user ? handleUserLogout : () => handleDropdownClose(undefined, '/login')}>
+                    <i className={user ? 'tabler-logout' : 'tabler-login'} aria-hidden='true' />
+                    <Typography color={user ? 'error' : 'primary'}>{user ? t.userMenu.logout : t.userMenu.signIn}</Typography>
+                  </MenuItem>
+                  </MenuList>
+                </div>
               </ClickAwayListener>
             </Paper>
           </Fade>

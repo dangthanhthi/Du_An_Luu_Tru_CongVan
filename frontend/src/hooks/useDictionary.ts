@@ -34,6 +34,20 @@ export const translations = {
       rolesPermissions: 'Vai Trò & Quyền Hạn',
       logout: 'Đăng Xuất'
     },
+    myStaff: {
+      title: 'Nhân sự của tôi', subtitle: 'Nhân sự trong phạm vi quản lý và công việc từ TMS.',
+      staff: 'Danh sách nhân sự', tasks: 'Danh sách công việc', name: 'Họ và tên', department: 'Phòng ban', action: 'Thao tác',
+      viewTasks: 'Xem công việc', viewing: 'Đang xem', clearFilter: 'Bỏ lọc', filtering: 'Đang lọc công việc của', allTasks: 'Lọc trên toàn bộ công việc của nhân sự.',
+      taskTitle: 'Tiêu đề công việc', assignee: 'Người thực hiện', status: 'Trạng thái', dueDate: 'Hạn hoàn thành', noDueDate: 'Không có hạn',
+      previousStaff: 'Trang nhân sự trước', nextStaff: 'Trang nhân sự sau', previousTask: 'Trang công việc trước', nextTask: 'Trang công việc sau',
+      page: 'Trang', total: 'Tổng cộng', reload: 'Tải lại', loadingStaff: 'Đang tải nhân sự…', loadingTasks: 'Đang tải công việc…',
+      emptyStaff: 'Không có nhân sự trong phạm vi quản lý.', emptyStaffPage: 'Trang này không có nhân sự. Chọn trang khác.',
+      emptyTasks: 'Không tìm thấy công việc nào.', emptyTaskPage: 'Trang này không có công việc. Chọn trang khác.', unknownCount: 'Chưa biết số lượng công việc.',
+      unavailable: 'Dịch vụ TMS hiện chưa khả dụng.', timeout: 'TMS quá thời gian chờ. Vui lòng tải lại.', invalid: 'Phản hồi TMS không hợp lệ. Chưa thể xác minh công việc.',
+      expired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', forbidden: 'Bạn không có quyền xem dữ liệu trong phạm vi này.',
+      authorityUnavailable: 'Dịch vụ thẩm quyền nhân sự đang tạm thời chưa khả dụng.', scopeChanged: 'Phạm vi nhân sự đã thay đổi. Tải lại cả nhân sự và công việc để tiếp tục.',
+      failed: 'Không thể tải dữ liệu. Vui lòng tải lại.', completed: 'Hoàn thành', inProgress: 'Đang xử lý', pending: 'Chờ xử lý', cancelled: 'Đã hủy'
+    },
     directory: {
       title: 'Tổ chức và nhân sự',
       managedAtEap: 'Tổ chức và nhân sự được quản lý tại EAP',
@@ -147,7 +161,7 @@ export const translations = {
       delete: 'Xóa',
       addDoc: 'Thêm Công Văn',
       scanEmail: 'Quét Từ Email',
-      searchPlaceholder: 'Tìm kiếm số hiệu, tiêu đề, đối tác...',
+      searchPlaceholder: 'Tìm số công văn hoặc trích yếu...',
       allTypes: 'Tất cả loại văn bản',
       allStatus: 'Tất cả trạng thái',
       emptyData: 'Không tìm thấy dữ liệu công văn',
@@ -190,8 +204,8 @@ export const translations = {
       searchPlaceholder: 'Tìm kiếm mã, tên đối tác, email...'
     },
     email: {
-      title: 'Tích Hợp Email & Quét Công Văn Tự Động',
-      subtitle: 'Cấu hình hòm thư tiếp nhận (IMAP) để hệ thống tự động tải tệp PDF đính kèm, bóc tách AI OCR và tạo công văn đến.',
+      title: 'Tích Hợp Email & Hòm Thư Tiếp Nhận (Tạm Hoãn)',
+      subtitle: 'Cấu hình tham số hòm thư tiếp nhận. Lưu ý: Tính năng tự động quét, bóc tách OCR và tiếp nhận công văn đang tạm hoãn (503 INTEGRATION_DEFERRED).',
       monitoredMailbox: 'Hộp Thư Đang Giám Sát',
       autoScan: 'Tự Động Quét Định Kỳ',
       totalReceived: 'Tổng Văn Bản Đã Nhận',
@@ -240,6 +254,20 @@ export const translations = {
       userList: 'User List',
       rolesPermissions: 'Roles & Permissions',
       logout: 'Logout'
+    },
+    myStaff: {
+      title: 'My Staff', subtitle: 'Staff in your management scope and tasks from TMS.',
+      staff: 'Staff members', tasks: 'Tasks overview', name: 'Name', department: 'Department', action: 'Action',
+      viewTasks: 'View tasks', viewing: 'Viewing', clearFilter: 'Clear filter', filtering: 'Filtering tasks for', allTasks: 'Filtering across all tasks for this member.',
+      taskTitle: 'Task title', assignee: 'Assignee', status: 'Status', dueDate: 'Due date', noDueDate: 'No due date',
+      previousStaff: 'Previous staff page', nextStaff: 'Next staff page', previousTask: 'Previous task page', nextTask: 'Next task page',
+      page: 'Page', total: 'Total', reload: 'Reload', loadingStaff: 'Loading staff…', loadingTasks: 'Loading tasks…',
+      emptyStaff: 'No staff members under current management scope.', emptyStaffPage: 'No staff on this page. Choose another page.',
+      emptyTasks: 'No tasks found.', emptyTaskPage: 'No tasks on this page. Choose another page.', unknownCount: 'Task count is unknown.',
+      unavailable: 'TMS service is currently unavailable.', timeout: 'TMS request timed out. Please reload.', invalid: 'TMS response is invalid. Tasks could not be verified.',
+      expired: 'Session expired. Please log in again.', forbidden: 'You do not have permission to view data in this scope.',
+      authorityUnavailable: 'Staff management authority is temporarily unavailable.', scopeChanged: 'Staff scope changed. Reload both staff and tasks to continue.',
+      failed: 'Failed to load data. Please reload.', completed: 'Completed', inProgress: 'In progress', pending: 'Pending', cancelled: 'Cancelled'
     },
     directory: {
       title: 'Organization & staff',
@@ -354,7 +382,7 @@ export const translations = {
       delete: 'Delete',
       addDoc: 'Add Document',
       scanEmail: 'Scan from Email',
-      searchPlaceholder: 'Search document no., title, partner...',
+      searchPlaceholder: 'Search document no. or subject...',
       allTypes: 'All document types',
       allStatus: 'All statuses',
       emptyData: 'No documents found',
@@ -397,8 +425,8 @@ export const translations = {
       searchPlaceholder: 'Search by code, partner name, email...'
     },
     email: {
-      title: 'Email Integration & Automated Scanner',
-      subtitle: 'Configure intake mailbox (IMAP) to automatically fetch PDF attachments, run AI OCR, and create incoming documents.',
+      title: 'Email Integration & Mailbox Intake (Deferred)',
+      subtitle: 'Configure intake mailbox parameters. Note: Automated scanning, OCR extraction, and intake are deferred (503 INTEGRATION_DEFERRED).',
       monitoredMailbox: 'Monitored Mailbox',
       autoScan: 'Scheduled Auto-Scan',
       totalReceived: 'Total Docs Received',

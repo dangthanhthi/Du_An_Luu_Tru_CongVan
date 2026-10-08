@@ -35,6 +35,7 @@ export const documentsV2Api = {
         x.recipients.length > 200 || !x.recipients.every(r => r && ['ExternalEntity', 'DistributionTarget'].includes(r.referenceType) && isDocumentGuid(r.referenceId) && text(r.name, 200))) throw bad()
     if (x.details !== null && (!x.details || typeof x.details !== 'object' ||
         ![x.details.receivingDate, x.details.referenceNumber, x.details.methodCode, x.details.documentTypeCode, x.details.categoryCode, x.details.contractNumber, x.details.otherRecipients, x.details.others, x.details.senderNameSnapshot].every(v => nullableText(v)) ||
+        ![x.details.methodNameSnapshot, x.details.documentTypeNameSnapshot, x.details.categoryNameSnapshot].every(v => nullableText(v, 200)) ||
         x.details.senderPartnerId != null && !isDocumentGuid(x.details.senderPartnerId))) throw bad()
     return x
   },

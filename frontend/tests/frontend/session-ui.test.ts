@@ -77,9 +77,10 @@ test('another-tab logout or a missed event caught on focus clears drafts and hid
 // Exercise the actual boundary's render/commit ordering. The browser fixture
 // separately verifies these hooks with React and native storage/Web Locks.
 function boundaryHarness() {
-  let state: unknown, initialized = false
+  const states: unknown[] = []
+  let cursor = 0
   let effects: (() => void)[] = []
-  let previousDependencies: readonly unknown[] | undefined
+  const previousDependencies: (readonly unknown[] | undefined)[] = []
   const provider = { fixture: 'session-owner-provider' }
   const exports: { default?: (props: { children: string; locale: string }) => { type: unknown; props: { children?: unknown } } } = {}
   const source = readFileSync(new URL('../../src/components/DasSessionBoundary.tsx', import.meta.url), 'utf8')
@@ -89,12 +90,14 @@ function boundaryHarness() {
       useSyncExternalStore: (_subscribe: unknown, read: () => unknown) => read(),
       useMemo: (compute: () => unknown) => compute(),
       useState: (initialize: unknown) => {
-        if (!initialized) { state = typeof initialize === 'function' ? initialize() : initialize; initialized = true }
-        return [state, (next: unknown) => { state = next }]
+        const index = cursor++
+        if (!(index in states)) states[index] = typeof initialize === 'function' ? initialize() : initialize
+        return [states[index], (next: unknown) => { states[index] = next }]
       },
       useLayoutEffect: (work: () => void, dependencies: readonly unknown[]) => {
-        if (!previousDependencies || dependencies.some((value, index) => !Object.is(value, previousDependencies![index]))) effects.push(work)
-        previousDependencies = [...dependencies]
+        const index = cursor++, previous = previousDependencies[index]
+        if (!previous || dependencies.length !== previous.length || dependencies.some((value, i) => !Object.is(value, previous[i]))) effects.push(work)
+        previousDependencies[index] = [...dependencies]
       }
     }
     if (name === 'react/jsx-runtime') return { jsx: (type: unknown, props: unknown) => ({ type, props }), jsxs: (type: unknown, props: unknown) => ({ type, props }) }
@@ -105,14 +108,15 @@ function boundaryHarness() {
   } })
   return {
     provider,
-    render: () => exports.default!({ children: 'private-child', locale: 'vi' }),
+    render: () => { cursor = 0; return exports.default!({ children: 'private-child', locale: 'vi' }) },
     commit: () => { const pending = effects; effects = []; for (const effect of pending) effect() }
   }
 }
 
 test('a boundary that sees a new account during render clears old frozen bodies before mounting replacement children without notifications', () => {
   const boundary = boundaryHarness()
-  assert.equal(boundary.render().type, boundary.provider); boundary.commit()
+  assert.notEqual(boundary.render().type, boundary.provider, 'Private children wait for the first client session check')
+  boundary.commit(); assert.equal(boundary.render().type, boundary.provider)
   seedSession(storage, 'replacement-access', 'replacement-refresh')
   const transitional = boundary.render()
   assert.notEqual(transitional.type, boundary.provider, 'Replacement children must wait for private storage cleanup')
@@ -124,7 +128,8 @@ test('a boundary that sees a new account during render clears old frozen bodies 
 
 test('initial boundary mount and same-epoch rotation preserve reloadable frozen bodies', () => {
   const boundary = boundaryHarness()
-  assert.equal(boundary.render().type, boundary.provider); boundary.commit()
+  assert.notEqual(boundary.render().type, boundary.provider, 'Private children wait for the first client session check')
+  boundary.commit(); assert.equal(boundary.render().type, boundary.provider)
   const record = JSON.parse(storage.getItem(SESSION_KEY)!)
   storage.setItem(SESSION_KEY, JSON.stringify({ ...record, revision: 1, accessToken: 'rotated-access', refreshToken: 'rotated-refresh' }))
   assert.equal(boundary.render().type, boundary.provider); boundary.commit()

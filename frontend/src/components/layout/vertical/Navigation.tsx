@@ -68,7 +68,7 @@ const Navigation = (props: Props) => {
   const shadowRef = useRef(null)
 
   // Vars
-  const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached } = verticalNavOptions
+  const { isCollapsed, isHovered, collapseVerticalNav, isBreakpointReached, isToggled } = verticalNavOptions
   const isSemiDark = settings.semiDark
 
   const currentMode = muiMode === 'system' ? muiSystemMode : muiMode || mode
@@ -103,6 +103,13 @@ const Navigation = (props: Props) => {
     // eslint-disable-next-line lines-around-comment
     // Sidebar Vertical Menu
     <VerticalNav
+      id='das-navigation'
+      inert={isBreakpointReached && !isToggled ? true : undefined}
+      aria-hidden={isBreakpointReached && !isToggled ? true : undefined}
+      role={isBreakpointReached && isToggled ? 'dialog' : undefined}
+      aria-modal={isBreakpointReached && isToggled ? true : undefined}
+      aria-label={locale === 'en' ? 'Main navigation' : 'Điều hướng chính'}
+      backdropLabel={locale === 'en' ? 'Close navigation' : 'Đóng điều hướng'}
       customStyles={navigationCustomStyles(verticalNavOptions, theme)}
       collapsedWidth={71}
       backgroundColor='var(--mui-palette-background-paper)'
@@ -121,6 +128,9 @@ const Navigation = (props: Props) => {
         </Link>
         {!(isCollapsed && !isHovered) && (
           <NavCollapseIcons
+            aria-label={locale === 'en'
+              ? (isBreakpointReached ? 'Close navigation' : isCollapsed ? 'Expand navigation' : 'Collapse navigation')
+              : (isBreakpointReached ? 'Đóng điều hướng' : isCollapsed ? 'Mở rộng điều hướng' : 'Thu gọn điều hướng')}
             lockedIcon={<i className='tabler-circle-dot text-xl' />}
             unlockedIcon={<i className='tabler-circle text-xl' />}
             closeIcon={<i className='tabler-x text-xl' />}

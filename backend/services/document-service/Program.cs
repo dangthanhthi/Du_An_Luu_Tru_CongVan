@@ -117,6 +117,18 @@ using (var scope = app.Services.CreateScope())
         await SqliteG1Upgrade.ApplyAsync(db, database.Initialize);
 }
 
+// Private API responses include authentication/authorization middleware replies.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+        context.Response.OnStarting(() =>
+        {
+            context.Response.Headers.CacheControl = "no-store";
+            return Task.CompletedTask;
+        });
+    await next();
+});
+
 app.UseExceptionHandler();
 
 app.UseDefaultFiles();

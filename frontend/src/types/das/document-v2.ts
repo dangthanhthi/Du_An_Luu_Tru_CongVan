@@ -10,6 +10,10 @@ export type RegistrationDraft = {
   sensitivity: 'Normal' | 'Confidential'; issuedDate?: string | null; remark?: string | null
   details?: KindDetails | null; relatedDocumentIds?: string[]
 }
+// Labels are historical server snapshots, separate from editable codes.
+export type ReadKindDetails = KindDetails & {
+  methodNameSnapshot?: string | null; documentTypeNameSnapshot?: string | null; categoryNameSnapshot?: string | null
+}
 export type EditDraft = Omit<RegistrationDraft, 'kind' | 'relatedDocumentIds'> & {
   expectedVersion: number; relations?: { addedIds: string[]; removedIds: string[] }
 }
@@ -17,7 +21,7 @@ export type DocumentWriteResult = { id: string; registrationNumber: string; vers
 export type DocumentDetailV2 = {
   header: DocumentListItem & { version: number; registrationDate: string; companyCode: string; allowedActions: string[] }
   originatorUserId: string; ownerDepartmentId: string; inputterUserId: string; lastModifierUserId: string
-  remark: string | null; details: KindDetails | null
+  remark: string | null; details: ReadKindDetails | null
   recipients: { referenceType: 'ExternalEntity' | 'DistributionTarget'; referenceId: string; name: string }[]
   relatedDocumentIds: string[]; pdfState: 'None' | 'Pending' | 'Ready' | 'Missing'
 }

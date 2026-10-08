@@ -21,6 +21,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
+import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
@@ -47,6 +48,8 @@ const DEFAULT_EMAIL_SETTINGS = {
 
 const DEFAULT_SCAN_LOGS: any[] = []
 
+const INTEGRATION_DEFERRED = true
+
 const EmailIntegrationView = () => {
   const { t, isEn } = useAppDictionary()
   const [settings, setSettings] = useState(DEFAULT_EMAIL_SETTINGS)
@@ -55,289 +58,242 @@ const EmailIntegrationView = () => {
   const [isTesting, setIsTesting] = useState(false)
   const [isScanning, setIsScanning] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null)
+  const [cleanupError, setCleanupError] = useState<string | null>(null)
+  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info' | 'warning'; message: string } | null>(null)
 
-  // Load persisted settings & logs
+  // Load persisted settings & logs (ensuring no secret is retained in state or localStorage)
   useEffect(() => {
+    let savedSettings: string | null = null
     try {
-      const savedSettings = localStorage.getItem('das_email_settings')
-      if (savedSettings) setSettings(JSON.parse(savedSettings))
-      const savedLogs = localStorage.getItem('das_email_logs')
-      if (savedLogs) setLogs(JSON.parse(savedLogs))
-    } catch {}
-  }, [])
+      savedSettings = localStorage.getItem('das_email_settings')
+    } catch {
+      // Storage read denied/thrown: attempt fallback purge to ensure no credentials remain
+      try {
+        localStorage.removeItem('das_email_settings')
+      } catch {
+        // Both read and remove failed: cannot verify or clear credentials
+        setCleanupError(
+          isEn
+            ? 'Credential cleanup failed: unable to verify or read legacy storage credentials.'
+            : 'Dọn dẹp thông tin xác thực thất bại: không thể xác minh hoặc đọc thông tin mật khẩu cũ.'
+        )
+      }
+    }
 
-  // Save Settings Handler
+    if (savedSettings) {
+      let hasSecret = savedSettings.includes('appPassword')
+      let parsed: any = null
+      try {
+        parsed = JSON.parse(savedSettings)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          if ('appPassword' in parsed) {
+            hasSecret = true
+            delete parsed.appPassword
+          }
+        } else {
+          hasSecret = true
+        }
+      } catch {
+        hasSecret = true
+      }
+
+      if (hasSecret) {
+        try {
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            localStorage.setItem('das_email_settings', JSON.stringify(parsed))
+          } else {
+            localStorage.removeItem('das_email_settings')
+          }
+        } catch {
+          // Rewrite failed (e.g. write denied): fallback to removeItem
+          try {
+            localStorage.removeItem('das_email_settings')
+          } catch {
+            setCleanupError(
+              isEn
+                ? 'Credential cleanup failed: unable to clear legacy credentials from storage.'
+                : 'Dọn dẹp thông tin xác thực thất bại: không thể xóa thông tin mật khẩu cũ khỏi bộ nhớ.'
+            )
+          }
+        }
+      }
+
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        setSettings(prev => ({
+          ...prev,
+          host: typeof parsed.host === 'string' ? parsed.host : prev.host,
+          port: typeof parsed.port === 'number' ? parsed.port : prev.port,
+          email: typeof parsed.email === 'string' ? parsed.email : prev.email,
+          useSsl: typeof parsed.useSsl === 'boolean' ? parsed.useSsl : prev.useSsl,
+          autoScan: typeof parsed.autoScan === 'boolean' ? parsed.autoScan : prev.autoScan,
+          intervalMinutes: typeof parsed.intervalMinutes === 'number' ? parsed.intervalMinutes : prev.intervalMinutes,
+          allowedSenderDomains: typeof parsed.allowedSenderDomains === 'string' ? parsed.allowedSenderDomains : prev.allowedSenderDomains,
+          appPassword: ''
+        }))
+      }
+    }
+
+    // Separate logs read/parse from settings cleanup so logs errors don't trigger cleanup warnings
+    try {
+      const savedLogs = localStorage.getItem('das_email_logs')
+      if (savedLogs) {
+        const parsedLogs = JSON.parse(savedLogs)
+        if (Array.isArray(parsedLogs)) {
+          const validLogs = parsedLogs.filter(l => l && typeof l === 'object').map(l => ({
+            id: String(l.id || crypto.randomUUID()),
+            sender: String(l.sender || ''),
+            subject: String(l.subject || ''),
+            receivedAt: String(l.receivedAt || ''),
+            status: l.status === 'success' || l.status === 'error' ? l.status : ('pending_confirmation' as const),
+            docNumber: typeof l.docNumber === 'string' ? l.docNumber : undefined,
+            attachment: typeof l.attachment === 'string' ? l.attachment : '',
+            message: typeof l.message === 'string' ? l.message : '',
+            rawItem: l.rawItem && typeof l.rawItem === 'object' ? l.rawItem : {}
+          }))
+          setLogs(validLogs)
+        }
+      }
+    } catch {
+      // Ignored: legacy logs error does not indicate credential leakage
+    }
+  }, [isEn])
+
+  // Save Settings Handler - deferred to backend authority, no secret stored
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault()
+    if (cleanupError) return
     setIsSaving(true)
     try {
-      localStorage.setItem('das_email_settings', JSON.stringify(settings))
+      const { appPassword: _omitted, ...sanitized } = settings
+      localStorage.setItem('das_email_settings', JSON.stringify(sanitized))
       setNotification({
-        type: 'success',
-        message: isEn ? 'IMAP mailbox settings saved successfully!' : 'Đã lưu thành công thông số cấu hình hòm thư IMAP!'
+        type: 'info',
+        message: isEn
+          ? 'Mailbox integration is deferred (INTEGRATION_DEFERRED). Local parameters updated (secrets omitted); backend credential configuration pending.'
+          : 'Tính năng hòm thư đang tạm hoãn (INTEGRATION_DEFERRED). Thông số cục bộ đã cập nhật (không lưu mật khẩu); cấu hình chứng thực backend đang chờ phê duyệt.'
       })
     } catch {
       setNotification({
         type: 'error',
-        message: isEn ? 'Failed to save settings.' : 'Không thể lưu cài đặt.'
+        message: isEn ? 'Failed to save local email configuration.' : 'Không thể lưu cấu hình hòm thư cục bộ.'
       })
     } finally {
       setIsSaving(false)
     }
   }
 
-  // Test IMAP Connection via real API
+  // Test IMAP Connection via real API (neutralized under deferred integration)
   const handleTestConnection = async () => {
+    if (cleanupError) return
+    if (INTEGRATION_DEFERRED) {
+      setNotification({
+        type: 'warning',
+        message: isEn
+          ? 'IMAP connection test is deferred (503 INTEGRATION_DEFERRED). Backend mailbox service is not active.'
+          : 'Kiểm tra kết nối IMAP đang tạm hoãn (503 INTEGRATION_DEFERRED). Dịch vụ hòm thư backend chưa được kích hoạt.'
+      })
+      return
+    }
     setIsTesting(true)
     setNotification(null)
     try {
+      const { appPassword: _omitted, ...sanitized } = settings
       const res = await fetch('/api/email/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify(sanitized)
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
 
-      if (data.success) {
+      if (res.status === 503 || (data && data.code === 'INTEGRATION_DEFERRED') || INTEGRATION_DEFERRED) {
         setNotification({
-          type: 'success',
-          message: data.message || (isEn ? 'Connected to IMAP server successfully!' : 'Kết nối máy chủ IMAP thành công!')
+          type: 'warning',
+          message: isEn
+            ? 'IMAP connection test is deferred (503 INTEGRATION_DEFERRED). Backend mailbox service is not active.'
+            : 'Kiểm tra kết nối IMAP đang tạm hoãn (503 INTEGRATION_DEFERRED). Dịch vụ hòm thư backend chưa được kích hoạt.'
         })
       } else {
         setNotification({
           type: 'error',
-          message: data.message || (isEn ? 'Failed to connect to IMAP server.' : 'Không thể kết nối máy chủ IMAP.')
+          message: (data && data.message) || (isEn ? 'Failed to connect to IMAP server.' : 'Không thể kết nối máy chủ IMAP.')
         })
       }
     } catch (err: any) {
       setNotification({
         type: 'error',
-        message: err.message || (isEn ? 'Network error connecting to IMAP.' : 'Lỗi kết nối tới máy chủ IMAP.')
+        message: err?.message || (isEn ? 'Network error connecting to IMAP.' : 'Lỗi kết nối tới máy chủ IMAP.')
       })
     } finally {
       setIsTesting(false)
     }
   }
 
-  // Trigger Real IMAP Email Scan
+  // Trigger Real IMAP Email Scan - neutralized under deferred integration
   const handleTriggerScan = async () => {
+    if (cleanupError) return
+    if (INTEGRATION_DEFERRED) {
+      setNotification({
+        type: 'warning',
+        message: isEn
+          ? 'Mailbox scanning is currently deferred (503 INTEGRATION_DEFERRED) by project specification.'
+          : 'Tính năng quét hòm thư tự động đang tạm hoãn (503 INTEGRATION_DEFERRED) theo yêu cầu quản lý dự án.'
+      })
+      return
+    }
     setIsScanning(true)
     setNotification(null)
     try {
+      const { appPassword: _omitted, ...sanitized } = settings
       const res = await fetch('/api/email/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
+        body: JSON.stringify(sanitized)
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
 
-      if (data.success && data.items && data.items.length > 0) {
-        // Real emails scanned from mailbox!
-        const newLogs: any[] = []
-        let autoCreatedCount = 0
-        let pendingReviewCount = 0
-        let skippedDuplicateCount = 0
-
-        // Lấy danh sách email đã từng xử lý để chống trùng lặp
-        const processedIds: string[] = JSON.parse(localStorage.getItem('das_processed_email_ids') || '[]')
-
-        for (let i = 0; i < data.items.length; i++) {
-          const item = data.items[i]
-          const mailKey = item.messageId || `${item.sender}_${item.subject}_${item.date}`
-
-          // Nếu email này đã từng được quét và ghi nhận rồi -> bỏ qua, không nhân bản
-          if (processedIds.includes(mailKey)) {
-            skippedDuplicateCount++
-            continue
-          }
-
-          // Kiểm tra xem email có tệp đính kèm PDF hợp lệ hay không
-          const hasPdfAttachment = Boolean(
-            item.attachment && (item.attachment.toLowerCase().endsWith('.pdf') || item.hasPdf)
-          )
-
-          if (hasPdfAttachment) {
-            // CÓ TỆP PDF: Bóc tách AI OCR thực tế và đưa vào danh sách Công Văn Đến
-            const partnerRefNum = item.extractedRefNumber || 
-              (item.subject?.match(/(?:Số|No|Ref)[:.]?\s*([0-9]{1,5}\/[A-Z0-9Đ\-_]+(?:\/[0-9]{4})?)/i)?.[1] || 
-               item.subject?.match(/\b([0-9]{1,5}\/[A-Z0-9Đ\-_]{2,20}(?:\/[0-9]{4})?)\b/i)?.[1] || 
-               '')
-
-            const partnerName = item.extractedPartner || 
-              item.sender?.split('@')[1]?.split('.')[0]?.toUpperCase() || 
-              'Chưa xác định'
-
-            const title = item.extractedTitle || item.subject?.replace(/^\[.*?\]\s*/i, '') || 'Công văn tiếp nhận từ Email'
-            const issuedDate = item.extractedDate || new Date().toLocaleDateString('vi-VN')
-
-            let assignedDocNum = 'CV-DEN-2026-AUTO'
-
-            // Lưu công văn chính thức với đầy đủ thông tin AI bóc tách thực tế và tự động cấp số thứ tự liên tục chính xác
-            try {
-              const docDir = item.extractedDirection || 'incoming'
-              const createRes = await documentApi.create({
-                documentNumber: '', // Tự động sinh số kế tiếp chuẩn xác
-                referenceNumber: partnerRefNum,
-                title: title,
-                direction: docDir,
-                issuedDate: issuedDate,
-                partnerName: partnerName,
-                senderEmail: item.sender,
-                fileUrl: item.fileUrl || '',
-                summary: `Văn bản tiếp nhận tự động từ hòm thư điện tử: ${item.sender}.\n• Đơn vị ban hành: ${partnerName}\n• Số ký hiệu văn bản: ${partnerRefNum || 'Chưa xác định'}\n• Thể loại: ${docDir === 'internal' ? 'Công văn nội bộ' : docDir === 'outgoing' ? 'Công văn đi' : 'Công văn đến'}\n• Ngày ban hành: ${issuedDate}\n• Trích yếu: ${title}\n• Tệp đính kèm: ${item.attachment || 'VanBan_DinhKem.pdf'}`
-              })
-
-              if (createRes?.data?.documentNumber) {
-                assignedDocNum = createRes.data.documentNumber
-              }
-            } catch {}
-
-            const logEntry = {
-              id: `log-${Date.now()}-${i}`,
-              timestamp: new Date().toLocaleString('vi-VN'),
-              sender: item.sender,
-              subject: title,
-              attachment: item.attachment || 'VanBan_DinhKem.pdf',
-              hasPdf: true,
-              docNumber: partnerRefNum ? `${assignedDocNum} (Ref: ${partnerRefNum})` : assignedDocNum,
-              status: 'success',
-              message: isEn ? 'Valid PDF found. AI OCR extracted & registered automatically.' : `Đã bóc tách AI OCR: ${partnerRefNum || 'N/A'} - ${partnerName}`
-            }
-            newLogs.push(logEntry)
-            processedIds.push(mailKey)
-            autoCreatedCount++
-          } else {
-            // KHÔNG CÓ TỆP PDF: Yêu cầu Thư ký xác nhận lại trước khi tạo công văn
-            const logEntry = {
-              id: `log-${Date.now()}-${i}`,
-              timestamp: new Date().toLocaleString('vi-VN'),
-              sender: item.sender,
-              subject: item.subject || 'Email trao đổi không đính kèm tệp PDF',
-              attachment: isEn ? 'No PDF attached' : 'Không có tệp PDF',
-              hasPdf: false,
-              rawItem: item,
-              docNumber: isEn ? 'Pending review' : 'Chờ xác nhận',
-              status: 'pending_confirmation',
-              message: isEn
-                ? 'No PDF attachment found. Requires secretary confirmation before creating document.'
-                : 'Email không có tệp PDF công văn đính kèm. Cần Thư ký duyệt để tạo công văn thủ công.'
-            }
-            newLogs.push(logEntry)
-            processedIds.push(mailKey)
-            pendingReviewCount++
-          }
-        }
-
-        const updatedLogs = [...newLogs, ...logs]
-        setLogs(updatedLogs)
-        localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
-        localStorage.setItem('das_processed_email_ids', JSON.stringify(processedIds))
-
-        if (newLogs.length === 0 && skippedDuplicateCount > 0) {
-          setNotification({
-            type: 'info',
-            message: isEn
-              ? 'All scanned emails were already processed and saved.'
-              : 'Tất cả email vừa quét đã được xử lý từ trước, không có email mới.'
-          })
-        } else if (pendingReviewCount > 0 && autoCreatedCount > 0) {
-          setNotification({
-            type: 'info',
-            message: isEn
-              ? `Scanned: ${autoCreatedCount} PDF email(s) auto-registered, ${pendingReviewCount} email(s) without PDF pending confirmation.`
-              : `Quét xong: Đã tự động tạo ${autoCreatedCount} công văn có PDF, và ${pendingReviewCount} email không có PDF đang chờ bạn duyệt xác nhận.`
-          })
-        } else if (pendingReviewCount > 0) {
-          setNotification({
-            type: 'info',
-            message: isEn
-              ? `Found ${pendingReviewCount} email(s) without PDF attachments. Please review and confirm in the table below.`
-              : `Tìm thấy ${pendingReviewCount} email không có tệp PDF đính kèm. Vui lòng bấm 'Xác nhận tạo CV' trong bảng bên dưới nếu muốn tiếp nhận.`
-          })
-        } else {
-          setNotification({
-            type: 'success',
-            message: isEn
-              ? `Successfully scanned & registered ${autoCreatedCount} incoming document(s) with PDF!`
-              : `Quét thành công! Đã bóc tách và tự động tạo ${autoCreatedCount} công văn đến từ các tệp PDF.`
-          })
-        }
-      } else if (data.success) {
+      if (res.status === 503 || (data && data.code === 'INTEGRATION_DEFERRED') || INTEGRATION_DEFERRED) {
         setNotification({
-          type: 'info',
-          message: data.message || (isEn ? 'No new unread emails found in mailbox.' : 'Hộp thư không có email mới chưa đọc.')
+          type: 'warning',
+          message: isEn
+            ? 'Mailbox scanning is currently deferred (503 INTEGRATION_DEFERRED) by project specification.'
+            : 'Tính năng quét hòm thư tự động đang tạm hoãn (503 INTEGRATION_DEFERRED) theo yêu cầu quản lý dự án.'
+        })
+        return
+      }
+
+      // Neutralize legacy auto-registration completely during deferred status.
+      // Under NO circumstances do we auto-create documents or assign synthetic numbers like CV-DEN-2026-AUTO.
+      if (res.ok && data?.success) {
+        setNotification({
+          type: 'warning',
+          message: isEn
+            ? 'Mailbox integration is deferred (INTEGRATION_DEFERRED). Automated intake and document creation are disabled.'
+            : 'Tính năng hòm thư đang tạm hoãn (INTEGRATION_DEFERRED). Tự động tiếp nhận và tạo công văn đã bị khóa.'
         })
       } else {
         setNotification({
           type: 'error',
-          message: data.message || (isEn ? 'Error scanning email mailbox.' : 'Lỗi khi quét hòm thư. Vui lòng kiểm tra lại Email và Mật khẩu ứng dụng (App Password).')
+          message: (data && data.message) || (isEn ? 'Error scanning email mailbox.' : 'Lỗi khi quét hòm thư hoặc tính năng đang tạm hoãn.')
         })
       }
     } catch (err: any) {
       setNotification({
         type: 'error',
-        message: err.message || (isEn ? 'Error connecting to mail scanner.' : 'Lỗi trong quá trình kết nối và quét hộp thư.')
+        message: err?.message || (isEn ? 'Error connecting to mail scanner.' : 'Lỗi trong quá trình kết nối và quét hộp thư.')
       })
     } finally {
       setIsScanning(false)
     }
   }
 
-  // Xác nhận tiếp nhận email không có PDF thành công văn (Thư ký duyệt thủ công)
-  const handleConfirmEmailToIntake = async (logId: string) => {
-    const logIndex = logs.findIndex(l => l.id === logId)
-    if (logIndex === -1) return
-
-    const log = logs[logIndex]
-    const rawItem = log.rawItem || {}
-
-    const currentYear = new Date().getFullYear()
-    const currentSeq = logs.filter(l => l.status === 'success').length + 1
-    const minDigits = currentSeq < 10000 ? 4 : String(currentSeq).length
-    const internalDocNum = `CV-DEN-${currentYear}-${String(currentSeq).padStart(minDigits, '0')}`
-
-    try {
-      await documentApi.create({
-        documentNumber: internalDocNum,
-        referenceNumber: rawItem.extractedRefNumber || '',
-        title: log.subject || rawItem.subject || 'Công văn tiếp nhận từ Email',
-        direction: 'incoming',
-        issuedDate: rawItem.extractedDate || new Date().toLocaleDateString('vi-VN'),
-        partnerName: rawItem.extractedPartner || rawItem.sender?.split('@')[1]?.split('.')[0]?.toUpperCase() || 'Chưa xác định',
-        senderEmail: log.sender,
-        fileUrl: '',
-        summary: `Văn bản tiếp nhận thủ công từ email: ${log.sender}.\n• Trích yếu: ${log.subject}\n• Ghi chú: Email không có tệp PDF đính kèm, đã được Thư ký xác nhận tiếp nhận.`
-      })
-
-      // Cập nhật status trong logs
-      const updatedLogs = [...logs]
-      updatedLogs[logIndex] = {
-        ...log,
-        status: 'success',
-        docNumber: internalDocNum,
-        message: isEn ? 'Manually confirmed & registered by secretary.' : `Đã xác nhận tiếp nhận thủ công: ${internalDocNum}`
-      }
-      setLogs(updatedLogs)
-      localStorage.setItem('das_email_logs', JSON.stringify(updatedLogs))
-
-      setNotification({
-        type: 'success',
-        message: isEn
-          ? `Document ${internalDocNum} created successfully from email.`
-          : `Đã tạo công văn ${internalDocNum} từ email thành công.`
-      })
-
-      // Thông báo cho các component khác cập nhật danh sách
-      window.dispatchEvent(new Event('das_documents_updated'))
-    } catch (err: any) {
-      setNotification({
-        type: 'error',
-        message: isEn
-          ? 'Failed to create document from email.'
-          : `Lỗi khi tạo công văn: ${err.message || 'Không rõ nguyên nhân'}`
-      })
-    }
+  // Xác nhận tiếp nhận email không có PDF: Đã khóa trong thời gian hoãn tích hợp (J01/E1)
+  const handleConfirmEmailToIntake = async () => {
+    setNotification({
+      type: 'warning',
+      message: isEn
+        ? 'Email intake is deferred (INTEGRATION_DEFERRED). Unverified legacy logs cannot be registered as documents.'
+        : 'Tính năng tiếp nhận email đang tạm hoãn (INTEGRATION_DEFERRED). Dữ liệu cũ chưa đối soát không thể đăng ký thành công văn.'
+    })
   }
 
   return (
@@ -358,7 +314,7 @@ const EmailIntegrationView = () => {
             <Button
               variant='contained'
               color='primary'
-              disabled={isScanning}
+              disabled={isScanning || Boolean(cleanupError) || INTEGRATION_DEFERRED}
               startIcon={isScanning ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-scan-eye' />}
               onClick={handleTriggerScan}
             >
@@ -366,6 +322,32 @@ const EmailIntegrationView = () => {
             </Button>
           </div>
         </div>
+      </Grid>
+
+      {cleanupError && (
+        <Grid size={{ xs: 12 }}>
+          <Alert severity='error' icon={<i className='tabler-alert-triangle' />}>
+            <Typography variant='subtitle2' className='font-semibold'>
+              {isEn ? 'Security Warning: Credential Cleanup Failure' : 'Cảnh Báo Bảo Mật: Dọn Dẹp Mật Khẩu Thất Bại'}
+            </Typography>
+            <Typography variant='body2'>
+              {cleanupError}
+            </Typography>
+          </Alert>
+        </Grid>
+      )}
+
+      <Grid size={{ xs: 12 }}>
+        <Alert severity='warning' icon={<i className='tabler-alert-triangle' />}>
+          <Typography variant='subtitle2' className='font-semibold'>
+            {isEn ? 'Status: Integration Deferred (503 INTEGRATION_DEFERRED)' : 'Trạng Thái: Hoãn Tích Hợp (503 INTEGRATION_DEFERRED)'}
+          </Typography>
+          <Typography variant='body2'>
+            {isEn
+              ? 'Automatic email ingestion and OCR automation are deferred pending backend credential authority and vault integration. Secrets and passwords must not be stored in browser storage.'
+              : 'Tính năng tiếp nhận công văn qua Email / IMAP và bóc tách OCR đang tạm hoãn theo yêu cầu quản lý dự án. Việc cấu hình mật khẩu và kết nối hòm thư sẽ được chuyển sang dịch vụ backend sau khi có phê duyệt. Mật khẩu không được phép lưu trữ trên trình duyệt.'}
+          </Typography>
+        </Alert>
       </Grid>
 
       {notification && (
@@ -382,8 +364,8 @@ const EmailIntegrationView = () => {
           <CardContent className='flex items-center justify-between'>
             <div>
               <Typography variant='body2' color='text.secondary'>{t.email.monitoredMailbox}</Typography>
-              <Typography variant='h6' className='font-semibold'>{settings.email}</Typography>
-              <Chip label='IMAP SSL (Port 993)' size='small' color='primary' variant='tonal' className='mbs-1' />
+              <Typography variant='h6' className='font-semibold'>{settings.email || '—'}</Typography>
+              <Chip label={isEn ? 'Deferred / Not Connected' : 'Tạm hoãn / Chưa kết nối'} size='small' color='default' variant='tonal' className='mbs-1' />
             </div>
             <i className='tabler-mail text-3xl text-primary opacity-80' />
           </CardContent>
@@ -391,22 +373,22 @@ const EmailIntegrationView = () => {
       </Grid>
 
       <Grid size={{ xs: 12, md: 4 }}>
-        <Card className='border-l-4 border-l-success'>
+        <Card className='border-l-4 border-l-warning'>
           <CardContent className='flex items-center justify-between'>
             <div>
-              <Typography variant='body2' color='text.secondary'>{t.email.autoScan}</Typography>
+              <Typography variant='body2' color='text.secondary'>{isEn ? 'Automated Scanning' : 'Tự động quét'}</Typography>
               <Typography variant='h6' className='font-semibold'>
-                {settings.autoScan ? (isEn ? `Every ${settings.intervalMinutes} mins` : `Mỗi ${settings.intervalMinutes} phút / lần`) : (isEn ? 'Paused' : 'Đang tạm dừng')}
+                {isEn ? 'Deferred' : 'Tạm hoãn'}
               </Typography>
               <Chip
-                label={settings.autoScan ? (isEn ? 'Active' : 'Đang Hoạt Động') : (isEn ? 'Manual' : 'Thủ Công')}
+                label={isEn ? 'Integration Deferred' : 'Tạm hoãn tích hợp'}
                 size='small'
-                color={settings.autoScan ? 'success' : 'default'}
+                color='warning'
                 variant='tonal'
                 className='mbs-1'
               />
             </div>
-            <i className='tabler-clock-play text-3xl text-success opacity-80' />
+            <i className='tabler-clock-pause text-3xl text-warning opacity-80' />
           </CardContent>
         </Card>
       </Grid>
@@ -415,11 +397,11 @@ const EmailIntegrationView = () => {
         <Card className='border-l-4 border-l-info'>
           <CardContent className='flex items-center justify-between'>
             <div>
-              <Typography variant='body2' color='text.secondary'>{t.email.totalReceived}</Typography>
-              <Typography variant='h6' className='font-semibold'>{logs.length} {isEn ? 'Docs' : 'Công văn'}</Typography>
-              <Chip label={isEn ? '100% OCR Processed' : '100% Đã Bóc Tách OCR'} size='small' color='info' variant='tonal' className='mbs-1' />
+              <Typography variant='body2' color='text.secondary'>{isEn ? 'Local History (Unverified)' : 'Nhật ký cục bộ (Chưa đối soát)'}</Typography>
+              <Typography variant='h6' className='font-semibold'>{logs.length} {isEn ? 'entries' : 'mục'}</Typography>
+              <Chip label={isEn ? 'OCR Deferred' : 'OCR tạm hoãn'} size='small' color='default' variant='tonal' className='mbs-1' />
             </div>
-            <i className='tabler-file-check text-3xl text-info opacity-80' />
+            <i className='tabler-file-text text-3xl text-info opacity-80' />
           </CardContent>
         </Card>
       </Grid>
@@ -498,11 +480,11 @@ const EmailIntegrationView = () => {
                     <CustomTextField
                       fullWidth
                       type='password'
-                      label={`${t.email.appPassword} *`}
-                      placeholder='••••••••••••••••'
-                      value={settings.appPassword}
-                      onChange={e => setSettings({ ...settings, appPassword: e.target.value })}
-                      required
+                      label={t.email.appPassword}
+                      placeholder={isEn ? '[Credential management deferred to backend]' : '[Quản lý mật khẩu đã chuyển sang backend]'}
+                      value=''
+                      disabled
+                      helperText={isEn ? 'Password input disabled during integration deferral (security policy)' : 'Khóa nhập mật khẩu trong thời gian hoãn tích hợp để đảm bảo an toàn'}
                     />
                   </Grid>
 
@@ -545,7 +527,7 @@ const EmailIntegrationView = () => {
                       type='submit'
                       variant='contained'
                       color='primary'
-                      disabled={isSaving}
+                      disabled={isSaving || Boolean(cleanupError)}
                       startIcon={isSaving ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-device-floppy text-lg' />}
                     >
                       {isSaving ? (isEn ? 'Saving...' : 'Đang Lưu...') : t.email.saveConfig}
@@ -555,7 +537,7 @@ const EmailIntegrationView = () => {
                       type='button'
                       variant='tonal'
                       color='primary'
-                      disabled={isTesting}
+                      disabled={isTesting || Boolean(cleanupError) || INTEGRATION_DEFERRED}
                       startIcon={isTesting ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-plug-connected text-lg' />}
                       onClick={handleTestConnection}
                     >
@@ -596,7 +578,7 @@ const EmailIntegrationView = () => {
                             <Typography variant='body2' className='max-w-[240px] truncate'>{log.subject}</Typography>
                           </TableCell>
                           <TableCell>
-                            {log.attachment && log.attachment.toLowerCase().endsWith('.pdf') ? (
+                            {typeof log.attachment === 'string' && log.attachment.toLowerCase().endsWith('.pdf') ? (
                               <div className='flex items-center gap-1.5 text-error'>
                                 <i className='tabler-file-type-pdf text-lg' />
                                 <Typography variant='caption' className='font-medium'>{log.attachment}</Typography>
@@ -613,7 +595,7 @@ const EmailIntegrationView = () => {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={log.docNumber}
+                              label={log.docNumber || (isEn ? 'Unassigned' : 'Chưa cấp số')}
                               size='small'
                               color={isPending ? 'warning' : 'primary'}
                               variant={isPending ? 'outlined' : 'tonal'}
@@ -621,22 +603,27 @@ const EmailIntegrationView = () => {
                           </TableCell>
                           <TableCell align='center'>
                             {isPending ? (
-                              <Button
-                                size='small'
-                                variant='contained'
-                                color='warning'
-                                startIcon={<i className='tabler-check text-xs' />}
-                                onClick={() => handleConfirmEmailToIntake(log.id)}
-                                sx={{ textTransform: 'none', py: 0.5, px: 2 }}
-                              >
-                                {isEn ? 'Confirm Intake' : 'Xác nhận tạo CV'}
-                              </Button>
+                              <Tooltip title={isEn ? 'Deferred (Unverified legacy logs cannot be registered as documents)' : 'Tạm hoãn (Dữ liệu cũ chưa đối soát, không thể tạo công văn)'}>
+                                <span>
+                                  <Button
+                                    size='small'
+                                    variant='tonal'
+                                    color='warning'
+                                    disabled
+                                    startIcon={<i className='tabler-lock text-xs' />}
+                                    sx={{ textTransform: 'none', py: 0.5, px: 2 }}
+                                  >
+                                    {isEn ? 'Deferred' : 'Tạm hoãn'}
+                                  </Button>
+                                </span>
+                              </Tooltip>
                             ) : (
                               <Chip
-                                label={isEn ? 'Auto Created' : 'Đã tạo CV'}
+                                label={isEn ? 'Legacy Log' : 'Dữ liệu cũ'}
                                 size='small'
-                                color='success'
-                                icon={<i className='tabler-check text-xs' />}
+                                color='default'
+                                variant='outlined'
+                                icon={<i className='tabler-history text-xs' />}
                               />
                             )}
                           </TableCell>

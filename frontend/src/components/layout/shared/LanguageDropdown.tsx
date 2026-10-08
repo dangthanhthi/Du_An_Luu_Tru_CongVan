@@ -4,10 +4,10 @@
 import { useRef, useState } from 'react'
 
 // Next Imports
-import Link from 'next/link'
-import { usePathname, useParams } from 'next/navigation'
+import { usePathname, useParams, useSearchParams } from 'next/navigation'
 
 // MUI Imports
+import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Popper from '@mui/material/Popper'
 import Fade from '@mui/material/Fade'
@@ -75,8 +75,10 @@ const LanguageDropdown = () => {
 
   // Hooks
   const pathName = usePathname()
+  const searchParams = useSearchParams()
   const { settings } = useSettings()
   const { lang } = useParams()
+  const queryString = searchParams?.toString()
 
   const handleClose = () => {
     setOpen(false)
@@ -86,11 +88,33 @@ const LanguageDropdown = () => {
     setOpen(prevOpen => !prevOpen)
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab' || event.key === 'Escape') {
+      if (event.key === 'Escape') event.preventDefault()
+      handleClose()
+      anchorRef.current?.focus()
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setOpen(true)
+    }
+  }
+
   return (
     <>
-      <IconButton ref={anchorRef} onClick={handleToggle} className='text-textPrimary'>
-        <i className='tabler-language' />
-      </IconButton>
+      <Tooltip title={lang === 'vi' ? 'Ngôn ngữ' : 'Language'}>
+        <IconButton
+          ref={anchorRef}
+          onClick={handleToggle}
+          className='text-textPrimary'
+          aria-label={lang === 'vi' ? 'Chọn ngôn ngữ' : 'Select language'}
+          aria-haspopup='true'
+          aria-expanded={open}
+          onKeyDown={handleKeyDown}
+          aria-controls={open ? 'language-menu-list' : undefined}
+        >
+          <i className='tabler-language' />
+        </IconButton>
+      </Tooltip>
       <Popper
         open={open}
         transition
@@ -106,18 +130,25 @@ const LanguageDropdown = () => {
           >
             <Paper className={settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg'}>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList onKeyDown={handleClose}>
-                  {languageData.map(locale => (
-                    <MenuItem
-                      key={locale.langCode}
-                      component={Link}
-                      href={getLocalePath(pathName, locale.langCode)}
-                      onClick={handleClose}
-                      selected={lang === locale.langCode}
-                    >
-                      {locale.langName}
-                    </MenuItem>
-                  ))}
+                <MenuList autoFocusItem={open} id='language-menu-list' onKeyDown={handleKeyDown}>
+                  {languageData.map(locale => {
+                    const basePath = getLocalePath(pathName, locale.langCode)
+                    const fullHref = queryString ? `${basePath}?${queryString}` : basePath
+
+                    return (
+                      <MenuItem
+                        key={locale.langCode}
+                        // Locale changes replace the root document (lang/dir/theme script).
+                        // A native link runs initialization before hydration on the new page.
+                        component='a'
+                        href={fullHref}
+                        onClick={handleClose}
+                        selected={lang === locale.langCode}
+                      >
+                        {locale.langName}
+                      </MenuItem>
+                    )
+                  })}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

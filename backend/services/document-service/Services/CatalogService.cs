@@ -13,6 +13,34 @@ public sealed class CatalogService(DocumentDbContext db, TimeProvider clock)
     private static readonly string[] Groups = ["companies", "methods", "documentTypes", "internalTypes", "sensitivity", "categories"];
     private static readonly string[] EditableGroups = ["methods", "documentTypes", "internalTypes", "categories"];
 
+    public static bool IsGroup(string group) => Groups.Contains(group);
+
+    public async Task<CatalogAdminPage> GetAdminPageAsync(CatalogAdminQuery request, Guid actor, CancellationToken ct = default)
+    {
+        ValidateActor(actor);
+        // Serializable gives count and page one consistent read without requiring database-wide RCSI.
+        // SQL Server's configured retry strategy must own the entire transaction.
+        return await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct);
+            var query = db.BusinessCatalogEntries.AsNoTracking().Where(x => x.Group == request.Group);
+            if (request.Activity != "All") query = query.Where(x => x.IsActive == (request.Activity == "Active"));
+            if (request.SearchTerm is not null)
+            {
+                var pattern = "%" + request.SearchTerm.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_").Replace("[", "\\[").Replace("]", "\\]") + "%";
+                query = query.Where(x => EF.Functions.Like(x.Name, pattern, "\\") || EF.Functions.Like(x.Code, pattern, "\\"));
+            }
+            var total = await query.CountAsync(ct);
+            var rows = await query.OrderBy(x => x.SortOrder).ThenBy(x => x.Code).ThenBy(x => x.Id)
+                .Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).ToListAsync(ct);
+            foreach (var row in rows) ValidateWireData(row, request.Group);
+            var page = new CatalogAdminPage(request.Group, request.Activity, rows.Select(ToDto).ToArray(), total,
+                request.PageNumber, request.PageSize, EditableGroups.Contains(request.Group));
+            await transaction.CommitAsync(ct);
+            return page;
+        });
+    }
+
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<CatalogItemDto>>> GetAsync(string? groups, CancellationToken ct = default)
     {
         if (groups?.Length > 256) throw Rule(400, "INVALID_GROUP", "Catalog groups are invalid.");
@@ -63,6 +91,13 @@ public sealed class CatalogService(DocumentDbContext db, TimeProvider clock)
     }
 
     public static CatalogItemDto ToDto(BusinessCatalogEntry x) => new(x.Id, x.Group, x.Code, x.Name, x.SortOrder, x.IsActive, x.Version);
+    private static void ValidateWireData(BusinessCatalogEntry row, string group)
+    {
+        if (row.Id == Guid.Empty || row.Group != group || !IsGroup(row.Group) || string.IsNullOrEmpty(row.Code) || row.Code.Length > 64 ||
+            row.Code.Any(c => !char.IsAsciiLetterOrDigit(c) && c != '_') || string.IsNullOrWhiteSpace(row.Name) || row.Name.Length > 200 ||
+            row.SortOrder is < 0 or > 10000 || row.Version is < 1 or > 9007199254740991)
+            throw Rule(503, "CATALOG_DATA_INVALID", "Stored catalog data is invalid.");
+    }
     private void Audit(BusinessCatalogEntry entry, Guid actor, string action, string before) =>
         db.CatalogAuditEvents.Add(new()
         { EntryId = entry.Id, ActorUserId = actor, Action = action, BeforeJson = before,

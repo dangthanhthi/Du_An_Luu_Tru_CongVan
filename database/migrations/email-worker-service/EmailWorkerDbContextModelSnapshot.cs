@@ -25,10 +25,7 @@ namespace EmailWorkerService.Migrations
             modelBuilder.Entity("EmailWorkerService.Models.EmailImapSettings", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AppPassword")
                         .IsRequired()
@@ -64,7 +61,10 @@ namespace EmailWorkerService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailImapSettings", "emailworker");
+                    b.ToTable("EmailImapSettings", "emailworker", t =>
+                        {
+                            t.HasCheckConstraint("CK_EmailImapSettings_Singleton", "[Id] = 1");
+                        });
                 });
 
             modelBuilder.Entity("EmailWorkerService.Models.EmailScanItemLog", b =>

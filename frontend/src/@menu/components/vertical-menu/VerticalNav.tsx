@@ -44,6 +44,7 @@ export type VerticalNavProps = HTMLAttributes<HTMLHtmlElement> & {
   breakpoints?: Partial<typeof defaultBreakpoints>
   transitionDuration?: VerticalNavState['transitionDuration']
   backdropColor?: string
+  backdropLabel?: string
   scrollWithContent?: boolean
   customStyles?: CSSObject
 }
@@ -61,6 +62,7 @@ const VerticalNav = (props: VerticalNavProps) => {
     breakpoints,
     transitionDuration = verticalNavToggleDuration,
     backdropColor,
+    backdropLabel = 'Close navigation',
     scrollWithContent = false,
     className,
     customStyles,
@@ -231,7 +233,7 @@ const VerticalNav = (props: VerticalNavProps) => {
         <StyledBackdrop
           role='button'
           tabIndex={0}
-          aria-label='backdrop'
+          aria-label={backdropLabel}
           onClick={handleBackdropClick}
           onKeyPress={handleBackdropClick}
           className={verticalNavClasses.backdrop}

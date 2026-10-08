@@ -16,6 +16,9 @@ export default function DasSessionBoundary({ children, locale }: { children: Rea
   const storageEpoch = tokenManager.getEpoch()
   const cleanupReady = isBrowserSessionCleanupReady(storageEpoch)
   const [cleanedEpoch, setCleanedEpoch] = useState(tokenManager.getEpoch)
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useLayoutEffect(() => { setHasMounted(true) }, [])
 
   useLayoutEffect(() => {
     const ready = observeBrowserSessionEpoch(storageEpoch)
@@ -23,6 +26,9 @@ export default function DasSessionBoundary({ children, locale }: { children: Rea
     if (cleanedEpoch !== next) setCleanedEpoch(next)
   }, [cleanedEpoch, storageEpoch, cleanupReady])
 
+  // SSR cannot inspect the browser's session. Keep the gate closed while that
+  // state is unknown instead of announcing a false signed-out state on reload.
+  if (!hasMounted) return <div role='status'>{locale === 'vi' ? 'Đang kiểm tra phiên…' : 'Checking session…'}</div>
   if (!cleanupReady) return <div role='status'>{locale === 'vi' ? 'Không thể cập nhật phiên. Vui lòng kiểm tra quyền lưu trữ của trình duyệt và thử lại.' : 'Cannot update the session. Check browser storage permissions and try again.'}</div>
   if (!epoch) return (
     <div role='status'>

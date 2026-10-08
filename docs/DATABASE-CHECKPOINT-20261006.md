@@ -1,5 +1,7 @@
 # Checkpoint database DAS — 06/10/2026
 
+> Cập nhật mới hơn: [checkpoint hoàn thiện database](DATABASE-COMPLETION-CHECKPOINT-20261006.md), [bằng chứng](DATABASE-COMPLETION-VERIFICATION-20261006.json). SQL cuối **87/87**, schema **6/6 với 24 migrations**, restore Email đã bổ sung và qua. Nội dung bên dưới giữ làm lịch sử của mốc trước các sửa mới; không dùng phần “SQL core chưa qua/Email chưa restore” để mô tả hiện trạng.
+
 ## Phạm vi và kết quả
 
 Đã bổ sung phần schema/provisioning có thể làm tại local. **Chưa hoàn chỉnh database khách hàng hoặc nghiệm thu G7/G8**. EAP thuộc nhóm khác, OCR hoãn; không dùng credential Task Management/NetBird và không bật mailbox, SMTP hoặc worker thật.

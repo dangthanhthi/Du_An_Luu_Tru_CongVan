@@ -76,13 +76,15 @@ def suites(profile, output, service=None):
         for project in ('DocumentService', 'FileService', 'PartnerService', 'AuthService', 'NotificationService', 'EmailWorkerService'):
             if service is not None and project != service: continue
             result.append({'name': 'core-' + project, 'project': project, 'environment': {},
-                           'filter': 'FullyQualifiedName~SqlTests&FullyQualifiedName!~SyntheticLoadSqlTests'})
+                           'filter': 'FullyQualifiedName~SqlTests&FullyQualifiedName!~SyntheticLoadSqlTests&FullyQualifiedName!~EmailRestoreSqlTests'})
     if profile in ('load', 'all'):
         result.append({'name': 'load', 'project': 'DocumentService', 'filter': 'FullyQualifiedName~SyntheticLoadSqlTests',
                        'environment': {'DAS_SYNTHETIC_LOAD': 'enabled', 'DAS_LOAD_OUTPUT': str(output / 'load')}})
     if profile in ('restore', 'all'):
         result.append({'name': 'restore', 'project': 'RestoreIntegration', 'filter': 'FullyQualifiedName~SqlRestoreDrillTests',
                        'environment': {'DAS_RESTORE_DRILL': 'synthetic', 'DAS_RESTORE_OUTPUT': str(output / 'restore')}})
+        result.append({'name': 'restore-email', 'project': 'EmailWorkerService', 'filter': 'FullyQualifiedName~EmailRestoreSqlTests',
+                       'environment': {'DAS_RESTORE_DRILL': 'synthetic', 'DAS_RESTORE_OUTPUT': str(output / 'restore-email')}})
     if not result: raise ValueError('Unknown SQL profile or service')
     return result
 
@@ -125,6 +127,35 @@ def make_restore_bundle(output, report):
     with (bundle / 'manifest.json').open('x', encoding='utf-8') as stream: stream.write(json.dumps(manifest, indent=2)+'\n')
     with (output / 'integrity.json').open('x', encoding='utf-8') as stream: stream.write(json.dumps(result, indent=2)+'\n')
     return result
+
+
+def email_restore_evidence(directory, report, expected_backup_sha256):
+    """Validate the independent Email Worker cut and the copy against its container-side digest."""
+    flags = {'EmailIntake__WorkerEnabled', 'EmailIntake__ManualScanEnabled', 'Delivery__WorkerEnabled', 'Reminders__Enabled'}
+    if not isinstance(report, dict): raise ValueError('Missing Email Worker restore report')
+    hashes = report.get('beforeDataSha256'); rows = report.get('rowCounts'); workers = report.get('workerFlags')
+    if (report.get('passed') is not True or report.get('synthetic') is not True or report.get('productionReady') is not False or
+        report.get('profile') != 'email-worker-store' or report.get('components') != ['emailworker'] or
+        type(report.get('backupCount')) is not int or report['backupCount'] != 1 or report.get('allWorkersStarted') is not False or
+        not bundle_verifier.valid_cut(report.get('cutId')) or not isinstance(hashes, dict) or set(hashes) != {'emailworker'} or
+        not isinstance(hashes['emailworker'], str) or not re.fullmatch('[a-f0-9]{64}', hashes['emailworker']) or
+        hashes != report.get('afterDataSha256') or not isinstance(workers, dict) or set(workers) != flags or
+        any(v is not False for v in workers.values()) or not isinstance(rows, dict) or
+        set(rows) != {'settings', 'scanLogs', 'scanItems', 'migrations'} or any(type(v) is not int for v in rows.values()) or
+        rows['settings'] != 1 or rows['scanLogs'] != 1 or rows['scanItems'] != 5 or rows['migrations'] < 1 or
+        not isinstance(expected_backup_sha256, str) or not re.fullmatch('[a-f0-9]{64}', expected_backup_sha256)):
+        raise ValueError('Email Worker restore evidence is incomplete or unsuccessful')
+    for p in (directory, *directory.parents):
+        if core.linked(p): raise ValueError('Linked Email Worker backup directory')
+    backup = directory / 'emailworker.bak'
+    if not backup.is_file() or core.linked(backup) or backup.stat().st_size == 0:
+        raise ValueError('Missing real synthetic Email Worker backup')
+    digest = bundle_verifier.digest(backup)
+    if digest != expected_backup_sha256: raise ValueError('Email Worker backup copy checksum mismatch')
+    return {'profile': 'email-worker-store', 'cutId': report['cutId'], 'integrityPassed': True, 'artifactCount': 1,
+            'productionReady': False, 'allWorkersStarted': False, 'workerFlags': workers,
+            'beforeDataSha256': hashes, 'afterDataSha256': report['afterDataSha256'], 'rowCounts': rows,
+            'backup': {'bytes': backup.stat().st_size, 'sha256': digest}}
 
 
 def process(command, env, cwd=None, timeout=1800):
@@ -255,7 +286,7 @@ def run(args, root=ROOT):
             time.sleep(2)
         # Directory belongs to nonroot mssql inside the owned ephemeral instance.
         d.call(['exec', ident, 'mkdir', '-p', '/var/opt/mssql/data/restore-qa'])
-        (output / 'load').mkdir(); (output / 'restore/bundle/storage').mkdir(parents=True)
+        (output / 'load').mkdir(); (output / 'restore/bundle/storage').mkdir(parents=True); (output / 'restore-email').mkdir()
         config = output / 'NuGet.Config'
         config.write_text('<configuration><packageSources><clear/><add key="nuget.org" value="https://api.nuget.org/v3/index.json"/></packageSources></configuration>\n', encoding='utf-8')
         settings = output / 'qa.runsettings'
@@ -281,6 +312,15 @@ def run(args, root=ROOT):
                     d.call(['cp', ident+':/var/opt/mssql/data/restore-qa/'+component+'.bak', str(target / (component+'.bak'))])
                 evidence['backups'] = backup_evidence(target)
                 evidence['bundleIntegrity'] = make_restore_bundle(output / 'restore', evidence['restoreReport'])
+            if suite['name'] == 'restore-email':
+                target = output / 'restore-email'
+                email_report = json.loads((target / 'roundtrip.json').read_text(encoding='utf-8'))
+                source_backup = '/var/opt/mssql/data/restore-qa/emailworker.bak'
+                container_sha = d.call(['exec', ident, 'sha256sum', source_backup]).split()[0]
+                d.call(['cp', ident+':'+source_backup, str(target / 'emailworker.bak')])
+                evidence['emailRestore'] = email_restore_evidence(target, email_report, container_sha)
+                with (target / 'integrity.json').open('x', encoding='utf-8') as stream:
+                    stream.write(json.dumps(evidence['emailRestore'], indent=2)+'\n')
     except (Exception, KeyboardInterrupt) as failure:
         errors.append(type(failure).__name__ + ': ' + str(failure).replace(password, '[REDACTED]'))
         print('SQL QA failed; preserving evidence', flush=True)

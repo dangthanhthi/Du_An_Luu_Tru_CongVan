@@ -14,7 +14,7 @@ type Api = typeof import('../../../src/services/api')
 // Real service modules, isolated module caches; no auth/API implementation mocks.
 export function apiContext(storage: Storage, locks: FixtureLocks | null, fetch: typeof globalThis.fetch, globals: Record<string, unknown> = {}, entry = 'api'): Api {
   const context = createContext({ window: {}, navigator: { locks }, localStorage: storage, sessionStorage: new MemoryStorage(), crypto: webcrypto, process: { env: {} }, fetch,
-    Headers, Response, FormData, Blob, Uint8Array, AbortController, DOMException, setTimeout, clearTimeout, Event, ...globals })
+    Headers, Response, FormData, Blob, Uint8Array, AbortController, AbortSignal, DOMException, setTimeout, clearTimeout, Event, ...globals })
   const modules = new Map<string, { exports: unknown }>()
   const load = (path: string): any => {
     assert.ok(path.startsWith(serviceRoot + '\\') || path.startsWith(serviceRoot + '/'), 'Fixture modules stay inside service root')

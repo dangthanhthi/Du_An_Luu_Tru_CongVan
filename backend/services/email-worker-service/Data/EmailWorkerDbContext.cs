@@ -17,8 +17,9 @@ public class EmailWorkerDbContext : DbContext
     {
         modelBuilder.Entity<EmailImapSettings>(entity =>
         {
-            entity.ToTable("EmailImapSettings", "emailworker");
+            entity.ToTable("EmailImapSettings", "emailworker", table => table.HasCheckConstraint("CK_EmailImapSettings_Singleton", "[Id] = 1"));
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).ValueGeneratedNever();
 
             entity.Property(x => x.ImapHost)
                 .HasMaxLength(200)

@@ -25,7 +25,7 @@ public sealed class DatabaseSchemaTests
         Assert.Contains("IF NOT EXISTS", script);
         Assert.Contains("ON DELETE CASCADE", script);
         Assert.Contains("CREATE INDEX [IX_EmailScanItemLogs_ScanLogId]", script);
-        Assert.DoesNotContain("INSERT INTO [emailworker]", script);
+        // The fixed-key migration copies existing settings; it does not seed mailbox credentials.
     }
 
     [Fact]

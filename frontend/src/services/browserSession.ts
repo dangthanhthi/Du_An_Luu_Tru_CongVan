@@ -26,7 +26,7 @@ export function clearPendingTaskBodies(storage: Pick<Storage, 'length' | 'key' |
 export function clearBrowserSessionData() {
   if (typeof window === 'undefined') return true
   let cleared = true
-  for (const key of ['das_access_token', 'das_refresh_token', 'das_user', 'das_documents_store', 'das_partners_store']) {
+  for (const key of ['das_access_token', 'das_refresh_token', 'das_user', 'das_documents_store', 'das_partners_store', 'das_email_settings', 'das_email_logs', 'das_processed_email_ids']) {
     try { localStorage.removeItem(key) } catch { cleared = false }
   }
   try { clearPendingTaskBodies(sessionStorage) } catch { cleared = false }

@@ -18,6 +18,7 @@ import Chip from '@mui/material/Chip'
 
 // Hook Imports
 import { useAppDictionary } from '@/hooks/useDictionary'
+import PdfCanvasPreview from './PdfCanvasPreview'
 
 interface DocumentPDFPreviewProps {
   pdfUrl?: string
@@ -108,13 +109,13 @@ export default function DocumentPDFPreview({
                 </div>
 
                 <Tooltip title={isEn ? 'Full Screen Preview' : 'Phóng To Toàn Màn Hình'} arrow>
-                  <IconButton size='small' onClick={() => setIsFullscreen(true)}>
+                    <IconButton size='small' aria-label={isEn ? 'Full Screen Preview' : 'Phóng To Toàn Màn Hình'} onClick={() => setIsFullscreen(true)}>
                     <i className='tabler-arrows-maximize' />
                   </IconButton>
                 </Tooltip>
 
                 <Tooltip title={isEn ? 'Download PDF' : 'Tải Về Tệp PDF'} arrow>
-                  <IconButton size='small' color='primary' onClick={handleDownload}>
+                  <IconButton size='small' color='primary' aria-label={isEn ? 'Download PDF' : 'Tải Về Tệp PDF'} onClick={handleDownload}>
                     <i className='tabler-download' />
                   </IconButton>
                 </Tooltip>
@@ -126,20 +127,16 @@ export default function DocumentPDFPreview({
         <CardContent className='p-0'>
           {activeView === 'pdf' ? (
             <div className='w-full h-[520px] bg-zinc-900 relative rounded-b overflow-hidden'>
-              <iframe
-                src={`${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
-                className='w-full h-full border-0'
-                title='PDF Viewer'
-              />
+              <div className='h-full overflow-auto bg-backgroundPaper'><PdfCanvasPreview key={pdfUrl} url={pdfUrl} /></div>
             </div>
           ) : (
             <div className='p-5 h-[520px] overflow-y-auto bg-actionHover text-textPrimary leading-relaxed font-sans text-sm whitespace-pre-line'>
               <div className='flex items-center justify-between pb-3 border-b border-divider mb-3'>
                 <Typography variant='subtitle2' className='font-bold flex items-center gap-1.5'>
                   <i className='tabler-scan text-primary' />
-                  {isEn ? 'AI OCR Full Text Extraction' : 'Nội Dung Toàn Văn Bóc Tách AI OCR'}
+                  {isEn ? 'Provided Document Text' : 'Nội dung công văn được cung cấp'}
                 </Typography>
-                <Chip label='100% Verified' color='success' size='small' variant='tonal' />
+                <Chip label={isEn ? 'Provided text' : 'Nội dung được cung cấp'} size='small' variant='tonal' />
               </div>
               {summaryText}
             </div>
@@ -153,13 +150,14 @@ export default function DocumentPDFPreview({
         onClose={() => setIsFullscreen(false)}
         maxWidth='lg'
         fullWidth
+        aria-labelledby='pdf-preview-title'
         PaperProps={{ sx: { height: '90vh' } }}
       >
-        <DialogTitle className='flex items-center justify-between pb-2 border-b border-divider'>
+        <DialogTitle id='pdf-preview-title' className='flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-divider'>
           <div className='flex items-center gap-2'>
             <i className='tabler-file-type-pdf text-2xl text-error' />
             <div>
-              <Typography variant='h6' className='font-bold'>
+              <Typography variant='h6' className='font-bold' sx={{ overflowWrap: 'anywhere' }}>
                 {docNumber} — {fileName}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
@@ -178,18 +176,14 @@ export default function DocumentPDFPreview({
             >
               {isEn ? 'Download' : 'Tải Về'}
             </Button>
-            <IconButton size='small' onClick={() => setIsFullscreen(false)}>
+            <IconButton size='small' aria-label={isEn ? 'Close PDF preview' : 'Đóng bản xem trước PDF'} onClick={() => setIsFullscreen(false)}>
               <i className='tabler-x' />
             </IconButton>
           </div>
         </DialogTitle>
 
         <DialogContent className='p-0 bg-zinc-950 flex flex-col h-full'>
-          <iframe
-            src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
-            className='w-full flex-1 border-0'
-            title='Fullscreen PDF Preview'
-          />
+          {isFullscreen && <div className='overflow-auto bg-backgroundPaper'><PdfCanvasPreview key={pdfUrl} url={pdfUrl} /></div>}
         </DialogContent>
       </Dialog>
     </>

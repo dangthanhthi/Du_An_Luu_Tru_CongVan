@@ -6,6 +6,12 @@ export type IncompleteReport = { items: ReportRow[]; total: number; pageNumber: 
 export type StaffMember = { userId: string; name: string; departmentId: string; departmentName: string }
 export type StaffTask = { taskId: string; assigneeUserId: string; title: string; status: string; dueAt: string | null }
 export type MyStaffPage = { staff: StaffMember[]; total: number; pageNumber: number; pageSize: number; tasks: { items: StaffTask[]; total: number; pageNumber: number; pageSize: number } | null; taskState: string }
+export type MyStaffTasksFilter = { pageNumber?: number; pageSize?: number; assigneeUserId?: string }
+export type ScopedStaffTask = Omit<StaffTask, 'assigneeUserId'> & { assignee: StaffMember }
+export type MyStaffTasksResult = { selectedAssignee: StaffMember | null } & (
+  { taskState: 'Connected'; tasks: { items: ScopedStaffTask[]; total: number; pageNumber: number; pageSize: number } } |
+  { taskState: 'TMS_UNAVAILABLE' | 'TMS_TIMEOUT' | 'TMS_CONTRACT_INVALID'; tasks: null }
+)
 const guid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) && !/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(v)
 const text = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0
 const integer = (v: unknown): v is number => Number.isSafeInteger(v) && (v as number) >= 0
@@ -38,4 +44,41 @@ export async function getMyStaff(pageNumber = 1, pageSize = 20, signal?: AbortSi
   if (!r || !integer(r.total) || r.pageNumber !== pageNumber || r.pageSize !== pageSize || !text(r.taskState) || !Array.isArray(r.staff) || r.staff.length > pageSize || r.staff.length > r.total || r.staff.some(s => !guid(s.userId) || !guid(s.departmentId) || !text(s.name) || !text(s.departmentName))) throw invalid()
   if (r.tasks !== null && (!r.tasks || r.taskState !== 'Connected' || r.tasks.pageNumber !== pageNumber || r.tasks.pageSize !== pageSize || !integer(r.tasks.total) || !Array.isArray(r.tasks.items) || r.tasks.items.length > pageSize || r.tasks.items.length > r.tasks.total || r.tasks.items.some(t => !text(t.taskId) || !guid(t.assigneeUserId) || !text(t.title) || !text(t.status) || t.dueAt !== null && (!text(t.dueAt) || Number.isNaN(Date.parse(t.dueAt)))))) throw invalid()
   return r
+}
+
+const shape = (value: unknown, keys: string[]): value is Record<string, any> => !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key))
+const boundedText = (value: unknown, max: number): value is string => text(value) && value.length <= max
+const member = (value: unknown): value is StaffMember => shape(value, ['userId', 'name', 'departmentId', 'departmentName']) && guid(value.userId) && guid(value.departmentId) && boundedText(value.name, 200) && boundedText(value.departmentName, 200)
+const sameMember = (left: StaffMember, right: StaffMember) => left.userId.toLowerCase() === right.userId.toLowerCase() && left.departmentId.toLowerCase() === right.departmentId.toLowerCase() && left.name === right.name && left.departmentName === right.departmentName
+const pageValid = (value: any, page: number, size: number) => value && value.pageNumber === page && value.pageSize === size && integer(value.total) && Array.isArray(value.items) && value.items.length <= size && value.items.length <= value.total && ((page - 1) * size >= value.total ? value.items.length === 0 : (page - 1) * size + value.items.length <= value.total)
+const utcDate = (value: unknown) => {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?Z$/.test(value)) return false
+  const parsed = new Date(value)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 19) === value.slice(0, 19)
+}
+
+// Separate staff read; legacy callers above retain their includeTasks=true contract.
+export async function getMyStaffMembers(pageNumber = 1, pageSize = 20, signal?: AbortSignal): Promise<MyStaffPage> {
+  paging(pageNumber, pageSize)
+  const r = (await requestApiEnvelope<MyStaffPage>('document', `/api/v2/my-staff?pageNumber=${pageNumber}&pageSize=${pageSize}&includeTasks=false`, { signal, cache: 'no-store', redirect: 'error' })).data
+  if (!r || r.taskState !== 'NotRequested' || r.tasks !== null || !pageValid({ ...r, items: r.staff }, pageNumber, pageSize) || r.staff.some(s => !member(s)) || new Set(r.staff.map(s => s.userId.toLowerCase())).size !== r.staff.length) throw invalid()
+  return r
+}
+
+export async function getMyStaffTasks(filter: MyStaffTasksFilter = {}, signal?: AbortSignal): Promise<MyStaffTasksResult> {
+  const { page, size } = paging(filter.pageNumber, filter.pageSize)
+  if (filter.assigneeUserId !== undefined && !guid(filter.assigneeUserId)) throw new ApiRequestError(400, 'Nhân sự không hợp lệ.')
+  const query = new URLSearchParams({ pageNumber: String(page), pageSize: String(size) })
+  if (filter.assigneeUserId !== undefined) query.set('assigneeUserId', filter.assigneeUserId)
+  const r = (await requestApiEnvelope<MyStaffTasksResult>('document', `/api/v2/my-staff/tasks?${query}`, { signal, cache: 'no-store', redirect: 'error' })).data
+  if (!shape(r, ['taskState', 'selectedAssignee', 'tasks']) || (filter.assigneeUserId === undefined ? r.selectedAssignee !== null : !member(r.selectedAssignee) || r.selectedAssignee.userId.toLowerCase() !== filter.assigneeUserId.toLowerCase())) throw invalid()
+  if (r.taskState !== 'Connected') {
+    if (!['TMS_UNAVAILABLE', 'TMS_TIMEOUT', 'TMS_CONTRACT_INVALID'].includes(r.taskState) || r.tasks !== null) throw invalid()
+  } else {
+    if (!shape(r.tasks, ['items', 'total', 'pageNumber', 'pageSize']) || !pageValid(r.tasks, page, size)) throw invalid()
+    if (r.tasks.items.some((t: unknown) => !shape(t, ['taskId', 'assignee', 'title', 'status', 'dueAt']) || !member(t.assignee) || !boundedText(t.taskId, 200) || !boundedText(t.title, 2000) || !boundedText(t.status, 100) || t.dueAt !== null && !utcDate(t.dueAt) || filter.assigneeUserId !== undefined && t.assignee.userId.toLowerCase() !== filter.assigneeUserId.toLowerCase()) || new Set(r.tasks.items.map((t: ScopedStaffTask) => t.taskId)).size !== r.tasks.items.length) throw invalid()
+    const selected = r.selectedAssignee
+    if (selected !== null && r.tasks.items.some((t: ScopedStaffTask) => !sameMember(t.assignee, selected))) throw invalid()
+  }
+  return r as MyStaffTasksResult
 }

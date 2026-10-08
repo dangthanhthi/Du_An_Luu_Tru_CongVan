@@ -66,6 +66,7 @@ const Layout = async (props: ChildrenType & { params: Promise<{ lang: string }> 
           />
           <ScrollToTop className='mui-fixed'>
             <Button
+              aria-label={lang === 'en' ? 'Back to top' : 'Về đầu trang'}
               variant='contained'
               className='is-10 bs-10 rounded-full p-0 min-is-0 flex items-center justify-center'
             >

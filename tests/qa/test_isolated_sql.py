@@ -125,7 +125,12 @@ class IsolatedSqlTests(unittest.TestCase):
         self.assertEqual('enabled', load[0]['environment']['DAS_SYNTHETIC_LOAD'])
         restore = m.suites('restore', Path('/qa'))
         self.assertEqual('synthetic', restore[0]['environment']['DAS_RESTORE_DRILL'])
-        self.assertEqual(8, len(m.suites('all', Path('/qa'))))
+        self.assertEqual(9, len(m.suites('all', Path('/qa'))))
+        self.assertTrue(all('!~EmailRestoreSqlTests' in s['filter'] for s in core))
+        self.assertEqual(['restore', 'restore-email'], [s['name'] for s in restore])
+        self.assertEqual('EmailWorkerService', restore[1]['project'])
+        self.assertEqual('FullyQualifiedName~EmailRestoreSqlTests', restore[1]['filter'])
+        self.assertEqual(Path('/qa/restore-email'), Path(restore[1]['environment']['DAS_RESTORE_OUTPUT']))
 
     def test_focused_core_profile_cannot_silently_select_load_restore_or_unknown_service(self):
         m = module()
@@ -183,6 +188,46 @@ class IsolatedSqlTests(unittest.TestCase):
             with self.subTest(change=change), tempfile.TemporaryDirectory() as tmp:
                 root = Path(tmp); report = self.restore_fixture(root, m); report.update(change)
                 with self.assertRaises(ValueError): m.make_restore_bundle(root, report)
+
+    def email_restore_fixture(self, root):
+        (root / 'emailworker.bak').write_bytes(b'owned synthetic backup')
+        return {'passed': True, 'synthetic': True, 'productionReady': False,
+                'profile': 'email-worker-store', 'components': ['emailworker'],
+                'cutId': str(uuid.uuid4()), 'backupCount': 1, 'allWorkersStarted': False,
+                'beforeDataSha256': {'emailworker': 'a' * 64}, 'afterDataSha256': {'emailworker': 'a' * 64},
+                'rowCounts': {'settings': 1, 'scanLogs': 1, 'scanItems': 5, 'migrations': 1},
+                'workerFlags': {k: False for k in ('EmailIntake__WorkerEnabled', 'EmailIntake__ManualScanEnabled', 'Delivery__WorkerEnabled', 'Reminders__Enabled')}}
+
+    def test_email_restore_gate_keeps_separate_cut_and_detects_backup_changes(self):
+        m = module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); report=self.email_restore_fixture(root)
+            expected=hashlib.sha256(b'owned synthetic backup').hexdigest()
+            evidence=m.email_restore_evidence(root, report, expected)
+            self.assertEqual(report['cutId'], evidence['cutId'])
+            self.assertFalse(evidence['productionReady'])
+            self.assertEqual(1, evidence['artifactCount'])
+            self.assertEqual(hashlib.sha256(b'owned synthetic backup').hexdigest(), evidence['backup']['sha256'])
+            (root / 'emailworker.bak').write_bytes(b'changed')
+            with self.assertRaises(ValueError): m.email_restore_evidence(root, report, expected)
+
+    def test_email_restore_gate_rejects_incomplete_or_enabled_worker_report_and_missing_backup(self):
+        m = module()
+        for change in ({'passed': False}, {'productionReady': True}, {'allWorkersStarted': True},
+                       {'backupCount': True}, {'backupCount': 6}, {'components': ['auth','emailworker']},
+                       {'afterDataSha256': {'emailworker':'b'*64}}, {'beforeDataSha256': {}},
+                       {'cutId': '../escape'}, {'workerFlags': {}},
+                       {'rowCounts': {'settings': 1,'scanLogs': 1,'scanItems': 4,'migrations': 1}}):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp); report=self.email_restore_fixture(root); report.update(change)
+                with self.assertRaises(ValueError): m.email_restore_evidence(root,report,hashlib.sha256(b'owned synthetic backup').hexdigest())
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); report=self.email_restore_fixture(root)
+            report['workerFlags']['EmailIntake__WorkerEnabled']=True
+            with self.assertRaises(ValueError): m.email_restore_evidence(root,report,hashlib.sha256(b'owned synthetic backup').hexdigest())
+            report['workerFlags']['EmailIntake__WorkerEnabled']=False
+            (root/'emailworker.bak').unlink()
+            with self.assertRaises(ValueError): m.email_restore_evidence(root,report,hashlib.sha256(b'owned synthetic backup').hexdigest())
 
 
 if __name__ == '__main__': unittest.main()

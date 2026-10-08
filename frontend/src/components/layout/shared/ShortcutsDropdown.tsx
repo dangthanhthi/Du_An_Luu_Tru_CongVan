@@ -79,6 +79,18 @@ const ShortcutsDropdown = ({ shortcuts, onOpen }: { shortcuts: ShortcutsType[]; 
     setOpen(prevOpen => !prevOpen)
   }, [open, onOpen])
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      handleClose()
+      anchorRef.current?.focus()
+    }
+  }
+
+  useEffect(() => {
+    if (open) ref.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus()
+  }, [open])
+
   useEffect(() => {
     const adjustPopoverHeight = () => {
       if (ref.current) {
@@ -98,7 +110,8 @@ const ShortcutsDropdown = ({ shortcuts, onOpen }: { shortcuts: ShortcutsType[]; 
   return (
     <>
       <IconButton ref={anchorRef} onClick={handleToggle} className='text-textPrimary'
-        aria-label={t.search.openShortcuts} aria-expanded={open}>
+        aria-label={t.search.openShortcuts} aria-expanded={open}
+        aria-controls={open ? 'das-shortcuts' : undefined} onKeyDown={handleKeyDown}>
         <i className='tabler-layout-grid-add' />
       </IconButton>
       <Popper
@@ -126,7 +139,8 @@ const ShortcutsDropdown = ({ shortcuts, onOpen }: { shortcuts: ShortcutsType[]; 
           <Fade {...TransitionProps} style={{ transformOrigin: placement === 'bottom-end' ? 'right top' : 'left top' }}>
             <Paper className={classnames('bs-full', settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg')}>
               <ClickAwayListener onClickAway={handleClose}>
-                <div className='bs-full flex flex-col'>
+                <div id='das-shortcuts' role='region' aria-label={t.search.shortcuts} className='bs-full flex flex-col' onKeyDown={handleKeyDown}
+                  onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) handleClose() }}>
                   <div className='flex items-center justify-between plb-3.5 pli-4 is-full gap-2'>
                     <Typography variant='h6' className='flex-auto'>
                       {t.search.shortcuts}

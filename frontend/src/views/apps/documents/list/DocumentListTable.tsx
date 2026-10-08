@@ -43,6 +43,11 @@ function readQuery(search: string): DocumentListQuery {
   if (!kinds.includes(kind as DocumentKind) || !views.includes(view) || (status && !statuses.includes(status as DocumentStatus)) ||
       !Number.isSafeInteger(pageNumber) || pageNumber < 1 || !Number.isSafeInteger(pageSize) || pageSize < 1 || pageSize > 100)
     throw new Error('Loại công văn, phạm vi hoặc phân trang không hợp lệ.')
+
+  if (view === 'cancelled' && status && status !== 'Cancelled') {
+    throw new Error('Mục công văn đã hủy không hỗ trợ lọc trạng thái khác. Vui lòng bỏ chọn trạng thái.')
+  }
+
   return { kind: kind as DocumentKind, view: view as DocumentListQuery['view'], status: status as DocumentStatus | '',
     searchTerm: params.get('searchTerm') ?? '', pageNumber, pageSize }
 }
@@ -111,13 +116,13 @@ const DocumentListTable = () => {
     <Card sx={{ minWidth: 0, width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 4, pt: 2, minWidth: 0 }}>
         <Tabs value={query?.kind ?? false} onChange={(_event, kind: DocumentKind) => navigate({ kind, pageNumber: 1 })}
-          variant='scrollable' scrollButtons='auto'>
+          variant='scrollable' scrollButtons='auto' aria-label={vi ? 'Loại công văn' : 'Document kind'}>
           {kinds.map(kind => <Tab key={kind} value={kind} label={kindLabels[kind]} />)}
         </Tabs>
       </Box>
       <CardContent className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex flex-wrap gap-4 min-is-0 is-full sm:is-auto'>
-          <CustomTextField placeholder={t.documents.searchPlaceholder} value={query?.searchTerm ?? ''}
+          <CustomTextField placeholder={t.documents.searchPlaceholder} inputProps={{ 'aria-label': t.documents.searchPlaceholder }} value={query?.searchTerm ?? ''}
             disabled={!query} onChange={event => navigate({ searchTerm: event.target.value, pageNumber: 1 })}
             className='is-full sm:is-auto' />
           <CustomTextField select value={query?.status ?? ''} disabled={!query || query.view === 'cancelled'}
@@ -131,8 +136,17 @@ const DocumentListTable = () => {
             href={`${getLocalizedUrl('/apps/documents/add', locale)}?kind=${query!.kind}`}>{t.documents.addDoc}</Button>}
         </div>
       </CardContent>
-      {error && <CardContent><Alert severity='error' action={query ? <Button color='inherit'
-        onClick={() => setRevision(value => value + 1)}>{vi ? 'Thử lại' : 'Retry'}</Button> : undefined}>{error}</Alert></CardContent>}
+      {error && <CardContent><Alert severity='error' action={<Button color='inherit'
+        onClick={() => {
+          if (query) {
+            setRevision(value => value + 1)
+          } else {
+            const params = new URLSearchParams(search)
+            const fallbackKind = kinds.includes(params.get('kind') as DocumentKind) ? params.get('kind') : 'Incoming'
+            const fallbackView = views.includes(params.get('view') || '') ? params.get('view') : 'all'
+            router.replace(`${getLocalizedUrl('/apps/documents/list', locale)}?kind=${fallbackKind}&view=${fallbackView}`)
+          }
+        }}>{vi ? (query ? 'Thử lại' : 'Khôi phục bộ lọc') : (query ? 'Retry' : 'Reset filters')}</Button>}>{error}</Alert></CardContent>}
       {loading && <div className='flex justify-center p-8'><CircularProgress aria-label={vi ? 'Đang tải công văn' : 'Loading documents'} /></div>}
       {page && <>
         <div className='overflow-x-auto'>
@@ -162,6 +176,9 @@ const DocumentListTable = () => {
           rowsPerPageOptions={[10, 20, 50, 100]} onPageChange={(_event, number) => navigate({ pageNumber: number + 1 })}
           onRowsPerPageChange={event => navigate({ pageSize: Number(event.target.value), pageNumber: 1 })}
           labelRowsPerPage={vi ? 'Số dòng:' : 'Rows per page:'}
+          labelDisplayedRows={({ from, to, count }) => vi
+            ? `${from}–${to} trên ${count === -1 ? `hơn ${to}` : count}`
+            : `${from}–${to} of ${count === -1 ? `more than ${to}` : count}`}
           getItemAriaLabel={type => vi ? ({ first: 'Trang đầu', last: 'Trang cuối', next: 'Trang tiếp theo', previous: 'Trang trước' })[type] : `Go to ${type} page`}
           sx={{ '& .MuiTablePagination-toolbar': { flexWrap: 'wrap', paddingInline: 2 }, '& .MuiTablePagination-spacer': { flex: '1 1 0' } }} />
       </>}

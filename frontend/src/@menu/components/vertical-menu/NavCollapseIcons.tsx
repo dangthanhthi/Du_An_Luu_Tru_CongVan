@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import type { HTMLAttributes, ReactElement } from 'react'
+import type { ButtonHTMLAttributes, ReactElement } from 'react'
 
 // Hook Imports
 import useVerticalNav from '../../hooks/useVerticalNav'
@@ -11,7 +11,7 @@ import CloseIcon from '../../svg/Close'
 import RadioCircleIcon from '../../svg/RadioCircle'
 import RadioCircleMarkedIcon from '../../svg/RadioCircleMarked'
 
-type NavCollapseIconsProps = HTMLAttributes<HTMLSpanElement> & {
+type NavCollapseIconsProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   closeIcon?: ReactElement
   lockedIcon?: ReactElement
   unlockedIcon?: ReactElement
@@ -50,29 +50,27 @@ const NavCollapseIcons = (props: NavCollapseIconsProps) => {
   return (
     <>
       {isBreakpointReached ? (
-        <span role='button' tabIndex={0} style={{ display: 'flex', cursor: 'pointer' }} onClick={handleClose} {...rest}>
+        <button type='button' style={{ display: 'flex', cursor: 'pointer', background: 'transparent', border: 0, padding: 0, color: 'inherit' }} onClick={handleClose} {...rest}>
           {closeIcon ?? <CloseIcon />}
-        </span>
+        </button>
       ) : isCollapsed ? (
-        <span
-          role='button'
-          tabIndex={0}
-          style={{ display: 'flex', cursor: 'pointer' }}
+        <button
+          type='button'
+          style={{ display: 'flex', cursor: 'pointer', background: 'transparent', border: 0, padding: 0, color: 'inherit' }}
           onClick={() => handleClick('lock')}
           {...rest}
         >
           {unlockedIcon ?? <RadioCircleIcon />}
-        </span>
+        </button>
       ) : (
-        <span
-          role='button'
-          tabIndex={0}
-          style={{ display: 'flex', cursor: 'pointer' }}
+        <button
+          type='button'
+          style={{ display: 'flex', cursor: 'pointer', background: 'transparent', border: 0, padding: 0, color: 'inherit' }}
           onClick={() => handleClick('unlock')}
           {...rest}
         >
           {lockedIcon ?? <RadioCircleMarkedIcon />}
-        </span>
+        </button>
       )}
     </>
   )

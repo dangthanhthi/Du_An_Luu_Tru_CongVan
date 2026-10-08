@@ -87,7 +87,14 @@ namespace NotificationService.Controllers
                 success = true,
                 data = new
                 {
-                    items,
+                    // SQL datetime2 and SQLite do not preserve DateTime.Kind.
+                    // These fields are written as UTC; keep that contract in JSON.
+                    items = items.Select(n => new {
+                        n.Id, n.RecipientUserId, n.Title, n.Message, n.ActionUrl,
+                        n.RelatedDocumentId, n.NotificationType, n.IsRead,
+                        ReadAt = n.ReadAt.HasValue ? DateTime.SpecifyKind(n.ReadAt.Value, DateTimeKind.Utc) : (DateTime?)null,
+                        CreatedAt = DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc)
+                    }),
                     totalCount,
                     page,
                     pageSize,

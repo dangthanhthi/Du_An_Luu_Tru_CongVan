@@ -18,13 +18,22 @@ const API_URLS = {
 
 // Business records and registration numbers are owned by the API.
 export class ApiRequestError extends Error {
-  constructor(public readonly status: number, message: string, public readonly traceId?: string) {
+  constructor(public readonly status: number, message: string, public readonly traceId?: string, public readonly code?: string) {
     super(message)
     this.name = 'ApiRequestError'
   }
 }
 export type ApiEnvelope<T = any> = { success: true; data: T; message?: string | null; traceId?: string }
 const nonempty = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
+const machineCode = (value: unknown): value is string => typeof value === 'string' && /^[A-Z][A-Z0-9_]{0,79}$/.test(value)
+function envelopeErrorCode(result: any): string | undefined {
+  if (machineCode(result?.code)) return result.code
+  if (!Array.isArray(result?.errors)) return undefined
+  const codes = new Set<string>(result.errors.map((error: any) => error?.code).filter(machineCode))
+
+  // Multiple field errors must not be misclassified as one business conflict.
+  return codes.size === 1 ? codes.values().next().value : undefined
+}
 
 const sessionCoordinator = createBrowserSessionCoordinator(API_URLS.auth)
 const responseOwners = new WeakMap<Response, SessionRecord | null>()
@@ -158,7 +167,7 @@ export async function requestApiEnvelope<T = any>(service: keyof typeof API_URLS
     const message = response.status >= 500 ? 'Dịch vụ đang không khả dụng. Vui lòng thử lại.'
       : nonempty(result?.message) ? result.message : 'Không thể hoàn thành yêu cầu.'
 
-    throw new ApiRequestError(response.ok ? 502 : response.status, message, typeof result?.traceId === 'string' ? result.traceId : undefined)
+    throw new ApiRequestError(response.ok ? 502 : response.status, message, typeof result?.traceId === 'string' ? result.traceId : undefined, envelopeErrorCode(result))
   }
   return result
 }

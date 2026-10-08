@@ -122,7 +122,9 @@
       ],
       "UpstreamPathTemplate": "/api/v2/admin/catalogs",
       "UpstreamHttpMethod": [
-        "POST"
+        "GET",
+        "POST",
+        "OPTIONS"
       ]
     },
     {
@@ -390,6 +392,27 @@
         "DELETE",
         "OPTIONS"
       ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/my-staff/tasks",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "localhost", "Port": 5002 }],
+      "UpstreamPathTemplate": "/api/v2/my-staff/tasks",
+      "UpstreamHttpMethod": ["GET", "OPTIONS"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/admin/catalogs/options",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "localhost", "Port": 5002 }],
+      "UpstreamPathTemplate": "/api/v2/admin/catalogs/options",
+      "UpstreamHttpMethod": ["GET", "OPTIONS"]
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/documents/{documentId}/history",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "localhost", "Port": 5002 }],
+      "UpstreamPathTemplate": "/api/v2/documents/{documentId}/history",
+      "UpstreamHttpMethod": ["GET", "OPTIONS"]
     }
   ],
   "GlobalConfiguration": {
