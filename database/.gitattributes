@@ -1,0 +1,4 @@
+# Keep package bytes stable for SHA-256 verification on Windows and Linux.
+* -text whitespace=cr-at-eol
+# EF emits a final blank batch separator; preserve generated SQL verbatim.
+*.sql -text whitespace=cr-at-eol,-blank-at-eof

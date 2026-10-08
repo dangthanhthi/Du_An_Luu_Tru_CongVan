@@ -29,6 +29,40 @@ public sealed class UnavailableDocumentV2Authority : IDocumentV2Authority
     private static DocumentRegistrationRuleException Offline()=>new(503,"DOCUMENT_AUTHORITY_UNAVAILABLE","Trusted document authority is not configured.");
 }
 
+public sealed class DevelopmentDocumentV2Authority(DocumentDbContext db) : IDocumentV2Authority
+{
+    private static readonly Guid DefaultDeptId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+    public Task<V2RegistrationAuthority> RegisterAsync(Guid userId, V2RegistrationDraft draft, CancellationToken ct)
+    {
+        var actor = new V2EditorActor(userId, true, new HashSet<Guid> { draft.OwnerDepartmentId, DefaultDeptId }, new HashSet<Guid>(), new HashSet<Guid>());
+        var identity = new RegistrationIdentity(userId, draft.OriginatorUserId, draft.OwnerDepartmentId, "HC-VT", "Phòng Hành chính - Văn thư");
+        return Task.FromResult(new V2RegistrationAuthority(actor, identity, null, new V2RelationScope(userId, new HashSet<Guid>())));
+    }
+
+    public Task<V2MutationAuthority> MutateAsync(Guid userId, Guid documentId, V2EditDraft? draft, CancellationToken ct)
+    {
+        var deptId = draft?.OwnerDepartmentId ?? DefaultDeptId;
+        var actor = new V2EditorActor(userId, true, new HashSet<Guid> { deptId, DefaultDeptId }, new HashSet<Guid>(), new HashSet<Guid>());
+        var target = draft is null ? null : new V2EditTarget(draft.OriginatorUserId, draft.OwnerDepartmentId, "HC-VT", "Phòng Hành chính - Văn thư", true, true);
+        return Task.FromResult(new V2MutationAuthority(actor, target, null, new V2RelationScope(userId, new HashSet<Guid>())));
+    }
+
+    public async Task<V2ReadAuthority> ReadAsync(Guid userId, CancellationToken ct)
+    {
+        var allIds = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
+            System.Linq.Queryable.Select(db.Documents, d => d.Id), ct);
+        var actor = new V2EditorActor(userId, true, new HashSet<Guid> { DefaultDeptId }, new HashSet<Guid>(), new HashSet<Guid>());
+        return new V2ReadAuthority(actor, allIds.ToHashSet());
+    }
+
+    public Task<V2FormAuthority> FormAsync(Guid userId, string kind, CancellationToken ct)
+    {
+        var target = new V2RegistrationTarget(userId, "Người lập văn bản", DefaultDeptId, "HC-VT", "Phòng Hành chính - Văn thư", true);
+        return Task.FromResult(new V2FormAuthority(userId, true, true, new List<V2RegistrationTarget> { target }));
+    }
+}
+
 // PDF and document HTTP share the same server identity/read boundary.
 public sealed class DocumentV2PdfAuthority(IDocumentV2Authority authority) : IPdfAuthority
 {

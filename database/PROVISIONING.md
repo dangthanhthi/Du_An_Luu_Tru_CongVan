@@ -1,46 +1,74 @@
-# Provision và bàn giao database DAS
+# Tạo database thử nghiệm từ bộ SQL bàn giao
 
-Sáu service sở hữu sáu store riêng: auth, document, files, notification, partner, email-worker. Không dùng frontend Prisma như schema nghiệp vụ và không copy bảng/DbContext giữa service. Connection phải chỉ đúng store được bàn giao; không suy ra mọi service cùng dùng database từ cấu hình template cũ.
+Áp dụng cho bộ schema trong nhánh `database` của repo chính thức. Bộ database được bàn giao độc lập; lượt bàn giao này không ghép hoặc sửa backend cũ.
 
-## Chuẩn bị schema để review
+## 1. Chuẩn bị
 
-Chạy từ root `DAS-Collaboration` với Python3.12 và .NET SDK10:
+- SQL Server và danh tính được phép tạo schema/database thử nghiệm. `sqlcmd` hỗ trợ batch `GO` nếu dùng CLI; SSMS cũng có thể mở script.
+- Sáu database mới, mỗi store một database. Tên ví dụ dưới đây chỉ minh họa: `DAS_Auth_Review`, `DAS_Document_Review`, `DAS_Files_Review`, `DAS_Notification_Review`, `DAS_Partner_Review`, `DAS_Email_Review`.
+- Kiểm SHA-256 của gói theo [sql/README.md](sql/README.md). Đọc DDL, seed tham chiếu và migration guard trước khi chạy.
+- Không cần Node, frontend, EAP, Docker hay build backend để đọc tài liệu/chạy sáu SQL script đã xuất. Khi tái sinh SQL hoặc dùng EF migration bằng code cần đúng model, project và tool của nguồn đã đồng bộ.
 
-```sh
-python tools/export-database-schema.py --output .artifacts/qa/schema-review-01
+## 2. Gán đúng store
+
+| Script | Store/schema | Bảng nghiệp vụ | Context nguồn | Tool EF khi xuất |
+|---|---|---:|---|---|
+| `database/sql/auth.sql` | Auth / `auth` | 8 | AuthDbContext | 10.0.3 |
+| `database/sql/document.sql` | Document / `document` | 23 | DocumentDbContext | 10.0.3 |
+| `database/sql/files.sql` | Files / `files` | 3 | FileDbContext | 10.0.3 |
+| `database/sql/notification.sql` | Notification / `notification` | 4 | NotificationDbContext | 10.0.3 |
+| `database/sql/partner.sql` | Partner / `partner` | 2 | PartnerDbContext | 10.0.3 |
+| `database/sql/email.sql` | Email Worker / `emailworker` | 3 | EmailWorkerDbContext | 9.0.0 |
+
+Mỗi database có `dbo.__EFMigrationsHistory` riêng, ngoài 43 bảng nghiệp vụ. Không chạy tất cả script vào một database: các lịch sử có thể trùng migration ID giữa service, ví dụ `InitialCreate`.
+
+## 3. Chạy script vào database mới
+
+Trong SSMS, mở script, chọn đúng server/database trong dropdown, kiểm lại `SELECT DB_NAME()` và identity trước khi Execute. Scripts không chứa `CREATE DATABASE`, không tự chọn tên database và không tự bật worker.
+
+Ví dụ PowerShell từ root repository, dùng Windows Integrated Authentication của danh tính đã được cấp quyền:
+
+```powershell
+$taskSqlServer = '<server-thu-nghiem-da-duoc-chi-dinh>'
+sqlcmd -S $taskSqlServer -d DAS_Auth_Review         -E -b -i database/sql/auth.sql
+sqlcmd -S $taskSqlServer -d DAS_Document_Review     -E -b -i database/sql/document.sql
+sqlcmd -S $taskSqlServer -d DAS_Files_Review        -E -b -i database/sql/files.sql
+sqlcmd -S $taskSqlServer -d DAS_Notification_Review -E -b -i database/sql/notification.sql
+sqlcmd -S $taskSqlServer -d DAS_Partner_Review      -E -b -i database/sql/partner.sql
+sqlcmd -S $taskSqlServer -d DAS_Email_Review        -E -b -i database/sql/email.sql
 ```
 
-Output phải mới. Tool dùng design-time factories với connection design-only, không khởi động host/seed/worker, không đọc runtime connection/JWT/SMTP từ environment. Nó cài CLI EF9.0.0/10.0.3 vào output, dùng NuGet public config và lockfile, build Debug, kiểm model/snapshot, liệt kê migration không kết nối DB và xuất SQL idempotent. Các script/hash/IDs nằm trong `sql/` và `summary.json`. Exit0 chỉ khi đủ sáu store và nguồn ứng dụng giữ nguyên. Output này không chứng minh đã thực thi SQL.
+Đây là sáu thao tác độc lập. Kiểm exit code sau từng lệnh, dừng khi lỗi; không xem lượt cuối thành công là cả sáu thành công. Không thêm `-P` với mật khẩu vào command history/Git; môi trường dùng kiểu đăng nhập khác phải dùng cơ chế cấp secret của người vận hành.
 
-Review schema, constraints/index/FK, reference catalog seed và migration lịch sử trước áp dụng. Không sửa/xóa ID migration đã dùng. Không xuất credential, DB, backup hoặc dữ liệu khách hàng vào Git. Sinh lại script từ source được chốt thay vì giữ nhiều bản SQL copy không rõ phiên bản.
+## 4. Kiểm sau chạy
 
-## Database SQL mới, chưa có dữ liệu
+Trên từng database, đối chiếu các migration ID trong manifest với truy vấn:
 
-Người vận hành được cấp quyền chuẩn bị từng database và áp dụng SQL đã review vào đúng store. Chọn database đích và connection qua công cụ/quy trình quản trị của môi trường; tool xuất schema không có chế độ apply. Ghi migration history/hash source/script và kết quả đối soát vào biên bản triển khai. Không chạy script vào DB công ty chỉ vì nó có tên giống cấu hình mẫu.
-
-Application Production phải dùng `Database:Provider=SqlServer`, connection phù hợp và `Database:Initialize=false` cho cả sáu service; Auth/Document cần `Database:SeedDemoUsers=false` và Partner cần `Database:SeedExamples=false`. `InitializeOnStartup` không phải flag các service này đọc. Provision schema bằng danh tính vận hành riêng; application không tự migration tại startup. Bật host/worker/tích hợp sau khi config/quyền/storage/audience được bàn giao và kiểm chứng.
-
-Email Worker có baseline `20261006121013_EmailWorkerBaseline`: ba bảng trong schema `emailworker`, index ScanLogId và cascade FK scan-item→scan-log, không seed mật khẩu/hộp thư. Startup SQL kiểm snapshot/pending migration và đọc ba bảng; SQLite chỉ được Development. Notification Development SQL initialize dùng migration, SQLite dùng EnsureCreated. Các flag IMAP/SMTP/notification/reminder/scanner vẫn cần cấu hình riêng; tạo schema không bật transport.
-
-## Database cũ hoặc đã tạo bằng EnsureCreated
-
-Không tự coi một database có bảng là đã áp dụng migration. Không chạy baseline tạo bảng vào dữ liệu đang dùng, không tự thêm/xóa `__EFMigrationsHistory`, không tự đánh dấu “đã migrate”. Email SQL có bảng nhưng thiếu migration history sẽ bị startup từ chối khi initialization tắt.
-
-Trước khi nâng cấp: cần export/schema snapshot/PDF, kiểm cấu trúc/kiểu dữ liệu/keys/index/FK/reference codes và mapping IDs, chạy preflight read-only, backup và diễn tập restore trên bản sao được cho phép. Sau đối soát, người phụ trách migration lập phương án nâng cấp hoặc baseline được duyệt; dữ liệu/hash/counters/history phải được kiểm lại. Chưa có export/mapping khách hàng nên dự án chưa hoàn tất bước này.
-
-Counter, số đăng ký, audit/cancel restore, PDF claim và outbox/task/reminder ledger đã có migration/kiểm thử nội bộ. Những kiểm thử đó không tự chứng minh dữ liệu legacy phù hợp.
-
-## Kiểm chứng SQL giả lập
-
-```sh
-python tools/qa/run-isolated-sql.py --profile core --output .artifacts/qa/sql-schema-01
-python tools/qa/run-isolated-sql.py --profile core --service EmailWorkerService --output .artifacts/qa/sql-email-01
+```sql
+SELECT DB_NAME() AS DatabaseName;
+SELECT MigrationId, ProductVersion
+FROM dbo.__EFMigrationsHistory ORDER BY MigrationId;
+SELECT s.name AS SchemaName, t.name AS TableName
+FROM sys.tables t JOIN sys.schemas s ON s.schema_id = t.schema_id
+ORDER BY s.name, t.name;
+SELECT name, is_disabled, is_not_trusted FROM sys.check_constraints;
+SELECT name, is_disabled, is_not_trusted FROM sys.foreign_keys;
 ```
 
-Core bao phủ sáu store; `--service` giới hạn một store và được ghi trong summary, không được gọi đó là đã qua cả sáu. Runner tạo SQL Server instance Docker mới, connection/mật khẩu QA sinh riêng, build trong output riêng; không nhận DB/connection có sẵn. Chỉ exit0 khi tests thật pass, source integrity và cleanup xác nhận. Worker/IMAP/SMTP/OCR/EAP không chạy.
+Đối chiếu dictionary trong handbook về kiểu cột/NULL, PK, unique index, FK/CHECK, catalog và cấu hình singleton Email `Id=1`. Ghi hash scripts, migration history và kết quả kiểm vào biên bản môi trường đó. Idempotent dựa trên migration history; không phát hiện đầy đủ schema bị sửa thủ công hoặc dữ liệu legacy không khớp.
 
-Profile `restore` hiện chỉ bao phủ **năm store core + PDF**, chưa bao phủ EmailWorker settings/logs. Không tuyên bố sáu-store restore hoặc production RPO/RTO từ kết quả năm-store. Khi mailbox được đưa vào vận hành, bổ sung EmailWorker vào phương án backup/restore và xử lý secret theo quy trình được duyệt.
+Không có bước seed tài khoản test hoặc công văn mẫu trong bàn giao này. Không tự tạo user/department bằng GUID đoán trước rồi coi là mapping EAP.
 
-## Gate còn mở
+## 5. Database đang có dữ liệu
 
-Customer export/PDF/mapping, cấu hình/quyền deployment, authority/session/CSRF/revocation, TMS/SMTP/audience/scanner, RPO/RTO/SLA, security/dependency/license, UAT/signoff/pilot. EAP do nhóm khác phụ trách; OCR hoãn. SQLite và tài khoản demo dùng để xem local, không là database/tài khoản production.
+Không dùng quy trình database mới để nâng một database có sẵn. Trước hết cần backup, restore thử trên bản sao, snapshot schema, history, reference codes và mapping dữ liệu/PDF. Không tự xóa/chèn history để bỏ qua migration; không ghép hai lịch sử chỉ vì ID đầu tiên giống nhau.
+
+Migration Email `20261006154722_FixedEmailSettingsKey` dựng lại bảng cấu hình trong transaction để bỏ IDENTITY, bảo toàn cấu hình hiện có. Guard từ chối khóa khác 1 hoặc FK/index/trigger/quyền/default/CHECK tùy chỉnh chưa được nhận diện. Khi bị từ chối cần phương án riêng được review; không bỏ guard để ép chạy.
+
+## 6. Trước khi đưa runtime vào sử dụng
+
+Phải đồng bộ entity/DbContext/workflow với schema và chạy regression/SQL tests của bản tích hợp. Cấu hình provider/connection theo từng host; không suy ra sáu store dùng chung vì đều có connection key `Default`.
+
+Ở nguồn local xây gói này, Auth/Document/Files/Notification/Email đọc `Database:Initialize=false`; Partner đọc `Database:InitializeOnStartup=false`; các flag seed demo cũng tắt. Các quy định runtime trong handbook mô tả nguồn local hiện hành.
+
+Tạo schema không bật SMTP/IMAP/reminder/task/scanner. Byte PDF nằm ở storage riêng; SQL backup không chứa byte PDF. Không đưa dữ liệu, backup, secret, database test hoặc PDF lên nhánh này.

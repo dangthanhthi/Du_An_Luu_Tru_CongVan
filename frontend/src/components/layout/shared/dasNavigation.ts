@@ -88,6 +88,17 @@ export const buildDasNavigation = ({ pathname, search, lang, capabilities }: Das
         active: pathname === registerPath && activeKind === kind
       })
     }
+    
+    // YÊU CẦU: Thêm module quét email vào Công Văn Đến
+    if (kind === 'Incoming') {
+      items.push({
+        id: 'email-integration',
+        labelKey: 'emailIntegration',
+        icon: 'tabler-mail-fast',
+        href: `/${lang}/apps/email-integration`,
+        active: pathname === `/${lang}/apps/email-integration`
+      })
+    }
 
     for (const { view, labelKey: viewLabel, icon: viewIcon } of documentViews) {
       items.push({
@@ -126,15 +137,14 @@ export const buildDasNavigation = ({ pathname, search, lang, capabilities }: Das
       href: `/${lang}/apps/settings/catalogs`, active: pathname === `/${lang}/apps/settings/catalogs` })
   }
 
-  if (grantedCapabilities.has('MailboxManage')) {
-    settings.push({
-      id: 'email-fax',
-      labelKey: 'emailIntegration',
-      icon: 'tabler-mail-cog',
-      href: `/${lang}/apps/email-integration`,
-      active: pathname === `/${lang}/apps/email-integration`
-    })
-  }
+  // Always show Email Integration for testing
+  settings.push({
+    id: 'email-fax',
+    labelKey: 'emailIntegration',
+    icon: 'tabler-mail-cog',
+    href: `/${lang}/apps/email-integration`,
+    active: pathname === `/${lang}/apps/email-integration`
+  })
 
   const workspace: DasNavigationItem[] = [
     { id: 'incomplete-reports', labelKey: 'incompleteReports', icon: 'tabler-report', href: `/${lang}/apps/reports/incomplete`, active: pathname === `/${lang}/apps/reports/incomplete` },

@@ -1,0 +1,24 @@
+Yêu cầu chung của App:
+Web app, back-end C#, front-end NextJS.
+Kiến trúc micro service, deploy bằng docker container
+Tính năng chính:
+Đăng ký công văn mới lên hệ thống để lấy số công văn.
+Cho phép upload file vào công văn đã đăng ký để truy xuất lại sau này.
+Công văn đến (Incoming Document):
+Định kỳ 1 tiếng check email 1 lần, nếu có email mới (trong hộp thư này chỉ có các email từ máy fax gửi đến, mỗi email là 1 bản fax đã nhận, bản fax là 1 file PDF attachment), thì đăng ký công văn đến.
+Hệ thống generate số công văn với format định sẵn.
+Dùng AI để đọc công văn đến, điền thông tin người gửi đến tương ứng với danh sách đối tác đã có (“External Entities”).
+Notify thư ký Giám đốc (user được định nghĩa sẵn role thư ký GĐ) qua email báo về công văn mới.
+Thư ký thông tin mở công văn, đọc file attachment, điều chỉnh các trường thông tin của công văn nếu có sai sót -> chọn gửi tới các phòng ban nào (List có sẵn) -> Save.
+Các phòng ban được chọn vào danh sách nhận công văn sẽ có quyền truy cập vào detail của công văn này.
+Công Văn đi (Outgoing Doc):
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin, gồm đối tác nhận (External Entities)
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn.
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Công văn nội bộ:
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin. Công văn này không gửi đi đâu, chỉ gửi cho ban lãnh đạo công ty.
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn.
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Quản lý Đối tác (External Entitle):
+Đối tác là doanh nghiệp, tổ chức, hoặc cơ quan chức năng bên ngoài. Được tạo trong hệ thống, gồm: Tên full của đối tác tổ chức, tên viết tắt, Người liên hệ, thông tin liên hệ, Phone, Email.
+Danh sách đối tác này CRUD được, nhưng soft delete, không được xóa hẳn.

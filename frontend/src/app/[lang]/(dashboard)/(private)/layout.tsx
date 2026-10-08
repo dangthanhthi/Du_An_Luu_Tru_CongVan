@@ -20,6 +20,7 @@ import HorizontalFooter from '@components/layout/horizontal/Footer'
 import Customizer from '@core/components/customizer'
 import ScrollToTop from '@core/components/scroll-to-top'
 import AuthGuard from '@/hocs/AuthGuard'
+import AutoEmailScanner from '@/components/AutoEmailScanner'
 import DasSessionBoundary from '@components/DasSessionBoundary'
 
 // Config Imports
@@ -46,7 +47,7 @@ const Layout = async (props: ChildrenType & { params: Promise<{ lang: string }> 
   return (
     <Providers direction={direction}>
       <DasSessionBoundary locale={lang}>
-        <AuthGuard locale={lang}>
+        <AuthGuard locale={lang}><AutoEmailScanner />
           <LayoutWrapper
             systemMode={systemMode}
             verticalLayout={

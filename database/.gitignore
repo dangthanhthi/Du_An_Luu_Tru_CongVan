@@ -1,0 +1,18 @@
+# Only schema source and documentation belong in this directory.
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.bak
+*.mdf
+*.ndf
+*.ldf
+*.pdf
+.env
+.env.*
+bin/
+obj/
+__pycache__/
+*.pyc
+*.log

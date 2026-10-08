@@ -1,0 +1,1 @@
+[Reflection.Assembly]::LoadFrom("D:\TRONGNGUYEN_HK7\Du_An_Quan_Ly_Cong_Van\SELETON\DAS-Collaboration\backend\services\document-service\bin\Debug\net10.0\DocumentService.dll").GetTypes() | Where-Object { $_.Name -like "*Registration*" } | Select-Object FullName

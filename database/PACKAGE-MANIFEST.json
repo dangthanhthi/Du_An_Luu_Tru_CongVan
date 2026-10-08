@@ -1,0 +1,451 @@
+{
+  "repository": "https://github.com/Seleton-VN/Intern-DocumentAdministration-BE",
+  "branch": "database",
+  "officialBaseCommit": "36f8f0f240214f2d50a93cc86bee34d880d3c250",
+  "sourceBaselineCommit": "ec94a448f4e05f66c47b1342701637f88688a129",
+  "sourceIncludesLocalUncommittedDatabaseChanges": true,
+  "createdAtUtc": "2026-10-07T09:56:07.495113+00:00",
+  "scope": "Standalone database schema and documentation only; existing backend is not modified or integrated",
+  "verification": {
+    "generatedAtUtc": "2026-10-07T09:55:17.037458+00:00",
+    "passed": true,
+    "type": "offline SQL generation and model/snapshot parity only",
+    "databaseConnected": false,
+    "sqlApplied": false,
+    "productionReady": false,
+    "allStepsExitZero": true,
+    "sourceChangedDuringExport": []
+  },
+  "stores": [
+    {
+      "store": "auth",
+      "context": "AuthDbContext",
+      "efToolVersion": "10.0.3",
+      "migrationIds": [
+        "20260728074907_InitialCreate",
+        "20260810130346_ImproveAuthModel",
+        "20261004054605_AddDirectoryProjection"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/auth.sql",
+      "bytes": 10343,
+      "sha256": "d43af2eec3d730b2413bd2f2172b9ab373d8088e973f579354fc82dded9cb0ce"
+    },
+    {
+      "store": "document",
+      "context": "DocumentDbContext",
+      "efToolVersion": "10.0.3",
+      "migrationIds": [
+        "20260730115658_InitialCreate",
+        "20260827080431_AddSoftDeleteSqlServer",
+        "20260827110241_AddIncomingSourceMessageId",
+        "20261004060403_AddBusinessCatalogs",
+        "20261004111636_AddV2RegistrationPersistence",
+        "20261004122637_AddDocumentEditAudit",
+        "20261004125541_AddDocumentKindDetails",
+        "20261004132429_AddDocumentRelations",
+        "20261004134524_AddDocumentCancellations",
+        "20261005024036_AddCurrentPdfReplacement",
+        "20261005052843_AddReminderAndTaskIntents",
+        "20261005060101_AddDocumentNotificationDelivery",
+        "20261005072535_AddReminderDeliveryLedger"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/document.sql",
+      "bytes": 40142,
+      "sha256": "3eb7dc5c1536828976b85365770eb83f125ca6032f787543ee64c2f7b9c5c02d"
+    },
+    {
+      "store": "files",
+      "context": "FileDbContext",
+      "efToolVersion": "10.0.3",
+      "migrationIds": [
+        "20260806035121_InitialFileSchema",
+        "20261004142642_AddManagedPdfUploads",
+        "20261005024053_AddPdfClaims"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/files.sql",
+      "bytes": 5153,
+      "sha256": "a20af30b27e77586185dcfa2ba1f941854013bcfb21808a61b342d1555e1d9ea"
+    },
+    {
+      "store": "notification",
+      "context": "NotificationDbContext",
+      "efToolVersion": "10.0.3",
+      "migrationIds": [
+        "20261005052849_DurableNotificationsBaseline"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/notification.sql",
+      "bytes": 4586,
+      "sha256": "1c9a2a9f5a64f27d23b02555e0c445a6eb5921de96235aa5ccfb0efc499e36cc"
+    },
+    {
+      "store": "partner",
+      "context": "PartnerDbContext",
+      "efToolVersion": "10.0.3",
+      "migrationIds": [
+        "20260810113448_InitialCreate",
+        "20261005043235_ExternalEntityContactsAndConcurrency"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/partner.sql",
+      "bytes": 7191,
+      "sha256": "a1076976a5d29d385d5b691ff4169de7d5b7628e9c55884125b99ccd1407b15c"
+    },
+    {
+      "store": "email",
+      "context": "EmailWorkerDbContext",
+      "efToolVersion": "9.0.0",
+      "migrationIds": [
+        "20261006121013_EmailWorkerBaseline",
+        "20261006154722_FixedEmailSettingsKey"
+      ],
+      "pendingModelChanges": false,
+      "script": "sql/email.sql",
+      "bytes": 6718,
+      "sha256": "0edf97f159f42f914bc5b0b54be09035dc506781440f655a582c76943a5e86dd"
+    }
+  ],
+  "businessTableCount": 43,
+  "businessColumnCount": 360,
+  "migrationCount": 24,
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 226,
+      "sha256": "2b513c41adeeacc32279361cb74b716149c2f3f12add18f43351e534922d49e9"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 184,
+      "sha256": "d2640c4dad2d7985ba1bae50bdf5999738cd463d1d423940c11444ef952a8fa7"
+    },
+    {
+      "path": "DAS_DATABASE_HUONG_DAN_CHI_TIET.html",
+      "bytes": 259326,
+      "sha256": "5078778b76ad8b94201df0dce384575f0ce37a2ec7ef69382c71a288aa4b8f2f"
+    },
+    {
+      "path": "DATABASE-HANDBOOK.md",
+      "bytes": 177813,
+      "sha256": "90f27b1d8a36625379019f187f6c407b1ada43bb657eb56517170bb2614e75f9"
+    },
+    {
+      "path": "migrations/auth-service/20260728074907_InitialCreate.cs",
+      "bytes": 6522,
+      "sha256": "081de2aa5e59391ef23f796ed5dd186d53711e39e079162276662d85cde15835"
+    },
+    {
+      "path": "migrations/auth-service/20260728074907_InitialCreate.Designer.cs",
+      "bytes": 6004,
+      "sha256": "96dd5732857c88f50d0c519f744449978eadc69c45a71d1e7e37068a2fefa7d4"
+    },
+    {
+      "path": "migrations/auth-service/20260810130346_ImproveAuthModel.cs",
+      "bytes": 5268,
+      "sha256": "49efed27d3f23303e74199992121fe206ba65e4eabf9a28b74cfea85f4fea35c"
+    },
+    {
+      "path": "migrations/auth-service/20260810130346_ImproveAuthModel.Designer.cs",
+      "bytes": 7414,
+      "sha256": "ab499f6c07c0adeb9ad90358f65e0bc7ea6f01d749280e851f72c4d08863c817"
+    },
+    {
+      "path": "migrations/auth-service/20261004054605_AddDirectoryProjection.cs",
+      "bytes": 4168,
+      "sha256": "5474c2d5dad84bb859c885a30ada184246a7c6b1e431c6502f1a58bb539aa8db"
+    },
+    {
+      "path": "migrations/auth-service/20261004054605_AddDirectoryProjection.Designer.cs",
+      "bytes": 11068,
+      "sha256": "d1554bbacd0588f6cd50c7064fe681012fc6630cf1b6cc0792fa8323e3a95412"
+    },
+    {
+      "path": "migrations/auth-service/AuthDbContextModelSnapshot.cs",
+      "bytes": 10950,
+      "sha256": "787852b144636002123abef47fa04518c3540069e02ea97c9803ce3e66ada97f"
+    },
+    {
+      "path": "migrations/document-service/20260730115658_InitialCreate.cs",
+      "bytes": 8184,
+      "sha256": "06c3dec936f3dab4775ba12752c44775ea64be590d0a12be410ce2c7a1a05e09"
+    },
+    {
+      "path": "migrations/document-service/20260730115658_InitialCreate.Designer.cs",
+      "bytes": 7782,
+      "sha256": "889217425463785841ada9c66b104e6beba3d479b54f77276461f42a7e463b68"
+    },
+    {
+      "path": "migrations/document-service/20260827080431_AddSoftDeleteSqlServer.cs",
+      "bytes": 1236,
+      "sha256": "8b0e2a07638532c048d34331aa79a6c6fff4b14f94f29e49a0f61a6258e19bdc"
+    },
+    {
+      "path": "migrations/document-service/20260827080431_AddSoftDeleteSqlServer.Designer.cs",
+      "bytes": 8007,
+      "sha256": "87a2ebdcae276884a15eb991ece5c1307ea13a6ce2bbf35c109eee5969d9c7bb"
+    },
+    {
+      "path": "migrations/document-service/20260827110241_AddIncomingSourceMessageId.cs",
+      "bytes": 1102,
+      "sha256": "c64e3f974040f0bdaa5a19cf09d250034d6acc4fde99ad22d541d3fb2d73a4af"
+    },
+    {
+      "path": "migrations/document-service/20260827110241_AddIncomingSourceMessageId.Designer.cs",
+      "bytes": 8287,
+      "sha256": "7e9dc313649106bf13a92143e6195298a21aafbd9c7821fa470847f4684f1fd8"
+    },
+    {
+      "path": "migrations/document-service/20261004060403_AddBusinessCatalogs.cs",
+      "bytes": 9643,
+      "sha256": "4c817df03bc036a0f82bb2c28cef46f474c8c359a811f20134b5634394b65e35"
+    },
+    {
+      "path": "migrations/document-service/20261004060403_AddBusinessCatalogs.Designer.cs",
+      "bytes": 27522,
+      "sha256": "40206870a27ae11de4f95a8afbe5a0345d9f33f281bd84c5b92f0636d953a8f3"
+    },
+    {
+      "path": "migrations/document-service/20261004111636_AddV2RegistrationPersistence.cs",
+      "bytes": 9280,
+      "sha256": "d955299e7a019ee2b9bf3ca3dc90a32bc26019d5da74d8dda83609d73c01079f"
+    },
+    {
+      "path": "migrations/document-service/20261004111636_AddV2RegistrationPersistence.Designer.cs",
+      "bytes": 35897,
+      "sha256": "3ce7dba58e5bd3f4dda1135c179614e72b704216670ecda4c7237847eaaff460"
+    },
+    {
+      "path": "migrations/document-service/20261004122637_AddDocumentEditAudit.cs",
+      "bytes": 2259,
+      "sha256": "a1b5834df86f9727feb5981395be94252cc6b54a48ff25fe9d3050fcb441c2cc"
+    },
+    {
+      "path": "migrations/document-service/20261004122637_AddDocumentEditAudit.Designer.cs",
+      "bytes": 37500,
+      "sha256": "1e3d6cd0c2ce4fbeb7106d211ae0b03f8e73da3a87b93c4a44bd366fa2444a83"
+    },
+    {
+      "path": "migrations/document-service/20261004125541_AddDocumentKindDetails.cs",
+      "bytes": 4817,
+      "sha256": "8299d0e1afa380dad715733f2178a0b1579624a6ca45a933a3656819d77be6b9"
+    },
+    {
+      "path": "migrations/document-service/20261004125541_AddDocumentKindDetails.Designer.cs",
+      "bytes": 41958,
+      "sha256": "5bfbfa2f03de506478cb6f07655178fd2dabb8caa915c14d40cf64c12b6116a6"
+    },
+    {
+      "path": "migrations/document-service/20261004132429_AddDocumentRelations.cs",
+      "bytes": 2597,
+      "sha256": "d27546925068945130bc8bcc680a6d38f121a82729d1982a89bf58ffc3731fe3"
+    },
+    {
+      "path": "migrations/document-service/20261004132429_AddDocumentRelations.Designer.cs",
+      "bytes": 43582,
+      "sha256": "eb0fe1f01e8d6fdc332486523f9cd726bc78eace7985b714ae86d064c3f155f2"
+    },
+    {
+      "path": "migrations/document-service/20261004134524_AddDocumentCancellations.cs",
+      "bytes": 2532,
+      "sha256": "e0173288d48826cb3544f01e141cda8dfc4972ce879823a619fc90437fa5f21e"
+    },
+    {
+      "path": "migrations/document-service/20261004134524_AddDocumentCancellations.Designer.cs",
+      "bytes": 45696,
+      "sha256": "64c66dde419d2311f518101c4bc4cc1af6e7a82e1b7bf5c9a4e9cdf4b345e58f"
+    },
+    {
+      "path": "migrations/document-service/20261005024036_AddCurrentPdfReplacement.cs",
+      "bytes": 5611,
+      "sha256": "c87868a6d518438c5ec8e1629826479b28ae6e41a066c88fba739b6379258e72"
+    },
+    {
+      "path": "migrations/document-service/20261005024036_AddCurrentPdfReplacement.Designer.cs",
+      "bytes": 50268,
+      "sha256": "508bddbd15f795177237d0b858046aaa329c7449cae2638e082f68e964862ec1"
+    },
+    {
+      "path": "migrations/document-service/20261005052843_AddReminderAndTaskIntents.cs",
+      "bytes": 4770,
+      "sha256": "a368d13d59ef3db02386b280465994e88c7adb71af930f2b1282f65d622f3285"
+    },
+    {
+      "path": "migrations/document-service/20261005052843_AddReminderAndTaskIntents.Designer.cs",
+      "bytes": 54484,
+      "sha256": "bb2b552549630e016aec4c85b7289fe6bb87142de7541a2a01f4287dd070d6da"
+    },
+    {
+      "path": "migrations/document-service/20261005060101_AddDocumentNotificationDelivery.cs",
+      "bytes": 2885,
+      "sha256": "d46b6680748f24bd2cae9f90804b62c0853da2fbfcd2b8dbfe6568fe478bfd67"
+    },
+    {
+      "path": "migrations/document-service/20261005060101_AddDocumentNotificationDelivery.Designer.cs",
+      "bytes": 56589,
+      "sha256": "7dc6d15dfa1f7f551efaec9de9608dc1d01677ff52559b5b5f0174996d93909d"
+    },
+    {
+      "path": "migrations/document-service/20261005072535_AddReminderDeliveryLedger.cs",
+      "bytes": 4168,
+      "sha256": "a0d6536cf301f21990ad61f9564e8747765c4a6e4c0021bb456dfb2a086f8832"
+    },
+    {
+      "path": "migrations/document-service/20261005072535_AddReminderDeliveryLedger.Designer.cs",
+      "bytes": 59911,
+      "sha256": "3f587d8d87a8b1add9e19a58bfd6b29b6789371c22a8e655d2709adfccc3cabc"
+    },
+    {
+      "path": "migrations/document-service/DocumentDbContextModelSnapshot.cs",
+      "bytes": 59791,
+      "sha256": "9e7bac35f49108c0d51061bd43ad552d192c545b328ed0a5a3ae10b270ab03be"
+    },
+    {
+      "path": "migrations/email-worker-service/20261006121013_EmailWorkerBaseline.cs",
+      "bytes": 6376,
+      "sha256": "c6204b2160007adaa4d0f552f2b93a3ca94ef9254d2b3aa2b0a42c3e21bf8e55"
+    },
+    {
+      "path": "migrations/email-worker-service/20261006121013_EmailWorkerBaseline.Designer.cs",
+      "bytes": 7375,
+      "sha256": "f2dd2c2e67f2dcbba71c40aa444552b6af0f48328b6bda4d2ed98bc9656a6f19"
+    },
+    {
+      "path": "migrations/email-worker-service/20261006154722_FixedEmailSettingsKey.cs",
+      "bytes": 4028,
+      "sha256": "e972da3054dfff7721cb0f246ec9a01fc0d89b803ebff52e228955f8208089b1"
+    },
+    {
+      "path": "migrations/email-worker-service/20261006154722_FixedEmailSettingsKey.Designer.cs",
+      "bytes": 7388,
+      "sha256": "a833822f2b87318a3d1cf4dc26ab48ea8c4b9c514a982f7e29e529a7c234561b"
+    },
+    {
+      "path": "migrations/email-worker-service/EmailWorkerDbContextModelSnapshot.cs",
+      "bytes": 7279,
+      "sha256": "c9755ffd1ab21afe9f751c84944939568ee0250e93ed89159fec6d047997de3d"
+    },
+    {
+      "path": "migrations/files-service/20260806035121_InitialFileSchema.cs",
+      "bytes": 1604,
+      "sha256": "46b7eac5d89efa5cfc7a78415c8b4f30fb211352cdd5a5a0359799eefc55bee6"
+    },
+    {
+      "path": "migrations/files-service/20260806035121_InitialFileSchema.Designer.cs",
+      "bytes": 2104,
+      "sha256": "a691402b8b85d0eb721cddb4042ef9e8e682363a54ccb28fa7021c36a8bdf2c5"
+    },
+    {
+      "path": "migrations/files-service/20261004142642_AddManagedPdfUploads.cs",
+      "bytes": 3120,
+      "sha256": "db6571475d2db314a0140b7942d0c06b9fc59271ba142bf5c73772e8643f882e"
+    },
+    {
+      "path": "migrations/files-service/20261004142642_AddManagedPdfUploads.Designer.cs",
+      "bytes": 4692,
+      "sha256": "29f83c346853f70781d1986d3d2b4a5b759f6079f9fce00b8656cb815e6d2ad9"
+    },
+    {
+      "path": "migrations/files-service/20261005024053_AddPdfClaims.cs",
+      "bytes": 2667,
+      "sha256": "4bbc45142621664bdb3be6d24763049e782024565326285d0f2336cabc1526c0"
+    },
+    {
+      "path": "migrations/files-service/20261005024053_AddPdfClaims.Designer.cs",
+      "bytes": 6749,
+      "sha256": "06bfb16afd9bb56f0d0d86839a0c0dcb6682759300106c83033338e0e7537395"
+    },
+    {
+      "path": "migrations/files-service/FileDbContextModelSnapshot.cs",
+      "bytes": 6648,
+      "sha256": "9cef3461f4c2b13b8b7b203649d49c0490330fd756f4c2764764fb5940cf6fb9"
+    },
+    {
+      "path": "migrations/notification-service/20261005052849_DurableNotificationsBaseline.cs",
+      "bytes": 6862,
+      "sha256": "754fd2a6e80a2f12c2f8172c219cd583e8e6d90e48000d767c32be0dcc6b15fb"
+    },
+    {
+      "path": "migrations/notification-service/20261005052849_DurableNotificationsBaseline.Designer.cs",
+      "bytes": 7079,
+      "sha256": "953e30d1ebe078de1eef2ad4f650064cb4f96684f5d1f128128e4e05a43046cd"
+    },
+    {
+      "path": "migrations/notification-service/NotificationDbContextModelSnapshot.cs",
+      "bytes": 6957,
+      "sha256": "87a2ba1d5b2c1914818b41bf190b1260247d7527fd6fdfae38454307b2168505"
+    },
+    {
+      "path": "migrations/partner-service/20260810113448_InitialCreate.cs",
+      "bytes": 3160,
+      "sha256": "e5eb358f1c50f93b2c91b4a850a443b9a937712f83174e45568c26ce3cb0575e"
+    },
+    {
+      "path": "migrations/partner-service/20260810113448_InitialCreate.Designer.cs",
+      "bytes": 3148,
+      "sha256": "f9f6d92495e53ddf6d1c01d6097c7aecb5295adccabaca88e0c178619ecb86d2"
+    },
+    {
+      "path": "migrations/partner-service/20261005043235_ExternalEntityContactsAndConcurrency.cs",
+      "bytes": 7232,
+      "sha256": "b597c090d026a9fc5d1fdba3cb6f44e0f16725c42881bbd03df022fea36977d9"
+    },
+    {
+      "path": "migrations/partner-service/20261005043235_ExternalEntityContactsAndConcurrency.Designer.cs",
+      "bytes": 5583,
+      "sha256": "e7d9488b4af7acee55d53145c760bd6f59d922d9edcabe377b2191e3e3b2fb41"
+    },
+    {
+      "path": "migrations/partner-service/PartnerDbContextModelSnapshot.cs",
+      "bytes": 5413,
+      "sha256": "b35818aaf5a224987cc689e019a6d7a04929c5b71d180ad29a1dc91cb04b80b0"
+    },
+    {
+      "path": "PROVISIONING.md",
+      "bytes": 5895,
+      "sha256": "33eaf90a9dbc554b3f02d0d448eb2ae29fe3c4a9297985f0eac47b60e0467572"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4129,
+      "sha256": "349d1bd48eacecaa115568f1f0edb651aba5a82254c8aad5da1b3171e45fe829"
+    },
+    {
+      "path": "sql/auth.sql",
+      "bytes": 10343,
+      "sha256": "d43af2eec3d730b2413bd2f2172b9ab373d8088e973f579354fc82dded9cb0ce"
+    },
+    {
+      "path": "sql/document.sql",
+      "bytes": 40142,
+      "sha256": "3eb7dc5c1536828976b85365770eb83f125ca6032f787543ee64c2f7b9c5c02d"
+    },
+    {
+      "path": "sql/email.sql",
+      "bytes": 6718,
+      "sha256": "0edf97f159f42f914bc5b0b54be09035dc506781440f655a582c76943a5e86dd"
+    },
+    {
+      "path": "sql/files.sql",
+      "bytes": 5153,
+      "sha256": "a20af30b27e77586185dcfa2ba1f941854013bcfb21808a61b342d1555e1d9ea"
+    },
+    {
+      "path": "sql/notification.sql",
+      "bytes": 4586,
+      "sha256": "1c9a2a9f5a64f27d23b02555e0c445a6eb5921de96235aa5ccfb0efc499e36cc"
+    },
+    {
+      "path": "sql/partner.sql",
+      "bytes": 7191,
+      "sha256": "a1076976a5d29d385d5b691ff4169de7d5b7628e9c55884125b99ccd1407b15c"
+    },
+    {
+      "path": "sql/README.md",
+      "bytes": 2127,
+      "sha256": "992410c4de69fa45084279b3b4a63b6899e172468f1c7c0be9a7806338999299"
+    }
+  ]
+}

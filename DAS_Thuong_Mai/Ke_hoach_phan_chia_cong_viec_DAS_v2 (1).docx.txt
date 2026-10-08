@@ -1,0 +1,382 @@
+KẾ HOẠCH PHÂN CHIA CÔNG VIỆCXÂY DỰNG LẠI HỆ THỐNG DAS
+1. Mục tiêu và nguyên tắc làm lại DAS
+Nhóm sẽ xây dựng lại DAS nhưng giữ các nghiệp vụ cốt lõi về công văn đến, công văn đi, công văn nội bộ, đối tác, tập tin và phân quyền. Phiên bản mới đồng thời phải tiếp nhận DB cũ làm nguồn dữ liệu migration, áp dụng cơ chế Authentication/SSO theo EAP và hỗ trợ các yêu cầu nghiệp vụ mới trong Requirement v2.
+Không thiết kế app mới chỉ để khớp nguyên trạng DB cũ. Có thể thêm, đổi hoặc tách cấu trúc dữ liệu nếu requirement mới cần.
+Mọi thay đổi schema phải có mapping và cơ chế migrate dữ liệu cũ sang cấu trúc mới một cách kiểm chứng được.
+Authentication mới không tiếp tục dựa trên cơ chế custom cũ; phần đăng nhập phải tích hợp OIDC SSO của EAP bằng thư viện/framework chuẩn.
+Authorization nghiệp vụ của DAS vẫn phải được giữ ở ứng dụng: role, department, sensitivity, ownership, document scope và delegation.
+Các thành viên chỉ bắt đầu code sâu sau khi chốt data contract, role model và service ownership để giảm conflict.
+2. Các nguồn đầu vào phải bám theo
+2.1. Database cũ DAS – nguồn dữ liệu migration
+File DAS.sql.gz là dump của DB cũ tên eoffice, chạy trên MariaDB 10.11. Đây là nguồn dữ liệu legacy mà app mới phải có phương án đọc, mapping và migrate. DB cũ có 18 bảng.
+Nhóm dữ liệu
+Bảng cũ
+Số dòng trong dump
+Nhận xét ban đầu
+Tổ chức
+departments
+9
+Phòng ban; có manager/DLM/secretary dạng user id.
+Tài liệu đến
+doc_incomings
+6.655
+Dữ liệu legacy lớn, bắt buộc ưu tiên migration.
+Phân phối incoming
+doc_in_depts_doc_incomings
+10.697
+Quan hệ nhiều nơi nhận; cần mapping sang recipient model mới.
+Tài liệu đi
+doc_outgoings
+9.753
+Khối dữ liệu lớn nhất; cần giữ số công văn, ngày, chủ thể liên quan.
+Đối tác outgoing
+doc_outgoings_partners
+7.231
+Quan hệ many-to-many outgoing–partner.
+Tài liệu nội bộ
+doc_internals
+332
+Có originator, inputter, department và file.
+Đối tác
+partners
+414
+Có nhiều field legacy; app mới chỉ nên giữ dữ liệu còn cần.
+Người dùng
+users
+373
+Có nhiều field ngoài DAS (health/vaccine/address...); không nên copy toàn bộ sang user model mới.
+Lookup
+doc_companies / sec_levels / statuses / types / methods
+nhỏ
+Có sẵn HL/HV/HLHV, Normal/Confidential và các lookup nghiệp vụ.
+2.2. Requirement v2 – nghiệp vụ mục tiêu
+Hai pháp nhân Hoàng Long (HL) và Hoàn Vũ (HV), đồng thời có trường hợp chung HLHV.
+Incoming: nhận từ email/fax theo chu kỳ, cho phép đăng ký thủ công, AI hỗ trợ nhận diện sender, chọn nhiều đơn vị nhận, có related outgoing.
+Outgoing: thư ký phòng đăng ký, có inputter/originator, gửi nhiều External Entity, có related incoming.
+Internal: không gửi đối tác bên ngoài, chỉ gửi Ban lãnh đạo.
+Document number theo format riêng cho Incoming/Outgoing/Internal và số thứ tự reset hằng năm.
+External Entity CRUD nhưng soft delete.
+Weekly reminder cho document quá 1 tuần chưa completed.
+Task Management integration: một document có nhiều task; DAS tạo task qua API TMS và hiển thị assignee/status/deadline.
+Phân quyền mới dựa trên role + department + sensitivity + ownership; role gồm GM, DGM, LM, DLM, Group TV1er, Staff, Secretary GM.
+2.3. EAP – tích hợp bắt buộc/được cấp
+OIDC SSO: Authorization Code Flow + PKCE S256; endpoint phải lấy từ discovery, không hard-code.
+API token validation: JWT/JWS RS256, validate signature, iss, aud, exp, nbf; dùng JWKS và kid.
+RabbitMQ User Sync & Lifecycle: nhận assigned users và các event deleted/restored/replaced; consumer phải idempotent và ACK sau commit.
+Delegation là capability bắt buộc: nhận preparation/cancellation event, lưu local projection, publish Ready/Failed và authorize delegated request theo claims.
+Notification và Storage là optional services: chỉ tích hợp nếu EAP provision cho application/environment.
+Không commit secret/token; configuration phải tách theo environment.
+3. Hướng kiến trúc đề xuất trước khi code
+Phần này là hướng tổ chức để chia việc, không phải quyết định kiến trúc cuối cùng. Những điểm còn phụ thuộc mentor/EAP được liệt kê ở mục 'Open decisions'.
+Khối
+Trách nhiệm
+Ghi chú
+Gateway/BFF
+Entry point, routing, token forwarding/validation theo kiến trúc chốt.
+Không tự tạo JWT nội bộ nếu EAP token được dùng trực tiếp.
+Identity Integration
+OIDC SSO, JWKS validation, local user projection, lifecycle events, delegation.
+EAP userId là identity key; không dùng email/username thay thế.
+Document Domain
+Incoming, Outgoing, Internal, numbering, related docs, recipients, sensitivity.
+Core business logic.
+Partner Domain
+External Entity, soft delete, recipient mapping.
+Có dữ liệu legacy trong partners.
+File Domain
+PDF attachment, metadata, access check.
+Nếu dùng EAP Storage thì phải theo scanner-clean contract.
+Automation
+Email scanner, weekly reminder.
+Worker/job phải idempotent.
+TMS Integration
+Create/read document tasks.
+Contract phụ thuộc team TMS.
+4. Chiến lược dữ liệu và migration
+4.1. Nguyên tắc
+Snapshot/backup DB cũ và không thực hiện migration trực tiếp trên dữ liệu duy nhất.
+Thiết kế schema target từ requirement mới; không copy toàn bộ field legacy nếu không còn nghiệp vụ sử dụng.
+Lập mapping table-by-table và field-by-field trước khi viết migration.
+Giữ khóa truy vết legacy (ví dụ LegacyId/LegacySource) nếu cần đối soát.
+Migration phải rerunnable hoặc có checkpoint rõ ràng; không tạo duplicate nếu chạy lại.
+Có report sau migration: source count, migrated count, skipped count, failed count và lý do.
+Kiểm tra referential integrity, document number, relationship, attachment reference và quyền truy cập sau migration.
+4.2. Mapping sơ bộ DB cũ sang domain mới
+Nguồn cũ
+Domain target đề xuất
+Xử lý
+Owner chính
+users
+LocalUserProjection / UserProfile
+Chỉ migrate field DAS cần; map EAP userId sau sync. Không bê nguyên health/vaccine fields.
+TV1 + TV2
+departments
+Department
+Giữ mã/tên; rà lại init với requirement mới (MGT/C&P/ADM...).
+TV1
+doc_companies
+LegalEntity
+HL, HV, HLHV; dùng cho numbering và document ownership.
+TV1
+doc_sec_levels
+Sensitivity
+Map Normal / Confidential.
+TV1 + TV2
+doc_incomings
+IncomingDocument
+Giữ số, subject, ngày, sender, related outgoing, file reference, trạng thái.
+TV1 + TV3
+doc_in_depts + mapping tables
+IncomingRecipient
+Chuẩn hóa danh sách nơi nhận; phân biệt internal department và các recipient đặc biệt nếu cần.
+TV1 + TV3
+doc_outgoings
+OutgoingDocument
+Giữ originator/inputter, department, related incoming, file và numbering.
+TV1 + TV3
+doc_outgoings_partners
+OutgoingRecipient
+Many-to-many tới ExternalEntity.
+TV3
+doc_internals
+InternalDocument
+Giữ originator/inputter/department/sensitivity/file.
+TV3
+partners
+ExternalEntity
+Soft-delete, chuẩn hóa contact fields; không nhất thiết giữ field ngân hàng nếu DAS mới không dùng.
+TV3
+lookup tables
+Reference Data
+Chỉ migrate giá trị đang dùng và thống nhất enum/reference table target.
+TV1
+4.3. Dữ liệu mới có thể cần bổ sung
+EAP user identity/projection: eapUserId, lifecycle status, aggregateVersion, sync metadata.
+Delegation projection: delegationId, version, delegator, delegate, date range, validUntilUtc, status.
+Sensitivity/authorization data đủ để áp rule Normal/Confidential theo role và ownership.
+Document task reference để liên kết DAS với Task Management System.
+Migration audit: batch id, source id, target id, status, error.
+Document numbering counter/sequence có scope theo năm + loại công văn + pháp nhân (+ department tùy loại).
+Reminder tracking để tránh gửi trùng trong cùng chu kỳ nếu nghiệp vụ cần.
+5. Phân chia công việc cho 3 thành viên
+Cách chia dưới đây ưu tiên giảm phụ thuộc và conflict code. Thành viên 1 chịu trách nhiệm chốt contract nền tảng; Thành viên 2 tập trung Identity/EAP/Security; Thành viên 3 tập trung Document workflows và external integrations.
+Người
+Epic chính
+Mục tiêu
+Không nên ôm thêm
+Thành viên 1
+Database, architecture, migration, core rules
+Chốt nền dữ liệu/contract và tích hợp cuối.
+Không tự làm hết Auth/TMS/OCR.
+Thành viên 2
+Authentication + EAP Identity/Security
+Thay Auth custom bằng framework/OIDC; user sync; delegation; policies.
+Không tự quyết document business scope một mình.
+Thành viên 3
+Document workflows + automation + TMS
+Incoming/Outgoing/Internal, partner, email/reminder, TMS integration.
+Không tự đổi schema/Auth contract đã chốt.
+5.1. Thành viên 1: Database, Architecture, Migration & Core Rules
+Phân tích đầy đủ DB cũ: bảng, dữ liệu, quan hệ ngầm, dữ liệu bắt buộc giữ và dữ liệu legacy không còn dùng.
+Thiết kế schema target theo Requirement v2 + EAP, sau khi thống nhất target DB engine với mentor.
+Chốt service ownership và data contract giữa Auth/Identity, Document, Partner, Files, Worker và TMS integration.
+Thiết kế model LegalEntity (HL/HV/HLHV), Department, Sensitivity, document relationships và numbering.
+Thiết kế document number generator có concurrency safety và reset đúng scope theo năm.
+Lập mapping migration, migration audit và validation report.
+Chuẩn bị migration dry-run trên bản copy của DB cũ; không migrate production ngay.
+Review PR của 2 thành viên còn lại, xử lý conflict contract và integration cuối.
+Chốt Definition of Done và regression checklist.
+Deliverables của Thành viên 1:
+ERD/schema target v1.
+Old → New migration mapping document.
+Danh sách API/domain contracts dùng chung.
+Document numbering specification + test cases.
+Migration script/tool + migration validation report.
+Architecture diagram cập nhật có EAP và TMS.
+Integration checklist và release checklist.
+5.2. Thành viên 2: Authentication Framework + EAP Integration
+Chọn/triển khai thư viện OIDC chuẩn trong .NET theo profile EAP được cấp; dùng Authorization Code Flow + PKCE.
+Không hard-code endpoint; dùng discovery document.
+Xử lý callback/login/logout/local session theo kiến trúc đã chốt; validate state/nonce.
+Cấu hình API JWT/JWKS validation RS256: signature/kid, issuer, audience, exp, nbf.
+Xây local user projection theo EAP userId; phối hợp migration user cũ với Thành viên 1.
+Implement RabbitMQ consumer cho assigned users và identity lifecycle events; idempotent, deduplicate, ACK sau commit.
+Publish sync result cho các event có result contract.
+Implement delegation preparation/cancellation projection và Ready/Failed flow.
+Validate delegated token claims và audit actor/subject riêng; không copy role/grant của delegator sang delegate.
+Xây authorization policy primitives để Document Service có thể kiểm tra role, department, sensitivity và ownership.
+Viết integration tests cho login/token validation/user sync/delegation.
+Deliverables của Thành viên 2:
+OIDC/EAP configuration template theo environment (không chứa secret thật).
+Identity integration module/service.
+RabbitMQ consumers + idempotency storage.
+Delegation projection + authorization helpers.
+Role/policy mapping document.
+Test matrix cho GM/DGM/LM/DLM/Group TV1er/Staff/Secretary GM với Normal/Confidential.
+5.3. Thành viên 3: Document Workflows, Automation & TMS Integration
+Refactor/implement Incoming workflow theo schema mới: manual register, email/fax intake, one PDF, sender/partner, recipient list, related outgoing.
+Refactor/implement Outgoing workflow: inputter/originator, department, multiple External Entities, related incoming, file, status Distributed.
+Refactor/implement Internal workflow theo numbering và TV1ership scope.
+External Entity CRUD + soft delete; chuẩn hóa dữ liệu migrate từ partners.
+Email scanner job theo requirement: kiểm tra mailbox theo chu kỳ, chống xử lý trùng email/attachment.
+Weekly reminder job cho document quá 1 tuần chưa completed; xác định recipients To/CC đúng nghiệp vụ.
+TMS integration: create task từ document, lưu reference cần thiết, lấy/hiển thị assignee/status/deadline; xử lý lỗi/timeout/idempotency.
+Giữ AI-OCR ở vai trò integration: gọi OCR pipeline, map kết quả vào draft metadata và cho user review; không tự ý đổi OCR engine nếu không được giao.
+Phối hợp với Thành viên 2 để áp authorization filters vào query/document/file access.
+Regression tests cho Incoming/Outgoing/Internal/Partner/automation/TMS.
+Deliverables của Thành viên 3:
+API/business workflow hoàn chỉnh cho 3 loại document.
+Partner/External Entity module.
+Email scanner + weekly reminder worker.
+TMS client + task linkage model.
+Business regression test cases và test evidence.
+6. Ma trận phối hợp bắt buộc giữa 3 người
+Hạng mục
+TV1
+TV2
+TV3
+Cách phối hợp
+User migration
+A/R
+R
+C
+TV1 chốt mapping; TV2 implement identity projection.
+Authorization document
+A
+R
+R
+TV2 cung cấp policy primitives; TV3 áp vào document query/action.
+Numbering
+R
+C
+C
+TV1 sở hữu rule; TV3 chỉ gọi service/contract.
+Incoming/Outgoing/Internal
+C
+C
+R
+TV3 sở hữu nghiệp vụ; TV1 review data contract.
+EAP delegation
+C
+R
+C
+TV2 sở hữu projection/validation; TV3 phải tôn trọng delegated subject khi nghiệp vụ chạy.
+TMS integration
+C
+I
+R
+TV3 sở hữu client; TV1 chốt data linkage.
+Migration run
+R
+C
+C
+Không ai tự chạy production migration một mình.
+Release integration
+A/R
+C
+C
+TV1 tổng hợp và ký checklist.
+Ký hiệu: R = Responsible (thực hiện), A = Accountable (chịu trách nhiệm cuối), C = Consulted, I = Informed.
+7. Thứ tự triển khai để tránh block nhau
+Phase 0 – Chốt đầu vào
+Mentor xác nhận target DB engine/schema constraints.
+Nhận EAP Integration Pack cho environment: issuer/discovery/client id/scopes/RabbitMQ info; không cần secret trong tài liệu nhóm.
+Nhận API contract tối thiểu từ team Task Management.
+Chốt role semantics và sensitivity rules còn mơ hồ.
+Phase 1 – Foundation
+TV1 hoàn tất schema target v1, migration mapping và service ownership.
+TV2 dựng skeleton Identity/EAP integration dựa trên interface/data contract đã chốt.
+TV3 dựng document domain contracts/DTO/API skeleton nhưng chưa gắn sâu vào DB nếu schema chưa khóa.
+Phase 2 – Làm song song
+TV1: database/migration/numbering.
+TV2: OIDC/JWKS + user sync + delegation + authorization primitives.
+TV3: document workflows + partner + workers + TMS client.
+Phase 3 – Integration
+Gắn Identity projection vào document authorization.
+Gắn migration data vào app mới và chạy dry-run.
+Gắn TMS + email/reminder + OCR integration.
+Test end-to-end qua Gateway.
+Phase 4 – Regression & migration rehearsal
+Chạy test matrix role × department × sensitivity × ownership × document type.
+So sánh dữ liệu cũ/mới theo count và sample.
+Test rollback/re-run migration.
+Chỉ deploy thật sau khi migration rehearsal pass.
+8. Acceptance criteria theo từng epic
+Epic
+Được xem là hoàn thành khi
+Minh chứng
+Database/Migration
+Schema target được review; migration dry-run không mất dữ liệu bắt buộc; report count/mapping rõ.
+ERD, mapping sheet, migration logs/report, sample verification.
+EAP/Auth
+Login SSO hoạt động; API reject token sai; user sync idempotent; delegation Ready/Cancelled xử lý đúng.
+Integration tests, RabbitMQ event tests, auth logs không lộ secret.
+Document
+3 workflow chạy đúng numbering/relationship/recipient/file/status; permission filter đúng.
+API tests + UI/E2E evidence.
+Automation
+Email scanner và reminder không tạo/gửi trùng khi chạy lặp.
+Job logs + idempotency tests.
+TMS
+Create task và read task status/deadline ổn định; lỗi TMS không làm corrupt document.
+Contract tests + timeout/retry tests.
+9. Regression test tối thiểu phải có
+Data migration: incoming/outgoing/internal/partner/user/department; kiểm tra record count và sample quan hệ.
+Numbering: đổi năm, nhiều request đồng thời, HL/HV/HLHV, outgoing/internal theo department.
+Authorization: GM/DGM/Secretary GM toàn quyền; LM/DLM/Group TV1er theo phòng; Staff Normal theo phòng; Staff Confidential theo ownership theo requirement.
+Delegation: đúng actor/subject, hết hạn, cancelled, version mismatch, duplicate event.
+Incoming recipients nhiều phòng/đơn vị; related outgoing.
+Outgoing nhiều partner; inputter tạo giùm originator; related incoming.
+File access: biết file id nhưng không có document scope thì phải bị từ chối.
+Email scanner: email duplicate, attachment thiếu/sai, job chạy lại.
+Reminder: >1 tuần, điều kiện completed, recipient To/CC.
+TMS: task creation idempotency, TMS timeout/down, status mapping.
+EAP token: issuer/audience sai, expired/not-before, unknown kid, HMAC/none algorithm phải reject.
+10. Các quyết định phải hỏi/chốt trước khi bắt đầu code sâu
+Target database engine của app mới là SQL Server, MariaDB hay engine khác? File legacy là MariaDB; không được tự suy đoán.
+Auth framework cụ thể: ASP.NET Core OIDC middleware + local Identity projection, ASP.NET Core Identity, hay BFF pattern nào được mentor yêu cầu?
+EAP client profile của DAS là Confidential Web/BFF hay Public SPA? Client authentication method nào được provision?
+EAP có provision Notification và Storage cho DAS không? Hai capability này là optional trong guide.
+Role từ EAP có authoritative cho DAS hay DAS giữ local role/access mapping riêng? Semantics nào được đăng ký với EAP?
+Department/OU lấy từ local DB hay EAP Organization Context API? Guide nói không suy ra Department từ user-sync payload.
+Contract cụ thể của Task Management API: create endpoint, auth, idempotency, task id, status values, deadline format.
+File binary của legacy app hiện nằm ở đâu và path doc_file trong dump map tới storage nào? SQL dump chỉ có reference/path, không chứa file PDF.
+Quy tắc chính xác cho 'completed' và weekly reminder khi document bị Cancelled hoặc thiếu một trong các field.
+Quy tắc Group TV1er ở Confidential trong bảng requirement chưa thể hiện đầy đủ; cần mentor xác nhận.
+11. Quy ước làm việc nhóm đề xuất
+Mỗi Epic có branch/PR riêng; không commit trực tiếp vào main.
+Mọi thay đổi schema phải kèm migration + mapping note + rollback/forward plan.
+Không đổi API contract dùng chung nếu chưa thông báo hai thành viên còn lại.
+PR chạm Auth/Authorization hoặc Migration phải được Thành viên 1 review.
+Không commit .env, EAP secret, JWT/token, RabbitMQ password, DB credential.
+Mỗi task đóng phải có test evidence hoặc log/screenshot đủ để người khác tái kiểm tra.
+Các giả định chưa được mentor xác nhận phải ghi rõ TODO/Decision, không biến thành business rule ngầm.
+12. Task board khởi động – có thể copy sang GitHub/Trello
+Thành viên 1
+[DB-01] Import/inspect DAS.sql legacy schema và thống kê dữ liệu.
+[DB-02] Vẽ ERD legacy và ERD target v1.
+[DB-03] Lập Old→New mapping.
+[DB-04] Chốt target DB engine + migration strategy với mentor.
+[DB-05] Thiết kế document numbering.
+[DB-06] Thiết kế migration audit/reconciliation.
+[ARCH-01] Chốt service ownership/API contracts.
+[INT-01] Review và tích hợp cuối.
+Thành viên 2
+[AUTH-01] OIDC discovery + login/logout/callback.
+[AUTH-02] JWT/JWKS RS256 API validation.
+[EAP-01] Local user projection theo EAP userId.
+[EAP-02] RabbitMQ assigned-user sync.
+[EAP-03] deleted/restored/replaced lifecycle.
+[EAP-04] Delegation preparation/cancellation.
+[AUTHZ-01] Role/Department/Sensitivity/Ownership policy primitives.
+[TEST-AUTH] Integration/security tests.
+Thành viên 3
+[DOC-01] Incoming workflow.
+[DOC-02] Outgoing workflow.
+[DOC-03] Internal workflow.
+[PARTNER-01] External Entity CRUD + soft delete.
+[WORKER-01] Email scanner.
+[WORKER-02] Weekly reminder.
+[TMS-01] Task Management API client + document linkage.
+[OCR-01] AI-OCR integration/adaptation.
+[TEST-DOC] Business regression tests.

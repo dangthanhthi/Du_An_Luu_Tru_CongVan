@@ -1,0 +1,81 @@
+APPLICATION INTEGRATION PLATFORM
+REQUIREMENTS
+Definitions:
+Organization Unit (OU): is a branch in Organization Chart. It is either a Department or a Group which belongs to a Department (e.g.: IT and HR OU are 2 groups belong to Administration Department and are defined as OU in this document and the application platform).
+User group: is a group of similar users and is not necessarily bound to the boundaries of organization chart. Example would be HSE-External-Users group which consists of VSP users who need to be able to access HSE application but do not belong to HLHVJOC Org Chart.
+Main functions of Application Integration Platform 
+The required Application Integration Platform, here called Application Platform, is a base platform that mainly provides centralized authentication and identification functions to all other integrated applications.
+Beside authenticating user, the platform also provides information about the logged users such as which department(s) they are in, which job titles and role in Organization chart they have.
+The main functions of the application platform are listed below:
+Organization Unit Management: define departments and groups (e.g.: HR, ADM groups) in organization chart.
+User Management: centralized authentication, identification.
+User Group Management: manage groups of similar users.
+Applications Management: allow to register other applications to the platform, synchronize active user information and authorize user to specific applications.
+Delegation Management: centrally manage authorizations for all registered applications to allow user to act on behalf of the other.
+Detailed Requirements
+Organization Unit Management
+Organization Units (OU) are defined in a structure as same as the company organization chart. 
+OU can be either Department or Group.
+Departments can be organized in hierarchy structure with top department is Management, other departments are under Management department.
+A department must have a manager (General Manager in the case of Management Department, Line Manager in the case of other Departments) and may have none or multiple deputy managers.
+Group is an OU and belongs to a department. Group has 1 leader.
+OU information is regularly sent to registered application via automatic synchronization and admin manual push.
+Staff may belong to 1 or multiple departments. There must be a primary department.
+User Management
+Synchronize and manage users from local and/or Azure/Local MS Active Directory (daily) to reflect new changes.
+Deleted users from MS Active Directory are put in Trash Bin automatically. Trigger call-back to soft delete users in related applications.
+Users in EAP Trash Bin are not relevant to applications anymore but still synchronized with MS AD to update new properties if there are any.
+Create and manage external users which do not belong to the organization (application specific users).
+Centralized authentication, Single Sign-On (SSO) across all systems 
+Synchronized users to authorized registered applications.
+Users’ information is regularly sent to registered applications via automatic synchronization (daily) and admin manual push.
+Allow admin to clone Role and Authorized Access from a user to another user. This cloning feature will also trigger related applications to clone role and permission of the user. The cloned user will have exact Role and Authorized Access as the original user.
+Allow admin to replace a user by another user. The new user will have all roles/permissions and replace position in Organization chart of the replaced user. The new user will have exact Role and Authorized Access as the replaced user. The replaced user will be disabled. This also trigger replacement in related applications.
+Restore deleted user in EAP will trigger call-back to restore deleted user in related applications.
+All actions in this section must be logged with information of actor and time of action.
+User Group Management
+Allow to create User Group of similar users.
+Allow to manage User Groups and their members
+Allow to authorize access to certain registered applications to user groups.
+Assigning user to a group will automatically authorize all access of the group to that user.
+Remove a user from a group will revoke all authorized access of the group from that user.
+Delegation Management
+Users (mainly managers) can choose other users to act on their behalf in other registered applications during their absence period.
+A delegation application can define multiple delegation days (and half day), each day must define 1 delegated user.
+Related applications must be notified / called to process appropriate actions (each registered app may prepare for delegation differently).
+User can decide to send Delegation Notification Email to all users or a specific user in the organization.
+Delegation Information is provided within user authentication process, however, access to certain function is decided by registered applications by their own policies.
+E.g.: Administration Manager can delegate his role to one of his staff in central Application Platform. After delegated user login, other registered applications knows that the logged in user can act on behalf of Administration Manager. Human Resource Management application (HRM) would allow delegated user to approve Leave and OT applications but does not allow delegated user to access salary and allowance information because these permissions are defined in application’s rules/policies.
+In case User A delegate to user B, any action of user B will be log as user B on behalf of user A.
+Application Management
+Allow to register new applications to the platform with some basic but not limited information as:
+Application name
+Icon with multiple size (Medium, Small)
+OU and Assigned Users synchronization call-back
+User Deleting and Restoring call-back (option to keep previous role/permission)
+User role clone and user replacement call-back
+API entry point
+Provide registered Applications with API entry point for user authentication, user delegation.
+Registered Applications are listed in Application Platform portal.
+Stand-alone applications which cannot be registered to this application platform may also be added to centrally provide access link: e.g.: IT’s device consoles or 3rd party applications.
+Access Control
+Each registered application will have its own access control policies. However, since user authentication and identification are done centrally, the application platform must be able to authorize user and user groups access to certain registered applications.
+Delegation is also done centrally in application platform. All other applications can retrieve delegation information via user log-in and session renew process.
+Login session must be re-checked regularly and cannot exceed user and delegation validity period.
+Application access can be assigned per User / User Group and per Application basis. This can be done as mass assignment (multiple users per application or multiple applications per user/user group at once).
+Email Notification
+Admin can create set of email templates for certain applications
+Has API to allow other applications to modify assigned email notifications
+Has API to queue emails from registered applications with certain assigned templates
+Technical Requirements
+Compatible with local Active Directory, Azure AD authentication protocol.
+Must be built with C#/ .Net / PHP / NextJS programming language (current supported version).
+Compatible with MS SQL server (at least current supported version).
+Compatible with Exchange 2016+ and MS Exchange 365.
+Full API implementation and provide API listing documentation.
+In App Notification (optional)
+Has API to send notification from originating application to central EAP to alert user.
+The notification contain at least message, access link ….
+File management (optional)
+Centrally manage upload and download file via API between registered applications and EAP
+Support application server file system as well as other services: Google Drive, OneDrive, NAS, NetApp file server …

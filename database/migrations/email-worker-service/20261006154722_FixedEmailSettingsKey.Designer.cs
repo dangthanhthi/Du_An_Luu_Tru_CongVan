@@ -4,6 +4,7 @@ using EmailWorkerService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmailWorkerService.Migrations
 {
     [DbContext(typeof(EmailWorkerDbContext))]
-    partial class EmailWorkerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006154722_FixedEmailSettingsKey")]
+    partial class FixedEmailSettingsKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

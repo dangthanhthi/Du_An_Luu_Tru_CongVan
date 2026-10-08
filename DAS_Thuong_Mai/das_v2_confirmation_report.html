@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Câu Hỏi Cần Xác Nhận — DAS V2</title>
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #111111;
+            background-color: #ffffff;
+            padding: 30px 40px;
+        }
+
+        /* ===== HEADER SUMMARY BOX ===== */
+        .doc-header {
+            border: 2px solid #2c3e50;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            background-color: #f8fafc;
+        }
+
+        .doc-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 20px;
+            font-size: 13.5px;
+        }
+
+        .info-item span.label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* ===== HEADINGS ===== */
+        h2 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            border-bottom: 1.5px solid #2c3e50;
+            padding-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            font-size: 14.5px;
+            font-weight: bold;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        /* ===== TABLES ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 20px 0;
+            font-size: 13px;
+        }
+
+        table, th, td {
+            border: 1px solid #444444;
+        }
+
+        th {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 12.5px;
+        }
+
+        td {
+            padding: 7px 10px;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* ===== MATRIX ===== */
+        .matrix th { text-align: center; font-size: 12px; }
+        .matrix td { text-align: center; font-size: 12.5px; }
+        .matrix td:first-child { text-align: left; font-weight: bold; }
+        .checkmark { color: #27ae60; font-weight: bold; }
+        .crossmark { color: #c0392b; font-weight: bold; }
+
+        /* ===== PROGRESS ===== */
+        .progress-done { color: #27ae60; font-weight: bold; }
+        .progress-pending { color: #e67e22; font-weight: bold; }
+
+        /* ===== CODE & PRE ===== */
+        code, pre {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 2px 5px;
+            border: 1px solid #cbd5e1;
+            font-size: 12.5px;
+        }
+
+        pre {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            font-size: 12px;
+            line-height: 1.45;
+            margin: 12px 0;
+        }
+
+        p.desc {
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+
+        .step-list {
+            counter-reset: step;
+            margin: 12px 0;
+        }
+
+        .step-list p {
+            margin-bottom: 6px;
+            padding-left: 24px;
+            text-indent: -24px;
+        }
+
+        .step-list p::before {
+            counter-increment: step;
+            content: counter(step) ". ";
+            font-weight: bold;
+        }
+
+        .tech-table td:first-child {
+            font-weight: bold;
+            white-space: nowrap;
+            width: 200px;
+        }
+
+        /* ===== ISSUE BOX ===== */
+        .issue-box {
+            border-left: 4px solid #e67e22;
+            background-color: #fef9f0;
+            padding: 12px 16px;
+            margin: 12px 0;
+        }
+
+        .issue-box.resolved {
+            border-left-color: #27ae60;
+            background-color: #f0fef4;
+        }
+
+        @media print {
+            body { padding: 0; }
+        }
+    
+        main, header, nav { max-width: 1220px; margin-left: auto; margin-right: auto; }
+        a { color: #2c3e50; text-decoration: underline; text-underline-offset: 2px; }
+        nav { border: 1px solid #cbd5e1; background: #f8fafc; padding: 15px 20px; margin-bottom: 24px; }
+        nav h2 { margin: 0 0 10px; font-size: 14px; }
+        .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .toc-list { padding-left: 20px; margin-top: 6px; }
+        .toc-list li { margin: 3px 0; }
+        .table-wrap { width: 100%; }
+        .topic table { table-layout: fixed; }
+        .topic th:first-child { width: 56%; }
+        .topic th:last-child { width: 44%; }
+        th, td, code { overflow-wrap: anywhere; }
+        h2, h3 { scroll-margin-top: 20px; }
+        .issue-box p { margin: 0; }
+        @media (max-width: 720px) {
+            body { padding: 18px 14px; }
+            .doc-header { padding: 16px; }
+            .doc-header h1 { font-size: 18px; }
+            .info-grid, .toc-grid { grid-template-columns: 1fr; }
+            th { padding: 7px 6px; font-size: 12px; }
+            td { padding: 7px 6px; font-size: 12.5px; }
+            code { padding: 1px 2px; font-size: 11.5px; }
+        }
+        @page { size: A4; margin: 16mm 13mm; }
+        @media print {
+            body { padding: 0; font-size: 11pt; color: #111; }
+            main, header, nav { max-width: none; }
+            .doc-header { padding: 12px 16px; margin-bottom: 16px; }
+            .doc-header h1 { font-size: 15pt; }
+            h2 { font-size: 12pt; margin-top: 20px; }
+            h3 { font-size: 11pt; }
+            h2, h3 { break-after: avoid; page-break-after: avoid; }
+            p.desc { orphans: 3; widows: 3; }
+            table { font-size: 9.5pt; }
+            th { font-size: 9pt; }
+            td { padding: 6px 7px; }
+            thead { display: table-header-group; }
+            tr { break-inside: avoid; page-break-inside: avoid; }
+            .doc-header, .issue-box, nav { break-inside: avoid; page-break-inside: avoid; }
+            th { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            a { text-decoration: none; }
+            code { font-size: 9pt; }
+        }</style>
+</head>
+<body>
+<header class="doc-header">
+<h1>CÂU HỎI CẦN XÁC NHẬN — DAS V2</h1>
+<div class="info-grid">
+<div class="info-item"><span class="label">Phạm vi:</span> 8 nhóm nghiệp vụ và 3 nhóm tích hợp.</div>
+<div class="info-item"><span class="label">Mục đích:</span> Làm rõ thông tin còn thiếu để hoàn thiện dự án.</div>
+<div class="info-item"><span class="label">Căn cứ:</span> Requirement v2, dữ liệu cũ và guide EAP.</div>
+<div class="info-item"><span class="label">Trạng thái:</span> <span class="progress-pending">Chờ xác nhận / bổ sung thông tin.</span></div>
+</div>
+</header>
+<nav aria-label="Mục lục">
+<h2>MỤC LỤC</h2>
+<div class="toc-grid">
+<div><strong><a href="#nghiep-vu">1. Nghiệp vụ / schema</a></strong><ol class="toc-list"><li><a href="#counter">Counter và ngày cấp số</a></li><li><a href="#organization">Mapping tổ chức</a></li><li><a href="#recipients">Danh sách nơi nhận Incoming</a></li><li><a href="#permissions">Phân quyền còn trống</a></li><li><a href="#editing">Sửa hồ sơ sau đăng ký</a></li><li><a href="#catalogs">Danh mục nghiệp vụ</a></li><li><a href="#reminder">Reminder</a></li><li><a href="#migration">Migration</a></li></ol></div>
+<div><strong><a href="#tich-hop">2. Thông tin tích hợp</a></strong><ol class="toc-list"><li><a href="#eap">EAP</a></li><li><a href="#tms">TMS</a></li><li><a href="#email-fax">Email/Fax</a></li></ol></div>
+</div>
+</nav>
+<main>
+<section aria-labelledby="nghiep-vu">
+<h2 id="nghiep-vu">1. CẦN CHỐT TRƯỚC KHI KHÓA NGHIỆP VỤ/SCHEMA</h2>
+<section class="topic" aria-labelledby="counter">
+<h3 id="counter">1.1. Counter và ngày cấp số</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement quy định số công văn có bốn chữ số, tăng dần và reset về 1 mỗi năm. Format Incoming, Outgoing và Internal khác nhau; HL, HV và HLHV sử dụng chung cơ cấu tổ chức. Scope của counter vẫn chờ mentor xác nhận. Số công văn lịch sử phải giữ nguyên khi migrate; rule mới áp dụng cho hồ sơ tạo mới sau chuyển đổi.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Counter dùng chung theo loại công văn + năm hay tách thêm theo company và/hoặc department? Incoming, Outgoing và Internal có ba bộ đếm riêng hay quan hệ dùng chung nào khác?</td><td>Phạm vi bộ đếm của từng loại; có hay không khóa company/department; ví dụ hai hồ sơ cùng năm ở các pháp nhân/phòng khác nhau.</td></tr>
+<tr><td>YY-MM lấy từ ngày đăng ký nghiệp vụ hay thời điểm hệ thống ghi nhận? Múi giờ nào xác định chuyển tháng/năm; ngày đăng ký và Issued Date có được độc lập?</td><td>Trường ngày dùng tạo YY-MM; múi giờ nghiệp vụ; cách xử lý thời điểm chuyển tháng/năm; quan hệ với Issued Date.</td></tr>
+<tr><td>Có cho đăng ký hồi tố không? Ai được chọn ngày quá khứ, giới hạn đến đâu và hồ sơ hồi tố sang năm trước sử dụng counter năm nào?</td><td>Vai trò được hồi tố; khoảng ngày cho phép; năm/tháng dùng cấp số; quy định ghi lý do khi hồi tố.</td></tr>
+<tr><td>Khi đạt số 9999 trong một năm thì chặn đăng ký, mở rộng format hay áp dụng một quy tắc khác? Hồ sơ đã hủy có được cấp lại số không?</td><td>Format được phép sau 9999; người xử lý khi hết số; quy tắc đối với số của hồ sơ Cancelled.</td></tr>
+<tr><td>Trong năm chuyển hệ thống, counter mới phải nối tiếp dữ liệu đã dùng hay khởi tạo theo một mốc riêng? Bản dữ liệu nào dùng để xác định giá trị bắt đầu?</td><td>Mốc chuyển đổi; nguồn xác định số đã dùng; giá trị bắt đầu của từng counter trong năm chuyển hệ thống.</td></tr></tbody>
+</table></div>
+<div class="issue-box"><p>Ví dụ format chỉ minh họa cách biểu diễn, không xác nhận scope counter: Incoming <code>YY-MM-xxxx/&lt;cty&gt;</code>; Outgoing <code>YY-MM-xxxx/&lt;cty&gt;/&lt;dept&gt;</code>; Internal <code>YY-MM-xxxx/INT/&lt;cty&gt;/&lt;dept&gt;</code>.</p></div>
+</section>
+<section class="topic" aria-labelledby="organization">
+<h3 id="organization">1.2. Mapping tổ chức</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> EAP là nguồn quản lý users và cơ cấu tổ chức. Management Department không có parent; các Department con trực thuộc Management. Group nằm cùng bảng đơn vị, có IsDepartment = false và parent là Department. Mỗi Department có một LM và 0 hoặc nhiều DLM. Danh sách mã v2: MGT, C&amp;P, ADM, PRD, PRJ, DRL, FIN, SUB.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>MGM, DRI và HSE trong dữ liệu cũ tương ứng với đơn vị EAP nào? HSE còn hoạt động, ngưng hoạt động hay được thay bằng department khác?</td><td>ID/mã/tên đơn vị EAP tương ứng MGM, DRI, HSE; trạng thái còn hoạt động; đơn vị thay thế nếu có và thời điểm hiệu lực.</td></tr>
+<tr><td>Tên, mã và ID của toàn bộ Department/Group hiện hành được cấp từ nguồn nào? Có đơn vị cũ chưa tồn tại trên EAP hoặc bị tách/gộp không?</td><td>Danh sách Department/Group hiện hành gồm ID, tên, mã, parent; đơn vị cũ bị tách/gộp hoặc chưa có trên EAP.</td></tr>
+<tr><td>Thư ký GĐ, thư ký phòng và GroupLeader được nhận biết qua role, chức vụ, membership hay danh sách gán riêng? Ai xác nhận và quản lý việc gán?</td><td>Nguồn xác định từng vai trò; phạm vi phòng; người được gán thực tế; đầu mối có quyền thay đổi việc gán.</td></tr>
+<tr><td>Một người thuộc nhiều Department/Group thì có những phạm vi công văn nào? Phòng nào được dùng khi đăng ký thay và khi xác định originator?</td><td>Các membership hợp lệ; phòng được chọn khi thao tác; phạm vi xem hồ sơ và chọn originator khi user có nhiều phòng/nhóm.</td></tr>
+<tr><td>Khi user chuyển phòng, nghỉ việc hoặc đơn vị đổi mã, quyền xem công văn cũ và hồ sơ đang xử lý thay đổi thế nào?</td><td>Ngày hiệu lực chuyển phòng/nghỉ việc; quyền với hồ sơ lịch sử; người tiếp nhận hồ sơ đang xử lý; mã cũ cần giữ để tra cứu.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="recipients">
+<h3 id="recipients">1.3. Danh sách nơi nhận Incoming</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement cho phép Incoming gửi tới nhiều nơi nhận. Bảng <code>doc_in_depts</code> có nhiều hơn danh sách phòng tổ chức, bao gồm phòng, nhóm và danh sách khác. Việc chọn phòng nhận có liên quan đến quyền xem detail; không được mặc định mọi mục trong bảng là một Department.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Từng mục trong doc_in_depts thuộc loại Department, Group hay danh sách thành viên riêng? Các mục như Secretary List, HLHV Members và HLHV Partners được định nghĩa thế nào?</td><td>Loại và ý nghĩa từng target trong doc_in_depts; ID EAP nếu có; định nghĩa các danh sách như Secretary List, HLHV Members, HLHV Partners.</td></tr>
+<tr><td>Thành viên của từng danh sách được lấy từ EAP hay do DAS quản lý? Ai có quyền thêm/bớt người và các thay đổi có hiệu lực khi nào?</td><td>Nguồn membership; cách xác định user trong danh sách; đầu mối cập nhật; thời điểm thành viên mới/cũ được áp dụng.</td></tr>
+<tr><td>Khi chọn một target, ai được quyền xem Incoming Normal và Confidential? Thành viên bên ngoài tổ chức có tài khoản truy cập hay chỉ nhận thông báo?</td><td>Phạm vi đọc Normal/Confidential của mỗi target; tài khoản của đối tượng bên ngoài; trường hợp chỉ nhận thông báo.</td></tr>
+<tr><td>Nơi nhận dùng để cấp quyền xem, gửi email hay đồng thời cả hai? Khi nhiều target có cùng thành viên thì thông báo và truy cập được xử lý ra sao?</td><td>Target nào cấp quyền, target nào nhận email; nội dung thông báo; cách xử lý một user nằm trong nhiều danh sách nhận.</td></tr>
+<tr><td>Target ngưng hoạt động, membership thay đổi hoặc target chưa map thì công văn cũ và hồ sơ mới được xử lý thế nào?</td><td>Trạng thái active của target; quyền trên hồ sơ cũ khi membership đổi; lựa chọn cho hồ sơ mới; mục chưa có mapping.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="permissions">
+<h3 id="permissions">1.4. Phân quyền còn trống</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement đã nêu phạm vi đọc của GM, DGM, LM, DLM, Staff và thư ký Tổng Giám đốc. Staff đọc Confidential do mình đứng tên hoặc nhập giùm theo ngữ nghĩa inputter/originator cần đối chiếu. Ô Confidential của GroupLeader chưa có nội dung; Admin kỹ thuật không được mô tả trong ma trận nghiệp vụ.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>GroupLeader có được đọc Confidential không, và theo phạm vi nào? Admin kỹ thuật chỉ quản trị hệ thống hay có quyền đọc công văn nghiệp vụ?</td><td>Ô quyền Confidential của GroupLeader; quyền business-read của Admin; điều kiện cần nếu Admin cũng có vai trò nghiệp vụ.</td></tr>
+<tr><td>Internal chỉ gửi ban lãnh đạo, nhưng nhân viên/phòng lập công văn có được đọc không? Quyền của người nhận, inputter và originator khác nhau thế nào?</td><td>Người nhận Internal hợp lệ; quyền đọc của phòng lập; quyền của inputter/originator; phạm vi đọc giữa các phòng.</td></tr>
+<tr><td>Ai được đăng ký Incoming thủ công hoặc Outgoing/Internal? Thư ký GĐ/phòng có thể đăng ký thay phòng khác, chọn originator nào và trong phạm vi nào?</td><td>Vai trò được đăng ký từng loại; phạm vi đăng ký thay; phòng phát hành; phạm vi người được chọn làm originator.</td></tr>
+<tr><td>Ai được sửa metadata, đổi Distributed, hủy hồ sơ và thay PDF? Các quyền này có phụ thuộc độ mật, phòng sở hữu, inputter hoặc originator không?</td><td>Vai trò được sửa/distribute/cancel/thay file; điều kiện theo trạng thái, độ mật, phòng, inputter và originator.</td></tr>
+<tr><td>Ai được xem báo cáo, export và danh sách toàn tổ chức? User có nhiều vai trò/phòng nhận quyền tổng hợp thế nào; quyền báo cáo có thay đổi quyền đọc Confidential không?</td><td>Vai trò report/export; phạm vi dữ liệu; cách tổng hợp nhiều role/membership; Confidential có được xuất theo quyền nào.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="editing">
+<h3 id="editing">1.5. Sửa hồ sơ sau đăng ký</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Completed phải đồng thời có Status = Distributed, scanned PDF và Issued Date. Distributed thiếu PDF hoặc Issued Date vẫn là hồ sơ chưa hoàn tất theo cách hiểu đã xác nhận. Mỗi công văn chỉ có một PDF hiện hành. Bản thương mại bỏ Document Operations và luồng duyệt cũ.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Sau khi cấp số, những trường nào bất biến và những trường nào còn được sửa? Company, department, loại công văn và ngày dùng phát số có được đổi không?</td><td>Trường không được đổi sau cấp số; trường sửa được của từng loại; điều kiện trước/sau Distributed.</td></tr>
+<tr><td>Nếu cần đổi pháp nhân hoặc phòng phát hành thì sửa hồ sơ hiện tại hay hủy và đăng ký bản mới? Hai hồ sơ có phải liên kết và ghi lý do không?</td><td>Trường hợp phải hủy rồi tạo mới; có giữ hồ sơ/số cũ để tra cứu không; lý do và quan hệ với hồ sơ thay thế.</td></tr>
+<tr><td>Hồ sơ Distributed được bổ sung PDF/ngày và sửa metadata nào? Có được đổi nơi nhận hoặc độ mật sau khi phân phối, và quyền đã cấp phải thay đổi thế nào?</td><td>Fields được bổ sung/sửa sau Distributed; tác động của đổi recipients/sensitivity; người còn quyền đọc sau thay đổi.</td></tr>
+<tr><td>Cancelled có được khôi phục không? Ai được hủy/khôi phục, cần lý do gì và công văn đã hủy còn xuất hiện trong tra cứu hoặc reminder không?</td><td>Vai trò hủy/khôi phục; trạng thái được chuyển; lý do; quyền xem hồ sơ Cancelled và phạm vi reminder/report.</td></tr>
+<tr><td>Thay PDF có giữ bản trước để tra cứu lịch sử không, ai được xem các bản đó? Issued Date của Incoming và hồ sơ cũ thiếu ngày được nhập/xác nhận bằng nguồn nào?</td><td>Tiêu chí PDF hiện hành; quyền xem file cũ; nguồn và người xác nhận Issued Date, nhất là Incoming và dữ liệu lịch sử thiếu ngày.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="catalogs">
+<h3 id="catalogs">1.6. Danh mục nghiệp vụ</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Forms cần danh mục loại văn bản, phương thức gửi và nơi nhận phù hợp từng loại công văn. Category trong DB cũ đang rỗng. Danh mục mới cần đối chiếu dữ liệu đang dùng; không ép Category thành bắt buộc khi chưa có quyết định nghiệp vụ.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Các loại văn bản Incoming/Outgoing và Internal nào còn sử dụng? Mã, tên hiển thị và cách phân nhóm nào được coi là danh sách chuẩn?</td><td>Mã/tên các loại văn bản; nhóm Incoming/Outgoing/Internal; mục active/inactive; các nhãn mới thay cho dữ liệu cũ.</td></tr>
+<tr><td>Các phương thức gửi/nhận nào còn hợp lệ? Những nhãn giống nhau hoặc phương thức kết hợp trong DB cũ có cần gộp hay giữ riêng không?</td><td>Danh sách method chuẩn; ý nghĩa nhãn kết hợp; phương thức fax mặc định; phương thức hợp lệ cho đăng ký thủ công.</td></tr>
+<tr><td>Category để tùy chọn, bỏ khỏi bản đầu hay cần bổ sung danh mục? Nếu bổ sung thì mục nào hợp lệ và có yêu cầu điền cho dữ liệu cũ không?</td><td>Có dùng Category trong bản đầu không; optional/required; danh mục nếu có; có yêu cầu bổ sung hồ sơ cũ không.</td></tr>
+<tr><td>Danh sách nơi nhận hoạt động nào được hiển thị cho người nhập? Target đã map nhưng ngưng hoạt động có được chọn lại trong hồ sơ mới không?</td><td>Target nào được chọn; điều kiện active; trường hợp cho dùng lại target đã ngưng; tên lịch sử cần hiển thị.</td></tr>
+<tr><td>Ai được tạo, sửa, ngưng sử dụng và khôi phục danh mục? Đổi mã/tên có sửa thông tin hoặc số trên hồ sơ lịch sử không?</td><td>Vai trò quản lý từng nhóm; quyền tạo/sửa/ngưng/khôi phục; hiệu lực đổi tên/mã; cách giữ thông tin đã dùng trong lịch sử.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="reminder">
+<h3 id="reminder">1.7. Reminder</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement quy định task chạy mỗi tuần, nhắc hồ sơ đã đăng ký hơn một tuần nhưng chưa Completed. Mỗi email nhắc theo một phòng ban; To gồm các inputter có hồ sơ chưa hoàn tất và CC gồm LM/DLM. Mốc tuổi hồ sơ là đăng ký, không phải deadline của task hoặc Issued Date.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Reminder áp dụng cả Incoming, Outgoing, Internal hay chỉ Outgoing/Internal? InProgress, Distributed chưa đủ hồ sơ và Cancelled được đưa vào hoặc loại ra thế nào?</td><td>Loại công văn được nhắc; trạng thái được đưa vào; trường hợp Distributed thiếu PDF/ngày; chính sách với Cancelled.</td></tr>
+<tr><td>Incoming có nhiều target nhận thì phòng nào chịu trách nhiệm hoàn tất hồ sơ? Một hồ sơ có xuất hiện trong nhiều email phòng hay chỉ một phòng chủ trì?</td><td>Phòng chủ trì hoàn tất Incoming; một hay nhiều email theo phòng; cách xác định trách nhiệm khi target là Group/danh sách ngoài.</td></tr>
+<tr><td>Hơn một tuần được tính là trên 7 ngày lịch hay ngày làm việc? Lịch chạy vào ngày/giờ, múi giờ nào; khi trùng ngày nghỉ hoặc bỏ lỡ lịch thì xử lý ra sao?</td><td>Ngày lịch hay ngày làm việc; mốc đăng ký được tính tuổi; lịch chạy/ngày giờ/múi giờ; ngày nghỉ và lịch bị bỏ lỡ.</td></tr>
+<tr><td>Các DLM đang active đều vào CC hay có danh sách khác? Thiếu email, user nghỉ việc, inputter đổi phòng hoặc người nhận trùng To/CC được xử lý thế nào?</td><td>Nguồn email inputter/LM/DLM; DLM nào nhận; người xử lý khi email thiếu/user inactive/đổi phòng; người trùng To/CC.</td></tr>
+<tr><td>Mẫu email cần có thông tin gì và dùng link báo cáo nào? Với Confidential, có cho đưa số/subject/danh sách công văn vào email chung cho nhiều inputter không?</td><td>Subject/body email; có số công văn/subject/danh sách chi tiết hay chỉ link; dữ liệu Confidential được gửi cho ai; nhắc lại khi vẫn chưa hoàn tất.</td></tr></tbody>
+</table></div>
+<div class="issue-box"><p>Lời nhắc chung kèm link đăng nhập là phương án đề xuất cho email có công văn Confidential; chưa coi là nội dung mẫu đã được phê duyệt.</p></div>
+</section>
+<section class="topic" aria-labelledby="migration">
+<h3 id="migration">1.8. Migration</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> SQL cũ là nguồn dữ liệu lịch sử nhưng không thay thế bộ PDF gốc. Số công văn đã cấp phải giữ nguyên. Migration cần đối chiếu cả hồ sơ, recipients, relations, attribution và file; hồ sơ thiếu dữ liệu không được tự giả thành Completed.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Bản SQL nào là nguồn chuyển đổi chính thức và chốt tại thời điểm nào? Bộ PDF gốc ở đâu, gồm file nào và đường dẫn trong DB được đối chiếu với bytes thực như thế nào?</td><td>SQL nguồn chính thức; ngày snapshot/cutover; vị trí/phạm vi bộ PDF; cách đối chiếu đường dẫn trong DB với file gốc.</td></tr>
+<tr><td>User cũ tương ứng EAP user ID nào? User đã nghỉ việc, tài khoản trùng hoặc chưa có trên EAP giữ attribution lịch sử và chuyển giao hồ sơ cho ai?</td><td>Mapping legacy user → EAP ID; user chưa map/trùng/nghỉ việc; người nhập lịch sử; người tiếp nhận công việc chưa xong.</td></tr>
+<tr><td>Các mã company, department, target, status, type và method cũ map sang v2 thế nào? Quan hệ Incoming–Outgoing và nhiều recipients nào phải giữ nguyên?</td><td>Mapping company/department/target/status/type/method; recipients/relations phải giữ; quy tắc số cũ và giá trị counter bắt đầu.</td></tr>
+<tr><td>Hồ sơ thiếu PDF/Issued Date, file hỏng, nơi nhận chưa map hoặc số bị trùng được chấp nhận ở trạng thái nào? Ai bổ sung và ngoại lệ nào phải xử lý trước go-live?</td><td>Các nhóm hồ sơ thiếu/lỗi; mức độ chấp nhận; trạng thái đích; người bổ sung; trường hợp phải xử lý trước đưa vào sử dụng.</td></tr>
+<tr><td>Hồ sơ cũ có nhiều file thì chọn PDF hiện hành bằng tiêu chí nào và giữ các file còn lại ra sao? Ai duyệt kết quả migration và mẫu đối soát?</td><td>Tiêu chí chọn current PDF; thông tin file cũ cần giữ; người xác nhận mẫu dữ liệu và các ngoại lệ được chấp nhận.</td></tr></tbody>
+</table></div>
+
+</section>
+</section>
+<section aria-labelledby="tich-hop">
+<h2 id="tich-hop">2. CẦN THÔNG TIN TỪ CÁC TEAM ĐỂ TÍCH HỢP THẬT</h2>
+<section class="topic" aria-labelledby="eap">
+<h3 id="eap">2.1. EAP</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Guide EAP hiện có mô tả giao thức tích hợp, nhưng chưa đủ thông tin kết nối môi trường và contract tổ chức thực tế. EAP quản lý identity, Department/Group và các thay đổi vòng đời. Nội dung cần cấp là cấu hình/contract được provision cho DAS, không phải endpoint hoặc schema do DAS tự đoán.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Integration Pack của môi trường sandbox gồm issuer/discovery, client profile/ID, audience/scopes và callback/logout URLs đã đăng ký nào? Cấu hình nhạy cảm được cấp qua kênh quản lý nào?</td><td>Cấu hình sandbox và production được provision; issuer/discovery, client profile/ID, audience/scopes; callback/logout URLs; kênh cấp cấu hình nhạy cảm.</td></tr>
+<tr><td>API/payload nào cung cấp Department, Group, parent, membership, LM/DLM và staff lookup? Vai trò thư ký/GroupLeader được biểu diễn bằng claims hay dữ liệu nào?</td><td>API/schema tổ chức; ID ổn định; parent/is_department; memberships/LM/DLM; role claims; active status và staff lookup.</td></tr>
+<tr><td>Đồng bộ qua broker dùng queue/binding/TLS/ACL nào? Có những event type/version nào; dữ liệu ban đầu, replay và thứ tự cập nhật được định nghĩa ra sao?</td><td>Broker/queue/binding/TLS/ACL được cấp; event types/schema versions; bootstrap/replay; version/order và nội dung trả kết quả đồng bộ.</td></tr>
+<tr><td>Deletion, restoration, replacement và delegation có quy tắc nào? Subject/actor, thời hạn, readiness/cancellation và việc thu hồi phiên/quyền cần kiểm chứng ra sao?</td><td>Payload deletion/restoration/replacement; contract delegation; actor/subject; thời hạn; readiness/cancel; điều kiện và thời gian thu hồi quyền.</td></tr>
+<tr><td>Những tài khoản sandbox nào được cấp để thử theo vai trò và phòng? Ai hỗ trợ kiểm tra lỗi hoặc thay đổi contract, và điều kiện hoàn tất tích hợp được xác nhận bởi ai?</td><td>Tài khoản thử theo vai trò/phòng; kịch bản cấp/thu hồi/ủy quyền; kết quả kỳ vọng; đầu mối hỗ trợ và xác nhận sandbox.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="tms">
+<h3 id="tms">2.2. TMS</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement yêu cầu một công văn có nhiều task, tạo được task từ DAS và hiển thị task, người được giao, trạng thái, deadline ở DAS/TMS. EAP guide không cung cấp API CRUD task. TMS cần có contract và sandbox riêng để xác nhận hành vi tích hợp.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Swagger/API và sandbox TMS nào được sử dụng? TMS hỗ trợ create/list/detail/update nào, yêu cầu xác thực và attribution người tạo task ra sao?</td><td>Swagger/API version; URL sandbox; phương thức xác thực/quyền; thao tác được hỗ trợ; dữ liệu người tạo và nguồn công văn.</td></tr>
+<tr><td>TMS dùng EAP user ID trực tiếp hay một ID khác? Assignee được chọn trong phòng, nhiều phòng hay toàn tổ chức; user inactive được xử lý thế nào?</td><td>Khóa user TMS/EAP; danh sách assignee hợp lệ; một/nhiều người nhận; phạm vi phòng; user inactive hoặc chưa map.</td></tr>
+<tr><td>Các trạng thái task và deadline được biểu diễn như thế nào? Nội dung task do TMS quản lý, và thay đổi bên TMS phải hiển thị lại bên DAS trong khoảng thời gian nào?</td><td>Status codes/labels; định dạng deadline/múi giờ; task URL; nguồn cập nhật; khoảng thời gian DAS cần thấy thay đổi.</td></tr>
+<tr><td>Task liên quan Confidential có cùng phạm vi người xem với công văn không? Nội dung, link hoặc metadata công văn nào được phép đưa sang TMS?</td><td>Phạm vi đọc task Confidential; quyền assignee với công văn; những trường công văn được gửi sang TMS; quyền mở link nguồn.</td></tr>
+<tr><td>TMS hỗ trợ idempotency/correlation để tránh task trùng không? Có callback được xác thực hay dùng polling; khi create timeout thì tra cứu kết quả bằng cách nào?</td><td>Idempotency/correlation được hỗ trợ; API tra cứu kết quả create; callback/polling; xác thực callback; hành vi khi timeout/replay.</td></tr></tbody>
+</table></div>
+
+</section>
+<section class="topic" aria-labelledby="email-fax">
+<h3 id="email-fax">2.3. Email/Fax</h3>
+<p class="desc"><strong>Thông tin đã có:</strong> Requirement quy định kiểm tra mailbox mỗi một tiếng; mỗi email là một fax có một PDF attachment và được đăng ký Incoming. Công văn mới phải thông báo cho thư ký Giám đốc. Các thông tin mailbox, pháp nhân và gửi email thực tế cần được cấp trước khi bật luồng thật.</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">Câu hỏi cần xác nhận</th><th scope="col">Chi tiết cần biết</th></tr></thead>
+<tbody><tr><td>Mailbox và thư mục nào là nguồn fax chính thức? Host/port/TLS, phương thức xác thực và cấu hình đọc thư được provision thế nào cho môi trường thử và thật?</td><td>Mailbox/folder được dùng; host/port/TLS; phương thức xác thực; quyền đọc; cấu hình môi trường thử và thật qua kênh cấp của team.</td></tr>
+<tr><td>Mỗi mailbox/folder thuộc HL, HV hay HLHV? Nếu một hộp thư nhận cho nhiều pháp nhân thì quy tắc phân loại đã được xác nhận là gì?</td><td>Company tương ứng từng nguồn; quy tắc phân biệt HL/HV/HLHV khi nguồn chung; trường hợp phải xác nhận thủ công.</td></tr>
+<tr><td>Bắt đầu quét thư từ thời điểm nào? Backlog hoặc thư đã được hệ thống cũ đăng ký có được nhập lại không, và nguồn đối chiếu để tránh đăng ký trùng là gì?</td><td>Thời điểm bắt đầu; thư backlog có cần nhập; thư đã xử lý ở hệ thống cũ; nguồn đánh dấu/đối chiếu đã đăng ký.</td></tr>
+<tr><td>Email không có PDF, có nhiều PDF, file lỗi hoặc thiếu dữ liệu cần nhập thì được đưa vào danh sách ngoại lệ nào? Ai có quyền xử lý lại và xác nhận hồ sơ?</td><td>Cách xử lý không PDF/nhiều PDF/file lỗi/thiếu dữ liệu; người xử lý lại; thông tin nguồn cần giữ để nhận biết fax đó.</td></tr>
+<tr><td>Địa chỉ gửi và SMTP/notification service nào dùng cho thông báo và reminder? Thư ký GĐ được resolve từ nguồn nào; mẫu email, lỗi gửi và việc báo cho đầu mối được xử lý ra sao?</td><td>SMTP hoặc notification service; sender; nguồn xác định thư ký GĐ; mẫu email; người nhận cảnh báo khi lỗi gửi hoặc thiếu người nhận.</td></tr></tbody>
+</table></div>
+
+</section>
+</section>
+</main>
+</body>
+</html>
+

@@ -81,18 +81,31 @@ builder.Services.AddScoped<IDocumentBusinessService, DocumentBusinessService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpClient<IPdfFilesClient,PdfFilesHttpClient>().RedactLoggedHeaders(_=>true).ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler { AllowAutoRedirect=false });
 builder.Services.AddScoped<CurrentPdfService>();builder.Services.AddScoped<IPdfAuthority,DocumentV2PdfAuthority>();
-builder.Services.AddScoped<IDocumentV2Authority,UnavailableDocumentV2Authority>();
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddScoped<IDocumentV2Authority, DevelopmentDocumentV2Authority>();
+else
+    builder.Services.AddScoped<IDocumentV2Authority, UnavailableDocumentV2Authority>();
 builder.Services.AddScoped<V2RegistrationService>();builder.Services.AddScoped<V2DocumentEditor>();
 builder.Services.AddScoped<V2DocumentLifecycle>();builder.Services.AddScoped<V2DocumentQueries>();
 builder.Services.AddScoped<IPdfMaintenance,PdfMaintenance>();
 if(PdfProtocolSettings.MaintenanceEnabled(builder.Configuration,builder.Environment,"Files"))builder.Services.AddHostedService<PdfMaintenanceWorker>();
 builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<INumberingService, NumberingService>();
 builder.Services.AddScoped<IReportAuthority,UnavailableReportAuthority>();
 builder.Services.AddScoped<CurrentPdfAvailability>();builder.Services.AddScoped<IncompleteReports>();
-builder.Services.AddScoped<IReminderDirectory,UnavailableReminderDirectory>();builder.Services.AddScoped<IReminderTransport,DurableReminderTransport>();builder.Services.AddScoped<WeeklyReminders>();builder.Services.AddScoped<IReminderOperatorAuthority,UnavailableReminderOperatorAuthority>();
+builder.Services.AddHttpClient<IReminderDirectory, HttpReminderDirectory>(client => {
+    client.BaseAddress = new Uri(builder.Configuration["AuthService:BaseUrl"] ?? "http://localhost:5001");
+});
+builder.Services.AddScoped<IReminderTransport,DurableReminderTransport>();
+builder.Services.AddScoped<WeeklyReminders>();
+builder.Services.AddScoped<IReminderOperatorAuthority,UnavailableReminderOperatorAuthority>();
 builder.Services.AddHttpClient<IReminderNotificationTransport,ConfiguredReminderNotificationTransport>().RedactLoggedHeaders(_=>true).ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler{AllowAutoRedirect=false});
 if(builder.Configuration.GetValue<bool>("Reminders:Enabled"))builder.Services.AddHostedService<WeeklyReminderWorker>();
-builder.Services.AddScoped<IStaffAuthority,UnavailableStaffAuthority>();builder.Services.AddScoped<ITmsConnector,UnavailableTmsConnector>();builder.Services.AddScoped<MyStaffService>();
+builder.Services.AddScoped<IStaffAuthority,UnavailableStaffAuthority>();
+builder.Services.AddHttpClient<ITmsConnector, HttpTmsConnector>(client => {
+    client.BaseAddress = new Uri(builder.Configuration["TmsService:BaseUrl"] ?? "http://localhost:8081");
+});
+builder.Services.AddScoped<MyStaffService>();
 builder.Services.AddScoped<DocumentTasks>();
 builder.Services.AddScoped<IDocumentNotificationAudience,UnavailableDocumentNotificationAudience>();
 builder.Services.AddHttpClient<IDocumentNotificationTransport,ConfiguredNotificationTransport>().RedactLoggedHeaders(_=>true).ConfigurePrimaryHttpMessageHandler(()=>new HttpClientHandler{AllowAutoRedirect=false});builder.Services.AddScoped<DocumentNotifications>();

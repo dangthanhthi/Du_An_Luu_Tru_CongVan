@@ -1,0 +1,50 @@
+KIẾN TRÚC TỔNG THỂ
+Danh sách service ( microservice )
+AuthService – login, JWT, refresh token, User, Role, Department (RBAC)
+DocumentService – Incoming, Outgoing, Internal Document, sinh số công văn
+PartnerService (External Entity) – CRUD đối tác, soft delete
+FileService – upload/download PDF, lưu trữ
+EmailWorkerService – job định kỳ check email, tạo công văn đến
+AiOcrService – đọc PDF, match đối tác
+NotificationService – gửi email thông báo
+ApiGateway : Ocelot
+Cụ thể:
+1. API Gateway
+Cổng vào duy nhất cho Frontend, định tuyến request tới các service, xử lý JWT validation tập trung (hoặc đẩy xuống từng service). Công nghệ: Ocelot
+2. Auth Service
+Đăng nhập, cấp JWT + Refresh Token.
+Quản lý User, Role, Department (RBAC).
+Endpoint /login, /me, CRUD user/role/department.
+3. Document Service
+Service trung tâm của hệ thống, xử lý cả 3 loại công văn (Incoming/Outgoing/Internal, phân biệt bằng DocumentType):
+Đăng ký công văn mới, sinh số công văn theo format định sẵn.
+Workflow chuyển trạng thái (Draft → Reviewed → Distributed).
+Quản lý phân quyền truy cập công văn theo phòng ban (DocumentDepartmentAccess).
+Nhận dữ liệu từ Email Worker (công văn đến) và từ thư ký các phòng (công văn đi/nội bộ).
+4. Partner Service (External Entities)
+CRUD danh sách đối tác (tên đầy đủ, tên viết tắt, người liên hệ, phone, email), soft delete.
+5. File Service
+Upload/download file PDF, lưu trữ và liên kết file với công văn tương ứng để truy xuất lại sau này.
+6. Email Worker Service
+Job chạy định kỳ 1 tiếng/lần, check hộp thư fax, tách file PDF attachment, gọi Document Service để đăng ký công văn đến mới.
+7. AI/OCR Service
+Đọc nội dung file PDF công văn đến, trích xuất thông tin, match với danh sách đối tác (External Entities) đã có để điền tự động.
+8. Notification Service
+Gửi email thông báo — chủ yếu là báo cho thư ký Giám đốc khi có công văn đến mới cần xử lý.
+Sơ đồ kiến trúc
+·  Xanh dương (Auth, Document, Partner, File) — các service lõi, xử lý nghiệp vụ chính.
+·  Cam (Email Worker, AI/OCR, Notification) — các service tích hợp, chạy nền và gọi vào Document Service khi có sự kiện (email mới, cần OCR, cần báo thư ký GĐ).
+·  Tất cả service nằm chung trong Docker Compose, kết nối tới 1 SQL Server nhưng tách schema riêng theo service.
+·  Frontend chỉ gọi qua API Gateway duy nhất — không gọi thẳng vào từng service.
+c
+Trong lúc đợi lead backend setup
+Người 2 (Backend Developer - DocumentService)
+Đọc kỹ ERD/schema document, tự dựng project ASP.NET Core rỗng cho DocumentService (chưa cần chạy trong docker-compose), viết trước các DTO/Entity class map với bảng Documents, DocumentAttachments...
+Nghiên cứu trước cách implement sinh số công văn an toàn (transaction + lock) vì đây là phần khó nhất.
+Người 3 (Backend Integration)
+Setup thử kết nối email (IMAP/POP3) đọc hộp thư test bằng code mẫu độc lập, chưa cần tích hợp vào hệ thống.
+Tìm hiểu trước thư viện OCR/AI sẽ dùng (Tesseract, Azure OCR, hay gọi API ngoài) và test thử đọc 1 file PDF mẫu.
+Người 4 & Người 5 (Frontend)
+Dựng khung project NextJS, cấu trúc thư mục, cài Tailwind/UI library, dựng layout chung (sidebar, header).
+Code UI tĩnh (chưa gọi API thật) cho các màn hình chính dựa theo mô tả tính năng — Login, Dashboard, danh sách công văn — dùng data giả (mock JSON) trước.
+Khi xong API Contract, chỉ cần thay mock bằng gọi API thật.

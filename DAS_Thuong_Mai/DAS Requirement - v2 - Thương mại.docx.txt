@@ -1,0 +1,98 @@
+Tổng quan về dự án:
+Khách hàng là công ty, có 2 pháp nhân (2 tên khác nhau): Hoàng Long (viết tắt là HL), Hoàn Vũ (viết tắt HV). Cả 2 công ty đều chung 1 cơ cấu tổ chức, gồm Ban lãnh đạo, các phòng ban, và nhân viên.
+Công văn sẽ liên quan đến 1 pháp nhân cụ thể (HL hoặc HV), hoặc là pháp nhân chung (HLHV). Chính vì vậy công văn sẽ có số tương ứng.
+Yêu kỹ thuật của App:
+Web app, back-end C#, front-end NextJS.
+Kiến trúc micro service, deploy bằng docker container
+Tính năng chính:
+Đăng ký công văn mới lên hệ thống để lấy số công văn.
+Cho phép upload file vào công văn đã đăng ký để truy xuất lại sau này.
+Công văn đến (Incoming Document):
+Định kỳ 1 tiếng check email 1 lần, nếu có email mới (trong hộp thư này chỉ có các email từ máy fax gửi đến, mỗi email là 1 bản fax đã nhận, bản fax là 1 file PDF attachment), thì đăng ký công văn đến.
+Thư ký cũng có thể register công văn đến 1 cách thủ công.
+Hệ thống generate số công văn với format định sẵn: YY-MM-xxxx/<Ten công ty>
+YY: năm , ví dụ 26 cho 2026
+MM: tháng, ví dụ 09 cho tháng 09
+Xxxx: là số công văn, đếm từ 1 lên, và là 4 chữ số, ví dụ: 0042
+<tên công ty>: có thể là HL, HV, hoặc HLHV
+Dùng AI để đọc công văn đến, điền thông tin người gửi đến tương ứng với danh sách đối tác đã có (“External Entities”).
+Notify thư ký Giám đốc (user được định nghĩa sẵn role thư ký GĐ) qua email báo về công văn mới.
+Thư ký mở công văn, đọc file attachment, điều chỉnh các trường thông tin của công văn nếu có sai sót -> chọn gửi tới các phòng ban nào (List có sẵn) -> Save.
+Các phòng ban được chọn vào danh sách nhận công văn sẽ có quyền truy cập vào detail của công văn này.
+Danh sách phòng ban được định nghĩa sẵn và có nhiều hơn các phòng ban, vì có thể gửi cho các bên chủ quan liên doanh nữa. Đã có trong Database. Chính là table: doc_in_depts.
+Công văn đến có thể là công văn phản hồi cho 1 công văn đã gửi đi. Trường Related Outgoing Document chính là nơi tìm và chọn công văn gửi đi liên quan.
+Mỗi công văn chỉ có 1 file đính kèm, chính là file PDF của công văn.
+Mỗi công văn có thể gửi cho nhiều phòng ban.
+Công Văn đi (Outgoing Doc):
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin, gồm đối tác nhận (External Entities)
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn: YY-MM-xxxx/<cty>/dept>
+YY: năm , ví dụ 26 cho 2026
+MM: tháng, ví dụ 08 cho tháng 8
+Xxxx: số công văn đếm từ 1 lên, số này reset về 1 cho mỗi năm
+<cty>: là tên công ty: HL, HV, hoặc HLHV
+<dept>: là viết tắt tên phòng ban (xem bên dưới)
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Công văn đi có thể phản hồi 1 công văn đến, nên field Related Incoming Document để tìm và chọn công văn đến đó.
+Một công văn đi có thể gửi cho (Distributed to) nhiều External Entity.
+Người A (inputter) có thể tạo công văn đi giùm người B (originator). Ví dụ: Thư ký tạo giùm cho staff khác.
+Công văn nội bộ:
+Thư ký các phòng register công văn đi lên hệ thống, điền các thông tin. Công văn này không gửi đi đâu, chỉ gửi cho ban lãnh đạo công ty.
+Hệ thống sẽ tự động generate số công văn đi theo format định sẵn: YY-MM-xxxx/INT/<cty>/<dept>
+YY: năm , ví dụ 26 cho 2026
+MM: tháng, ví dụ 08 cho tháng 8
+Xxxx: số công văn đếm từ 1 lên, số này reset về 1 cho mỗi năm
+<cty>: là tên công ty: HL, HV, hoặc HLHV
+<dept>: là viết tắt tên phòng ban (xem bên dưới)
+Thư ký phải edit thông tin công văn, attach file công văn PDF và chỉnh status sang Distributed.
+Quản lý Đối tác (External Entitle):
+Đối tác là doanh nghiệp, tổ chức, hoặc cơ quan chức năng bên ngoài. Được tạo trong hệ thống, gồm: Tên full của đối tác tổ chức, tên viết tắt, Người liên hệ, thông tin liên hệ, Phone, Email.
+Danh sách đối tác này CRUD được, nhưng soft delete, không được xóa hẳn.
+Các yêu cầu chung:
+Số công văn sẽ reset về 1 cho mỗi năm. Trong chuỗi số công văn, số này là số có 4 chữ số, ví dụ 0042 thay vì 42
+Mỗi tuấn phải có 1 task chạy tự động, kiểm tra xem công văn nào đã được đăng ký (register) hơn 1 tuần mà chưa được chuyển về trạng thái completed thì gửi email nhắc. Mỗi email nhắc gửi cho 1 phòng ban, nhắc chung tất cả người có docs chưa hoàn thành. Những người inputter của các Docs chưa hoàn thành đều được gửi ở To, còn LM và DLM thì gửi ở CC.
+Trạng thái completed là gồm:
+Status: Distributed (đã gửi)
+Có file attachment scanned PDF
+Có ngày Issued date
+Yêu cầu đặc biệt:
+Thêm tính năng tạo Task liên quan đến công văn. 1 Công văn có thể có nhiều Tasks.
+Khi vào xem thông tin công văn, sẽ liệt kê danh sách tasks liên quan, cùng người được giao việc, tình trạng và thời gian deadline.
+Yêu cầu này cần call API tới service Task Management mà team khác đang làm. Hai team phải phối hợp nhau sao đó để DAS (Document Administration System) có thể tạo task từ TMS (Task Management System) và hiển thị được thông tin bên DAS và bên TMA
+Phân quyền truy cập:
+Role
+Sensitivity: Normal
+Sentitivity: Confidential
+General Manager (GM) – Tổng Giám đốc
+Tất cả
+Tất cả
+Deputy General Manager (DGM) – Phó Tổng Giám đốc
+Tất cả
+Tất cả
+Line Manager (LM) – Trưởng phòng
+Docs của phòng
+Docs của phòng
+Deputy Line Manager (DLM) – Phó phòng
+Docs của phòng
+Docs của phòng
+Group Leader
+Docs của phòng
+Staff
+Docs của phòng
+Docs do mình gửi hoặc mình gửi giùm.
+Thư ký Tổng Giám đốc
+Tất cả
+Tất cả
+Các tên Viết tắt:
+Tên công ty:
+Hoàng Long: HL
+Hoàn Vũ: HV
+Hoàng Long Hoàn Vũ: HLHV
+Tên phòng ban
+Management: MGT
+Contract & Procurement: C&P
+Administration: ADM
+Production: PRD
+Project: PRJ
+Drilling: DRL
+Finanace: FIN
+Subsurface: SUB

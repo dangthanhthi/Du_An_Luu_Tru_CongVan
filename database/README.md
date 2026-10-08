@@ -1,26 +1,43 @@
-# Database
+# Database DAS — bàn giao trên nhánh `database`
 
-`migrations/<service>/` chứa toàn bộ EF migrations và model snapshots của service đó. File chỉ có một bản tại đây; `backend/Directory.Build.props` đưa vào Compile của đúng project. Giữ nguyên migration ID, namespace và thứ tự lịch sử khi chuyển folder.
+Repository làm việc chính thức: **https://github.com/Seleton-VN/Intern-DocumentAdministration-BE**. Nhánh này bàn giao schema database DAS đã phát triển ở local và hướng dẫn sử dụng. Các service, cấu hình, deployment và tests có sẵn trên `main` được giữ nguyên.
 
-| Nhóm | Project sở hữu |
+## Đọc từ đâu
+
+1. Mở **[hướng dẫn database HTML](DAS_DATABASE_HUONG_DAN_CHI_TIET.html)**: dictionary 43 bảng nghiệp vụ/360 cột, PK, FK, index, CHECK, transaction và quy tắc nghiệp vụ. Tải file về rồi mở bằng trình duyệt; không cần backend. GitHub hiển thị source HTML, không render trang.
+2. Đọc **[PROVISIONING.md](PROVISIONING.md)** trước khi tạo database thử nghiệm bằng SQL.
+3. **[DATABASE-HANDBOOK.md](DATABASE-HANDBOOK.md)** là bản Markdown của tài liệu chi tiết.
+4. **[sql/README.md](sql/README.md)** giải thích sáu script và kiểm hash từ **[PACKAGE-MANIFEST.json](PACKAGE-MANIFEST.json)**.
+
+## Nội dung được bàn giao
+
+| Thư mục/file | Nội dung |
 |---|---|
-| `auth-service` | AuthService |
-| `document-service` | DocumentService |
-| `files-service` | FileService.API |
-| `notification-service` | NotificationService |
-| `partner-service` | PartnerService |
-| `email-worker-service` | EmailWorkerService; baseline ba bảng IMAP/scan và snapshot SQL |
+| `sql/*.sql` | Sáu script SQL Server idempotent, xuất từ EF migrations đã kiểm model/snapshot; dùng từng script cho đúng store |
+| `migrations/<service>/` | 24 migration, các file Designer và sáu model snapshot; giữ nguyên ID/namespace |
+| `DATABASE-HANDBOOK.md`, `DAS_DATABASE_HUONG_DAN_CHI_TIET.html` | Tài liệu database, ràng buộc, quy tắc, lịch sử và dictionary |
+| `PROVISIONING.md` | Hướng dẫn tạo database riêng và kiểm sau chạy |
+| `PACKAGE-MANIFEST.json` | SHA-256/size của mọi file trong gói, mốc source và trạng thái kiểm chứng |
 
-DbContext/entity nằm trong service để thể hiện ownership, cấu hình và validation. Không chia sẻ DbContext hoặc copy migration giữa service. EF tool phải tương thích lockfile: EmailWorker EF9.0.0; các store còn lại dùng tool10.0.3 (Notification runtime10.0.0, cùng major). Đặt migration **và snapshot** tại folder service ở đây; EF CLI có thể tạo snapshot trong folder `Migrations` của project khi chưa có snapshot liên kết, cần chuyển về canonical trước khi commit. Review SQL trước khi áp dụng vào môi trường được cho phép.
+Không có database thật, backup, PDF công văn, dữ liệu khách hàng, tài khoản demo, credential, frontend hoặc output build. Catalog/role tham chiếu trong SQL là seed cấu trúc của migration; không phải bản sao dữ liệu khách hàng. Không đưa Prisma template frontend vào gói này.
 
-Xuất SQL idempotent và kiểm model/snapshot của cả sáu store, không kết nối DB:
+## Phạm vi bàn giao
 
-```sh
-python tools/export-database-schema.py --output .artifacts/qa/database-schema-01
-```
+Gói database này được bàn giao độc lập với backend cũ đang có trên `main`, theo yêu cầu của người dùng. Lượt push này chỉ thêm thư mục `database/`, không sửa service, ghép model hoặc thực hiện nâng cấp database.
 
-Tool cài EF CLI cố định vào output riêng, restore locked, build Debug và gọi `has-pending-model-changes`, `migrations list --no-connect`, `migrations script --idempotent`. Output gồm sáu SQL script, migration IDs/hash và summary. Không áp dụng SQL, không tự nhập dữ liệu khách hàng. Xem [quy trình provision](PROVISIONING.md) và [SQL QA](../docs/SQL-QA.md).
+Các đường dẫn `backend/...`, `workflows/...`, `tools/...` và lệnh QA trong handbook/HTML mô tả cây nguồn local lúc xây schema. Những thành phần runtime/công cụ đó không nằm trong gói bàn giao chỉ database này. Lệnh sử dụng trực tiếp được ở nhánh hiện tại nằm trong PROVISIONING.md và sql/README.md.
 
-`prisma/schema.prisma` là schema template auth frontend đã có, không phải database công văn chính. Output Prisma client trỏ về `frontend/node_modules/.prisma/client`.
+## Quy tắc đã chốt
 
-Script seed và dữ liệu cũ đã được loại khỏi bản cộng tác. Khởi tạo schema theo migrations của đúng service trong môi trường được cho phép; không có bước tự tạo tài khoản demo hoặc nạp công văn cũ. DB thật/backup/PDF/credential không được đưa vào Git. Preflight/restore scripts chỉ chạy qua [tools](../tools/README.md) trên nguồn QA được chỉ định; migration khách hàng vẫn cần export/mapping/đối soát thật.
+- Ba bộ đếm công văn theo loại và năm, dùng chung giữa company/phòng. Số thứ tự mặc định bốn chữ số, chỉ thêm chữ số khi vượt 9999.
+- Registration Date lấy ngày hiện tại theo Việt Nam; Issued Date có thể là ngày quá khứ. Đổi company/phòng giữ số thứ tự và ngày đăng ký.
+- Khôi phục công văn Cancelled về trạng thái trước khi hủy.
+- Nhắc công văn chưa phân phối khi **quá 7 ngày** theo lịch Việt Nam; kỳ nhắc thứ Hai 08:00 UTC+7.
+- My Staff thuộc DAS. Có người thuộc scope không tự cấp quyền đọc công văn/PDF của họ.
+- EAP thuộc nhóm khác, hoãn cho tới khi người dùng yêu cầu; OCR và các kết nối ngoài chưa có bàn giao vẫn hoãn. Schema hỗ trợ ledger/intent không chứng minh các tích hợp đã hoạt động.
+
+## Kiểm chứng và phạm vi
+
+Thông tin lượt xuất SQL mới được ghi trong PACKAGE-MANIFEST.json: cả sáu model/snapshot được kiểm, migration ID được liệt kê không kết nối DB và SQL được xuất lại. Đây là kiểm chứng tạo schema offline; **không phải** triển khai SQL lên database khách hàng, UAT hoặc xác nhận backend chính thức đã chạy với schema này.
+
+Customer mapping/export, backup/restore môi trường thật và quyền vận hành vẫn cần bàn giao.
