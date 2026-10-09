@@ -1,6 +1,6 @@
 # J21 — Lọc assignee toàn bộ và phân trang My Staff độc lập
 
-Trạng thái: **IMPLEMENTED_LOCAL / VERIFICATION_IN_PROGRESS**. API và UI local đã triển khai, targeted tests và review qua; gateway runtime/build/browser mới và TMS thật vẫn là gate riêng.
+Trạng thái ngày09/10/2026: **IMPLEMENTED_LOCAL / BROWSER_VERIFIED_WITH_TMS_DEFERRED**. API/UI và route gateway đã triển khai, kiểm thử/review local đã đạt. Browser đọc nhân sự từ database kiểm thử và chọn assignee bằng Space; TMS chưa nối nên task count giữ unknown. Positive task filtering/paging đã kiểm chứng bằng connector fixture, chưa có bằng chứng TMS thật.
 
 ## Hiện trạng trước triển khai (bằng chứng của lỗi cần sửa)
 

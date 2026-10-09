@@ -95,6 +95,8 @@ function catalogFixture(overrides: any = {}) {
     '@core/components/mui/TextField': { default: 'CustomTextField' },
     '@/services/das/catalogs': {
       catalogApi: {
+        getOptions: async () => ({ canManage: true }),
+        getAdminPage: async (q: any) => ({ ...q, items: [catalog], totalCount: 1, canEditGroup: editableCatalogGroups.includes(q.group) }),
         getGroup: async () => [catalog],
         create: async (...a: any[]) => { creates.push(a); return catalog },
         getDistributionTargets: async (query: any) => {
@@ -123,6 +125,7 @@ function catalogFixture(overrides: any = {}) {
     ui.render()
     ui.commit()
     await tick()
+    ui.render(); ui.commit(); await tick()
   }
   const set = (label: string, value: string) => nodes(ui.render()).find(n => n.props.label === label)!.props.onChange({ target: { value } })
   return { ui, creates, targets, change, set }
@@ -136,7 +139,7 @@ test('R03-CATALOG-CANONICAL: duplicate submit dispatches exactly one create', as
   button(f.ui.render(), 'Add entry')!.props.onClick()
   f.set('Code', 'LOCAL')
   f.set('Name', 'Synthetic')
-  const handler = nodes(f.ui.render()).find(n => n.type === 'Box' && n.props.component === 'form')!.props.onSubmit
+  const handler = nodes(f.ui.render()).find(n => n.type === 'Box' && n.props.component === 'form' && nodes(n).some(x => x.type === 'DialogContent'))!.props.onSubmit
   handler(submitEvent)
   handler(submitEvent)
   try {
@@ -155,11 +158,11 @@ test('R04-CANONICAL: catalog reload403 revokes canManage', async () => {
   })
   await f.change('methods')
   nodes(f.ui.render()).find(n => n.props['aria-label'] === 'Edit: EMAIL')!.props.onClick()
-  nodes(f.ui.render()).find(n => n.type === 'Box' && n.props.component === 'form')!.props.onSubmit(submitEvent)
+  nodes(f.ui.render()).find(n => n.type === 'Box' && n.props.component === 'form' && nodes(n).some(x => x.type === 'DialogContent'))!.props.onSubmit(submitEvent)
   await tick()
   button(f.ui.render(), 'Reload data')!.props.onClick()
   await tick()
-  button(f.ui.render(), 'Close')!.props.onClick()
+  assert.equal(nodes(f.ui.render()).find(n => n.type === 'Dialog')!.props.open, false)
   assert.equal(!!button(f.ui.render(), 'Add entry'), false)
   f.ui.unmount()
 })
@@ -202,7 +205,7 @@ test('R05-PARTNER-CANONICAL: shrinking partner total resets page to 0', async ()
     '@/hooks/useSessionIntent': intent,
     '@/hooks/useDictionary': dictionary,
     '@/services/api': { ApiRequestError },
-    './AddPartnerDrawer': { default: 'PartnerDrawer' },
+    'next/navigation': { useParams: () => ({ lang: 'en' }) }, 'next/link': { default: 'Link' }, './AddPartnerDrawer': { default: 'PartnerDrawer' },
     '@core/styles/table.module.css': { default: { table: 'synthetic' } },
     '@/services/das/external-entities': {
       externalEntityApi: {
@@ -262,7 +265,7 @@ test('R03-STATUS-CANONICAL: repeated status dispatch issues exactly one request'
     'next/navigation': { useParams: () => ({ lang: 'en' }) },
     'next/link': { default: 'Link' },
     '../V2PdfPanel': { default: 'PdfPanel' },
-    '../DocumentTaskPanel': { default: 'TaskPanel' },
+    '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
     '@/services/das/documents': { documentsV2Api: { detail: async () => savedDoc, status: () => { calls++; return reply.promise } } }
   }, { Error, Event, window: { dispatchEvent() {} } })
   ui.render(); ui.commit(); await tick()
@@ -285,7 +288,7 @@ test('R06-CANONICAL: cancel 400 does not mention recipient distribution errors',
     'next/navigation': { useParams: () => ({ lang: 'en' }) },
     'next/link': { default: 'Link' },
     '../V2PdfPanel': { default: 'PdfPanel' },
-    '../DocumentTaskPanel': { default: 'TaskPanel' },
+    '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
     '@/services/das/documents': {
       documentsV2Api: {
         detail: async () => savedDoc,
@@ -508,7 +511,7 @@ for (const status of [409, 500]) {
       'next/navigation': { useParams: () => ({ lang: 'en' }) },
       'next/link': { default: 'Link' },
       '../V2PdfPanel': { default: 'PdfPanel' },
-      '../DocumentTaskPanel': { default: 'TaskPanel' },
+      '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
       '@/services/das/documents': {
         documentsV2Api: {
           detail: async () => savedDoc,
@@ -536,7 +539,7 @@ test('S05-CANONICAL: Restore 400 fallback copy must not claim that restoration a
     'next/navigation': { useParams: () => ({ lang: 'en' }) },
     'next/link': { default: 'Link' },
     '../V2PdfPanel': { default: 'PdfPanel' },
-    '../DocumentTaskPanel': { default: 'TaskPanel' },
+    '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
     '@/services/das/documents': {
       documentsV2Api: {
         detail: async () => doc,
@@ -574,7 +577,7 @@ test('S06-CANONICAL: partner clamp invalidates stale first-page cache when datas
     '@/hooks/useSessionIntent': intent,
     '@/hooks/useDictionary': dictionary,
     '@/services/api': { ApiRequestError },
-    './AddPartnerDrawer': { default: 'PartnerDrawer' },
+    'next/navigation': { useParams: () => ({ lang: 'en' }) }, 'next/link': { default: 'Link' }, './AddPartnerDrawer': { default: 'PartnerDrawer' },
     '@core/styles/table.module.css': { default: { table: 'synthetic' } },
     '@/services/das/external-entities': {
       externalEntityApi: {
@@ -620,7 +623,7 @@ async function partnerOwnerFixture() {
     '@/hooks/useSessionIntent': intent,
     '@/hooks/useDictionary': dictionary,
     '@/services/api': { ApiRequestError },
-    './AddPartnerDrawer': { default: 'PartnerDrawer' },
+    'next/navigation': { useParams: () => ({ lang: 'en' }) }, 'next/link': { default: 'Link' }, './AddPartnerDrawer': { default: 'PartnerDrawer' },
     '@core/styles/table.module.css': { default: { table: 'synthetic' } },
     '@/services/das/external-entities': {
       externalEntityApi: {

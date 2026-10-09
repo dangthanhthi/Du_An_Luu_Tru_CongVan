@@ -50,11 +50,33 @@ class CheckViewTests(unittest.TestCase):
                     with self.subTest(path=path),self.assertRaises(ValueError):view.create_view(path)
                 view.create_view('.artifacts/qa/view')
                 with self.assertRaises(ValueError):view.create_view('.artifacts/qa/view')
+    def test_local_provenance_label_does_not_displace_backend_source(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);self.fixture(root)
+            name='backend/services/document-service/Models/DTOs/V2ReadContracts.cs'
+            source=root/name;source.parent.mkdir(parents=True,exist_ok=True)
+            source.write_text('namespace DocumentService; public sealed record ReadDetails();')
+            manifest=root/'docs/source-layout-manifest.json';value=json.loads(manifest.read_text())
+            value['files'].append({'source':'Local read-contract refinement 2026-10-09','destination':name})
+            manifest.write_text(json.dumps(value))
+            with patch.object(view,'ROOT',root):target=view.create_view('.artifacts/qa/view')
+            expected=target/'Intern-DocumentAdministration-BE/services/document-service/Models/DTOs/V2ReadContracts.cs'
+            self.assertTrue(expected.is_file(),'Local DTO must remain in the compiling service source scope')
+            self.assertEqual(expected.read_bytes(),source.read_bytes())
+            self.assertFalse((target/'Local read-contract refinement 2026-10-09').exists())
     def test_view_does_not_accept_unsafe_manifest_paths(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);self.fixture(root)
             path=root/'docs/source-layout-manifest.json';path.write_text(json.dumps({'files':[{'destination':'frontend/src/services/api.ts','source':'../outside.ts'}]}))
             with patch.object(view,'ROOT',root),self.assertRaises(ValueError):view.create_view('.artifacts/qa/view')
             self.assertFalse((root/'.artifacts/qa/view').exists())
+    def test_provenance_fallback_does_not_hide_windows_or_parent_paths(self):
+        for source in ('..',r'C:\outside.ts',r'\\server\share\file.ts'):
+            with self.subTest(source=source),tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);self.fixture(root)
+                path=root/'docs/source-layout-manifest.json'
+                path.write_text(json.dumps({'files':[{'destination':'frontend/src/services/api.ts','source':source}]}))
+                with patch.object(view,'ROOT',root),self.assertRaises(ValueError):view.create_view('.artifacts/qa/view')
+                self.assertFalse((root/'.artifacts/qa/view').exists())
 
 if __name__=='__main__':unittest.main()

@@ -26,7 +26,7 @@ public sealed record V2DocumentRow(Guid Id,string Kind,string RegistrationNumber
     string? ReferenceNumber,string? SenderPartnerName,long Version,IReadOnlyList<string> AllowedActions,
     [property:JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] bool? IsComplete);
 public sealed record V2DocumentDetail(V2DocumentRow Header,Guid OriginatorUserId,Guid OwnerDepartmentId,
-    Guid InputterUserId,Guid LastModifierUserId,string? Remark,DocumentKindDetails? Details,
+    Guid InputterUserId,Guid LastModifierUserId,string? Remark,V2KindDetailsView? Details,
     IReadOnlyList<V2RecipientRow> Recipients,IReadOnlyList<Guid> RelatedDocumentIds,string PdfState);
 public sealed record V2RecipientRow(string ReferenceType,Guid ReferenceId,string Name);
 public sealed record V2DocumentPage(IReadOnlyList<V2DocumentRow> Items,int TotalCount,int PageNumber,int PageSize);

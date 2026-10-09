@@ -35,7 +35,7 @@ export type HorizontalNavProps = HTMLAttributes<HTMLDivElement> & {
   customBreakpoint?: string
   breakpoints?: Partial<typeof defaultBreakpoints>
   customStyles?: CSSObject
-  verticalNavProps?: Pick<VerticalNavProps, 'width' | 'backgroundColor' | 'backgroundImage' | 'customStyles'>
+  verticalNavProps?: Pick<VerticalNavProps, 'width' | 'backgroundColor' | 'backgroundImage' | 'customStyles' | 'id' | 'inert' | 'role' | 'aria-hidden' | 'aria-modal' | 'aria-label' | 'backdropLabel'>
   verticalNavContent?: ({ children }: ChildrenType) => ReactElement
 
   /**

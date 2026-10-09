@@ -88,3 +88,25 @@ Sau lượt thiết kế, người dùng đã yêu cầu thực hiện nhóm1 v�
 ## Dừng theo yêu cầu, lưu repo phụ — 09/10/2026
 
 [Checkpoint dừng](STOP-CHECKPOINT-20261009.md): chốt Task1–3 (J21 backend/UI và J22 backend), Task4–7 pending. Người dùng cho phép đúng repo phụ dangthanhthi/Du_An_Luu_Tru_CongVan, nhánh codex/j21-j23-20261008; không push repo chính thức. Fresh frontend411/411, Document506/506, Notification19/19, Email11/11, J22SQL6/6; typecheck0/lint0errors66warnings và gatewayconfig4/4. Chưa productionfrontendbuild/browser mới/PythonlegacyQA đầy đủ/gatewaybuild; không deploy/realTMS/SMTP/UAT. Source review không thấy Critical/Important; Minor copy partner editor để lượt UI sau. Giữ cache/checkpoint và dừng sau bản lưu.
+
+
+## Hoàn thiện J20–J23 local — 09/10/2026
+
+Task1–7 đã triển khai backend/gateway/UI và kiểm local; đọc [checkpoint hiện hành](J21-J23-COMPLETION-CHECKPOINT-20261009.md). J22 có admin inactive list/reactivation; J23 có partner metadata timeline và V2 lifecycle history. J21 filter/paging đã kiểm bằng fixture; TMS thật vẫn unavailable. Browser kiểm DB QA/PDF thật, VI/EN/admin/reader/keyboard và responsive; sửa toolbar320px/menu ngang. Frontend479, Document544, Partner62, nativeSQL5, Python100 và gateway77 assertions đạt trong phạm vi checkpoint. Build/typecheck/lint đạt; không commit/push. G7 Partial/prepared, G8 chưa customer signoff; EAP/OCR hoãn, authority/TMS/SMTP/customer/deploy/license/security gates còn riêng.
+
+
+## Chốt tài liệu và gói nhánh — 09/10/2026
+
+Bản đồ TV1+TV3 cập nhật120 file; compilation/DI/namespace đã kiểm. Chuẩn bị60 file theo bốn nhánh,8 thay đổi thực; official checkout/refs giữ nguyên, không stage/commit/push. Docker source contexts/11 recipe tests đạt, chưa build/chạy image vì daemon dừng và RAM thấp. DAS preview giữ dừng theo yêu cầu giảm tác vụ nền. Xem [checkpoint mới](LOCAL-FINISHING-CHECKPOINT-20261009.md).
+
+## Docker local đã kiểm và dừng — 09/10/2026
+
+Theo quyền đóng Roblox/các ứng dụng trong lượt này, đã giảm tác vụ nền và kiểm Docker thật.6 backend +1 frontend image build đạt;6 backend startup/41 HTTP checks và25 frontend HTTP checks đạt.5 store SQLite mới chạy native SQL trong container, snapshot integrity/foreign keys đạt.15 layout và13 recipe tests qua; sửa công cụ view thiếu DTO mới và probe404 sau session gate, không đổi nghiệp vụ.1357 file nguồn sử dụng trong image được đối chiếu không drift, official checkout/refs giữ nguyên. Không commit/push/deploy, không nghiệm thu customer/SQL Server Production hoặc bật EAP/OCR/TMS/SMTP thật.
+
+Docker/WSL đã dừng, cấu hình WSL tạm đã gỡ, resource smoke/build có owner đã dọn; giữ image local. Roblox/hình nền vẫn dừng; Zalo mở lại được giữ. Xem [checkpoint Docker hiện hành](DOCKER-EXECUTION-CHECKPOINT-20261009.md). G7 vẫn Partial/prepared và G8 chưa customer UAT/signoff; các gate bên ngoài theo checkpoint J21–J23.
+
+## Cập nhật Git theo yêu cầu — 09/10/2026
+
+Repo chính thức đã cập nhật đúng phạm vi: numbering `25f7e91` (README dependency), shared-contracts `7408872` (V2HistoryContracts/README/namespace), architecture `9d38bd1` (dependency/phương án ghép/bản đồ file). Database không có thay đổi cần xuất bản; main chính thức giữ nguyên `36f8f0f`. Đã đối chiếu refs trực tiếp trên GitHub; không đưa workflow/UI, tests, migration mới, checkpoint, credential, database/PDF hoặc cache vào bốn nhánh module.
+
+Bản cập nhật repo phụ gồm75 file code/test/tài liệu kỹ thuật: J22/J23 backend/UI, read DTO/entity separation, lịch sử, responsive và công cụ QA. Kiểm chứng trước commit: frontend479/479; backend798 test qua trong8 project non-SQL,1 ca Restore SQL drill skipped vì không cấu hình môi trường riêng; layout15/15; Python QA102/102; typecheck exit0; lint0errors/66warnings cũ. Typecheck lần1 bị heap OOM1536MiB, lần2 với2048MiB qua; không đổi code hoặc bỏ bước kiểm kiểu. Không chạy lại Docker, SQL khách hàng, SMTP/TMS/EAP/OCR thật hoặc nghiệm thu Production. Các bản build, dữ liệu local và báo cáo ngoài phạm vi giữ ngoài commit.

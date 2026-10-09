@@ -433,8 +433,9 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Models/DTOs/V2HttpContracts.cs",
       "destination": "backend/services/document-service/Models/DTOs/V2HttpContracts.cs",
       "originalSha256": "c98d7e0f1cf075f13350e4107cacb90a8011b70c27712f89e764d8846f469756",
-      "sha256": "c98d7e0f1cf075f13350e4107cacb90a8011b70c27712f89e764d8846f469756",
-      "bytes": 3146
+      "sha256": "da827e6c7bf1ce60dcfe457fd8328b6b1f0868fe64d732d0aada47246dd14ac7",
+      "bytes": 3144,
+      "contractRefinement": "Explicit read DTO; unchanged existing details JSON"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Models/DTOs/V2KindDetailsContracts.cs",
@@ -503,8 +504,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Models/Entities/DocumentV2Persistence.cs",
       "destination": "backend/services/document-service/Models/Entities/DocumentV2Persistence.cs",
       "originalSha256": "a06284aba1cae7a93693a7e6a331d1dee8d74e68b960e883bd219d014b5d2209",
-      "sha256": "a06284aba1cae7a93693a7e6a331d1dee8d74e68b960e883bd219d014b5d2209",
-      "bytes": 2992
+      "sha256": "01096f56d9e4f07a20d20511132626c2c4aaad02d78bd50391066eea378baf0e",
+      "bytes": 1979
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Models/Entities/Documents.cs",
@@ -517,8 +518,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Program.cs",
       "destination": "backend/services/document-service/Program.cs",
       "originalSha256": "2159b73883d80e58d0a43b6ff46168b5da80fb71295288e9fd132ea06ef3860b",
-      "sha256": "4724f3d9c4c44b950f084df3e3ccc71c5a8f02933a0aeb0200da91c69e056f27",
-      "bytes": 7436
+      "sha256": "a2705a503706055ffa6fcd5cd86343565965047f4a295bb1f438e799e7e8ec69",
+      "bytes": 7486
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Authorization/DocumentV2Authority.cs",
@@ -1033,8 +1034,8 @@
       "source": "Intern-DocumentAdministration-BE/services/partner-service/Program.cs",
       "destination": "backend/services/partner-service/Program.cs",
       "originalSha256": "7260943cfc7c03e6058db2d761087da4f22958f19d6e0fa2e2e8c7cb3014b13f",
-      "sha256": "ee49125b367e706dc1ec9b10f8855c2221a27e7c6769d9b9c324789b2442474b",
-      "bytes": 6361
+      "sha256": "8663ae01d46c00788e75ba9176df1d596b2f13e888653bb6245bc8509a929430",
+      "bytes": 6651
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/partner-service/appsettings.json",
@@ -1461,8 +1462,8 @@
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/V2HttpTests.cs",
       "destination": "backend/tests/DocumentService.Tests/V2HttpTests.cs",
       "originalSha256": "6895249ca9511a8e3ea4cad93d0ad7fa623cffa3685ef3fdfdf0d03677bd84d6",
-      "sha256": "6895249ca9511a8e3ea4cad93d0ad7fa623cffa3685ef3fdfdf0d03677bd84d6",
-      "bytes": 15154
+      "sha256": "d7a85a082296222888e44ccc69e27e4340acd2d6c1fdb80e96bd250a854c24af",
+      "bytes": 15331
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/DocumentService.Tests/V2KindDetailsSqlTests.cs",
@@ -1723,8 +1724,8 @@
       "source": "Intern-DocumentAdministration-BE/tests/PartnerService.Tests/PartnerHttpTests.cs",
       "destination": "backend/tests/PartnerService.Tests/PartnerHttpTests.cs",
       "originalSha256": "47bda2a322185f9e3806b6338f8ed72cd978a8e0283b16687a37f89564d6e159",
-      "sha256": "47bda2a322185f9e3806b6338f8ed72cd978a8e0283b16687a37f89564d6e159",
-      "bytes": 10929
+      "sha256": "622e5ae082374128c7122835973843ef1968cc790f80483d166f36fa2277d1b2",
+      "bytes": 11143
     },
     {
       "source": "Intern-DocumentAdministration-BE/tests/PartnerService.Tests/PartnerProductionDatabaseTests.cs",
@@ -4336,8 +4337,8 @@
       "source": "src/@menu/components/horizontal-menu/HorizontalNav.tsx",
       "destination": "frontend/src/@menu/components/horizontal-menu/HorizontalNav.tsx",
       "originalSha256": "c60cd7bb5fdcf4dae92ead4c80eb354878032b6048b35eae23575b451171882f",
-      "sha256": "8e36c549c117ee18a4e9fff9b10a0725ef53a386b188566baf24da000f6c627c",
-      "bytes": 3450
+      "sha256": "3d25ffa233da881bd5916dc06d8ce8180383430d034fd2bdb6e035feb838a97d",
+      "bytes": 3540
     },
     {
       "source": "src/@menu/components/horizontal-menu/Menu.tsx",
@@ -4378,8 +4379,8 @@
       "source": "src/@menu/components/horizontal-menu/VerticalNavInHorizontal.tsx",
       "destination": "frontend/src/@menu/components/horizontal-menu/VerticalNavInHorizontal.tsx",
       "originalSha256": "d8552fefbd5b6e5adaa161ffd8ea1cfeb77c52a0e190edf17652b212658a5bf2",
-      "sha256": "39e1bbff350b7991de841f9decdb5d784e91b856d39bea2dd5a1aabdf24e0609",
-      "bytes": 890
+      "sha256": "7190f6b70ebea7b367e9fcdeaee6115fdd6e0631567fd8fad83c19d838d5a867",
+      "bytes": 980
     },
     {
       "source": "src/@menu/components/vertical-menu/Menu.tsx",
@@ -6072,22 +6073,22 @@
       "source": "src/components/layout/horizontal/HorizontalMenu.tsx",
       "destination": "frontend/src/components/layout/horizontal/HorizontalMenu.tsx",
       "originalSha256": "555ea53a88ab5e8474baf1055b553cfdbc6fdfc0b00909a42c8f5c797161eec0",
-      "sha256": "555ea53a88ab5e8474baf1055b553cfdbc6fdfc0b00909a42c8f5c797161eec0",
-      "bytes": 5614
+      "sha256": "9abf20333e7f5e4480b5a960891ff9f32f30f7e658c5614cd6b2491d252a408a",
+      "bytes": 6264
     },
     {
       "source": "src/components/layout/horizontal/NavToggle.tsx",
       "destination": "frontend/src/components/layout/horizontal/NavToggle.tsx",
       "originalSha256": "2ae00fb77757f3cb5418b38666c3d41bd80e1513b556dfea4ee2f483764cefa4",
-      "sha256": "7ab9afadf309ecc005ee11e6baa7712a1dda6e3d08d9cce1ffad5c14d6409778",
-      "bytes": 710
+      "sha256": "8aba611fda294c3d2336d46a9cefc5d60001e141af7d28e35a23da693e042e98",
+      "bytes": 314
     },
     {
       "source": "src/components/layout/horizontal/NavbarContent.tsx",
       "destination": "frontend/src/components/layout/horizontal/NavbarContent.tsx",
       "originalSha256": "58f6483f834841a8b2e53c76b1e160ca790dbb9ef545375e3fd10322b102c865",
-      "sha256": "58f6483f834841a8b2e53c76b1e160ca790dbb9ef545375e3fd10322b102c865",
-      "bytes": 2091
+      "sha256": "c04ad1bae0cb43ea69259b1dcc85fd2a4ca5c3685a01a5c4483b83fd72cc8cbd",
+      "bytes": 2150
     },
     {
       "source": "src/components/layout/horizontal/Navigation.tsx",
@@ -6100,8 +6101,8 @@
       "source": "src/components/layout/horizontal/VerticalNavContent.tsx",
       "destination": "frontend/src/components/layout/horizontal/VerticalNavContent.tsx",
       "originalSha256": "41f2a6e56941c604aef14d2068916b2652591607965fa9d83d13277e3cb571f7",
-      "sha256": "43c025ee9b6cc7551258e3b58c57386390150fa0065e4a1e7de097cfdcac73ce",
-      "bytes": 3144
+      "sha256": "7425c471c9f88787c64723c020a56ae353cd748f3105b68b25840697ba96cd62",
+      "bytes": 3316
     },
     {
       "source": "src/components/layout/shared/DasNotificationsDropdown.tsx",
@@ -6233,8 +6234,8 @@
       "source": "src/components/layout/vertical/NavbarContent.tsx",
       "destination": "frontend/src/components/layout/vertical/NavbarContent.tsx",
       "originalSha256": "8c8765b616bfd749b42a927f85e88298f543578688869025e106351819eb7e16",
-      "sha256": "8c8765b616bfd749b42a927f85e88298f543578688869025e106351819eb7e16",
-      "bytes": 1350
+      "sha256": "27e563ad7ef7485dfbbb159499b1b58cf8276affa1871a8512a35cc5cf540354",
+      "bytes": 1409
     },
     {
       "source": "src/components/layout/vertical/Navigation.tsx",
@@ -6773,8 +6774,8 @@
       "source": "src/services/das/catalogs.ts",
       "destination": "frontend/src/services/das/catalogs.ts",
       "originalSha256": "4249e36a9799260ceab6f928512140693918c25316a0b269dd447b9ee3cc322b",
-      "sha256": "099e573548aae9d9ce2e4a2940e7cd92a43b6eb2c5f00caf05b6dc895ed82067",
-      "bytes": 5591
+      "sha256": "67f003be70cd798e29343fb7d29474ecc64e3fab0e99be0e847a0dc57405bce7",
+      "bytes": 7805
     },
     {
       "source": "src/services/das/directory.ts",
@@ -6934,8 +6935,8 @@
       "source": "src/types/das/catalogs.ts",
       "destination": "frontend/src/types/das/catalogs.ts",
       "originalSha256": "6d5a6b767b204cc0cd98db2634a23c530b365ed76d79042cd7635786e27a6a51",
-      "sha256": "6d5a6b767b204cc0cd98db2634a23c530b365ed76d79042cd7635786e27a6a51",
-      "bytes": 857
+      "sha256": "7d560587afb2bc237fbd5b3dc6266037941f256c4d382ebd4e366315984ff20c",
+      "bytes": 1247
     },
     {
       "source": "src/types/das/directory.ts",
@@ -6948,8 +6949,8 @@
       "source": "src/types/das/document-v2.ts",
       "destination": "frontend/src/types/das/document-v2.ts",
       "originalSha256": "3452e3374eb78a8f7944c80630f0a2cf8a2ec2e8490f875a49eac0c118bf849e",
-      "sha256": "56b3a808759af331284d4cc4fbf5445f4fd2029cd3ee9d6804e4532ced083bce",
-      "bytes": 2254
+      "sha256": "d5efdde66498ab894e305dcf3ba897b7aee243d4e8ce165e9c42bd735f7dcaba",
+      "bytes": 2404
     },
     {
       "source": "src/types/das/documents.ts",
@@ -7312,8 +7313,8 @@
       "source": "src/views/apps/documents/detail/index.tsx",
       "destination": "frontend/src/views/apps/documents/detail/index.tsx",
       "originalSha256": "dcdad44a33bea61bc596ad3232861798db98030740279a49b7e99027c430ce6a",
-      "sha256": "d7872fc2c34cf68ca8cb54bd26aca51971be9b44c552342453566bf6af70a38c",
-      "bytes": 19933
+      "sha256": "373d8d499c609a147d45595356351383ec6bc30e8580b3a32b09a8c70543fc38",
+      "bytes": 20268
     },
     {
       "source": "src/views/apps/documents/edit/EditDocumentForm.tsx",
@@ -8201,15 +8202,15 @@
       "source": "src/views/apps/partners/list/AddPartnerDrawer.tsx",
       "destination": "frontend/src/views/apps/partners/list/AddPartnerDrawer.tsx",
       "originalSha256": "46e985810dea37a0c80af21f75b2e19a49aa8d4de2080b4c820616d343759d46",
-      "sha256": "78d2dc1676c6cda373339a3187a604142bf8ffaed57b9e03024973044bf90420",
-      "bytes": 7052
+      "sha256": "107d37bffb1a686b10be5f78ce10c2330b2011078c679b2bd5a48493f31a1bec",
+      "bytes": 7442
     },
     {
       "source": "src/views/apps/partners/list/PartnerListTable.tsx",
       "destination": "frontend/src/views/apps/partners/list/PartnerListTable.tsx",
       "originalSha256": "c3494e3769df438c6e5875093a841c6c195a5c172615476761c8909965940972",
-      "sha256": "327186f66f510c4f0434cddbfecb060e35422afc9a387b429e70d1205976a742",
-      "bytes": 14511
+      "sha256": "81902c73a8f77c9464eea97633e9e70606fbe974110fd3eaae64aa3732b18f51",
+      "bytes": 15067
     },
     {
       "source": "src/views/apps/partners/list/index.tsx",
@@ -8258,8 +8259,8 @@
       "source": "src/views/apps/settings/BusinessCatalogs.tsx",
       "destination": "frontend/src/views/apps/settings/BusinessCatalogs.tsx",
       "originalSha256": "471b3b0b072485620f62d5714cf72a5af4335a56b260200ec20b4d372c350353",
-      "sha256": "fb05deffae4d0d08c4461ec7d3698060f760895067cae1bb76c1c6c74aa0c51e",
-      "bytes": 15201
+      "sha256": "a196473f4f89c1cb4206eae2c328f788ba17fe02012b8efb3b82625e6d0db4f4",
+      "bytes": 19249
     },
     {
       "source": "src/views/apps/settings/OrganizationDirectory.tsx",
@@ -10283,8 +10284,8 @@
       "source": "tests/qa/test_frontend_image.py",
       "destination": "tests/qa/test_frontend_image.py",
       "originalSha256": "a4e625701ed6d94718c08bca25eec1c7c5eb693fa38bcb0a42ff47b813ea021f",
-      "sha256": "a4e625701ed6d94718c08bca25eec1c7c5eb693fa38bcb0a42ff47b813ea021f",
-      "bytes": 6685
+      "sha256": "760ba59233d5f3468667ad147907d61ef4b2ab1cd797ee286c1d863e90124ddc",
+      "bytes": 8305
     },
     {
       "source": "tests/qa/test_license_inventory.py",
@@ -10405,8 +10406,8 @@
       "source": "scripts/qa/run-frontend-image-smoke.py",
       "destination": "tools/qa/run-frontend-image-smoke.py",
       "originalSha256": "7854fe2db6af23c87aacb042cdbcac5d8244c0a021257b2933529033c8852f59",
-      "sha256": "7854fe2db6af23c87aacb042cdbcac5d8244c0a021257b2933529033c8852f59",
-      "bytes": 10316
+      "sha256": "ee848f5cfe65f9ddc63b68eb92526cab2ee61cef385007ba76acfd00c58f33ce",
+      "bytes": 10833
     },
     {
       "source": "scripts/qa/run-linux-core-ci.py",
@@ -10582,8 +10583,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Notifications/DocumentNotifications.cs",
       "destination": "workflows/business/document-service/Notifications/DocumentNotifications.cs",
       "originalSha256": "9c32b0181edfc65d3f4aeb25116982eb845c08100ac5abc51200db522e50130a",
-      "sha256": "9c32b0181edfc65d3f4aeb25116982eb845c08100ac5abc51200db522e50130a",
-      "bytes": 6225
+      "sha256": "3cfed31ce23ad905081d908c93648ec43f48d0555a5f1009faa94b0b892aaf49",
+      "bytes": 5809
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Numbering/DocumentNumberFormatter.cs",
@@ -10603,8 +10604,9 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Queries/V2DocumentQueries.cs",
       "destination": "workflows/business/document-service/Queries/V2DocumentQueries.cs",
       "originalSha256": "320322d2bb75934dfbcbb15ed9c6d0ee212f1ffebf6bacf6b30eb7c6bda88d57",
-      "sha256": "320322d2bb75934dfbcbb15ed9c6d0ee212f1ffebf6bacf6b30eb7c6bda88d57",
-      "bytes": 4206
+      "sha256": "c868d7b7a8a2f67855ebca50b163e886698ef358d5ec836ad79acddbfee35260",
+      "bytes": 4599,
+      "contractRefinement": "Explicit read DTO; unchanged existing details JSON"
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Registration/V2RegistrationService.cs",
@@ -10624,8 +10626,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reminders/DurableReminderTransport.cs",
       "destination": "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
       "originalSha256": "da0c3372b6b7d65b60ddfc42078b83edcce58e74e84d80c5a611f723ff875a4d",
-      "sha256": "f735b2124bdbbfdc3eb4d8e914d7f353ebb5ebccc1d4c726389fad1f2455d2f2",
-      "bytes": 10534,
+      "sha256": "39da8d4849dd8bee77af824eaf45aa47292efd444208869a3d10ee52231a0c9b",
+      "bytes": 9903,
       "previousCanonicalSha256": "da0c3372b6b7d65b60ddfc42078b83edcce58e74e84d80c5a611f723ff875a4d"
     },
     {
@@ -10640,8 +10642,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Reminders/WeeklyReminders.cs",
       "destination": "workflows/business/document-service/Reminders/WeeklyReminders.cs",
       "originalSha256": "6df7be17b5618bc1fd714a76c1450a41bae08b66f55f8cab943eedb7fd2f7b7e",
-      "sha256": "6742b9047123073db223d4a468ac08941c930f2000017be531f1da6e796c2856",
-      "bytes": 10406,
+      "sha256": "e411b13de335ec9eb8f77599307a724b68a01ed611f04ee23f7c93124a611daf",
+      "bytes": 9947,
       "previousCanonicalSha256": "6df7be17b5618bc1fd714a76c1450a41bae08b66f55f8cab943eedb7fd2f7b7e"
     },
     {
@@ -10663,8 +10665,8 @@
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Tasks/DocumentTasks.cs",
       "destination": "workflows/business/document-service/Tasks/DocumentTasks.cs",
       "originalSha256": "8f16e1be55cff33e6b33dd1eb1f13abadadd8d110c8f9f127bdacc2cccddbd83",
-      "sha256": "8f16e1be55cff33e6b33dd1eb1f13abadadd8d110c8f9f127bdacc2cccddbd83",
-      "bytes": 8971
+      "sha256": "d8e3d3f4fcd3f206443a0a120ba2c83e9a1acd0d63cfac98c4e717f490e7c81d",
+      "bytes": 8485
     },
     {
       "source": "Intern-DocumentAdministration-BE/services/document-service/Services/Tasks/MyStaff.cs",
@@ -10679,6 +10681,38 @@
       "originalSha256": "2ec412a463d8d29009eb9ce318de043178a64632e4297475e41d6077b12d9f95",
       "sha256": "2ec412a463d8d29009eb9ce318de043178a64632e4297475e41d6077b12d9f95",
       "bytes": 8484
+    },
+    {
+      "source": "Intern-DocumentAdministration-BE/services/document-service/Models/DTOs/RegistrationContracts.cs",
+      "destination": "backend/services/document-service/Models/DTOs/RegistrationContracts.cs",
+      "originalSha256": "18fa4a01e75c7d0276e4e5edf062352c698d45463986d7462750ba5c3c75e243",
+      "sha256": "18fa4a01e75c7d0276e4e5edf062352c698d45463986d7462750ba5c3c75e243",
+      "bytes": 1079,
+      "layoutAdaptation": true,
+      "derivedFrom": [
+        "backend/services/document-service/Models/Entities/DocumentV2Persistence.cs"
+      ]
+    },
+    {
+      "source": "Intern-DocumentAdministration-BE/services/document-service/Models/Entities/DeliveryEntities.cs",
+      "destination": "backend/services/document-service/Models/Entities/DeliveryEntities.cs",
+      "originalSha256": "9a76a6baf919c5b861efefee38d2b747ba761dab59650bb97c769b55df903052",
+      "sha256": "9a76a6baf919c5b861efefee38d2b747ba761dab59650bb97c769b55df903052",
+      "bytes": 2023,
+      "layoutAdaptation": true,
+      "derivedFrom": [
+        "workflows/business/document-service/Reminders/WeeklyReminders.cs",
+        "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
+        "workflows/business/document-service/Tasks/DocumentTasks.cs",
+        "workflows/business/document-service/Notifications/DocumentNotifications.cs"
+      ]
+    },
+    {
+      "source": "Local read-contract refinement 2026-10-09",
+      "destination": "backend/services/document-service/Models/DTOs/V2ReadContracts.cs",
+      "sha256": "4c38a9d934db87c0d664621ab036325d3597f862e8f68a671a6225d1907b9146",
+      "bytes": 516,
+      "contractRefinement": "Read-only scalar snapshot; no EF navigation"
     }
   ],
   "layoutAdaptations": [

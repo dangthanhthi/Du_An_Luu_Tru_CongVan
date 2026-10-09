@@ -3,6 +3,8 @@
 import { useSessionIntent } from '@/hooks/useSessionIntent'
 import { useAppDictionary } from '@/hooks/useDictionary'
 import { useEffect, useState, useRef } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
@@ -27,6 +29,8 @@ import tableStyles from '@core/styles/table.module.css'
 
 export default function PartnerListTable() {
   const sessionIntent = useSessionIntent()
+  const params = useParams()
+  const lang = typeof params.lang === 'string' && ['vi', 'en', 'fr', 'ar'].includes(params.lang) ? params.lang : 'vi'
   const { isEn } = useAppDictionary()
   const [search, setSearch] = useState('')
   const [type, setType] = useState<ExternalEntityType | ''>('')
@@ -242,6 +246,10 @@ export default function PartnerListTable() {
                           <Button size='small' onClick={() => setModal({ entry })}>
                             {writeAllowed && !entry.isDeleted ? (isEn ? 'Edit' : 'Sửa') : (isEn ? 'View' : 'Xem')}
                           </Button>
+                          {writeAllowed && <Button component={Link} size='small' href={`/${lang}/apps/partners/${entry.id}?tab=history`}
+                            aria-label={`${isEn ? 'History' : 'Lịch sử'}: ${entry.fullName}`}>
+                            {isEn ? 'History' : 'Lịch sử'}
+                          </Button>}
                           {writeAllowed && (
                             <Button
                               size='small'

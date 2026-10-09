@@ -1,18 +1,18 @@
 # Thiết kế API bổ sung J21–J23
 
-Ngày: 08/10/2026. Trạng thái: **IMPLEMENTING — người dùng yêu cầu triển khai ngày08/10/2026**. J21 đã có code local/review; J22–J23 đang triển khai. Chưa kết luận gateway/browser/production acceptance.
+Ngày cập nhật: 09/10/2026. Trạng thái: **IMPLEMENTED_LOCAL / BROWSER_VERIFIED**. J21–J23 có backend, gateway và UI; kiểm tra code/component/HTTP/SQL và browser local đã đạt trong phạm vi ghi ở checkpoint. TMS thật, authority/capability production, dữ liệu khách hàng và UAT vẫn chưa nghiệm thu.
 
-Phạm vi lượt thiết kế trước là hợp đồng API và tiêu chí nghiệm thu. Lượt hiện tại thực hiện các hợp đồng đó; theo dõi bằng [checkpoint triển khai](../J21-J23-IMPLEMENTATION-CHECKPOINT-20261008.md). Code local không thay nghiệm thu TMS/authority/dữ liệu khách hàng thật; chỉ đổi trạng thái ma trận khi có bằng chứng đúng gate.
+Phạm vi lượt thiết kế trước là hợp đồng API và tiêu chí nghiệm thu. Lượt hiện tại thực hiện các hợp đồng đó; theo dõi bằng [checkpoint triển khai](../J21-J23-COMPLETION-CHECKPOINT-20261009.md). Code local không thay nghiệm thu TMS/authority/dữ liệu khách hàng thật; chỉ đổi trạng thái ma trận khi có bằng chứng đúng gate.
 
 ## Đọc và triển khai
 
 1. [J21 — My Staff](J21-MY-STAFF.md): lọc người được giao trên toàn bộ tập công việc được phép xem, phân trang nhân sự/công việc độc lập.
 2. [J22 — Danh mục ngừng hoạt động](J22-INACTIVE-CATALOGS.md): danh sách quản trị có trạng thái hoạt động, khôi phục bằng PUT có version, giữ lookup tạo công văn active-only.
 3. [J23 — Lịch sử](J23-AUDIT-HISTORY.md): timeline đối tác, deep link, lịch sử hủy/khôi phục công văn từ bằng chứng đã lưu.
-4. [OpenAPI dự thảo](J21-J23.openapi.json): các endpoint đọc đề xuất, không phải mô tả API đang chạy.
+4. [OpenAPI](J21-J23.openapi.json): các endpoint đọc đã triển khai local; không chứng minh tích hợp production.
 5. [Kế hoạch triển khai](../superpowers/plans/2026-10-08-j21-j23-contracts.md): file cần sửa, ca kiểm thử và thứ tự bàn giao.
 
-## Các quyết định đề xuất
+## Các quyết định triển khai
 
 | Quyết định | Lý do |
 |---|---|
@@ -35,7 +35,7 @@ Phạm vi lượt thiết kế trước là hợp đồng API và tiêu chí ngh
 - Lọc theo quyền và điều kiện nghiệp vụ **trước** Count/Skip/Take. Total mô tả cùng tập lọc với items. Một response count/items phải đọc trên một snapshot DB nhất quán; không mở transaction qua lời gọi TMS hoặc authority từ xa.
 - Trang ngoài phạm vi hợp lệ trả items rỗng, giữ metadata của page đã yêu cầu và total chính xác. UI dùng effect mới của trang được kẹp; không dùng request cũ để tải bù.
 - Response đọc đặt `Cache-Control: no-store`. Không cache dữ liệu cũ qua tài khoản, đăng xuất, thay quyền hoặc đổi phạm vi. Không log token, nội dung PDF hoặc cấu hình local.
-- Giữ envelope hiện hành theo từng service; không ép API cũ đổi shape. Các schema OpenAPI mới chỉ cho endpoint bổ sung. Error code thuộc đề xuất, còn code cũ giữ nguyên.
+- Giữ envelope hiện hành theo từng service; không ép API cũ đổi shape. Các schema OpenAPI mới chỉ cho endpoint bổ sung; code lỗi cũ giữ nguyên.
 - Tên actor/nhân sự chỉ lấy từ nguồn xác minh. GUID có thể hiển thị bằng nhãn “ID”; không suy tên, phòng hoặc thời điểm từ GUID/chuỗi ghi chú.
 - Thời gian wire ISO8601 UTC `Z`; UI hiển thị theo locale, với nhãn múi giờ khi cần. Lịch nhắc vẫn >7 ngày, thứ Hai 08:00 Việt Nam.
 - Phản hồi sai schema/scope từ upstream: lỗi 502/503 theo tài liệu từng module; không coi là danh sách rỗng thành công. UI có thông báo lỗi, tải lại; không tự retry mutation.
@@ -45,6 +45,6 @@ Phạm vi lượt thiết kế trước là hợp đồng API và tiêu chí ngh
 
 Thiết kế J21 có thể viết test với adapter fixture hợp lệ. Nghiệm thu positive với TMS thật vẫn cần phía TMS cung cấp filter trước phân trang, total, ID mapping và paging ổn định. Không tải mọi task không thuộc quyền rồi lọc ở client.
 
-J22 và partner audit có thể triển khai trên database hiện có sau khi thống nhất API. Document lifecycle history cần parser allowlist cho `ChangesJson` và test dữ liệu cũ; không cần tự thêm cột để suy diễn lịch sử. Chỉ cân nhắc index/migration sau kiểm tra query plan SQL và index hiện có.
+J22 và partner audit đã triển khai trên database hiện có. Document lifecycle history dùng parser allowlist cho `ChangesJson` thực của V2 writer; audit legacy chưa xác minh trả unavailable. Không thêm cột để suy diễn lịch sử. Chỉ cân nhắc index/migration sau kiểm tra query plan SQL và index hiện có.
 
-Triển khai backend/gateway trước; contract tests qua gateway; sau đó frontend với regression quyền/session/request ownership. Feature chưa được backend hỗ trợ phải giữ trạng thái chưa sẵn sàng. Không fallback sang API legacy. Không commit/push trong lượt thiết kế này.
+Triển khai backend/gateway trước; contract tests qua gateway; sau đó frontend với regression quyền/session/request ownership. Feature chưa được backend hỗ trợ phải giữ trạng thái chưa sẵn sàng. Không fallback sang API legacy. Lượt triển khai hiện hành không commit/push.

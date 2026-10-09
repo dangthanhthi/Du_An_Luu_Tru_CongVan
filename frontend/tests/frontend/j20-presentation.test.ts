@@ -48,7 +48,7 @@ for (const [status, expected] of [[401, 'Phiên đăng nhập đã hết hạn']
       'next/navigation': { useParams: () => ({ lang: 'vi' }) }, 'next/link': { default: 'Link' },
       '@/services/api': { ApiRequestError },
       '@/services/das/documents': { documentsV2Api: { detail: async () => { throw new ApiRequestError(status, 'Generic transport message') } } },
-      '../V2PdfPanel': { default: 'PdfPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' }
+      '../V2PdfPanel': { default: 'PdfPanel' }, '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' }
     })
     ui.render({ id: 'fixture' }); ui.commit(); await tick()
     const tree = ui.render({ id: 'fixture' })

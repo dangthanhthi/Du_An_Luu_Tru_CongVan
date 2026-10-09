@@ -31,6 +31,17 @@ def image_boundary(image,expected):
     if not re.fullmatch('[0-9a-f]{64}',digest):raise ValueError('Frontend source hash required')
     return digest
 
+def template_page_boundary(status,content):
+    if status==404:return True
+    if status!=200:return False
+    lower=content.lower()
+    error404=any(marker in lower for marker in (b'next_http_error_fallback;404',b'this page could not be found',b'page not found'))
+    # The session boundary deliberately renders only its checking state during
+    # SSR. Next may stream the child's 404 digest without a noindex meta tag.
+    gates=('<div role="status">Đang kiểm tra phiên…</div>','<div role="status">Checking session…</div>')
+    closed_session=any(gate.encode('utf-8') in content for gate in gates)
+    return error404 and (b'content="noindex"' in lower or closed_session)
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--image',required=True);parser.add_argument('--directory',required=True)
     parser.add_argument('--include-template-data',action='store_true',help='Check the ten disabled static template GET APIs on a new candidate')
@@ -102,8 +113,7 @@ def main():
             for path in ('/vi/apps/user/list','/vi/apps/roles','/vi/apps/permissions','/vi/apps/ecommerce/dashboard','/vi/apps/academy/dashboard'):
                 status,headers,content=request('GET',path);lower=content.lower()
                 # Next can already have streamed a 200 shell when a not-found interrupt occurs.
-                not_found=status==404 or (status==200 and b'content="noindex"' in lower and
-                    any(marker in lower for marker in (b'next_http_error_fallback;404',b'this page could not be found',b'page not found')))
+                not_found=template_page_boundary(status,content)
                 check(path,not_found and 'set-cookie' not in headers,status=status,notFoundBoundary=bool(not_found),bytes=len(content))
         script="const f=require('fs');const paths=f.readdirSync('/app',{recursive:true});const bad=paths.filter(p=>/\\.(pem|key|pfx|db|sqlite|bak)$/.test(p)||p.split('/').some(n=>n.startsWith('.env')&&n!=='.env.example'));console.log(JSON.stringify({server:f.existsSync('/app/server.js'),static:f.existsSync('/app/.next/static'),public:f.existsSync('/app/public'),uid:process.getuid(),credentialOrDatabaseFiles:bad}));"
         package=json.loads(cli(['docker','exec',name,'node','-e',script],check=True).stdout)

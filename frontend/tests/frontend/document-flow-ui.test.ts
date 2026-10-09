@@ -90,16 +90,16 @@ test('Two submit events before a render dispatch only one registration request',
   finally { reply.resolve({ id: documentId }); await Promise.all([first, second]); f.ui.unmount() }
 })
 
-function detailFixture(initial = saved(), failure?: ApiRequestError) {
+function detailFixture(initial = saved(), failure?: ApiRequestError, readFailure?: ApiRequestError) {
   let data = initial
   const mutations: any[][] = []
   const ui = componentHarness(new URL('../../src/views/apps/documents/detail/index.tsx', import.meta.url), {
     '@/hooks/useSessionIntent': { useSessionIntent: () => ({ assertCurrent() {} }) },
     '@/hooks/useDictionary': { useAppDictionary: () => ({ isEn: true }) },
     'next/navigation': { useParams: () => ({ lang: 'en' }) }, 'next/link': { default: 'Link' },
-    '@/services/api': { ApiRequestError }, '../V2PdfPanel': { default: 'PdfPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
+    '@/services/api': { ApiRequestError }, '../V2PdfPanel': { default: 'PdfPanel' }, '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
     '@/services/das/documents': { documentsV2Api: {
-      detail: async () => data,
+      detail: async () => { if (readFailure) throw readFailure; return data },
       status: async (...args: any[]) => {
         mutations.push(args.slice(0, 4)); if (failure) throw failure
         data = { ...data, header: { ...data.header, version: data.header.version + 1, status: args[2] === 'Cancel' ? 'Cancelled' : 'Distributed' } }
@@ -114,6 +114,22 @@ function detailFixture(initial = saved(), failure?: ApiRequestError) {
   render(); ui.commit()
   return { ui, render, button, mutations }
 }
+
+test('Detail decoder failure keeps independent server-authorized lifecycle history available', async () => {
+  const f = detailFixture(saved(), undefined, new ApiRequestError(502, 'Unsafe legacy version'))
+  await tick()
+  assert.ok(textContent(f.render()).includes('Failed to load document'))
+  assert.equal(nodes(f.render()).find(n => n.type === 'HistoryPanel')?.props.id, documentId)
+  assert.equal(nodes(f.render()).some(n => n.type === 'PdfPanel'), false)
+  assert.equal(f.mutations.length, 0)
+  f.ui.unmount()
+})
+for (const status of [401, 403, 404]) test(`Detail ${status} does not mount private lifecycle history`, async () => {
+  const f = detailFixture(saved(), undefined, new ApiRequestError(status, 'Denied'))
+  await tick()
+  assert.equal(nodes(f.render()).some(n => n.type === 'HistoryPanel'), false)
+  f.ui.unmount()
+})
 test('Detail distribute, cancel and restore use each authoritative reloaded version', async () => {
   const f = detailFixture(); await tick()
   await f.button('Distribute').props.onClick(); f.render(); f.ui.commit(); await tick()

@@ -10,7 +10,7 @@ type VerticalNavInHorizontalProps = ChildrenType & {
   className?: string
   breakpoint?: BreakpointType
   customBreakpoint?: string
-  verticalNavProps?: Pick<VerticalNavProps, 'width' | 'backgroundColor' | 'backgroundImage' | 'customStyles'>
+  verticalNavProps?: Pick<VerticalNavProps, 'width' | 'backgroundColor' | 'backgroundImage' | 'customStyles' | 'id' | 'inert' | 'role' | 'aria-hidden' | 'aria-modal' | 'aria-label' | 'backdropLabel'>
 }
 
 const VerticalNavInHorizontal = (props: VerticalNavInHorizontalProps) => {

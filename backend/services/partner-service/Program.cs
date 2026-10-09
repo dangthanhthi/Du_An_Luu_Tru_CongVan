@@ -54,6 +54,7 @@ builder.Services.AddProblemDetails();
 
 // --- Business Services ---
 builder.Services.AddScoped<IPartnerBusinessService, PartnerBusinessService>();
+builder.Services.AddScoped<PartnerAuditQuery>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -149,6 +150,11 @@ app.UseSwaggerUI();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "partner-service" }));
 
 app.UseCors();
+app.Use(async (context, next) => {
+    if (context.Request.Path.StartsWithSegments("/api"))
+        context.Response.OnStarting(() => { context.Response.Headers.CacheControl = "no-store"; return Task.CompletedTask; });
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

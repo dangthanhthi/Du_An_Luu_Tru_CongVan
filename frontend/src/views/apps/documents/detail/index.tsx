@@ -24,6 +24,7 @@ import { ApiRequestError } from '@/services/api'
 import type { DocumentDetailV2 } from '@/types/das/document-v2'
 import V2PdfPanel from '../V2PdfPanel'
 import DocumentTaskPanel from '../DocumentTaskPanel'
+import HistoryPanel from '@/views/apps/history/HistoryPanel'
 
 function catalogLabel(code?: string | null, savedName?: string | null) {
   return savedName ? (code ? `${savedName} (${code})` : savedName) : code
@@ -36,7 +37,7 @@ export default function DocumentDetail({ id }: { id: string }) {
   const [revision, setRevision] = useState(0), [busy, setBusy] = useState(false)
   const inFlightRef = useRef(false)
   const key = `${id}:${revision}`
-  const [result, setResult] = useState<{ key: string; document?: DocumentDetailV2; error?: string }>({ key: '' })
+  const [result, setResult] = useState<{ key: string; document?: DocumentDetailV2; error?: string; status?: number }>({ key: '' })
   const [message, setMessage] = useState(''), [cancelOpen, setCancelOpen] = useState(false), [reason, setReason] = useState('')
   const [mustReload, setMustReload] = useState(false)
   const current = result.key === key ? result : null, doc = current?.document
@@ -63,7 +64,7 @@ export default function DocumentDetail({ id }: { id: string }) {
                 ? (isEn ? 'Document access is temporarily unavailable. Please try again later.' : 'Dịch vụ truy cập công văn tạm thời chưa sẵn sàng. Vui lòng thử lại sau.')
                 : (isEn ? 'Failed to load document. Please try again.' : 'Không thể tải công văn. Vui lòng thử lại.')
 
-        setResult({ key, error: message })
+        setResult({ key, error: message, status })
       }
     })
     return () => controller.abort()
@@ -123,7 +124,10 @@ export default function DocumentDetail({ id }: { id: string }) {
   }
 
   if (!current) return <div className='flex justify-center p-8'><CircularProgress aria-label={isEn ? 'Loading document' : 'Đang tải công văn'} /></div>
-  if (!doc) return <Card><CardContent><Alert severity='error'>{current.error}</Alert><Button className='mbs-3' onClick={() => setRevision(x => x + 1)}>{isEn ? 'Retry' : 'Thử lại'}</Button></CardContent></Card>
+  if (!doc) return <>
+    <Card><CardContent><Alert severity='error'>{current.error}</Alert><Button className='mbs-3' onClick={() => setRevision(x => x + 1)}>{isEn ? 'Retry' : 'Thử lại'}</Button></CardContent></Card>
+    {![401, 403, 404].includes(current.status ?? 0) && <HistoryPanel kind='document' id={id} refreshKey={revision} />}
+  </>
 
   const h = doc.header
   const dt = doc.details
@@ -352,6 +356,9 @@ export default function DocumentDetail({ id }: { id: string }) {
       </Grid>
       <Grid size={{ xs: 12 }}>
         <DocumentTaskPanel key={id} documentId={id} />
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <HistoryPanel kind='document' id={id} refreshKey={h.version} />
       </Grid>
 
       <Dialog

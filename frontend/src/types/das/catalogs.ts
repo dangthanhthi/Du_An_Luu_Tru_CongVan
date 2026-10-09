@@ -6,3 +6,6 @@ export type CatalogCreate = { group: CatalogGroup; code: string; name: string }
 export type CatalogEdit = Pick<CatalogItem, 'name' | 'sortOrder' | 'isActive'>
 export type DistributionTarget = { id: string; name: string; initial: string | null; mappingState: 'Pending'; version: number }
 export type DistributionPage = { items: DistributionTarget[]; pageNumber: number; pageSize: number; totalCount: number }
+export type CatalogActivity = 'Active' | 'Inactive' | 'All'
+export type CatalogAdminQuery = { group: CatalogGroup; activity?: CatalogActivity; searchTerm?: string; pageNumber?: number; pageSize?: number }
+export type CatalogAdminPage = { group: CatalogGroup; activity: CatalogActivity; items: CatalogItem[]; totalCount: number; pageNumber: number; pageSize: number; canEditGroup: boolean }

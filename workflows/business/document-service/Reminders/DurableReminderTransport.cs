@@ -7,14 +7,6 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 namespace DocumentService;
-public sealed class ReminderFanoutManifest {public Guid BatchId{get;set;}public string PlanHash{get;set;}="";}
-public sealed class ReminderDelivery
-{
-    public Guid Id{get;set;}=Guid.NewGuid();public Guid BatchId{get;set;}public Guid InputterUserId{get;set;}
-    public string PayloadJson{get;set;}="";public string State{get;set;}="Pending";public int Attempts{get;set;}public int Failures{get;set;}
-    public long LeaseUntilUnix{get;set;}public Guid? LeaseToken{get;set;}public long NextAttemptUnix{get;set;}public long Version{get;set;}=1;
-    public Guid? NotificationId{get;set;}public string? NotificationState{get;set;}
-}
 public sealed record ReminderNotificationMessage(Guid RecipientUserId,string RecipientEmail,string Subject,string Body,Guid? RelatedDocumentId,string NotificationType,string? ActionUrl,IReadOnlyList<string> Cc);
 public sealed record ReminderAcceptance(string State,Guid? ReceiptId=null,string? InboxState=null);
 public interface IReminderNotificationTransport {Task<ReminderAcceptance> AcceptAsync(Guid id,ReminderNotificationMessage message,CancellationToken ct);}

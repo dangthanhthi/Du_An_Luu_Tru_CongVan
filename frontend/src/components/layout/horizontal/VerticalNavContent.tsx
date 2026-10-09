@@ -22,6 +22,7 @@ import NavCollapseIcons from '@menu/components/vertical-menu/NavCollapseIcons'
 
 // Hook Imports
 import useHorizontalNav from '@menu/hooks/useHorizontalNav'
+import { useAppDictionary } from '@/hooks/useDictionary'
 
 // Util Imports
 import { mapHorizontalToVerticalMenu } from '@menu/utils/menuUtils'
@@ -48,6 +49,7 @@ const StyledBoxForShadow = styled('div')(({ theme }) => ({
 const VerticalNavContent = ({ children }: ChildrenType) => {
   // Hooks
   const { isBreakpointReached } = useHorizontalNav()
+  const { isEn } = useAppDictionary()
   const { lang: locale } = useParams()
 
   // Refs
@@ -78,6 +80,7 @@ const VerticalNavContent = ({ children }: ChildrenType) => {
           <Logo />
         </Link>
         <NavCollapseIcons
+          aria-label={isEn ? 'Close navigation' : 'Đóng điều hướng'}
           lockedIcon={<i className='tabler-circle-dot text-xl' />}
           unlockedIcon={<i className='tabler-circle text-xl' />}
           closeIcon={<i className='tabler-x text-xl' />}
