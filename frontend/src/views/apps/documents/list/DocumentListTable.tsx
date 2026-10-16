@@ -165,7 +165,9 @@ const DocumentListTable = () => {
               <td>{[item.companyCode, item.departmentName].filter(Boolean).join(' / ') || '—'}</td>
               <td>{item.issuedDate || '—'}</td>
               <td><Chip size='small' label={statusLabels[item.status].text} color={statusLabels[item.status].color} /></td>
-              <td>{item.isComplete === undefined ? '—' : <Chip size='small' variant='tonal' color={item.isComplete ? 'success' : 'warning'}
+              <td>{item.isComplete === undefined ? <Chip size='small' variant='tonal' color='secondary'
+                label={vi ? 'Chưa xác minh' : 'Not verified'}
+                title={vi ? 'Mở công văn để kiểm tra PDF hiện hành và tình trạng hồ sơ.' : 'Open the document to verify its current PDF and dossier completeness.'} /> : <Chip size='small' variant='tonal' color={item.isComplete ? 'success' : 'warning'}
                 label={item.isComplete ? (vi ? 'Đủ hồ sơ' : 'Complete') : (vi ? 'Chưa đủ hồ sơ' : 'Incomplete')} />}</td>
               <td>{item.allowedActions?.includes('Edit') && <IconButton component={Link} aria-label={`${t.documents.edit}: ${item.registrationNumber}`}
                 href={getLocalizedUrl(`/apps/documents/edit/${item.id}`, locale)}><i className='tabler-edit' /></IconButton>}</td>

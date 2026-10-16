@@ -76,16 +76,16 @@ test('another-tab logout or a missed event caught on focus clears drafts and hid
 
 // Exercise the actual boundary's render/commit ordering. The browser fixture
 // separately verifies these hooks with React and native storage/Web Locks.
-function boundaryHarness() {
+function boundaryHarness(locale = 'vi') {
   const states: unknown[] = []
   let cursor = 0
   let effects: (() => void)[] = []
   const previousDependencies: (readonly unknown[] | undefined)[] = []
   const provider = { fixture: 'session-owner-provider' }
-  const exports: { default?: (props: { children: string; locale: string }) => { type: unknown; props: { children?: unknown } } } = {}
+  const exports: { default?: (props: { children: string; locale: string }) => { type: unknown; props: { children?: unknown; action?: { href: string }; secondaryAction?: { href: string } } } } = {}
   const source = readFileSync(new URL('../../src/components/DasSessionBoundary.tsx', import.meta.url), 'utf8')
   const code = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText
-  runInNewContext(code, { exports, require: (name: string) => {
+  runInNewContext(code, { exports, window: events, require: (name: string) => {
     if (name === 'react') return {
       useSyncExternalStore: (_subscribe: unknown, read: () => unknown) => read(),
       useMemo: (compute: () => unknown) => compute(),
@@ -104,14 +104,61 @@ function boundaryHarness() {
     if (name === '@/services/api') return { tokenManager, captureSessionIntent }
     if (name === '@/services/browserSession') return browserSession
     if (name === '@/contexts/sessionIntentContext') return { SessionIntentContext: { Provider: provider } }
+    if (name === '@views/NotAuthorized') return { default: 'themed-session-status' }
     assert.fail('Unexpected boundary import ' + name)
   } })
   return {
     provider,
-    render: () => { cursor = 0; return exports.default!({ children: 'private-child', locale: 'vi' }) },
+    render: () => { cursor = 0; return exports.default!({ children: 'private-child', locale }) },
     commit: () => { const pending = effects; effects = []; for (const effect of pending) effect() }
   }
 }
+
+for (const locale of ['vi', 'en']) test(`signed-out ${locale} entry redirects to login after the client session check, without mounting private content`, () => {
+  storage.removeItem(SESSION_KEY)
+  const navigations: string[] = []
+  Object.defineProperty(events, 'location', { value: { replace: (url: string) => navigations.push(url) } })
+  const boundary = boundaryHarness(locale)
+  assert.notEqual(boundary.render().type, boundary.provider)
+  assert.equal(navigations.length, 0, 'Do not navigate during render')
+  boundary.commit()
+  const signedOut = boundary.render()
+  assert.notEqual(signedOut.type, boundary.provider)
+  assert.equal(signedOut.props.action?.href, `/${locale}`)
+  assert.equal(signedOut.props.secondaryAction?.href, `/${locale}/login`)
+  boundary.commit()
+  assert.deepEqual(navigations, [`/${locale}/login`])
+  boundary.render(); boundary.commit()
+  assert.equal(navigations.length, 1, 'Unchanged anonymous state does not repeatedly navigate')
+})
+
+test('authenticated entry stays open; logout redirects only after hiding children and clearing private drafts', () => {
+  const navigations: string[] = []
+  Object.defineProperty(events, 'location', { value: { replace: (url: string) => {
+    assert.equal(drafts.getItem('das_task_request:actor:document'), null)
+    navigations.push(url)
+  } } })
+  const boundary = boundaryHarness()
+  boundary.render(); boundary.commit()
+  assert.equal(boundary.render().type, boundary.provider); boundary.commit()
+  assert.equal(navigations.length, 0)
+  storage.removeItem(SESSION_KEY)
+  assert.notEqual(boundary.render().type, boundary.provider); boundary.commit()
+  assert.notEqual(boundary.render().type, boundary.provider); boundary.commit()
+  assert.deepEqual(navigations, ['/vi/login'])
+})
+
+test('a failed private-storage cleanup keeps the boundary blocked instead of redirecting into another session', () => {
+  const navigations: string[] = []
+  Object.defineProperty(events, 'location', { value: { replace: (url: string) => navigations.push(url) } })
+  const boundary = boundaryHarness()
+  boundary.render(); boundary.commit(); boundary.render(); boundary.commit()
+  drafts.failRemoves = true
+  storage.removeItem(SESSION_KEY)
+  boundary.render(); boundary.commit(); boundary.render(); boundary.commit()
+  assert.equal(navigations.length, 0)
+  assert.notEqual(boundary.render().type, boundary.provider)
+})
 
 test('a boundary that sees a new account during render clears old frozen bodies before mounting replacement children without notifications', () => {
   const boundary = boundaryHarness()

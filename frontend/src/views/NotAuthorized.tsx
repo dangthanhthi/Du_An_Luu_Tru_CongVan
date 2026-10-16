@@ -9,6 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -33,7 +34,18 @@ const MaskImg = styled('img')({
   zIndex: -1
 })
 
-const NotAuthorized = ({ mode }: { mode: SystemMode }) => {
+type Props = {
+  mode: SystemMode
+  title?: string
+  description?: string
+  code?: string | null
+  action?: { label: string; href: string } | null
+  secondaryAction?: { label: string; href: string }
+  busy?: boolean
+  sessionStatus?: boolean
+}
+
+const NotAuthorized = ({ mode, title, description, code = '401', action, secondaryAction, busy = false, sessionStatus = false }: Props) => {
   // Vars
   const darkImg = '/images/pages/misc-mask-dark.png'
   const lightImg = '/images/pages/misc-mask-light.png'
@@ -43,29 +55,30 @@ const NotAuthorized = ({ mode }: { mode: SystemMode }) => {
   const { lang: locale } = useParams()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const miscBackground = useImageVariant(mode, lightImg, darkImg)
+  const button = action === undefined ? { label: 'Back To Home', href: getLocalizedUrl('/', locale as Locale) } : action
 
   return (
-    <div className='flex items-center justify-center min-bs-[100dvh] relative p-6 overflow-x-hidden'>
+    <div role={sessionStatus ? 'status' : undefined} aria-live={sessionStatus ? 'polite' : undefined} className='flex items-center justify-center min-bs-[100dvh] relative p-6 overflow-x-hidden'>
       <div className='flex items-center flex-col text-center'>
         <div className='flex flex-col gap-2 is-[90vw] sm:is-[unset] mbe-6'>
-          <Typography className='font-medium text-8xl' color='text.primary'>
-            401
-          </Typography>
-          <Typography variant='h4'>You are not authorized! 🔐</Typography>
-          <Typography>You don&#39;t have permission to access this page. Go Home!</Typography>
+          {code && <Typography className='font-medium text-8xl' color='text.primary'>{code}</Typography>}
+          <Typography variant='h4'>{title ?? 'You are not authorized! 🔐'}</Typography>
+          <Typography className='max-is-[560px]'>{description ?? "You don't have permission to access this page. Go Home!"}</Typography>
         </div>
-        <Button href={getLocalizedUrl('/', locale as Locale)} component={Link} variant='contained'>
-          Back To Home
-        </Button>
+        {busy && <CircularProgress size={28} aria-label={title} />}
+        {(button || secondaryAction) && <div className='flex flex-wrap items-center justify-center gap-4'>
+          {button && <Button href={button.href} component={Link} variant={secondaryAction ? 'outlined' : 'contained'}>{button.label}</Button>}
+          {secondaryAction && <Button href={secondaryAction.href} component={Link} variant='contained'>{secondaryAction.label}</Button>}
+        </div>}
         <img
-          alt='error-401-illustration'
+          alt={sessionStatus ? '' : 'error-401-illustration'}
           src='/images/illustrations/characters/3.png'
-          className='object-cover bs-[400px] md:bs-[450px] lg:bs-[500px] mbs-10 md:mbs-14 lg:mbs-20'
+          className='object-contain max-is-full bs-auto max-bs-[300px] sm:bs-[350px] md:bs-[400px] mbs-8 md:mbs-10'
         />
       </div>
       {!hidden && (
         <MaskImg
-          alt='mask'
+          alt=''
           src={miscBackground}
           className={classnames({ 'scale-x-[-1]': theme.direction === 'rtl' })}
         />

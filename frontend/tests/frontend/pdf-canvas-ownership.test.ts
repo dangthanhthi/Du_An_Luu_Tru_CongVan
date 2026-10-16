@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { componentHarness, nodes, textContent } from './helpers/component-harness'
+import { createPdfDocumentPool } from '../../src/components/pdf/documentPool'
 
 const tick = () => new Promise(resolve => setImmediate(resolve))
 function deferred<T>() { let resolve!: (value: T) => void; let reject!: (reason: unknown) => void; const promise = new Promise<T>((a, b) => { resolve = a; reject = b }); return { promise, resolve, reject } }
 function fixture() {
   const loads: { url: string; reply: ReturnType<typeof deferred<any>> }[] = []
+  const pool = createPdfDocumentPool<any>((url: string) => { const reply = deferred<any>(); loads.push({ url, reply }); return reply.promise })
   const ui = componentHarness(new URL('../../src/components/PdfCanvasPreview.tsx', import.meta.url), {
     '@/hooks/useDictionary': { useAppDictionary: () => ({ isEn: true }) },
-    './pdf/loadPdfDocument': { loadPdfDocument: (url: string) => { const reply = deferred<any>(); loads.push({ url, reply }); return reply.promise } }
+    './pdf/loadPdfDocument': { acquirePdfDocument: pool.acquire }
   })
   function render(url = 'blob:first') {
     const tree = ui.render({ url })
@@ -38,6 +40,7 @@ test('Changing PDF URL suppresses old page, cancels its render, destroys old doc
   f.loads[0].reply.resolve({ promise: Promise.resolve(pdf), destroy: async () => { destroyed++ } })
   await tick(); f.render(); f.ui.commit(); await tick()
   f.render('blob:second'); f.ui.commit()
+  await tick()
   assert.equal(cancelled, 1); assert.equal(destroyed, 1)
   painted.resolve(); await tick()
   const next = f.render('blob:second')

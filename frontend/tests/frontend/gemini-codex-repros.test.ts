@@ -313,6 +313,7 @@ test('R03-PDF-CANONICAL: repeated file input dispatches single upload', async ()
     '@/hooks/useSessionIntent': intent,
     '@/hooks/useDictionary': dictionary,
     '@/components/DocumentPDFPreview': { default: 'PdfPreview' },
+    '@/components/pdf/loadPdfDocument': { preloadPdfEngine: async () => {} }, './PrintedPdfPanel': { default: 'PrintedPdfPanel' },
     '@/services/das/document-pdf': {
       documentPdfApi: {
         upload: () => { uploads++; return reply.promise },
