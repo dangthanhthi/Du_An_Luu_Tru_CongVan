@@ -20,6 +20,7 @@ for (const locale of ['vi', 'en']) test(`Initial ${locale} session render is unk
     if (name === '@/services/api') return { tokenManager: { getEpoch: () => null, getAuthenticatedEpoch: () => null }, captureSessionIntent: () => null }
     if (name === '@/services/browserSession') return { isBrowserSessionCleanupReady: () => true, observeBrowserSessionEpoch: () => true, subscribeBrowserSession: () => () => {} }
     if (name === '@/contexts/sessionIntentContext') return { SessionIntentContext: context }
+    if (name === '@views/NotAuthorized') return { default: (props: any) => React.createElement('div', { role: 'status' }, props.title, props.description, props.action && React.createElement('a', { href: props.action.href }, props.action.label)) }
     throw new Error('Unexpected import ' + name)
   } })
   const html = renderToStaticMarkup(React.createElement(exports.default, { locale }, React.createElement('p', null, 'PRIVATE_QA_CHILDREN')))

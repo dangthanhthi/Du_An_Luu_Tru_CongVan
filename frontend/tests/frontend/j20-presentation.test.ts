@@ -29,14 +29,18 @@ test('English overview uses English copy including retry and loading, retaining 
     'next/link': { default: 'Link' },
     'next/navigation': { useParams: () => ({ lang: 'en' }) },
     '@/hooks/useDictionary': { useAppDictionary: () => ({ isEn: true }) },
+    '@/hooks/useSessionIntent': { useSessionIntent: () => ({ epoch: 'fixture', assertCurrent() {} }) },
+    '@core/components/mui/Avatar': { default: 'Avatar' },
+    '@/services/das/notifications': { notificationsApi: {} },
+    './overview-data': { loadOverview: async (_: any, __: any, publish: any) => publish('report', { state: 'ready', data: { total: 7, evaluatedAt: '2026-10-07T01:00:00Z', groups: [], items: [] } }) },
     '@/services/das/reports-staff': { incompleteReportsApi: { list: async () => ({ total: 7, evaluatedAt: '2026-10-07T01:00:00Z', groups: [] }) } }
   })
   ui.render(); ui.commit(); await tick()
   const tree = ui.render()
-  assert.ok(textContent(tree).includes('Incomplete document overview'))
+  assert.ok(nodes(tree).some(n => n.type === 'CardHeader' && n.props.title === 'Incomplete document overview'))
   assert.ok(textContent(tree).includes('Reload overview'))
   assert.ok(!textContent(tree).includes('hồ sơ'))
-  assert.equal(nodes(tree).find(n => n.type === 'Link')?.props.href, '/en/apps/reports/incomplete')
+  assert.ok(nodes(tree).some(n => n.props.href === '/en/apps/reports/incomplete'))
   ui.unmount()
 })
 
@@ -48,7 +52,7 @@ for (const [status, expected] of [[401, 'Phiên đăng nhập đã hết hạn']
       'next/navigation': { useParams: () => ({ lang: 'vi' }) }, 'next/link': { default: 'Link' },
       '@/services/api': { ApiRequestError },
       '@/services/das/documents': { documentsV2Api: { detail: async () => { throw new ApiRequestError(status, 'Generic transport message') } } },
-      '../V2PdfPanel': { default: 'PdfPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' }
+      '../V2PdfPanel': { default: 'PdfPanel' }, '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' }
     })
     ui.render({ id: 'fixture' }); ui.commit(); await tick()
     const tree = ui.render({ id: 'fixture' })

@@ -12,7 +12,13 @@ def create_view(relative):
     target=ROOT/relative
     if target==ROOT/'.artifacts/qa' or not target.is_relative_to(ROOT/'.artifacts/qa') or target.exists() or any(linked(p) for p in (target,*target.parents)):raise ValueError('Fresh owned unlinked QA directory required')
     baseline=json.loads((ROOT/'docs/source-layout-manifest.json').read_text())
-    inverse={r['destination']:r['source'] for r in baseline['files']}
+    for row in baseline['files']:
+        source=row['source']
+        if not isinstance(source,str) or not source or '\\' in source or ':' in source or Path(source).is_absolute() or '..' in Path(source).parts:
+            raise ValueError('Unsafe manifest source path')
+    # Locally added files can have a provenance note rather than an old path.
+    # Such notes must use the canonical-scope fallback, never a view filename.
+    inverse={r['destination']:r['source'] for r in baseline['files'] if '/' in r['source']}
     inventory=[];destinations=set()
     for scope in ('frontend','backend','database','workflows/business','tools/qa','tests/qa'):
         for p in sorted((ROOT/scope).rglob('*')):

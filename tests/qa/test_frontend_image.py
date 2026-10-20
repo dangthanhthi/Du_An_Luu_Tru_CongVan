@@ -103,4 +103,26 @@ class FrontendImageTests(unittest.TestCase):
             self.assertIn('creation failed',report['error'])
             self.assertTrue(report['cleanupPassed'])
 
+    def test_template_page_accepts_streamed_404_behind_initial_session_gate(self):
+        script=SCRIPT.parent/'run-frontend-image-smoke.py'
+        spec=importlib.util.spec_from_file_location('frontend_smoke_page',script)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        boundary=getattr(module,'template_page_boundary',None)
+        self.assertTrue(callable(boundary),'Smoke must recognize the current SSR session/404 boundary')
+        for gate in ('Đang kiểm tra phiên…','Checking session…'):
+            html=('<div role="status">'+gate+'</div><script>NEXT_HTTP_ERROR_FALLBACK;404</script>').encode()
+            self.assertTrue(boundary(200,html))
+        self.assertTrue(boundary(404,b'not found'))
+        self.assertTrue(boundary(200,b'<meta name="robots" content="noindex"><script>NEXT_HTTP_ERROR_FALLBACK;404</script>'))
+
+    def test_template_page_rejects_session_shell_or_error_marker_alone(self):
+        script=SCRIPT.parent/'run-frontend-image-smoke.py'
+        spec=importlib.util.spec_from_file_location('frontend_smoke_page_negative',script)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        boundary=getattr(module,'template_page_boundary',None)
+        self.assertTrue(callable(boundary),'Smoke must require both a closed session gate and 404 evidence')
+        for html in (b'<div role="status">Checking session...</div>',b'<script>NEXT_HTTP_ERROR_FALLBACK;404</script>',b'<html>user list</html>'):
+            self.assertFalse(boundary(200,html))
+        self.assertFalse(boundary(500,b'not found'))
+
 if __name__=='__main__':unittest.main()

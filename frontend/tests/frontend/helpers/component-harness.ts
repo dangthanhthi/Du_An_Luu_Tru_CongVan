@@ -12,6 +12,9 @@ export function componentHarness(source: URL, imports: Record<string, unknown>, 
   let pending: (() => void)[] = []
   const depsChanged = (a: unknown[] | undefined, b: unknown[] | undefined) => !a || !b || a.length !== b.length || a.some((v, i) => !Object.is(v, b[i]))
   const react = {
+    createElement(type: unknown, props: any, ...children: any[]) {
+      return { type, props: { ...props, children: children.length === 1 ? children[0] : children } }
+    },
     useState(initial: any) {
       const index = cursor++
       if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial
