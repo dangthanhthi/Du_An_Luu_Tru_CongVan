@@ -1,0 +1,1209 @@
+{
+  "date": "2026-10-09",
+  "sourceRoot": "DAS-Collaboration",
+  "baselineRepository": "Seleton-VN/Intern-DocumentAdministration-BE",
+  "baselineCommit": "36f8f0f240214f2d50a93cc86bee34d880d3c250",
+  "scope": "TV1+TV3 runtime source plan only; no copy/merge/push/schema application",
+  "files": [
+    {
+      "source": "backend/Directory.Build.props",
+      "target": "backend/Directory.Build.props",
+      "oldPath": null,
+      "action": "ADD_BUILD_RULES",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "3394374c12391360eb11951e03e1f65cd2d805211886c6c2b93c9260f2f4c4b3",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Authorization/DocumentAccessRules.cs",
+      "target": "backend/services/document-service/Authorization/DocumentAccessRules.cs",
+      "oldPath": "services/document-service/Authorization/DocumentAccessRules.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "a7041da429321952e30d2fe91d0dda2e81fb8941af286a6b44107cdfc4c61764",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Authorization/DocumentActor.cs",
+      "target": "backend/services/document-service/Authorization/DocumentActor.cs",
+      "oldPath": "services/document-service/Authorization/DocumentActor.cs",
+      "action": "REPLACE",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "27cd53689549281c60e67ff94c1e44835caa878dccaa83dd8d3b791f6553f542",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Common/GlobalExceptionHandler.cs",
+      "target": "backend/services/document-service/Common/GlobalExceptionHandler.cs",
+      "oldPath": "services/document-service/Common/GlobalExceptionHandler.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "9021bd8ceb28eab3626a4f9c86de8270175c0edd8edcdd031aeba0f99946fdcb",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/CatalogsController.cs",
+      "target": "backend/services/document-service/Controllers/CatalogsController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f79aac1edd35ed5c32900e23cb3ace6ff7caa99696c6eee35901120412000641",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/CurrentPdfController.cs",
+      "target": "backend/services/document-service/Controllers/CurrentPdfController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "2c482c06f0a4d12bcee37b86e127c882adb9a19adae0a7bc694ad7da6adae488",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/DocumentHistoryController.cs",
+      "target": "backend/services/document-service/Controllers/DocumentHistoryController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "25d4a7a654e93ce5f5cc14a18a26994d9fecd2128be8e62fcc55bffd3a2be56b",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/DocumentsController.cs",
+      "target": "backend/services/document-service/Controllers/DocumentsController.cs",
+      "oldPath": "services/document-service/Controllers/DocumentsController.cs",
+      "action": "MOVE_ONLY",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "aae48ed1a29f70c2dd2700e0c0ef7cb4e7ed98f757b483af3d53afbfdc59d13d",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/DocumentsV2Controller.cs",
+      "target": "backend/services/document-service/Controllers/DocumentsV2Controller.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f3e0aeacdd6a1f76b67b647235744acdc79c94cc3885c0d042632af640de97a9",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/DocumentTasksController.cs",
+      "target": "backend/services/document-service/Controllers/DocumentTasksController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "26a8e33d1e95ff28e89d17a03211f99c574bab716de230bd069af0e4389788ff",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/IncompleteReportsController.cs",
+      "target": "backend/services/document-service/Controllers/IncompleteReportsController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "7cb8903df833def36aa491747c23161e72e50c1e45e034bb250898453f7d6441",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/MyStaffController.cs",
+      "target": "backend/services/document-service/Controllers/MyStaffController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "2c1e572427dab4f92af113b07f885c536ca421561a1d5976e5eb93290e705aa9",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/PdfProtocolController.cs",
+      "target": "backend/services/document-service/Controllers/PdfProtocolController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "7529a89f911c50988b71d6c3f59ba916e82365b852cc4019b13f82d675a640cd",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Controllers/ReminderOperationsController.cs",
+      "target": "backend/services/document-service/Controllers/ReminderOperationsController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "e8ec16820cfc5ebb9b792898fe6a498b448dfa89d491c5e83bd49e4c3bef3cae",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Data/BusinessCatalogSeed.cs",
+      "target": "backend/services/document-service/Data/BusinessCatalogSeed.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "788396d076838de17f1d889c25c96551749106fb25d848ae23e53a4e00e588c6",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Data/DatabaseStartup.cs",
+      "target": "backend/services/document-service/Data/DatabaseStartup.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "973c964fe11d71fdafc8a26e99e70ec43252532f141e2b8d3b54e39f63e9e160",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Data/DocumentDbContext.cs",
+      "target": "backend/services/document-service/Data/DocumentDbContext.cs",
+      "oldPath": "services/document-service/Data/DocumentDbContext.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "6cd8beee5b9a1f3a1387fef6cd2da1360e59572a8e0b309cf7feb22090b269bc",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Data/DocumentV2Model.cs",
+      "target": "backend/services/document-service/Data/DocumentV2Model.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "f2bf9ef5b3e8f8c35a38980bc1b5879080585b1acf335680e88f7e765e49f02c",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Data/V2MutationLocks.cs",
+      "target": "backend/services/document-service/Data/V2MutationLocks.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "5ff433ac432460ea823232d4eb1bbe4cdb6f8b098f4d150bf5b33350d4dd6f00",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/DocumentService.csproj",
+      "target": "backend/services/document-service/DocumentService.csproj",
+      "oldPath": "services/document-service/DocumentService.csproj",
+      "action": "MERGE_PROJECT",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "09106c3bd9e2cfc6595dc30285f57e0a1ef58c49776e94b9af8384e21eacaaf8",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/DocumentContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/DocumentContracts.cs",
+      "oldPath": "services/document-service/Models/DTOs/DocumentContracts.cs",
+      "action": "MOVE_ONLY",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "0fde4cc7d799e0d9d54963ee086fcba258ee71540035ad7a799614d39f79db8f",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/RegistrationContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/RegistrationContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "18fa4a01e75c7d0276e4e5edf062352c698d45463986d7462750ba5c3c75e243",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/ServiceClientContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/ServiceClientContracts.cs",
+      "oldPath": "services/document-service/Models/DTOs/ServiceClientContracts.cs",
+      "action": "REPLACE",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "8df9f9794eec180a52e4d5a83f8258313dafc3b65434ce66fc3d8d3adc8ef818",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2EditingContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2EditingContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "eaeef8957037ebc98c1d1b2ae205a2e1267a9d421a9a0c665650ce7bd2bb7a02",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2HistoryContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2HistoryContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "c1f3798bfbd4811c66688cd10f7f46e40ad0671c2bb3b4c4c9074ad84ca2f703",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2HttpContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2HttpContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "da827e6c7bf1ce60dcfe457fd8328b6b1f0868fe64d732d0aada47246dd14ac7",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2KindDetailsContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2KindDetailsContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "b3c6cff70ca2e54c3f2c1254167796c7bc3c3bb30055cdee25da6dfc181538a5",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2ReadContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2ReadContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "4c38a9d934db87c0d664621ab036325d3597f862e8f68a671a6225d1907b9146",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2RelationContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2RelationContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "14a0b2a576fda036da48c254467c50d28ba2b522e075109116b78478ab17be99",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/DTOs/V2StatusContracts.cs",
+      "target": "backend/services/document-service/Models/DTOs/V2StatusContracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "be7654857b9d3b3690ecdd83cc97e6913ea3e50bb1c9b293c914806e37a89170",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/BusinessCatalogs.cs",
+      "target": "backend/services/document-service/Models/Entities/BusinessCatalogs.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "93584260d5959982a48d73b8f49659aec4429341b7cc9d25da3316ae5d48b1f3",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/CurrentPdf.cs",
+      "target": "backend/services/document-service/Models/Entities/CurrentPdf.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "b525369e6230df88202fe5fa68009c2b11fea6deb3e73c239f2ddd82da751253",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DeliveryEntities.cs",
+      "target": "backend/services/document-service/Models/Entities/DeliveryEntities.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "9a76a6baf919c5b861efefee38d2b747ba761dab59650bb97c769b55df903052",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DocumentCancellation.cs",
+      "target": "backend/services/document-service/Models/Entities/DocumentCancellation.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "f6e7a1fb10b733b94c9b937229bf7239b007f69b04ac8fe8a3c5cf0b00126a73",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DocumentEditAudit.cs",
+      "target": "backend/services/document-service/Models/Entities/DocumentEditAudit.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "47173cd5148a0c4d27ffdcd567342e57c2f506d3c8ae3acbc46901062ec3f366",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DocumentKindDetails.cs",
+      "target": "backend/services/document-service/Models/Entities/DocumentKindDetails.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "71611296f85455a2d36ff5a1b6382c3a737a5a9aad36a2100cd5410b5158f5b0",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DocumentRelation.cs",
+      "target": "backend/services/document-service/Models/Entities/DocumentRelation.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "64feced7eb1b2d7f57afe2a6edb21fea6770c14b3e03275dd83e1bd46e68bec0",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/Documents.cs",
+      "target": "backend/services/document-service/Models/Entities/Documents.cs",
+      "oldPath": "services/document-service/Models/Entities/Documents.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "a2e2dac5b15cda5e104163852926a43943105cba24f0fa160070d332ae9d4fa7",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Models/Entities/DocumentV2Persistence.cs",
+      "target": "backend/services/document-service/Models/Entities/DocumentV2Persistence.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "01096f56d9e4f07a20d20511132626c2c4aaad02d78bd50391066eea378baf0e",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Program.cs",
+      "target": "backend/services/document-service/Program.cs",
+      "oldPath": "services/document-service/Program.cs",
+      "action": "REPLACE",
+      "group": "service startup",
+      "stage": 5,
+      "sourceSha256": "a2705a503706055ffa6fcd5cd86343565965047f4a295bb1f438e799e7e8ec69",
+      "note": "Một Program cho mỗi host; ghép dependency và DI cùng phiên bản, bảo toàn cấu hình deployment riêng."
+    },
+    {
+      "source": "backend/services/document-service/Services/Authorization/DocumentV2Authority.cs",
+      "target": "backend/services/document-service/Services/Authorization/DocumentV2Authority.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "11a74d69e97ee97ecc697e852d4e278ca207ed231b38e5bf6ac27ca7f0b6b12a",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Services/CatalogAdminQuery.cs",
+      "target": "backend/services/document-service/Services/CatalogAdminQuery.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "94b97d2cb46e4d54273b5440dcde1b3428e459fab02ea5d6076e92cf3c97e3d8",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Services/CatalogService.cs",
+      "target": "backend/services/document-service/Services/CatalogService.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "b8ca480a45e125e7ab08aee7ccebb3ab1a0f404f7a9a8c03b375dc5750bc355d",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Services/Integration/ForwardUserTokenHandler.cs",
+      "target": "backend/services/document-service/Services/Integration/ForwardUserTokenHandler.cs",
+      "oldPath": "services/document-service/Services/Integration/ForwardUserTokenHandler.cs",
+      "action": "MOVE_ONLY",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "9dc48a9ea613aacbaa7c5ef2cffe95fc34f9d25d61766d3b0238d2047e240191",
+      "note": ""
+    },
+    {
+      "source": "backend/services/document-service/Services/Integration/InterServiceClients.cs",
+      "target": "backend/services/document-service/Services/Integration/InterServiceClients.cs",
+      "oldPath": "services/document-service/Services/Integration/InterServiceClients.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "71ec9f5bc89b38ef1a42d9cf258ae19ff3cab03e3d6a2b973a03495bd9b274bf",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Controllers/FilesController.cs",
+      "target": "backend/services/files-service/Controllers/FilesController.cs",
+      "oldPath": "services/files-service/Controllers/FilesController.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "c79c337c2b309c49b90f3b633fc5ba71ca61541e79b866d39d18f1d510766b95",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Controllers/PdfClaimsController.cs",
+      "target": "backend/services/files-service/Controllers/PdfClaimsController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "896dbd76c0f4f30ed076b69dc6b0254ccdf52ee982d79b3bef508dfffb504ce1",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Data/FileDatabaseOptions.cs",
+      "target": "backend/services/files-service/Data/FileDatabaseOptions.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f57b499420d1c2febe647cc5ff6124a556f93c5ffdc632c433562ed0c9702d5f",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Data/FileDbContext.cs",
+      "target": "backend/services/files-service/Data/FileDbContext.cs",
+      "oldPath": "services/files-service/Data/FileDbContext.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "30517df7e33832f73f1d9408c557523e81d1cdba95195613558909284f6fc2bb",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Data/FileSqliteUpgrade.cs",
+      "target": "backend/services/files-service/Data/FileSqliteUpgrade.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "700355760b5d7d961957032149c95fb06627163a0ba7ae4328c1dd3c751bcdbf",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/FileService.API.csproj",
+      "target": "backend/services/files-service/FileService.API.csproj",
+      "oldPath": "services/files-service/FileService.API.csproj",
+      "action": "MERGE_PROJECT",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "00df71479c2414b1dcbd31defdeda99aa6dd73db0a2491dbd9011ecace06553c",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Models/DTOs/ApiResponse.cs",
+      "target": "backend/services/files-service/Models/DTOs/ApiResponse.cs",
+      "oldPath": "services/files-service/Models/DTOs/ApiResponse.cs",
+      "action": "REPLACE",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "21a781a35b26b950aeff9e24db1a9871727e2c3e2c0f60c7732e75ae66d33b17",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Models/DTOs/ManagedFileInfo.cs",
+      "target": "backend/services/files-service/Models/DTOs/ManagedFileInfo.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "10ed4dc6b3ada853d2373949dbd5b3695f9b725638f18081e86b4747f8839e62",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Models/Entities/FileRecord.cs",
+      "target": "backend/services/files-service/Models/Entities/FileRecord.cs",
+      "oldPath": "services/files-service/Models/Entities/FileRecord.cs",
+      "action": "MOVE_ONLY",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "931a1c6851b28c9b26267ff352c9c635d7d123033135c773d54ed7ae60abdaa4",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Models/Entities/PdfClaim.cs",
+      "target": "backend/services/files-service/Models/Entities/PdfClaim.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "84a716a3a02d8f42139942d21fc36b1427f18262b1be5c40c47f7303ee70128e",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Models/Entities/PdfUpload.cs",
+      "target": "backend/services/files-service/Models/Entities/PdfUpload.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "8f24a36d74db2e2789dbddb9850d3695cab23b4d883d7c758f4433daa752b0d6",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Program.cs",
+      "target": "backend/services/files-service/Program.cs",
+      "oldPath": "services/files-service/Program.cs",
+      "action": "REPLACE",
+      "group": "service startup",
+      "stage": 5,
+      "sourceSha256": "a8689356558ed69965800df7bdae96f95b80f487144e69f5727b560899a34301",
+      "note": "Một Program cho mỗi host; ghép dependency và DI cùng phiên bản, bảo toàn cấu hình deployment riêng."
+    },
+    {
+      "source": "backend/services/files-service/Services/FileRuleException.cs",
+      "target": "backend/services/files-service/Services/FileRuleException.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "1f4b882e4d3ee0c2f61e6bc7889e1e4a314d8e4beef9fbd9d10e2ad850fd081a",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/FileStorageService.cs",
+      "target": "backend/services/files-service/Services/FileStorageService.cs",
+      "oldPath": "services/files-service/Services/FileStorageService.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "6536f6743b89abb736d8c6fce82f53e19f1f120917160b38b0f9d9e055f66d19",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/IFileStorageService.cs",
+      "target": "backend/services/files-service/Services/IFileStorageService.cs",
+      "oldPath": "services/files-service/Services/IFileStorageService.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "89b2aba4f650303eb667afc6d609c7fadd5b801b8981c062d937b48501827456",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/PdfClaims.cs",
+      "target": "backend/services/files-service/Services/PdfClaims.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "0cc42df3d0d4990f241d02ea6d653a7504643b56c76b174d75c8931e138eb6ed",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/PdfMaintenance.cs",
+      "target": "backend/services/files-service/Services/PdfMaintenance.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "467625e6622075b517706acf46462c611a8eec1b18ab5333423154613701323a",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/PdfUploadMaintenance.cs",
+      "target": "backend/services/files-service/Services/PdfUploadMaintenance.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "fa6e74b9d2299e9d0983874984af07859aa6a1428aeb6a73543c4f5ffbad532c",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Services/PdfValidationService.cs",
+      "target": "backend/services/files-service/Services/PdfValidationService.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "6b7b05fdec73fc4c96e2917c29ef25fb31e08e55d6b920d734eca1c75cdc8482",
+      "note": ""
+    },
+    {
+      "source": "backend/services/files-service/Storage/PdfStorageOptions.cs",
+      "target": "backend/services/files-service/Storage/PdfStorageOptions.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "1a36f63453c20e47d5ec932b88453e4451c4c9d5cacc2bbcd90640726106e5fd",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Controllers/NotificationsController.cs",
+      "target": "backend/services/notification-service/Controllers/NotificationsController.cs",
+      "oldPath": "services/notification-service/Controllers/NotificationsController.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "72dd0067ae402af0dd56a1d4f7e97dcf715ae8c322f974e5f1c6b23c216d964b",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Data/NotificationDatabaseOptions.cs",
+      "target": "backend/services/notification-service/Data/NotificationDatabaseOptions.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "8d6ef6d200cd713a986d281213a5578954ba656903922e4466d7586673376692",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Data/NotificationDbContext.cs",
+      "target": "backend/services/notification-service/Data/NotificationDbContext.cs",
+      "oldPath": "services/notification-service/Data/NotificationDbContext.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "c1e43892b33470ac0ee30391b205700a40dd6d476b80672549cc7dd9d609828d",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Hubs/NotificationHub.cs",
+      "target": "backend/services/notification-service/Hubs/NotificationHub.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "e7c1d67a1641959277b8b74310720e94550462264fd1020ca30668d0c22185a9",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Models/DeliveryInbox.cs",
+      "target": "backend/services/notification-service/Models/DeliveryInbox.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "d933988c4c78cb4abd60bb6d446d0781076c36a3f8d1c16c721572327d037031",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Models/InAppNotification.cs",
+      "target": "backend/services/notification-service/Models/InAppNotification.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "405ae1e1b8642875c76e08a94be67c3d908302e6b7e798dbdb7fe7093495830f",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Models/NotificationLog.cs",
+      "target": "backend/services/notification-service/Models/NotificationLog.cs",
+      "oldPath": "services/notification-service/Models/NotificationLog.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "3c93ca89dbfb158244338388f9ae5a89e01b28bbe8491b5bdaf60569fd7d1199",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Models/UserNotificationPreference.cs",
+      "target": "backend/services/notification-service/Models/UserNotificationPreference.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "b8c77be32e126385c56e9e4a157ab91f2d626a5f3d1423dbcc5c47e80258a935",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/NotificationService.csproj",
+      "target": "backend/services/notification-service/NotificationService.csproj",
+      "oldPath": "services/notification-service/NotificationService.csproj",
+      "action": "MERGE_PROJECT",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "8f8ae0d9ca3f8bf32b0b7db9776acc582fb67f178095a5ef17ba28361170bf55",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Program.cs",
+      "target": "backend/services/notification-service/Program.cs",
+      "oldPath": "services/notification-service/Program.cs",
+      "action": "REPLACE",
+      "group": "service startup",
+      "stage": 5,
+      "sourceSha256": "478dce99a1585832027c26c59f6bb962eb22c9f13ab7d2443515949e8833e927",
+      "note": "Một Program cho mỗi host; ghép dependency và DI cùng phiên bản, bảo toàn cấu hình deployment riêng."
+    },
+    {
+      "source": "backend/services/notification-service/Services/ConfiguredDeliveryEmail.cs",
+      "target": "backend/services/notification-service/Services/ConfiguredDeliveryEmail.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "2aa08c35d456bf3902a91376d411e5db0b27e6281fcbb8eec8ff019aa122c3cb",
+      "note": ""
+    },
+    {
+      "source": "backend/services/notification-service/Services/EmailTemplateHelper.cs",
+      "target": "backend/services/notification-service/Services/EmailTemplateHelper.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "0a6d66e3dff0a9e2682b2bc80c3a80863bc3c1de6cf6ed8cc5b5013c768c9b26",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Api/Errors/GlobalExceptionHandler.cs",
+      "target": "backend/services/partner-service/Api/Errors/GlobalExceptionHandler.cs",
+      "oldPath": "services/partner-service/Api/Errors/GlobalExceptionHandler.cs",
+      "action": "MOVE_ONLY",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "1eeb65dee4373ebbcdb3f3222a246634c442e582e3e002e5ff59ba3750c73265",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Application/PartnerAuditQuery.cs",
+      "target": "backend/services/partner-service/Application/PartnerAuditQuery.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "b9e683f07d56caf89f9b1cb5af9f5d27b7631b01445df0fa379f1fc36317ec65",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Application/PartnerBusinessService.cs",
+      "target": "backend/services/partner-service/Application/PartnerBusinessService.cs",
+      "oldPath": "services/partner-service/Application/PartnerBusinessService.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "788527005003991be6a6ae865b0151f8a3b0175c6075cf223fb6cc210e3edd73",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Controllers/PartnerHistoryController.cs",
+      "target": "backend/services/partner-service/Controllers/PartnerHistoryController.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "465070f4d5e9ad1f6ee84595bd2559041c384f88c4f819ccb4fbe856d13bd302",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Controllers/PartnersController.cs",
+      "target": "backend/services/partner-service/Controllers/PartnersController.cs",
+      "oldPath": "services/partner-service/Controllers/PartnersController.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "fc8acc037133192f33c3719e3fd7a6affd353d4ade169f49f801a4ea1a240160",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Infrastructure/Persistence/PartnerDatabaseOptions.cs",
+      "target": "backend/services/partner-service/Infrastructure/Persistence/PartnerDatabaseOptions.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "7a4214841e17163d57f7d201a969ab72114dd130e36cc2ece0839640c3ab5e48",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Infrastructure/Persistence/PartnerDbContext.cs",
+      "target": "backend/services/partner-service/Infrastructure/Persistence/PartnerDbContext.cs",
+      "oldPath": "services/partner-service/Infrastructure/Persistence/PartnerDbContext.cs",
+      "action": "REPLACE",
+      "group": "database",
+      "stage": 1,
+      "sourceSha256": "40dffec629ec4660b4c414d225481a989a177996e583f1bdbf8b5547f446d7ab",
+      "note": "Chỉ runtime entity/context; bỏ khối PartnerDbContextFactory ở cuối file khi chuyển (không chuyển connection factory)."
+    },
+    {
+      "source": "backend/services/partner-service/PartnerService.csproj",
+      "target": "backend/services/partner-service/PartnerService.csproj",
+      "oldPath": "services/partner-service/PartnerService.csproj",
+      "action": "MERGE_PROJECT",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "fbd514e2d831cbc34e9d4ce4377a7ad19b3a7d445c6f2ddbe981e5b44accead3",
+      "note": ""
+    },
+    {
+      "source": "backend/services/partner-service/Program.cs",
+      "target": "backend/services/partner-service/Program.cs",
+      "oldPath": "services/partner-service/Program.cs",
+      "action": "REPLACE",
+      "group": "service startup",
+      "stage": 5,
+      "sourceSha256": "8663ae01d46c00788e75ba9176df1d596b2f13e888653bb6245bc8509a929430",
+      "note": "Một Program cho mỗi host; ghép dependency và DI cùng phiên bản, bảo toàn cấu hình deployment riêng."
+    },
+    {
+      "source": "backend/shared/PdfProtocol/Contracts.cs",
+      "target": "backend/shared/PdfProtocol/Contracts.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "shared-contracts",
+      "stage": 2,
+      "sourceSha256": "e7009e0326bf6e073563311d8883e193b94dbb58ae64a716a2838cccd6a036fc",
+      "note": ""
+    },
+    {
+      "source": "backend/shared/PdfProtocol/HttpClients.cs",
+      "target": "backend/shared/PdfProtocol/HttpClients.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f31f9f78b53f05ca04057025a2c5d837c0a9fbefac6890a75e9485773def8763",
+      "note": ""
+    },
+    {
+      "source": "backend/shared/PdfProtocol/InternalPdfKeyAttribute.cs",
+      "target": "backend/shared/PdfProtocol/InternalPdfKeyAttribute.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f14c5d70f9110fee3398f75a233b9df873ff5b8fa83a950c4e9708d06c9e2b7f",
+      "note": ""
+    },
+    {
+      "source": "backend/shared/PdfProtocol/PdfMaintenanceWorker.cs",
+      "target": "backend/shared/PdfProtocol/PdfMaintenanceWorker.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "4c9df912ca0557a18ff087a2ecc30d8a14934c40b2fcc90823b14661f61dd889",
+      "note": ""
+    },
+    {
+      "source": "backend/shared/PdfProtocol/PdfProtocol.csproj",
+      "target": "backend/shared/PdfProtocol/PdfProtocol.csproj",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "architecture",
+      "stage": 0,
+      "sourceSha256": "597a6edd598a4aae6e5d544c12a7724e19f6d7576063716c51c588d36499c11e",
+      "note": ""
+    },
+    {
+      "source": "backend/shared/PdfProtocol/PdfProtocolSettings.cs",
+      "target": "backend/shared/PdfProtocol/PdfProtocolSettings.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "ea3a2b735fc8df4db21c6b3b2413b7aeeac10e9d896f43a997563cf78c638ed6",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Completion/DocumentCompletionEvaluator.cs",
+      "target": "workflows/business/document-service/Completion/DocumentCompletionEvaluator.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "dc9c9558968c6a92e87052caf7e9ae168c5d64932f240b1d8417df871bc241b0",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/DocumentBusinessService.cs",
+      "target": "workflows/business/document-service/DocumentBusinessService.cs",
+      "oldPath": "services/document-service/Services/DocumentBusinessService.cs",
+      "action": "REPLACE",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "39728b739c659f022ca8d13f726f76a694f641695c336c8eaaeac1c611bb40ad",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Editing/V2DistributionRules.cs",
+      "target": "workflows/business/document-service/Editing/V2DistributionRules.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "de2fce05b23bb7532db898ca3ad50f45690c099c9243c823eecbe2d3dc0addf4",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Editing/V2DocumentEditor.cs",
+      "target": "workflows/business/document-service/Editing/V2DocumentEditor.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "6b96f4c9b54d59e09730ca35bcdb90845d2dbbc57e88c15fe5ea9c7fb944b2d8",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Editing/V2DocumentLifecycle.cs",
+      "target": "workflows/business/document-service/Editing/V2DocumentLifecycle.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "6a29a316decb0785687ea5bf364307b76c81f0109d535c75d6f807a1f1465a2a",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Editing/V2EditAuthority.cs",
+      "target": "workflows/business/document-service/Editing/V2EditAuthority.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "9528dd1adf8fac8024aeb48b85908a49c69bf1ed1e30f47f96b6d03964085c24",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Editing/V2KindDetailsMapper.cs",
+      "target": "workflows/business/document-service/Editing/V2KindDetailsMapper.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "1737492112c1aadc12df07c1899b4ab93031db23dbafe7878a55733305f627aa",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Files/CurrentPdfService.cs",
+      "target": "workflows/business/document-service/Files/CurrentPdfService.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "bb835fa7b954820daebb6ebeb2201d4a9bcf47d2739c65d23f9e07d721164959",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Files/PdfAuthority.cs",
+      "target": "workflows/business/document-service/Files/PdfAuthority.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "adb85d1b2de7d94013c3e58aefe618fcf1ee6a40561e806a6de469802b13aa57",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Files/PdfMaintenance.cs",
+      "target": "workflows/business/document-service/Files/PdfMaintenance.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "bf1ae573c2e600bfe3fd73e9116a89fe5c72a467e5958b04894b5972862403a4",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Notifications/ConfiguredNotificationTransport.cs",
+      "target": "workflows/business/document-service/Notifications/ConfiguredNotificationTransport.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "40e3a61e50bb20640eca779803920d12c873b7a6c6c42971d966e79148ea669c",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Notifications/DocumentNotifications.cs",
+      "target": "workflows/business/document-service/Notifications/DocumentNotifications.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "3cfed31ce23ad905081d908c93648ec43f48d0555a5f1009faa94b0b892aaf49",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Numbering/DocumentNumberFormatter.cs",
+      "target": "workflows/business/document-service/Numbering/DocumentNumberFormatter.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "numbering",
+      "stage": 4,
+      "sourceSha256": "200244463d24100ee47ae56661beb0371b95dc6d055cd63d4b964ba3a82e2d26",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Numbering/DocumentRegistrationWriter.cs",
+      "target": "workflows/business/document-service/Numbering/DocumentRegistrationWriter.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "numbering",
+      "stage": 4,
+      "sourceSha256": "d6554bc40462a08f6e44653d4aae1f058ad921cb5b5f596b36b1a950e37f6c45",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Queries/V2DocumentQueries.cs",
+      "target": "workflows/business/document-service/Queries/V2DocumentQueries.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "c868d7b7a8a2f67855ebca50b163e886698ef358d5ec836ad79acddbfee35260",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Queries/V2LifecycleHistory.cs",
+      "target": "workflows/business/document-service/Queries/V2LifecycleHistory.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "9c8bfa1ab311359a853dcba308c7a11caa35da8c13abe480005cda4079f4703f",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Queries/V2LifecycleHistoryParser.cs",
+      "target": "workflows/business/document-service/Queries/V2LifecycleHistoryParser.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "66604f30b97ed031d6c2f3f073985193c260eae0ba433614bcbe12560c52ee1b",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Registration/V2RegistrationService.cs",
+      "target": "workflows/business/document-service/Registration/V2RegistrationService.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f2ac1caa98638eecfdd39d3f51ba90624889cc5723498dd0f020816a884bb775",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Relations/V2DocumentRelations.cs",
+      "target": "workflows/business/document-service/Relations/V2DocumentRelations.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "f30fd44876915340f9b7736a5e5d2dab72ad3e064969a7aefe14ec4bec250a35",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
+      "target": "workflows/business/document-service/Reminders/DurableReminderTransport.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "39da8d4849dd8bee77af824eaf45aa47292efd444208869a3d10ee52231a0c9b",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Reminders/ReminderEligibility.cs",
+      "target": "workflows/business/document-service/Reminders/ReminderEligibility.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "b6971e332cdeab2e91a05ff40b690f6dc94b4b8734e542c96bff136f0a0e200c",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Reminders/WeeklyReminders.cs",
+      "target": "workflows/business/document-service/Reminders/WeeklyReminders.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "e411b13de335ec9eb8f77599307a724b68a01ed611f04ee23f7c93124a611daf",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Reports/IncompleteReports.cs",
+      "target": "workflows/business/document-service/Reports/IncompleteReports.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "49a03e0c4739c89a417e72b3efef950d826fac6f0de4699b6918e704b0895788",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Reports/ReportWorkbook.cs",
+      "target": "workflows/business/document-service/Reports/ReportWorkbook.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "32475de3dd3c1d1884ca8037ed94f05445a505b4d51827a288055c945f6bcdb2",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Tasks/DocumentTasks.cs",
+      "target": "workflows/business/document-service/Tasks/DocumentTasks.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "d8e3d3f4fcd3f206443a0a120ba2c83e9a1acd0d63cfac98c4e717f490e7c81d",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Tasks/MyStaff.cs",
+      "target": "workflows/business/document-service/Tasks/MyStaff.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "4537715800e7083ce53bfa27cb01ba25da41c8f39ed5beba42ec5a23af8eb677",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/document-service/Tasks/MyStaffTasksResult.cs",
+      "target": "workflows/business/document-service/Tasks/MyStaffTasksResult.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "5f80c4a6f18526cec96ea279db4626029d39783634e6b246c6f99f65d03343b4",
+      "note": ""
+    },
+    {
+      "source": "workflows/business/notification-service/DurableNotifications.cs",
+      "target": "workflows/business/notification-service/DurableNotifications.cs",
+      "oldPath": null,
+      "action": "ADD",
+      "group": "workflow chung TV1+TV3",
+      "stage": 3,
+      "sourceSha256": "2ec412a463d8d29009eb9ce318de043178a64632e4297475e41d6077b12d9f95",
+      "note": ""
+    }
+  ]
+}

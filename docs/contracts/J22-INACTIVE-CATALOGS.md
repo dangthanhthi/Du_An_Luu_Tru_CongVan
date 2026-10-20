@@ -1,8 +1,8 @@
 # J22 — Browse danh mục ngừng hoạt động và kích hoạt lại
 
-Trạng thái: **BACKEND_IMPLEMENTED_LOCAL / UI_PENDING**. GET quản trị/options đã có code, HTTP/SQLite58/58 và nativeSQL6/6, review spec/code quality PASS. Frontend/gateway HTTP/browser và nghiệm thu production còn pending.
+Trạng thái ngày09/10/2026: **IMPLEMENTED_LOCAL / BROWSER_VERIFIED**. Backend/options, frontend quản trị và route gateway đã triển khai; kiểm thử HTTP/SQLite, SQL Server, component và browser local đã đạt. Đã thao tác ngừng dùng/kích hoạt lại bằng Enter trên cùng ID/code trong database kiểm thử. Quyền/capability và dữ liệu production vẫn cần nghiệm thu riêng.
 
-## Hiện trạng
+## Hiện trạng trước triển khai
 
 `CatalogService.GetAsync` ở `backend/services/document-service/Services/CatalogService.cs` trả active-only. GET by ID có thể đọc inactive để giải thích công văn lịch sử. PUT quản trị hiện hỗ trợ `name`, `sortOrder`, `isActive`, `version` và optimistic concurrency; thiếu danh sách inactive để tìm và kích hoạt lại. Frontend `catalogApi.getGroup` cố ý từ chối dòng inactive, phải giữ validator này.
 

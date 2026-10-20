@@ -1,15 +1,15 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "DAS J21-J23 additive API draft",
-    "version": "0.1.0-proposed",
-    "description": "Design-only as of 2026-10-08. All five operations below are proposals; no production endpoint or authority integration is enabled by this file."
+    "title": "DAS J21-J23 additive APIs",
+    "version": "1.0.0-local",
+    "description": "Implemented and verified locally on 2026-10-09. Five additive read operations; external production authority, TMS, customer data and UAT remain separate acceptance gates."
   },
-  "x-status": "PROPOSED_CONTRACT_REQUIRED",
+  "x-status": "IMPLEMENTED_LOCAL_BROWSER_VERIFIED",
   "servers": [
     {
       "url": "http://127.0.0.1:8080",
-      "description": "Local preview only; these draft endpoints have not been installed."
+      "description": "Verified local preview; test authority and databases, not production."
     }
   ],
   "paths": {
@@ -59,7 +59,7 @@
             "bearerAuth": []
           }
         ],
-        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "description": "Implemented locally. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
         "responses": {
           "200": {
             "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
@@ -291,7 +291,7 @@
             "bearerAuth": []
           }
         ],
-        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "description": "Implemented locally. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
         "responses": {
           "200": {
             "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
@@ -434,7 +434,7 @@
             "bearerAuth": []
           }
         ],
-        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "description": "Implemented locally. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
         "responses": {
           "200": {
             "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
@@ -604,7 +604,7 @@
             "bearerAuth": []
           }
         ],
-        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "description": "Implemented locally. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
         "responses": {
           "200": {
             "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",
@@ -805,7 +805,7 @@
             "bearerAuth": []
           }
         ],
-        "description": "PROPOSED, not implemented. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
+        "description": "Implemented locally. Unknown/duplicate/blank query values rejected. Read docs/contracts for scope validation, paging invariants, error codes and rollout.",
         "responses": {
           "200": {
             "description": "Valid response. For My Staff, may be explicitly degraded with tasks=null.",

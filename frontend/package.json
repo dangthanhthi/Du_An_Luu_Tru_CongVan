@@ -4,7 +4,7 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "node scripts/generate-prisma.cjs && next dev --webpack -p 3000",
     "build": "node scripts/generate-prisma.cjs && next build --webpack",
     "typecheck": "tsc --noEmit --incremental false",
     "test:api-boundaries": "tsx --test tests/frontend/legacy-auth.test.ts",
