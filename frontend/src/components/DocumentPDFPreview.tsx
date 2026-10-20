@@ -70,11 +70,12 @@ export default function DocumentPDFPreview({
     <>
       <Card className='border border-divider shadow-sm'>
         <CardHeader
+          sx={{ '& .MuiCardHeader-content': { minWidth: 0 } }}
           title={
-            <div className='flex flex-wrap items-center justify-between gap-2'>
-              <div className='flex items-center gap-2'>
-                <i className='tabler-file-type-pdf text-2xl text-error' />
-                <div>
+            <div className='flex min-w-0 flex-wrap items-center justify-between gap-2'>
+              <div className='flex min-w-0 max-w-full items-center gap-2'>
+                <i className='tabler-file-type-pdf shrink-0 text-2xl text-error' />
+                <div className='min-w-0' style={{ overflowWrap: 'anywhere' }}>
                   <Typography variant='subtitle1' className='font-semibold'>
                     {isEn ? 'Real PDF Document Preview' : 'Xem Trước Tệp PDF Thực Tế'}
                   </Typography>
@@ -154,9 +155,9 @@ export default function DocumentPDFPreview({
         PaperProps={{ sx: { height: '90vh' } }}
       >
         <DialogTitle id='pdf-preview-title' className='flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-divider'>
-          <div className='flex items-center gap-2'>
-            <i className='tabler-file-type-pdf text-2xl text-error' />
-            <div>
+          <div className='flex min-w-0 max-w-full items-center gap-2'>
+            <i className='tabler-file-type-pdf shrink-0 text-2xl text-error' />
+            <div className='min-w-0'>
               <Typography variant='h6' className='font-bold' sx={{ overflowWrap: 'anywhere' }}>
                 {docNumber} — {fileName}
               </Typography>
