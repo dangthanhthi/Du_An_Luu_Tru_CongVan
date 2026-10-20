@@ -16,6 +16,7 @@ export type LegacySession = {
     roles: string[]
     departmentId?: string | null
     departmentName?: string | null
+    capabilities?: string[]
   }
 }
 

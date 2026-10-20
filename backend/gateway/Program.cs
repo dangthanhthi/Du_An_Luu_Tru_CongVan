@@ -54,14 +54,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddOcelot(builder.Configuration);
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
 {
-    if (allowedOrigins.Length == 0 && builder.Environment.IsDevelopment())
-        policy.AllowAnyOrigin();
-    else if (allowedOrigins.Length > 0)
-        policy.WithOrigins(allowedOrigins);
-    policy.AllowAnyMethod().AllowAnyHeader();
+    policy.SetIsOriginAllowed(_ => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
 }));
 
 var app = builder.Build();

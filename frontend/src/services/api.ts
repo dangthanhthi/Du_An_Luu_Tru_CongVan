@@ -29,7 +29,7 @@ const machineCode = (value: unknown): value is string => typeof value === 'strin
 function envelopeErrorCode(result: any): string | undefined {
   if (machineCode(result?.code)) return result.code
   if (!Array.isArray(result?.errors)) return undefined
-  const codes = new Set<string>(result.errors.map((error: any) => error?.code).filter(machineCode))
+  const codes = new Set<string>(result.errors.map((error: any) => typeof error === 'string' ? error : error?.code).filter(machineCode))
 
   // Multiple field errors must not be misclassified as one business conflict.
   return codes.size === 1 ? codes.values().next().value : undefined

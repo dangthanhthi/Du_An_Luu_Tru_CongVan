@@ -1,6 +1,6 @@
 import type { SessionIntent } from '../api'
 import { catalogGroups, editableCatalogGroups } from '../../types/das/catalogs'
-import type { CatalogGroup, CatalogItem, CatalogCreate, CatalogEdit, DistributionPage, DistributionTarget } from '../../types/das/catalogs'
+import type { CatalogGroup, CatalogItem, CatalogCreate, CatalogEdit, DistributionPage, DistributionTarget, CatalogAdminQuery, CatalogAdminPage } from '../../types/das/catalogs'
 import { requestApiEnvelope, V2ApiError } from './http'
 
 const guid = (x: unknown): x is string => typeof x === 'string' && /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(x)
@@ -19,6 +19,38 @@ function validEdit(edit: CatalogEdit) {
     throw new V2ApiError(400, 'Tên, thứ tự hoặc trạng thái danh mục không hợp lệ.')
 }
 export const catalogApi = {
+  async getOptions(signal?: AbortSignal): Promise<{ canManage: boolean }> {
+    const { data } = await requestApiEnvelope<unknown>('document', '/api/v2/admin/catalogs/options', { signal, cache: 'no-store' })
+    const options = data as { canManage: boolean } | null
+
+    if (!options || typeof options !== 'object' || Object.keys(options).length !== 1 || typeof options.canManage !== 'boolean') throw invalid()
+    return options
+  },
+  async getAdminPage(query: CatalogAdminQuery, signal?: AbortSignal): Promise<CatalogAdminPage> {
+    const { group } = query
+    const activity = query.activity ?? 'Active', pageNumber = query.pageNumber ?? 1, pageSize = query.pageSize ?? 20
+    const searchTerm = query.searchTerm?.trim() ?? ''
+
+    if (!catalogGroups.includes(group) || !['Active', 'Inactive', 'All'].includes(activity) ||
+      !integer(pageNumber, 1, 1000000) || !integer(pageSize, 1, 100) || searchTerm.length > 200)
+      throw new V2ApiError(400, 'Thông tin tra cứu danh mục không hợp lệ.')
+    const params = new URLSearchParams({ group, activity, pageNumber: String(pageNumber), pageSize: String(pageSize) })
+
+    if (searchTerm) params.set('searchTerm', searchTerm)
+    const { data } = await requestApiEnvelope<unknown>('document', '/api/v2/admin/catalogs?' + params, { signal, cache: 'no-store' })
+    const page = data as CatalogAdminPage | null
+
+    if (!page || page.group !== group || page.activity !== activity || page.pageNumber !== pageNumber || page.pageSize !== pageSize ||
+      !integer(page.totalCount, 0, 2147483647) || !Array.isArray(page.items) || page.items.length > pageSize ||
+      page.canEditGroup !== editableCatalogGroups.includes(group)) throw invalid()
+    const rows = page.items.map(item)
+
+    if (rows.some(x => x.id === '00000000-0000-0000-0000-000000000000' || x.group !== group ||
+      (activity !== 'All' && x.isActive !== (activity === 'Active'))) ||
+      new Set(rows.map(x => x.id.toLowerCase())).size !== rows.length || new Set(rows.map(x => x.code)).size !== rows.length ||
+      rows.length !== Math.min(pageSize, Math.max(0, page.totalCount - (pageNumber - 1) * pageSize))) throw invalid()
+    return page
+  },
   async getGroup(group: CatalogGroup, signal?: AbortSignal): Promise<CatalogItem[]> {
     if (!catalogGroups.includes(group)) throw new V2ApiError(400, 'Nhóm danh mục không hợp lệ.')
     const { data } = await requestApiEnvelope<unknown>('document', '/api/v2/catalogs?groups=' + group, { signal, cache: 'no-store' })

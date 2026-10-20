@@ -45,7 +45,7 @@ const Layout = async (props: ChildrenType & { params: Promise<{ lang: string }> 
 
   return (
     <Providers direction={direction}>
-      <DasSessionBoundary locale={lang}>
+      <DasSessionBoundary locale={lang} mode={systemMode}>
         <AuthGuard locale={lang}>
           <LayoutWrapper
             systemMode={systemMode}
