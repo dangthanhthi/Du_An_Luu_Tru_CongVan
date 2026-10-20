@@ -4,12 +4,13 @@ import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 import { useAppDictionary } from '@/hooks/useDictionary'
 import { documentApi } from '@/services/api'
 import { externalEntityApi } from '@/services/das/external-entities'
 import { isDocumentGuid } from '@/services/das/documents'
 import type { DocumentKind } from '@/types/das/documents'
-export type ReferenceOption = { id: string; name: string }
+export type ReferenceOption = { id: string; name: string; description?: string }
 
 export default function V2ReferencePicker({
   label,
@@ -56,7 +57,9 @@ export default function V2ReferencePicker({
           const { items: rows } = await externalEntityApi.getList({ searchTerm: search, isActive: true, pageSize: 20 }, controller.signal)
 
           if (!rows.every((x: any) => x && isDocumentGuid(x.id) && x.isActive === true && typeof x.fullName === 'string' && x.fullName.trim())) throw new Error(isEn ? 'Invalid partner response payload.' : 'Phản hồi đối tác không hợp lệ.')
-          options = rows.map((x: any) => ({ id: x.id, name: x.fullName }))
+          options = rows.map((x: any) => ({ id: x.id, name: x.fullName,
+            description: [...[x.shortName, x.taxCode, x.address].filter(v => typeof v === 'string' && v.trim()), `ID: ${x.id.slice(-8)}`].join(' · ')
+          }))
         }
         if (!controller.signal.aborted) setResult({ key, options })
       } catch (failure) {
@@ -86,6 +89,11 @@ export default function V2ReferencePicker({
       filterOptions={x => x}
       isOptionEqualToValue={(a, b) => a.id === b.id}
       getOptionLabel={x => x.name}
+      getOptionKey={x => x.id}
+      renderOption={(props, option) => <li {...props} key={option.id}><div>
+        <Typography>{option.name}</Typography>
+        {option.description && <Typography variant='caption' color='text.secondary'>{option.description}</Typography>}
+      </div></li>}
       onInputChange={(_event, text, reason) => { if (reason === 'input' || reason === 'clear') setSearch(text) }}
       onChange={(_event, selected) => onChange(Array.isArray(selected) ? selected : selected ? [selected] : [])}
       renderInput={params => (
@@ -94,7 +102,7 @@ export default function V2ReferencePicker({
           label={label}
           required={required}
           error={error}
-          helperText={helperText}
+          helperText={helperText ?? (!multiple ? value[0]?.description : undefined)}
           placeholder={placeholder}
           InputProps={{
             ...params.InputProps,

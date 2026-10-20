@@ -19,6 +19,8 @@ import type { DocumentKind } from '@/types/das/documents'
 import type { DocumentDetailV2, DocumentFormOptions, KindDetails, RegistrationDraft } from '@/types/das/document-v2'
 import V2ReferencePicker from './V2ReferencePicker'
 import type { ReferenceOption } from './V2ReferencePicker'
+import PrintedPdfPanel from './PrintedPdfPanel'
+import { vietnamToday, matchOrganization } from '@/services/das/pdf-party-suggestions'
 
 type Model = { draft: RegistrationDraft; options: DocumentFormOptions; original?: DocumentDetailV2; external: ReferenceOption[]; sender: ReferenceOption[]; related: ReferenceOption[] }
 
@@ -61,7 +63,7 @@ export default function V2DocumentForm({ id }: { id?: string }) {
         }) : []
         const source = original?.details
         const details: KindDetails = {
-          receivingDate: source?.receivingDate ?? null, senderPartnerId: source?.senderPartnerId ?? null,
+          receivingDate: source?.receivingDate ?? (!original && kind === 'Incoming' ? vietnamToday() : null), senderPartnerId: source?.senderPartnerId ?? null,
           referenceNumber: source?.referenceNumber ?? null, methodCode: source?.methodCode ?? null,
           documentTypeCode: source?.documentTypeCode ?? null, categoryCode: source?.categoryCode ?? null,
           contractNumber: source?.contractNumber ?? null, otherRecipients: source?.otherRecipients ?? null, others: source?.others ?? null,
@@ -207,6 +209,26 @@ export default function V2DocumentForm({ id }: { id?: string }) {
       {!permitted && <Alert severity='warning' className='mbe-4'>{isEn ? 'You do not have permission for this action.' : 'Bạn chưa có quyền thực hiện thao tác này.'}</Alert>}
       {writeError && <Alert severity='error' className='mbe-4'>{writeError}</Alert>}
       <form onSubmit={submit}><Grid container spacing={4}>
+        {!id && draft.kind === 'Incoming' && permitted && <Grid size={{ xs: 12 }}>
+          <PrintedPdfPanel key={`${sessionIntent.epoch}:${key}`} disabled={disabled} distributionTargets={options.distributionTargets} onApply={(result, parties) => {
+            sessionIntent.assertCurrent()
+            setState(previous => {
+              if (previous.key !== key || !previous.model?.options.canRegister || submitting.current) return previous
+              const suggestions = result.suggestions, saved = previous.model.draft
+              const sender = parties?.sender?.status === 'matched' ? parties.sender.option : undefined
+              const receivingIds = [...new Set(parties?.recipients.filter(row => row.status === 'matched').map(row => row.option!.id) ?? [])]
+              return { ...previous, model: { ...previous.model, sender: sender ? [{ id: sender.id, name: sender.name }] : previous.model.sender, draft: { ...saved,
+                subject: suggestions.subject ?? saved.subject, issuedDate: suggestions.issuedDate ?? saved.issuedDate,
+                details: { ...saved.details, referenceNumber: suggestions.referenceNumber ?? saved.details?.referenceNumber,
+                  receivingDate: saved.details?.receivingDate ?? vietnamToday(),
+                  senderPartnerId: sender?.id ?? saved.details?.senderPartnerId,
+                  distributionTargetIds: receivingIds.length ? [...new Set([...(saved.details?.distributionTargetIds ?? []), ...receivingIds])] : saved.details?.distributionTargetIds
+                }
+              } } }
+            })
+          }} />
+          <Alert severity='info' className='mbs-3'>{isEn ? 'After reviewing and registering, attach this PDF on the document detail page. OCR does not register or distribute documents.' : 'Sau khi kiểm tra và đăng ký, gán PDF này ở trang chi tiết công văn. OCR không tự đăng ký hoặc phân phối.'}</Alert>
+        </Grid>}
         {original && <Grid size={{ xs: 12 }}><Typography>{isEn ? 'Document No.' : 'Số công văn'}: {original.header.registrationNumber} · {isEn ? 'Registration Date' : 'Ngày đăng ký'}: {original.header.registrationDate}</Typography></Grid>}
         <Grid size={{ xs: 12, md: 6 }}>{catalog(isEn ? 'Company' : 'Công ty', 'companies', draft.companyCode, v => update({ companyCode: v }), true)}</Grid>
         <Grid size={{ xs: 12, md: 6 }}><TextField fullWidth select label={isEn ? 'Originator / Department' : 'Người gửi / Phòng'} value={targetKey} disabled={disabled} required onChange={e => {
@@ -237,7 +259,7 @@ export default function V2DocumentForm({ id }: { id?: string }) {
           <Grid size={{ xs: 12, md: 6 }}>{field(isEn ? 'Reference Number' : 'Số hiệu đối tác', draft.details?.referenceNumber, v => details({ referenceNumber: v || null }), false, 'text', 200)}</Grid>
           <Grid size={{ xs: 12, md: 6 }}><TextField fullWidth select label={isEn ? 'Distribution Target' : 'Nơi nhận'} disabled={disabled} value={draft.details?.distributionTargetIds ?? []} SelectProps={{ multiple: true }} onChange={e => details({ distributionTargetIds: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value })}>
             {original?.recipients.filter(r => r.referenceType === 'DistributionTarget' && !options.distributionTargets.some(t => t.id === r.referenceId)).map(r => <MenuItem key={r.referenceId} value={r.referenceId}>{r.name} ({isEn ? 'saved' : 'đã lưu'})</MenuItem>)}
-            {options.distributionTargets.map(t => <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>)}
+            {options.distributionTargets.map(t => <MenuItem key={t.id} value={t.id}>{t.name}{matchOrganization(t.name, options.distributionTargets).status === 'ambiguous' ? ` · ID: ${t.id.slice(-8)}` : ''}</MenuItem>)}
           </TextField></Grid>
         </>}
         {draft.kind !== 'Internal' && <Grid size={{ xs: 12, md: 6 }}>{catalog(isEn ? 'Method' : 'Phương thức', 'methods', draft.details?.methodCode, v => details({ methodCode: v || null }), draft.kind === 'Incoming')}</Grid>}

@@ -26,9 +26,13 @@ public sealed class V2DocumentQueries(DocumentDbContext db)
         if(h.Document is null||h.Document.DocType!=h.Kind)throw Missing();
         var pdf=await db.Set<DocumentCurrentPdf>().AsNoTracking().Where(x=>x.DocumentId==id).Select(x=>x.State).SingleOrDefaultAsync(ct)??"None";
         var relations=await new V2DocumentRelations(db).GetRelatedIdsAsync(id,scope.Actor,new(scope.Actor.UserId,scope.ReadableDocumentIds),ct);
-        return new(Row(h,scope.Actor,pdf),h.OriginatorUserId,h.OwnerDepartmentId,h.InputterUserId,h.LastModifierUserId,h.Remark,h.Document.KindDetails,
+        return new(Row(h,scope.Actor,pdf),h.OriginatorUserId,h.OwnerDepartmentId,h.InputterUserId,h.LastModifierUserId,h.Remark,Details(h.Document.KindDetails),
             h.Document.Recipients.OrderBy(x=>x.ReferenceType).ThenBy(x=>x.ReferenceId).Select(x=>new V2RecipientRow(x.ReferenceType,x.ReferenceId,x.NameSnapshot)).ToArray(),relations,pdf);
     }
+    private static V2KindDetailsView? Details(DocumentKindDetails? d) => d is null ? null : new(
+        d.DocumentId, d.ReceivingDate, d.SenderPartnerId, d.SenderNameSnapshot, d.ReferenceNumber,
+        d.MethodCode, d.MethodNameSnapshot, d.DocumentTypeCode, d.DocumentTypeNameSnapshot,
+        d.CategoryCode, d.CategoryNameSnapshot, d.ContractNumber, d.OtherRecipients, d.Others);
     private static V2DocumentRow Row(DocumentRegistration h,V2EditorActor actor,string? pdfState)
     {
         var d=h.Document!;if(d.Status is not ("InProgress" or "Distributed" or "Cancelled"))throw new DocumentRegistrationRuleException(409,"REGISTRATION_INCONSISTENT","Invalid stored status.");

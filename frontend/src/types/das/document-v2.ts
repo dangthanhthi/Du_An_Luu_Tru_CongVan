@@ -1,6 +1,7 @@
 import type { DocumentKind, DocumentListItem, DocumentStatus } from './documents'
+// Writable fields mirror DocumentService.V2KindDetailsDraft; server snapshots are read-only.
 export type KindDetails = {
-  receivingDate?: string | null; senderPartnerId?: string | null; senderNameSnapshot?: string | null
+  receivingDate?: string | null; senderPartnerId?: string | null
   referenceNumber?: string | null; methodCode?: string | null; documentTypeCode?: string | null
   categoryCode?: string | null; contractNumber?: string | null; otherRecipients?: string | null; others?: string | null
   recipientPartnerIds?: string[]; distributionTargetIds?: string[]
@@ -11,8 +12,9 @@ export type RegistrationDraft = {
   details?: KindDetails | null; relatedDocumentIds?: string[]
 }
 // Labels are historical server snapshots, separate from editable codes.
-export type ReadKindDetails = KindDetails & {
-  methodNameSnapshot?: string | null; documentTypeNameSnapshot?: string | null; categoryNameSnapshot?: string | null
+export type ReadKindDetails = Omit<KindDetails, 'recipientPartnerIds' | 'distributionTargetIds'> & {
+  senderNameSnapshot?: string | null; methodNameSnapshot?: string | null
+  documentTypeNameSnapshot?: string | null; categoryNameSnapshot?: string | null
 }
 export type EditDraft = Omit<RegistrationDraft, 'kind' | 'relatedDocumentIds'> & {
   expectedVersion: number; relations?: { addedIds: string[]; removedIds: string[] }

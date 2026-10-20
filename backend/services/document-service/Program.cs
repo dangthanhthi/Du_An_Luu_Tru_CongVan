@@ -84,6 +84,7 @@ builder.Services.AddScoped<CurrentPdfService>();builder.Services.AddScoped<IPdfA
 builder.Services.AddScoped<IDocumentV2Authority,UnavailableDocumentV2Authority>();
 builder.Services.AddScoped<V2RegistrationService>();builder.Services.AddScoped<V2DocumentEditor>();
 builder.Services.AddScoped<V2DocumentLifecycle>();builder.Services.AddScoped<V2DocumentQueries>();
+builder.Services.AddScoped<V2LifecycleHistory>();
 builder.Services.AddScoped<IPdfMaintenance,PdfMaintenance>();
 if(PdfProtocolSettings.MaintenanceEnabled(builder.Configuration,builder.Environment,"Files"))builder.Services.AddHostedService<PdfMaintenanceWorker>();
 builder.Services.AddScoped<CatalogService>();
@@ -114,7 +115,10 @@ using (var scope = app.Services.CreateScope())
             throw new InvalidOperationException("Apply document-service SQL migrations separately before starting this service.");
     }
     else
+    {
         await SqliteG1Upgrade.ApplyAsync(db, database.Initialize);
+        await DemoDocumentSeed.SeedAsync(db);
+    }
 }
 
 // Private API responses include authentication/authorization middleware replies.

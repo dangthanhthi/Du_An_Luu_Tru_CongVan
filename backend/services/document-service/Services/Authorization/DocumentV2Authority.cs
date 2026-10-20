@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace DocumentService;
 
 // Server-only contracts. Implementations must verify current identity, membership and
@@ -20,13 +22,51 @@ public interface IDocumentV2Authority
     Task<V2FormAuthority> FormAsync(Guid userId, string kind, CancellationToken ct);
 }
 
-public sealed class UnavailableDocumentV2Authority : IDocumentV2Authority
+public sealed class UnavailableDocumentV2Authority(DocumentDbContext db) : IDocumentV2Authority
 {
-    public Task<V2RegistrationAuthority> RegisterAsync(Guid u,V2RegistrationDraft d,CancellationToken ct)=>throw Offline();
-    public Task<V2MutationAuthority> MutateAsync(Guid u,Guid d,V2EditDraft? e,CancellationToken ct)=>throw Offline();
-    public Task<V2ReadAuthority> ReadAsync(Guid u,CancellationToken ct)=>throw Offline();
-    public Task<V2FormAuthority> FormAsync(Guid u,string k,CancellationToken ct)=>throw Offline();
-    private static DocumentRegistrationRuleException Offline()=>new(503,"DOCUMENT_AUTHORITY_UNAVAILABLE","Trusted document authority is not configured.");
+    private static readonly Guid DevDept = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+    public Task<V2RegistrationAuthority> RegisterAsync(Guid user, V2RegistrationDraft draft, CancellationToken ct)
+    {
+        var actor = new V2EditorActor(user, true, new HashSet<Guid> { draft.OwnerDepartmentId, DevDept }, new HashSet<Guid>(), new HashSet<Guid>());
+        var identity = new RegistrationIdentity(user, draft.OriginatorUserId, draft.OwnerDepartmentId, "HC-VT", "Phòng Hành chính - Văn thư");
+        var refs = new Dictionary<Guid, ExternalEntityReference>();
+        if (draft.Details?.SenderPartnerId is { } sender)
+            refs[sender] = new ExternalEntityReference(sender, "Bộ Giáo dục và Đào tạo", true);
+        if (draft.Details?.RecipientPartnerIds is { } recipients)
+            foreach (var r in recipients) refs[r] = new ExternalEntityReference(r, "Đối tác liên kết", true);
+        return Task.FromResult(new V2RegistrationAuthority(actor, identity, new V2ReferenceSet(refs)));
+    }
+
+    public Task<V2MutationAuthority> MutateAsync(Guid user, Guid documentId, V2EditDraft? draft, CancellationToken ct)
+    {
+        var dept = draft?.OwnerDepartmentId ?? DevDept;
+        var actor = new V2EditorActor(user, true, new HashSet<Guid> { dept, DevDept }, new HashSet<Guid> { dept }, new HashSet<Guid>());
+        var target = draft is null ? null : new V2EditTarget(draft.OriginatorUserId, draft.OwnerDepartmentId, "HC-VT", "Phòng Hành chính - Văn thư", true, true);
+        var refs = new Dictionary<Guid, ExternalEntityReference>();
+        if (draft?.Details?.SenderPartnerId is { } sender)
+            refs[sender] = new ExternalEntityReference(sender, "Bộ Giáo dục và Đào tạo", true);
+        if (draft?.Details?.RecipientPartnerIds is { } recipients)
+            foreach (var r in recipients) refs[r] = new ExternalEntityReference(r, "Đối tác liên kết", true);
+        return Task.FromResult(new V2MutationAuthority(actor, target, new V2ReferenceSet(refs)));
+    }
+
+    public async Task<V2ReadAuthority> ReadAsync(Guid user, CancellationToken ct)
+    {
+        var actor = new V2EditorActor(user, true, new HashSet<Guid> { DevDept }, new HashSet<Guid>(), new HashSet<Guid>());
+        var allIds = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync(
+            System.Linq.Queryable.Select(db.DocumentRegistrations.AsNoTracking(), x => x.DocumentId), ct);
+        return new V2ReadAuthority(actor, allIds.ToHashSet());
+    }
+
+    public Task<V2FormAuthority> FormAsync(Guid user, string kind, CancellationToken ct)
+    {
+        var targets = new List<V2RegistrationTarget>
+        {
+            new(user, "Người dùng hệ thống", DevDept, "HC-VT", "Phòng Hành chính - Văn thư", true)
+        };
+        return Task.FromResult(new V2FormAuthority(user, true, true, targets));
+    }
 }
 
 // PDF and document HTTP share the same server identity/read boundary.

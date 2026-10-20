@@ -5,9 +5,9 @@ export type PdfInfo = { fileId: string; originalName: string; sizeBytes: number;
 export type UploadedPdf = { id: string; originalName: string; state: string; canAttach: boolean }
 const invalid = () => new ApiRequestError(502, 'Phản hồi PDF không hợp lệ.')
 export const documentPdfApi = {
-  async uploadInfo(fileId: string): Promise<UploadedPdf> {
+  async uploadInfo(fileId: string, signal?: AbortSignal): Promise<UploadedPdf> {
     if (!isDocumentGuid(fileId)) throw new ApiRequestError(400, 'Định danh tệp không hợp lệ.')
-    const { data } = await requestApiEnvelope<unknown>('files', `/api/files/${fileId}/info`, { cache: 'no-store' })
+    const { data } = await requestApiEnvelope<unknown>('files', `/api/files/${fileId}/info`, { signal, cache: 'no-store' })
     const x = data as UploadedPdf | null
 
     if (!x || x.id !== fileId || !['Available', 'PendingScan', 'Rejected', 'Missing', 'Failed'].includes(x.state) || typeof x.canAttach !== 'boolean' || typeof x.originalName !== 'string') throw invalid()
