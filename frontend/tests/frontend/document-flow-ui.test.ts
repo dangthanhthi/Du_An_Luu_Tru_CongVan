@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { ApiRequestError } from '../../src/services/api'
 import { componentHarness, nodes, textContent } from './helpers/component-harness'
+import { vietnamToday, matchOrganization } from '../../src/services/das/pdf-party-suggestions'
 
 const tick = () => new Promise(resolve => setImmediate(resolve))
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(r => { resolve = r }); return { promise, resolve } }
@@ -29,7 +30,7 @@ function formFixture(kind = 'Internal', original?: any, register?: (...args: any
     'next/navigation': { useRouter: () => ({ push: (url: string) => routes.push(url), back() {} }), useParams: () => ({ lang: 'en' }),
       useSearchParams: () => ({ get: () => kind, getAll: () => [kind] }) },
     '@/services/das/documents': { documentsV2Api: api }, '@/services/api': { ApiRequestError },
-    './V2ReferencePicker': { default: 'ReferencePicker' }
+    './V2ReferencePicker': { default: 'ReferencePicker' }, './PrintedPdfPanel': { default: 'PrintedPdfPanel' }, '@/services/das/pdf-party-suggestions': { vietnamToday, matchOrganization }
   }, { crypto: { randomUUID: () => `request-${++uuid}` }, window: { dispatchEvent() {} }, Event })
   const render = () => ui.render(original ? { id: documentId } : {})
   const set = (label: string, value: string) => {
@@ -63,6 +64,43 @@ test('Incoming missing sender stops submission and exposes the picker error', as
   assert.equal(nodes(f.render()).find(n => n.props.label === 'Sender Entity')!.props.error, true)
   f.ui.unmount()
 })
+
+test('Incoming OCR only applies selected suggestions and does not register a document', async () => {
+  const f = formFixture('Incoming'); await tick()
+  const panel = nodes(f.render()).find(n => n.type === 'PrintedPdfPanel')!
+  assert.ok(panel)
+  panel.props.onApply({ suggestions: { subject: 'Printed subject', referenceNumber: '456/TEST', issuedDate: '2026-10-13' } })
+  assert.equal(nodes(f.render()).find(n => n.props.label === 'Subject')!.props.value, 'Printed subject')
+  assert.equal(nodes(f.render()).find(n => n.props.label === 'Reference Number')!.props.value, '456/TEST')
+  assert.equal(nodes(f.render()).find(n => n.props.label === 'Issued Date')!.props.value, '2026-10-13')
+  assert.equal(f.calls.length, 0); assert.equal(f.routes.length, 0)
+  f.ui.unmount()
+})
+test('Incoming receiving date defaults to today and a user change survives applying OCR', async () => {
+  const f = formFixture('Incoming'); await tick()
+  assert.equal(nodes(f.render()).find(n=>n.props.label==='Receiving Date')!.props.value, vietnamToday())
+  f.set('Receiving Date', '2026-10-01')
+  nodes(f.render()).find(n=>n.type==='PrintedPdfPanel')!.props.onApply({suggestions:{subject:null,referenceNumber:null,issuedDate:null}})
+  assert.equal(nodes(f.render()).find(n=>n.props.label==='Receiving Date')!.props.value,'2026-10-01');f.ui.unmount()
+})
+test('manual apply fills unique catalog identities, while missing or ambiguous suggestions preserve manual choices', async () => {
+  const f=formFixture('Incoming');await tick()
+  const result={suggestions:{subject:null,referenceNumber:null,issuedDate:null}}
+  nodes(f.render()).find(n=>n.type==='PrintedPdfPanel')!.props.onApply(result,{sender:{status:'matched',name:'OCR sender',option:{id:'sender-one',name:'Known sender'}},recipients:[{status:'matched',name:'IT',option:{id:'target-one',name:'IT'}}]})
+  assert.equal(nodes(f.render()).find(n=>n.props.label==='Sender Entity')!.props.value[0].id,'sender-one')
+  assert.deepEqual(Array.from(nodes(f.render()).find(n=>n.props.label==='Distribution Target')!.props.value),['target-one'])
+  nodes(f.render()).find(n=>n.type==='PrintedPdfPanel')!.props.onApply(result,{sender:{status:'ambiguous',name:'OCR sender'},recipients:[{status:'missing',name:'Unknown'}]})
+  assert.equal(nodes(f.render()).find(n=>n.props.label==='Sender Entity')!.props.value[0].id,'sender-one')
+  assert.deepEqual(Array.from(nodes(f.render()).find(n=>n.props.label==='Distribution Target')!.props.value),['target-one'])
+  assert.equal(f.calls.length,0);f.ui.unmount()
+})
+test('partial OCR receiving matches do not drop a manually selected unit', async()=>{
+  const f=formFixture('Incoming');await tick()
+  nodes(f.render()).find(n=>n.props.label==='Distribution Target')!.props.onChange({target:{value:['manual-unit']}})
+  nodes(f.render()).find(n=>n.type==='PrintedPdfPanel')!.props.onApply({suggestions:{subject:null,referenceNumber:null,issuedDate:null}},{recipients:[{status:'matched',name:'IT',option:{id:'known-unit',name:'IT'}},{status:'missing',name:'Unknown'}]})
+  assert.deepEqual(Array.from(nodes(f.render()).find(n=>n.props.label==='Distribution Target')!.props.value),['manual-unit','known-unit'])
+  f.ui.unmount()
+})
 test('Ambiguous registration retry preserves request key and body, without a false navigation', async () => {
   let attempts = 0
   const f = formFixture('Internal', undefined, async () => { if (++attempts === 1) throw new ApiRequestError(0, 'Lost response'); return { id: documentId } })
@@ -90,16 +128,16 @@ test('Two submit events before a render dispatch only one registration request',
   finally { reply.resolve({ id: documentId }); await Promise.all([first, second]); f.ui.unmount() }
 })
 
-function detailFixture(initial = saved(), failure?: ApiRequestError) {
+function detailFixture(initial = saved(), failure?: ApiRequestError, readFailure?: ApiRequestError) {
   let data = initial
   const mutations: any[][] = []
   const ui = componentHarness(new URL('../../src/views/apps/documents/detail/index.tsx', import.meta.url), {
     '@/hooks/useSessionIntent': { useSessionIntent: () => ({ assertCurrent() {} }) },
     '@/hooks/useDictionary': { useAppDictionary: () => ({ isEn: true }) },
     'next/navigation': { useParams: () => ({ lang: 'en' }) }, 'next/link': { default: 'Link' },
-    '@/services/api': { ApiRequestError }, '../V2PdfPanel': { default: 'PdfPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
+    '@/services/api': { ApiRequestError }, '../V2PdfPanel': { default: 'PdfPanel' }, '@/views/apps/history/HistoryPanel': { default: 'HistoryPanel' }, '../DocumentTaskPanel': { default: 'TaskPanel' },
     '@/services/das/documents': { documentsV2Api: {
-      detail: async () => data,
+      detail: async () => { if (readFailure) throw readFailure; return data },
       status: async (...args: any[]) => {
         mutations.push(args.slice(0, 4)); if (failure) throw failure
         data = { ...data, header: { ...data.header, version: data.header.version + 1, status: args[2] === 'Cancel' ? 'Cancelled' : 'Distributed' } }
@@ -114,6 +152,22 @@ function detailFixture(initial = saved(), failure?: ApiRequestError) {
   render(); ui.commit()
   return { ui, render, button, mutations }
 }
+
+test('Detail decoder failure keeps independent server-authorized lifecycle history available', async () => {
+  const f = detailFixture(saved(), undefined, new ApiRequestError(502, 'Unsafe legacy version'))
+  await tick()
+  assert.ok(textContent(f.render()).includes('Failed to load document'))
+  assert.equal(nodes(f.render()).find(n => n.type === 'HistoryPanel')?.props.id, documentId)
+  assert.equal(nodes(f.render()).some(n => n.type === 'PdfPanel'), false)
+  assert.equal(f.mutations.length, 0)
+  f.ui.unmount()
+})
+for (const status of [401, 403, 404]) test(`Detail ${status} does not mount private lifecycle history`, async () => {
+  const f = detailFixture(saved(), undefined, new ApiRequestError(status, 'Denied'))
+  await tick()
+  assert.equal(nodes(f.render()).some(n => n.type === 'HistoryPanel'), false)
+  f.ui.unmount()
+})
 test('Detail distribute, cancel and restore use each authoritative reloaded version', async () => {
   const f = detailFixture(); await tick()
   await f.button('Distribute').props.onClick(); f.render(); f.ui.commit(); await tick()

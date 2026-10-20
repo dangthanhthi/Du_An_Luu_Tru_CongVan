@@ -9,12 +9,17 @@ const entry = { id: 'catalog-fixture', group: 'methods', code: 'EMAIL', name: 'E
 function fixture(overrides: any = {}, manage = true) {
   const calls: any[] = []
   const api = {
+    getOptions: async () => ({ canManage: manage }),
     getGroup: async (group: string) => group === 'methods' ? [entry] : [],
     getById: async () => ({ ...entry, version: 8, name: 'Authoritative name' }),
     create: async (...args: any[]) => { calls.push({ mode: 'create', args }); return entry },
     update: async (...args: any[]) => { calls.push({ mode: 'update', args }); return { ...entry, version: 8 } },
     ...overrides
   }
+  Object.assign(api, { getAdminPage: async (q: any, signal: AbortSignal) => {
+    const items = await api.getGroup(q.group, signal)
+    return { ...q, items, totalCount: items.length, canEditGroup: editableCatalogGroups.includes(q.group) }
+  } })
   const ui = componentHarness(new URL('../../src/views/apps/settings/BusinessCatalogs.tsx', import.meta.url), {
     '@/hooks/useSessionIntent': { useSessionIntent: () => ({ assertCurrent() {} }) },
     '@/hooks/useDictionary': { useAppDictionary: () => ({ isEn: true }) },
@@ -27,14 +32,14 @@ function fixture(overrides: any = {}, manage = true) {
   const render = () => ui.render()
   const button = (label: string) => nodes(render()).find(n => n.type === 'Button' && textContent(n) === label)!
   const set = (label: string, value: string) => nodes(render()).find(n => n.props.label === label)!.props.onChange({ target: { value } })
-  const submit = () => nodes(render()).find(n => n.type === 'Box' && n.props.component === 'form')!.props.onSubmit({ preventDefault() {} })
+  const submit = () => nodes(render()).find(n => n.type === 'Box' && n.props.component === 'form' && nodes(n).some(x => x.type === 'DialogContent'))!.props.onSubmit({ preventDefault() {} })
   render(); ui.commit()
-  const methods = async () => { nodes(render()).find(n => n.type === 'Tabs')!.props.onChange(null, 'methods'); render(); ui.commit(); await tick() }
+  const methods = async () => { nodes(render()).find(n => n.type === 'Tabs')!.props.onChange(null, 'methods'); render(); ui.commit(); await tick(); render(); ui.commit(); await tick() }
   return { ui, render, button, set, submit, calls, methods }
 }
 
 test('Catalog fixed groups and a reader never expose the create control', async () => {
-  const f = fixture(); await tick()
+  const f = fixture(); await tick(); f.render(); f.ui.commit(); await tick()
   assert.ok(textContent(f.render()).includes('fixed in this release'))
   assert.equal(f.button('Add entry'), undefined)
   f.ui.unmount()
@@ -70,6 +75,7 @@ test('Catalog duplicate create remains editable while stale update requires a se
   f.submit(); await tick()
   assert.equal(f.button('Save').props.disabled, true)
   f.button('Reload data').props.onClick(); await tick()
+  f.render(); f.ui.commit(); await tick()
   assert.equal(f.button('Save').props.disabled, false)
   assert.equal(nodes(f.render()).find(n => n.props.label === 'Name')!.props.value, 'Authoritative name')
   f.ui.unmount()
@@ -80,6 +86,7 @@ test('Catalog request ownership aborts the old group and cannot reveal its late 
   const pending = new Promise(r => { resolve = r })
   const signals: AbortSignal[] = []
   const f = fixture({ getGroup: (group: string, signal: AbortSignal) => { signals.push(signal); return group === 'companies' ? pending : Promise.resolve([entry]) } })
+  await tick(); f.render(); f.ui.commit()
   await f.methods(); assert.equal(signals[0].aborted, true)
   resolve([{ ...entry, name: 'Stale private name' }]); await tick()
   assert.ok(!textContent(f.render()).includes('Stale private name'))

@@ -194,7 +194,8 @@
       ],
       "UpstreamPathTemplate": "/api/auth/login",
       "UpstreamHttpMethod": [
-        "POST"
+        "POST",
+        "OPTIONS"
       ],
       "Priority": 100
     },
@@ -209,7 +210,8 @@
       ],
       "UpstreamPathTemplate": "/api/auth/refresh",
       "UpstreamHttpMethod": [
-        "POST"
+        "POST",
+        "OPTIONS"
       ],
       "Priority": 100
     },

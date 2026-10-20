@@ -92,7 +92,9 @@ export default function AddPartnerDrawer({ original, canManage, onClose, onSaved
   return <Drawer open anchor='right' onClose={() => { if (!busy) onClose() }} slotProps={{ paper: { 'aria-labelledby': 'das-partner-editor-title' } }} sx={{ '& .MuiDrawer-paper': { width: { xs: '100%', sm: 460 }, p: 4 } }}>
     <Typography id='das-partner-editor-title' variant='h5' className='mbe-4'>{original ? (isEn ? 'Partner Information' : 'Thông tin đơn vị') : (isEn ? 'Add External Partner' : 'Thêm đơn vị ngoài')}</Typography>
     {error && <Alert severity='error' className='mbe-4'>{error}</Alert>}
-    {uncertain && <Alert severity='warning' className='mbe-4'>{isEn ? 'Creation result is uncertain due to connection timeout. Close and reload list to verify before creating again; entered content is retained here.' : 'Chưa xác định được kết quả tạo. Đóng và tải lại danh sách để kiểm tra trước khi tạo lại; nội dung đã nhập vẫn giữ ở đây.'}</Alert>}
+    {uncertain && <Alert severity='warning' className='mbe-4'>{latest
+      ? (isEn ? 'The update result is unknown. Discard changes and reload the current version to verify before editing again; entered content is retained until reload.' : 'Chưa xác định được kết quả cập nhật. Bỏ thay đổi và tải lại phiên bản hiện tại để kiểm tra trước khi sửa tiếp; nội dung đã nhập được giữ đến khi tải lại.')
+      : (isEn ? 'The creation result is unknown. Close and reload the list to verify before creating again; entered content is retained here.' : 'Chưa xác định được kết quả tạo. Đóng và tải lại danh sách để kiểm tra trước khi tạo lại; nội dung đã nhập vẫn giữ ở đây.')}</Alert>}
     {!canManage && <Alert severity='info' className='mbe-4'>{isEn ? 'You have read-only access to this directory.' : 'Bạn có quyền xem danh mục.'}</Alert>}
     <form onSubmit={submit} className='flex flex-col gap-4'>
       {fields.map(([name, label, max]) => <TextField key={name} label={label} autoFocus={name === 'fullName'} required={name === 'fullName'}

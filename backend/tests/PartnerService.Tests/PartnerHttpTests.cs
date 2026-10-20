@@ -117,7 +117,7 @@ public sealed class PartnerHttpTests
     internal static Task<HttpResponseMessage> Change(HttpClient c,Guid id,string method,long version)=>c.SendAsync(new(new HttpMethod(method),$"/api/partners/{id}"){Content=JsonContent.Create(new{expectedVersion=version})});
     internal static async Task<JsonElement> Data(HttpResponseMessage r,HttpStatusCode status=HttpStatusCode.OK)
     {Assert.Equal(status,r.StatusCode);Assert.Equal("no-store",r.Headers.CacheControl?.ToString());using var j=JsonDocument.Parse(await r.Content.ReadAsStringAsync());return j.RootElement.GetProperty("data").Clone();}
-    internal sealed class Host:WebApplicationFactory<PartnerBusinessService>
+    internal sealed class Host(Microsoft.EntityFrameworkCore.Diagnostics.DbCommandInterceptor? interceptor=null):WebApplicationFactory<PartnerBusinessService>
     {
         internal const string Key="Partner-http-test-only-key-not-a-live-credential";
         internal readonly Guid Actor=Guid.NewGuid();
@@ -126,6 +126,7 @@ public sealed class PartnerHttpTests
         {
             Directory.CreateDirectory(root);b.UseEnvironment("Development");b.UseSetting("Database:InitializeOnStartup","true");
             b.UseSetting("ConnectionStrings:Default","Data Source="+Path.Combine(root,"test.db"));b.UseSetting("Jwt:Secret",Key);
+            if(interceptor is not null)b.ConfigureServices(s=>s.AddDbContext<PartnerDbContext>(o=>o.AddInterceptors(interceptor)));
         }
         internal HttpClient Client(bool manage,string role="Admin",bool subject=true)
         {

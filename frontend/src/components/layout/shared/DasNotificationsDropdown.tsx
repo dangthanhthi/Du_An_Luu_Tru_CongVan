@@ -93,8 +93,11 @@ export default function DasNotificationsDropdown() {
   useEffect(() => {
     void fetchNotifications(page)
     const timer = setInterval(() => void fetchNotifications(page), 60000)
+    const refreshFromDashboard = () => void fetchNotifications(pageRef.current)
+    if (typeof window !== 'undefined') window.addEventListener('das_notifications_updated', refreshFromDashboard)
     return () => {
       clearInterval(timer)
+      if (typeof window !== 'undefined') window.removeEventListener('das_notifications_updated', refreshFromDashboard)
       if (abortCtrlRef.current) {
         abortCtrlRef.current.abort()
       }

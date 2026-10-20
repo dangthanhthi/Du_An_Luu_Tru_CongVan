@@ -1,6 +1,6 @@
 # J23 — Timeline đối tác, deep link và lịch sử hủy công văn
 
-Trạng thái: **PROPOSED / CONTRACT_REQUIRED**. Chỉ đề xuất endpoint đọc; không thêm snapshot/migration trong lượt này.
+Trạng thái ngày09/10/2026: **IMPLEMENTED_LOCAL / BROWSER_VERIFIED**. Hai endpoint đọc, deep link đối tác và timeline công văn đã triển khai trên audit hiện có; không thêm migration hoặc snapshot giả. HTTP/SQLite, SQL Server, component và gateway local đã kiểm chứng. Browser xác nhận lý do từng chu kỳ, Unicode dài, HTML được escape, VI/EN và màn hình hẹp. Dữ liệu legacy/authority production vẫn cần nghiệm thu riêng.
 
 ## Bằng chứng hiện có trong database
 
@@ -18,7 +18,7 @@ Trang sau gửi lại throughVersion; event mới có version cao hơn không l�
 
 Order theo cột số Version DESC, Id ASC trong database; không sort chuỗi version ở client (chuỗi "10" không đứng trước "9" khi dùng thứ tự từ điển). Lọc, count, items trên cùng watermark. Không đổi hoặc xóa audit đã phát hành qua API này. Không có event trùng ID hoặc version trong cùng entity khi schema yêu cầu unique. Version thiếu giữa các event là hợp lệ (một số thay đổi có kênh audit riêng); không tự chèn event lấp khoảng trống.
 
-Timestamp UTC ISO8601; DateTime lưu legacy chưa biết timezone không tự gắn Z: trả history dependency error cho dòng đó hoặc nguồn chưa xác minh theo một contract riêng đã review. Không trả thành công bằng cách bỏ mất event lỗi.
+Timestamp UTC ISO8601 kết thúc bằng Z. Đã xác minh writer đối tác dùng DateTime.UtcNow; SQL datetime2/SQLite không giữ DateTimeKind nên query khôi phục Kind.Utc theo nguồn writer đã kiểm chứng. Dữ liệu nhập từ nguồn legacy khác vẫn cần xác minh timezone trước import; không tự gắn Z cho nguồn chưa được xác minh. Không bỏ mất event lỗi rồi trả thành công. Document audit yêu cầu offset0 trước khi xuất UTC.
 
 ## Đối tác
 

@@ -1,12 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 namespace DocumentService;
-public sealed class DocumentNotificationDelivery
-{
-    public Guid Id{get;set;}=Guid.NewGuid();public Guid EventId{get;set;}public Guid RecipientId{get;set;}
-    public string State{get;set;}="Pending";public int Attempts{get;set;}public long NextAttemptUnix{get;set;}public long LeaseUntilUnix{get;set;}public Guid? LeaseToken{get;set;}
-    public string PayloadJson{get;set;}="";public long Version{get;set;}=1;
-}
 public sealed record DocumentNotificationMessage(Guid RecipientUserId,string? RecipientEmail,string Subject,string Body,Guid? RelatedDocumentId,string NotificationType,string? ActionUrl);
 // Adapter supplies active recipients AND current audience grants. No global role inference.
 public interface IDocumentNotificationAudience

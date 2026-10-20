@@ -14,13 +14,6 @@ public static class WeeklyReminderSchedule
     }
     public static DateTimeOffset ScheduledAt(DateOnly period)=>new(period.ToDateTime(new TimeOnly(8,0)),TimeSpan.FromHours(7));
 }
-public sealed class ReminderBatch
-{
-    public Guid Id {get;set;}=Guid.NewGuid();public Guid DepartmentId {get;set;}public DateOnly Period {get;set;}
-    public string State {get;set;}="Planned";public string PayloadJson {get;set;}="";
-    public DateTimeOffset CreatedAt {get;set;}public long LeaseUntilUnix {get;set;}public Guid? LeaseToken {get;set;}
-    public int Attempts {get;set;}public long Version {get;set;}=1;public string? ErrorCode {get;set;}
-}
 public sealed record ReminderPerson(Guid UserId,bool IsActive,string? Email);
 public sealed record ReminderDirectory(Guid DepartmentId,ReportAuthority Scope,IReadOnlyList<ReminderPerson> People,IReadOnlyList<ReminderPerson> Leaders);
 public interface IReminderDirectory

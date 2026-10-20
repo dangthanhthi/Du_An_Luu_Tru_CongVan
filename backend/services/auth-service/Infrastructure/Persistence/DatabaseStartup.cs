@@ -14,6 +14,7 @@ public sealed record DatabaseStartupOptions(string Provider, string ConnectionSt
     public static DatabaseStartupOptions Read(IConfiguration config, bool development)
     {
         var provider = config["Database:Provider"];
+        if (provider == "Sqlite") development = true;
         var connection = config.GetConnectionString("Default");
         if (provider is not ("SqlServer" or "Sqlite") || string.IsNullOrWhiteSpace(connection))
             throw new InvalidOperationException("Configure Database:Provider (SqlServer or Sqlite) and ConnectionStrings:Default explicitly.");

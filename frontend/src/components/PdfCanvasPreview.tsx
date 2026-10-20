@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Alert, Button, CircularProgress, Stack, Typography } from '@mui/material'
-import type { PDFDocumentProxy, PDFDocumentLoadingTask, RenderTask } from 'pdfjs-dist'
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import { useAppDictionary } from '@/hooks/useDictionary'
-import { loadPdfDocument } from './pdf/loadPdfDocument'
+import { acquirePdfDocument } from './pdf/loadPdfDocument'
 
 export default function PdfCanvasPreview({ url }: { url: string }) {
   const { isEn } = useAppDictionary()
@@ -19,21 +19,15 @@ export default function PdfCanvasPreview({ url }: { url: string }) {
 
   useEffect(() => {
     let alive = true
-    let task: PDFDocumentLoadingTask | undefined
+    const lease = acquirePdfDocument(url)
 
     setFailure(undefined); setPage(1); setRendered('')
-    loadPdfDocument(url).then(value => {
-      task = value
-      const ready = value.promise.then(document => {
-        if (alive) setLoaded({ url, pdf: document })
-      })
-
-      if (!alive) void value.destroy().catch(() => {})
-      return ready
+    lease.promise.then(document => {
+      if (alive) setLoaded({ url, pdf: document })
     }).catch(error => {
       if (alive) setFailure({ url, password: error?.name === 'PasswordException' })
     })
-    return () => { alive = false; void task?.destroy().catch(() => {}) }
+    return () => { alive = false; lease.release() }
   }, [url])
 
   useEffect(() => {

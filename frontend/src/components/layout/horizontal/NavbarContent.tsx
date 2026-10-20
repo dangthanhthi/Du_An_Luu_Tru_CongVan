@@ -38,9 +38,9 @@ const NavbarContent = () => {
 
   return (
     <div
-      className={classnames(horizontalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}
+      className={classnames(horizontalLayoutClasses.navbarContent, 'flex flex-wrap items-center justify-between gap-x-2 gap-y-1 is-full')}
     >
-      <div className='flex items-center gap-4'>
+      <div className='flex shrink-0 items-center gap-2'>
         <NavToggle />
         {/* Hide Logo on Smaller screens */}
         {!isBreakpointReached && (
@@ -50,7 +50,7 @@ const NavbarContent = () => {
         )}
       </div>
 
-      <div className='flex items-center'>
+      <div className='flex min-w-0 flex-wrap items-center justify-end'>
         <NavSearch />
         <LanguageDropdown />
         <ModeDropdown />

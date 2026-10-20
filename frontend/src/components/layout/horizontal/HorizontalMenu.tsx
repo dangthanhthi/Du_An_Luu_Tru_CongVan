@@ -81,6 +81,13 @@ const HorizontalMenu = ({ dictionary }: Props) => {
       switchToVertical
       verticalNavContent={VerticalNavContent}
       verticalNavProps={{
+        id: 'das-navigation',
+        inert: verticalNavOptions.isBreakpointReached && !verticalNavOptions.isToggled ? true : undefined,
+        'aria-hidden': verticalNavOptions.isBreakpointReached && !verticalNavOptions.isToggled ? true : undefined,
+        role: verticalNavOptions.isBreakpointReached && verticalNavOptions.isToggled ? 'dialog' : undefined,
+        'aria-modal': verticalNavOptions.isBreakpointReached && verticalNavOptions.isToggled ? true : undefined,
+        'aria-label': locale === 'en' ? 'Main navigation' : 'Điều hướng chính',
+        backdropLabel: locale === 'en' ? 'Close navigation' : 'Đóng điều hướng',
         customStyles: verticalNavigationCustomStyles(verticalNavOptions, theme),
         backgroundColor: 'var(--mui-palette-background-paper)'
       }}

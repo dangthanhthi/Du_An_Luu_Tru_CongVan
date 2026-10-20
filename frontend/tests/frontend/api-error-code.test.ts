@@ -3,6 +3,32 @@ import { test } from 'node:test'
 import { apiContext } from './helpers/api-context'
 import { FixtureLocks, MemoryStorage, seedSession } from './helpers/session-fixture'
 
+for (const errors of [['INVALID_PDF'], ['INVALID_PDF', { code: 'INVALID_PDF' }]]) {
+  test(`Files controller string errors preserve INVALID_PDF: ${JSON.stringify(errors)}`, async () => {
+    const storage = new MemoryStorage(); seedSession(storage)
+    const api = apiContext(storage, new FixtureLocks(), async () => Response.json({ success: false, data: null,
+      message: 'The PDF is malformed, encrypted or outside the supported page limit.', errors }, { status: 422 }))
+    await assert.rejects(api.requestApiEnvelope('files', '/api/files/upload'), error => {
+      assert.ok(error instanceof api.ApiRequestError)
+      assert.equal(error.code, 'INVALID_PDF')
+      assert.equal(error.status, 422)
+      return true
+    })
+  })
+}
+
+for (const errors of [['INVALID_PDF', { code: 'VALIDATION_FAILED' }], ['<private diagnostic>']]) {
+  test(`Ambiguous or invalid Files string errors do not become one machine code: ${JSON.stringify(errors)}`, async () => {
+    const storage = new MemoryStorage(); seedSession(storage)
+    const api = apiContext(storage, new FixtureLocks(), async () => Response.json({ success: false, errors }, { status: 422 }))
+    await assert.rejects(api.requestApiEnvelope('files', '/fixture'), error => {
+      assert.ok(error instanceof api.ApiRequestError)
+      assert.equal(error.code, undefined)
+      return true
+    })
+  })
+}
+
 for (const code of ['PARTNER_DUPLICATE', 'PARTNER_VERSION_CONFLICT', 'PARTNER_STATE_CONFLICT']) {
   test(`API preserves ${code} from controller errors without relying on message text`, async () => {
     const storage = new MemoryStorage(); seedSession(storage)

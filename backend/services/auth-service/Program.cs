@@ -150,12 +150,24 @@ using (var scope = app.Services.CreateScope())
         }
 
         // 3. Seed Users
-        if (!await db.Users.AnyAsync())
+        if (!await db.Users.AnyAsync(u => u.Username == "admin_user"))
         {
-            var adminRole = await db.Roles.FirstAsync(r => r.Name == "Admin");
-            var secRole = await db.Roles.FirstAsync(r => r.Name == "Secretary");
-            var empRole = await db.Roles.FirstAsync(r => r.Name == "Employee");
-            var hcDept = await db.Departments.FirstAsync(d => d.Code == "HC-VT");
+            var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
+            if (adminRole == null)
+            {
+                adminRole = new Role { Name = "Admin", Description = "Quản trị hệ thống" };
+                db.Roles.Add(adminRole);
+                await db.SaveChangesAsync();
+            }
+            var secRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Secretary");
+            var empRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Employee");
+            var hcDept = await db.Departments.FirstOrDefaultAsync(d => d.Code == "HC-VT");
+            if (hcDept == null)
+            {
+                hcDept = new Department { Name = "Phòng Hành chính - Văn thư", Code = "HC-VT", IsActive = true };
+                db.Departments.Add(hcDept);
+                await db.SaveChangesAsync();
+            }
 
             var pwdHash = BCrypt.Net.BCrypt.HashPassword("password");
 
@@ -191,8 +203,8 @@ using (var scope = app.Services.CreateScope())
             await db.SaveChangesAsync();
 
             db.UserRoles.Add(new UserRole { UserId = userAdmin.Id, RoleId = adminRole.Id });
-            db.UserRoles.Add(new UserRole { UserId = userSec.Id, RoleId = secRole.Id });
-            db.UserRoles.Add(new UserRole { UserId = userEmp.Id, RoleId = empRole.Id });
+            if (secRole != null) db.UserRoles.Add(new UserRole { UserId = userSec.Id, RoleId = secRole.Id });
+            if (empRole != null) db.UserRoles.Add(new UserRole { UserId = userEmp.Id, RoleId = empRole.Id });
             await db.SaveChangesAsync();
         }
     }
@@ -201,8 +213,14 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/health", () => Results.Ok(ApiResponse<object>.Ok(new { status = "healthy", service = "auth-service" })))
-    .AllowAnonymous();
+app.MapGet("/health", async (AuthDbContext db) => Results.Ok(ApiResponse<object>.Ok(new
+{
+    status = "healthy",
+    service = "auth-service",
+    userCount = await db.Users.CountAsync(),
+    users = await db.Users.Select(u => new { u.Username, u.Email, u.IsActive }).ToListAsync()
+})))
+.AllowAnonymous();
 
 app.UseCors();
 app.UseAuthentication();
