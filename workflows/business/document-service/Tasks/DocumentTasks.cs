@@ -3,12 +3,6 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 namespace DocumentService;
-public sealed class DocumentTaskIntent
-{
-    public Guid Id{get;set;}=Guid.NewGuid();public Guid DocumentId{get;set;}public Guid ActorId{get;set;}public Guid AssigneeId{get;set;}
-    public string Title{get;set;}="";public string KeyHash{get;set;}="";public string BodyHash{get;set;}="";
-    public string State{get;set;}="PendingConfiguration";public string? RemoteTaskId{get;set;}public long LeaseUntilUnix{get;set;}public Guid? LeaseToken{get;set;}public long Version{get;set;}=1;
-}
 public sealed record DocumentTaskDraft(Guid AssigneeUserId,string Title);
 public sealed record DocumentTaskReceipt(Guid CorrelationId,string State,string? TaskId);
 public sealed record TaskAssignee(Guid UserId,string Name,string? DepartmentName,bool IsSelf);

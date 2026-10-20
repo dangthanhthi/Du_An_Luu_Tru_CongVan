@@ -24,7 +24,7 @@ export default function DocumentTaskPanel({ documentId }: { documentId: string }
   const mounted = useRef(false), inFlight = useRef(false)
 
   const labels: Record<TaskState, string> = {
-    PendingConfiguration: isEn ? 'Pending TMS Configuration' : 'Chờ kết nối TMS',
+    PendingConfiguration: isEn ? 'Awaiting TMS configuration or user mapping' : 'Chờ cấu hình TMS hoặc ánh xạ tài khoản',
     Preparing: isEn ? 'Awaiting Confirmation' : 'Đang chờ xác nhận',
     UnknownOutcome: isEn ? 'Outcome Unknown — Reconciliation Required' : 'Chưa rõ kết quả — cần đối soát',
     Linked: isEn ? 'Task Created' : 'Đã tạo task',
@@ -97,9 +97,11 @@ export default function DocumentTaskPanel({ documentId }: { documentId: string }
   const canCreate = !busy && !loading && !!options && !!history && !error && !pending && !history.hasPending
   return <Card><CardHeader title={isEn ? 'Document Tasks' : 'Task của công văn'} /><CardContent>
     <Typography className='mbe-4'>{isEn ? 'Assign tasks to yourself or managed personnel. Document and PDF access permissions are verified separately.' : 'Giao task cho bản thân hoặc nhân sự thuộc phạm vi quản lý. Quyền xem công văn và PDF được kiểm tra riêng.'}</Typography>
+    <Typography variant='body2' className='mbe-4'>{isEn ? 'Request status describes the integration request, not the task business status or progress in TMS. Pending requests do not mean a task has been created.' : 'Trạng thái yêu cầu phản ánh việc gửi sang TMS, không phải trạng thái hay tiến độ xử lý task. Yêu cầu đang chờ chưa có nghĩa là task đã được tạo.'}</Typography>
     {error && <Alert severity='warning' className='mbe-4'>{error}</Alert>}
     {loading && <CircularProgress size={24} aria-label={isEn ? 'Loading task requests' : 'Đang tải yêu cầu task'} />}
-    {receipt && <Alert severity={receipt.state === 'Linked' ? 'success' : 'info'} className='mbe-4'>{labels[receipt.state]}{receipt.taskId ? `: ${receipt.taskId}` : ''}</Alert>}
+    {busy && <Typography role='status' aria-live='polite' className='mbe-4'>{isEn ? 'Sending request — please wait for confirmation.' : 'Đang gửi yêu cầu — vui lòng chờ xác nhận.'}</Typography>}
+    {receipt && <Alert severity={receipt.state === 'Linked' ? 'success' : receipt.state === 'UnknownOutcome' || receipt.state === 'Rejected' ? 'warning' : 'info'} className='mbe-4'>{labels[receipt.state]}{receipt.taskId ? `: ${receipt.taskId}` : ''}</Alert>}
     {pending && <Alert severity='warning' className='mbe-4'>{isEn ? `Pending confirmation request: ${pending.draft.title}. Verify using same request ID; content is retained after reload.` : `Có yêu cầu đang chờ xác nhận: ${pending.draft.title}. Kiểm tra lại bằng cùng mã yêu cầu; nội dung được giữ nguyên sau tải lại trang.`}</Alert>}
     {history?.hasPending && !pending && <Alert severity='info' className='mbe-4'>{isEn ? 'There are incomplete requests. Reconnect or reconcile requests below before creating more.' : 'Có yêu cầu chưa hoàn tất. Thử kết nối lại hoặc đối soát yêu cầu bên dưới trước khi tạo thêm.'}</Alert>}
     {options && <div className='flex flex-col gap-4 mbe-4'>
